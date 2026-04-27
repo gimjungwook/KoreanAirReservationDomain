@@ -52,6 +52,9 @@ public class PaymentPanel extends JPanel {
     }
 
     private void buildContent() {
+        setOpaque(true);
+        setBackground(ModernUI.BACKGROUND);
+
         JPanel card = new JPanel(new GridBagLayout());
         card.setBackground(ModernUI.CARD_BG);
         card.setBorder(BorderFactory.createCompoundBorder(

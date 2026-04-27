@@ -37,6 +37,11 @@ public class MainFrame extends JFrame {
     private final StateBadge stateBadge = new StateBadge();
     private final JPanel headerPanel = new JPanel(new BorderLayout());
 
+    {
+        cards.setOpaque(true);
+        cards.setBackground(ModernUI.BACKGROUND);
+    }
+
     private final AuthService authService;
     private final FlightSearchService flightSearch;
     private final BookingController booking;
@@ -95,10 +100,13 @@ public class MainFrame extends JFrame {
 
     private void buildHeader() {
         headerPanel.setBackground(ModernUI.PRIMARY);
+        headerPanel.setOpaque(true);
         headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
+        JPanel leftPanel = new JPanel();
         leftPanel.setBackground(ModernUI.PRIMARY);
+        leftPanel.setOpaque(true);
+        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(14, 24, 14, 0));
 
         JLabel logo = new JLabel("✈", SwingConstants.CENTER);
@@ -117,14 +125,12 @@ public class MainFrame extends JFrame {
         leftPanel.add(title);
         leftPanel.add(subtitle);
 
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 0));
+        JPanel rightPanel = new JPanel();
         rightPanel.setBackground(ModernUI.PRIMARY);
+        rightPanel.setOpaque(true);
+        rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 16, 0));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 20));
-
-        JPanel badgeWrapper = new JPanel(new BorderLayout());
-        badgeWrapper.setBackground(ModernUI.PRIMARY);
-        badgeWrapper.add(stateBadge, BorderLayout.NORTH);
-        rightPanel.add(badgeWrapper);
+        rightPanel.add(stateBadge);
 
         headerPanel.add(leftPanel, BorderLayout.WEST);
         headerPanel.add(rightPanel, BorderLayout.EAST);

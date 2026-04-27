@@ -21,6 +21,7 @@ public class StateBadge extends JPanel {
     public StateBadge() {
         super(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         setBackground(ModernUI.PRIMARY);
+        setOpaque(true);
         setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 
         for (int i = 0; i < STATES.length; i++) {
