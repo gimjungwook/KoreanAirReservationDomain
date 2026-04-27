@@ -120,14 +120,10 @@ flowchart LR
     Domain --> Refund[취소 · 환불 처리]
 ```
 
-- <span style="color:red">발표에서는 위 구조를 기준으로 설명한다.</span>
+
 - <span style="color:red">사용자는 비회원과 Skypass 회원으로 나뉜다.</span>
-- <span style="color:red">Boundary 계층은 Swing UI와 콘솔 UI를 통해 같은 Control 계층에 연결된다.</span>
 - <span style="color:red">핵심 도메인은 항공편 검색, 예약 진행, 운임 검증, 결제, 발권, 취소·환불로 이어지는 항공권 예약 생애주기다.</span>
 
-- <span style="color:red">웹 애플리케이션이 아니라 Java 데스크톱 애플리케이션을 선택했다.</span>
-- <span style="color:red">이유는 시러버스의 "the result should be developed using Java application (not Web)" 제약을 충족하기 위해서다.</span>
-- <span style="color:red">시연은 Swing UI를 중심으로 하되, 개발 및 검증 편의를 위해 콘솔 프런트엔드도 병행한다.</span>
 
 ### <span style="color:red">1.2 A팀 (3명)</span>
 
@@ -154,14 +150,8 @@ flowchart LR
 
 ## 📊 2. Feature Inventory (Form #1)
 
-- 이 챕터는 설계프로젝트 #2(반복개발 실습) 첫 번째 제안 제출물에 들어가는 Feature Inventory다.
-- 두 번째 프로젝트는 설계프로젝트 #1에서 완성한 UML 모델을 자바 데스크톱 앱으로 구현하는 과정이다.
-- 2-3회의 리팩토링 iteration과 3-7개의 디자인 패턴을 통해 점진적으로 개선한다.
-- 이 챕터가 그 출발점이다.
-
 - 기능은 두 단계 계층(Category > Sub-feature)으로 정리된다.
 - 각 sub-feature에는 주로 어느 iteration(1 / 2 / 3 / 4)에 구현될지 표기한다.
-- 숫자는 주된 구현 시점이다.
 - 이후 iteration에서도 리팩토링과 패턴 적용을 통해 계속 다듬어진다.
 
 > - <span style="color:red">**헤더 라벨 변경.** 아래 표 3번째 컬럼을 `i`에서 `구현 iteration (1 / 2 / 3 / 4)`로 풀어 표기한다.</span>
@@ -742,44 +732,8 @@ stateDiagram-v2
 | <span style="color:red">`domain.user`</span> | <span style="color:red">Actor 엔티티</span> | <span style="color:red">`User`, `Member`, `Admin`, `GuestBookingRequester`</span> |
 | <span style="color:red">`tools`</span> | <span style="color:red">AmaterasUML 에미터</span> | <span style="color:red">`GenerateUseCaseDiagram`, `GenerateClassDiagram`, `GenerateSequenceDiagrams`, `GenerateStateDiagrams`</span> |
 
-### <span style="color:red">6.3 State 패턴 구현 방식</span>
 
-- <span style="color:red">State 패턴은 GoF 기술서가 명명한 세 역할에 그대로 매핑된다.</span>
-- <span style="color:red">구현은 Context, 디폴트 동작, 구상 상태의 3단 위임 구조다.</span>
-
-- <span style="color:red">**Context — `Reservation`.** `Reservation`은 `currentState : ReservationState` 필드를 가진다.</span>
-- <span style="color:red">생성자에서 `new InitiatedState()`로 초기화된다.</span>
-- <span style="color:red">모든 생애주기 이벤트는 `enterPassengerInfo`, `processPayment`, `handlePaymentFailure` 같은 public 메서드로 노출된다.</span>
-- <span style="color:red">각 메서드는 즉시 현재 상태 객체에 위임한다.</span>
-- <span style="color:red">`Reservation` 자체에는 생애주기 이벤트에 대한 `if (status == X)` 분기가 없다.</span>
-
-- <span style="color:red">`Reservation`은 단일 `setState(ReservationState next)` 메서드로 전이를 수행한다.</span>
-- <span style="color:red">설계상 이 메서드는 상태 구현체 내부에서만 호출되어야 한다.</span>
-- <span style="color:red">외부에서 직접 호출하면 State 패턴의 불변식이 깨진다.</span>
-- <span style="color:red">이 규약은 `Reservation` Javadoc과 코드 리뷰로 보강한다.</span>
-
-- <span style="color:red">**디폴트 동작 — `AbstractReservationState`.** 추상 기반 클래스는 반복되는 거부 전이 코드를 한 곳에 모은다.</span>
-- <span style="color:red">모든 생애주기 메서드는 기본적으로 `InvalidStateTransitionException`을 throw한다.</span>
-- <span style="color:red">구상 상태는 자신이 허용하는 전이만 override하면 된다.</span>
-- <span style="color:red">나머지 전이는 자동으로 거부된다.</span>
-
-- <span style="color:red">**구상 상태들.** 8개 구상 상태 클래스가 8개 생애주기 상태에 대응한다.</span>
-- <span style="color:red">그중 3개가 iteration 1에서 실제 동작을 수행한다.</span>
-
-- <span style="color:red">**`InitiatedState`**는 `enterPassengerInfo(ctx)`를 override하여 상태를 `PendingPaymentState`로 설정한다.</span>
-- <span style="color:red">**`PendingPaymentState`**는 `processPayment(ctx)`를 override하여 `ConfirmedState`로 전이한다.</span>
-- <span style="color:red">**`PendingPaymentState`**는 `handlePaymentFailure(ctx)`를 override하여 `CancelledState`로 전이한다.</span>
-- <span style="color:red">**`ConfirmedState`**는 iteration 1 happy path의 종료 상태다.</span>
-
-- <span style="color:red">나머지 후반 상태는 iteration 2-4에서 본격적으로 채워진다.</span>
-- <span style="color:red">iteration 1 발표에서는 발권, 취소, 환불 상태를 주요 설명 대상에서 제외한다.</span>
-
-- <span style="color:red">**왜 레거시 enum이 살아남는가.** 이전 설계는 `ReservationStatus` enum을 사용했다.</span>
-- <span style="color:red">기존 메서드와 보고용 쿼리가 이 enum을 읽을 수 있다.</span>
-- <span style="color:red">호출자를 깨뜨리지 않기 위해 상태 전이 시 enum도 함께 동기화한다.</span>
-- <span style="color:red">State 객체가 전이의 진리원이고, enum은 read-only view로 남는다.</span>
-
-### <span style="color:red">6.4 Iteration 1 핵심 클래스</span>
+### <span style="color:red">6.3 Iteration 1 핵심 클래스</span>
 
 | <span style="color:red">클래스</span> | <span style="color:red">ECB 역할</span> | <span style="color:red">책임</span> | <span style="color:red">핵심 메서드</span> |
 | --- | --- | --- | --- |
@@ -794,7 +748,7 @@ stateDiagram-v2
 | <span style="color:red">`PaymentGatewayInterface` (mock: `MockPaymentGateway`)</span> | <span style="color:red">Boundary</span> | <span style="color:red">외부 결제 사업자 어댑터; 데모용 mock은 `true` 반환.</span> | <span style="color:red">`authorize(Payment)`</span> |
 | <span style="color:red">`ReservationUI` (impls: `ConsoleReservationUI`, `SwingReservationUI`)</span> | <span style="color:red">Boundary</span> | <span style="color:red">사용자 입력 진입점; 입력 수집 후 `BookingController`로 전달.</span> | <span style="color:red">`displaySearchResults(...)`, `displayBookingConfirmation(...)`, `displayError(...)`</span> |
 
-### <span style="color:red">6.5 Iteration 1 한계 (의도적)</span>
+### <span style="color:red">6.4 Iteration 1 한계 (의도적)</span>
 
 - <span style="color:red">walking skeleton은 끝까지 동작한다.</span>
 - <span style="color:red">하지만 iteration 2에서 명시적으로 닫을 여러 corner가 있다.</span>
@@ -806,7 +760,7 @@ stateDiagram-v2
 - <span style="color:red">**`RefundPolicy` family, `GDSInterface`, `Itinerary`, `Segment`, `SkypassMember`, `Guest`는 현재 설계 stub다.**</span>
 - <span style="color:red">**Observer, `AppConfig` singleton, `ItineraryFactory`는 아직 코드베이스에 존재하지 않는다.**</span>
 
-### <span style="color:red">🔮 6.6 다음 Iteration 개요</span>
+### <span style="color:red">🔮 6.5 다음 Iteration 개요</span>
 
 > [!TIP]
 > 🔮 **발표 단계 3 / 3** — 다음 주에 무엇을 구현할지 (마무리 슬라이드)
