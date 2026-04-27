@@ -12,6 +12,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -446,18 +449,44 @@ public class SearchPanel extends JPanel {
 
             add(centerPanel, BorderLayout.CENTER);
 
+            BigDecimal lowestPrice = null;
+            String cabinLabel = "이코노미";
+            NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+
+            if (flight != null) {
+                List<com.koreanair.reservation.domain.flight.Fare> fares = flight.getFares();
+                if (fares != null && !fares.isEmpty()) {
+                    for (com.koreanair.reservation.domain.flight.Fare f : fares) {
+                        BigDecimal p = f.getBasePrice();
+                        if (p != null && (lowestPrice == null || p.compareTo(lowestPrice) < 0)) {
+                            lowestPrice = p;
+                        }
+                        if (f.getCabinClass() != null) {
+                            switch (f.getCabinClass()) {
+                                case ECONOMY: cabinLabel = "이코노미"; break;
+                                case PREMIUM_ECONOMY: cabinLabel = "프리미엄 이코노미"; break;
+                                case BUSINESS: cabinLabel = "비즈니스"; break;
+                                case FIRST: cabinLabel = "일등"; break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            String priceText = lowestPrice != null ? nf.format(lowestPrice.longValue()) : "---";
+
             JPanel pricePanel = new JPanel();
             pricePanel.setLayout(new BoxLayout(pricePanel, BoxLayout.Y_AXIS));
             pricePanel.setBackground(ModernUI.CARD_BG);
             pricePanel.setOpaque(true);
             pricePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 16));
-            JLabel priceLbl = new JLabel("450,000");
+            JLabel priceLbl = new JLabel(priceText);
             priceLbl.setFont(new Font("System", Font.BOLD, 20));
             priceLbl.setForeground(ModernUI.PRIMARY);
             JLabel currencyLbl = new JLabel("KRW");
             currencyLbl.setFont(ModernUI.FONT_SMALL);
             currencyLbl.setForeground(ModernUI.PRIMARY);
-            JLabel cabinLbl = new JLabel("이코노미");
+            JLabel cabinLbl = new JLabel(cabinLabel);
             cabinLbl.setFont(ModernUI.FONT_SMALL);
             cabinLbl.setForeground(ModernUI.TEXT_SECONDARY);
             pricePanel.add(priceLbl);
