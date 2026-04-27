@@ -1,7 +1,6 @@
 package com.koreanair.reservation.app.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -13,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import com.koreanair.reservation.control.BookingController;
 import com.koreanair.reservation.domain.flight.FareRule;
@@ -47,70 +45,93 @@ public class PaymentPanel extends JPanel {
         this.booking = booking;
         this.ui = ui;
         setBackground(ModernUI.BACKGROUND);
-
+        setOpaque(true);
         buildContent();
     }
 
     private void buildContent() {
-        setOpaque(true);
-        setBackground(ModernUI.BACKGROUND);
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(ModernUI.BACKGROUND);
+        centerPanel.setOpaque(true);
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
 
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(ModernUI.CARD_BG);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
-                BorderFactory.createEmptyBorder(28, 36, 28, 36)));
-        card.setOpaque(true);
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(8, 8, 8, 8);
+        c.insets = new Insets(6, 6, 6, 6);
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
+        c.anchor = GridBagConstraints.NORTHWEST;
         c.weightx = 1.0;
 
         JLabel stepLabel = new JLabel("STEP 3");
         stepLabel.setFont(ModernUI.FONT_SMALL);
         stepLabel.setForeground(ModernUI.PRIMARY);
-        stepLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+        stepLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        stepLabel.setOpaque(false);
         c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
-        card.add(stepLabel, c);
+        centerPanel.add(stepLabel, c);
 
         JLabel title = new JLabel("결제");
         title.setFont(ModernUI.FONT_HEADING);
         title.setForeground(ModernUI.TEXT_PRIMARY);
-        c.gridy = 1;
-        card.add(title, c);
+        title.setOpaque(false);
+        c.gridy = 1; c.gridwidth = 2;
+        centerPanel.add(title, c);
 
+        JPanel formCard = new JPanel(new GridBagLayout());
+        formCard.setBackground(ModernUI.CARD_BG);
+        formCard.setOpaque(true);
+        formCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
+                BorderFactory.createEmptyBorder(20, 24, 20, 24)));
+
+        c.gridwidth = 1;
         c.gridy = 2; c.gridx = 0;
+        c.insets = new Insets(4, 4, 4, 4);
         JLabel pnrH = new JLabel("예약 번호 (PNR)");
         pnrH.setFont(ModernUI.FONT_SMALL);
         pnrH.setForeground(ModernUI.TEXT_SECONDARY);
-        card.add(pnrH, c);
+        pnrH.setOpaque(false);
+        formCard.add(pnrH, c);
+
         c.gridx = 1;
         pnrLabel.setFont(new java.awt.Font("Monaco", java.awt.Font.PLAIN, 15));
         pnrLabel.setForeground(ModernUI.PRIMARY);
-        card.add(pnrLabel, c);
+        pnrLabel.setOpaque(false);
+        formCard.add(pnrLabel, c);
 
         c.gridy = 3; c.gridx = 0;
         JLabel amountH = new JLabel("결제 금액");
         amountH.setFont(ModernUI.FONT_SMALL);
         amountH.setForeground(ModernUI.TEXT_SECONDARY);
-        card.add(amountH, c);
+        amountH.setOpaque(false);
+        formCard.add(amountH, c);
+
         c.gridx = 1;
         amountLabel.setFont(ModernUI.FONT_HEADING);
         amountLabel.setForeground(ModernUI.TEXT_PRIMARY);
-        card.add(amountLabel, c);
+        amountLabel.setOpaque(false);
+        formCard.add(amountLabel, c);
 
         c.gridy = 4; c.gridx = 0;
         JLabel methodH = new JLabel("결제 수단");
         methodH.setFont(ModernUI.FONT_SMALL);
         methodH.setForeground(ModernUI.TEXT_SECONDARY);
-        card.add(methodH, c);
-        c.gridx = 1;
-        methodCombo.setPreferredSize(new Dimension(260, 36));
-        methodCombo.setFont(ModernUI.FONT_BODY);
-        card.add(methodCombo, c);
+        methodH.setOpaque(false);
+        formCard.add(methodH, c);
 
-        add(card, BorderLayout.CENTER);
+        c.gridx = 1;
+        methodCombo.setFont(ModernUI.FONT_BODY);
+        formCard.add(methodCombo, c);
+
+        c.gridy = 5; c.gridx = 0; c.gridwidth = 2;
+        c.anchor = GridBagConstraints.EAST;
+        ModernUI.styleButtonSuccess(payButton);
+        payButton.addActionListener(e -> doPay());
+        formCard.add(payButton, c);
+
+        c.gridy = 2; c.gridx = 0; c.gridwidth = 1; c.anchor = GridBagConstraints.NORTHWEST;
+        centerPanel.add(formCard, c);
+
+        add(centerPanel, BorderLayout.CENTER);
 
         JPanel footer = new JPanel(new BorderLayout());
         footer.setBackground(ModernUI.CARD_BG);
@@ -124,15 +145,11 @@ public class PaymentPanel extends JPanel {
         ModernUI.styleButtonSecondary(backButton);
         rightBtns.add(backButton);
 
-        ModernUI.styleButtonSuccess(payButton);
-        rightBtns.add(payButton);
-
         footer.add(rightBtns, BorderLayout.EAST);
         footer.setPreferredSize(new Dimension(0, 52));
         add(footer, BorderLayout.SOUTH);
 
         backButton.addActionListener(e -> frame.showPassenger());
-        payButton.addActionListener(e -> doPay());
     }
 
     public void prepare(Reservation reservation, FareRule fareRule) {

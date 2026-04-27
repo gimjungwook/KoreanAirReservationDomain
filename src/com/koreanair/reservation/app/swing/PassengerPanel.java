@@ -1,7 +1,6 @@
 package com.koreanair.reservation.app.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -13,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import com.koreanair.reservation.control.BookingController;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
@@ -45,86 +43,120 @@ public class PassengerPanel extends JPanel {
         this.booking = booking;
         this.ui = ui;
         setBackground(ModernUI.BACKGROUND);
-
+        setOpaque(true);
         buildContent();
     }
 
     private void buildContent() {
-        JPanel card = new JPanel(new GridBagLayout());
-        ModernUI.styleCard(card);
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(ModernUI.BACKGROUND);
+        centerPanel.setOpaque(true);
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
+
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(8, 8, 8, 8);
+        c.insets = new Insets(6, 6, 6, 6);
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1.0;
 
         JLabel stepLabel = new JLabel("STEP 2");
         stepLabel.setFont(ModernUI.FONT_SMALL);
         stepLabel.setForeground(ModernUI.PRIMARY);
-        stepLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+        stepLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        stepLabel.setOpaque(false);
         c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
-        card.add(stepLabel, c);
+        centerPanel.add(stepLabel, c);
 
         JLabel title = new JLabel("승객 정보 입력");
         title.setFont(ModernUI.FONT_HEADING);
         title.setForeground(ModernUI.TEXT_PRIMARY);
-        c.gridy = 1;
-        card.add(title, c);
+        title.setOpaque(false);
+        c.gridy = 1; c.gridwidth = 2;
+        centerPanel.add(title, c);
+
+        JPanel formCard = new JPanel(new GridBagLayout());
+        formCard.setBackground(ModernUI.CARD_BG);
+        formCard.setOpaque(true);
+        formCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
+                BorderFactory.createEmptyBorder(20, 24, 20, 24)));
+
+        c.gridwidth = 1;
+        c.gridy = 2; c.gridx = 0; c.insets = new Insets(4, 4, 4, 4);
 
         JLabel flightLabel = new JLabel("선택 항공편");
         flightLabel.setFont(ModernUI.FONT_SMALL);
         flightLabel.setForeground(ModernUI.TEXT_SECONDARY);
-        c.gridy = 2; c.gridx = 0; c.gridwidth = 1;
-        card.add(flightLabel, c);
+        flightLabel.setOpaque(false);
+        formCard.add(flightLabel, c);
+
         c.gridx = 1;
         flightInfoLabel.setFont(ModernUI.FONT_BODY);
         flightInfoLabel.setForeground(ModernUI.PRIMARY);
-        card.add(flightInfoLabel, c);
+        flightInfoLabel.setOpaque(false);
+        formCard.add(flightInfoLabel, c);
 
-        c.gridwidth = 1;
         c.gridy = 3; c.gridx = 0;
-        card.add(new JLabel("이름 (Name)"), c);
+        JLabel nameLabel = new JLabel("이름 (Name)");
+        nameLabel.setFont(ModernUI.FONT_SMALL);
+        nameLabel.setForeground(ModernUI.TEXT_SECONDARY);
+        nameLabel.setOpaque(false);
+        formCard.add(nameLabel, c);
+
         c.gridx = 1;
         ModernUI.styleTextField(nameField);
-        card.add(nameField, c);
+        formCard.add(nameField, c);
 
         c.gridy = 4; c.gridx = 0;
-        card.add(new JLabel("여권번호 (Passport)"), c);
+        JLabel passportLabel = new JLabel("여권번호 (Passport)");
+        passportLabel.setFont(ModernUI.FONT_SMALL);
+        passportLabel.setForeground(ModernUI.TEXT_SECONDARY);
+        passportLabel.setOpaque(false);
+        formCard.add(passportLabel, c);
+
         c.gridx = 1;
         ModernUI.styleTextField(passportField);
-        card.add(passportField, c);
+        formCard.add(passportField, c);
 
         c.gridy = 5; c.gridx = 0;
-        card.add(new JLabel("생년월일 (YYYY-MM-DD)"), c);
+        JLabel birthLabel = new JLabel("생년월일 (YYYY-MM-DD)");
+        birthLabel.setFont(ModernUI.FONT_SMALL);
+        birthLabel.setForeground(ModernUI.TEXT_SECONDARY);
+        birthLabel.setOpaque(false);
+        formCard.add(birthLabel, c);
+
         c.gridx = 1;
         ModernUI.styleTextField(birthField);
-        card.add(birthField, c);
+        formCard.add(birthField, c);
 
-        JPanel centerWrap = new JPanel(new GridBagLayout());
-        centerWrap.setBackground(ModernUI.BACKGROUND);
-        c.gridx = 0; c.gridy = 0;
-        centerWrap.add(card, c);
+        c.gridy = 6; c.gridx = 0; c.gridwidth = 2;
+        c.anchor = GridBagConstraints.EAST;
+        ModernUI.styleButton(nextButton);
+        nextButton.addActionListener(e -> doNext());
+        formCard.add(nextButton, c);
 
-        add(centerWrap, BorderLayout.CENTER);
+        c.gridy = 2; c.gridx = 0; c.gridwidth = 1; c.anchor = GridBagConstraints.NORTHWEST;
+        centerPanel.add(formCard, c);
+
+        add(centerPanel, BorderLayout.CENTER);
 
         JPanel footer = new JPanel(new BorderLayout());
         footer.setBackground(ModernUI.CARD_BG);
+        footer.setOpaque(true);
         footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, ModernUI.BORDER));
 
-        JPanel rightBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 8));
+        JPanel rightBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         rightBtns.setBackground(ModernUI.CARD_BG);
+        rightBtns.setOpaque(true);
 
         ModernUI.styleButtonSecondary(backButton);
         rightBtns.add(backButton);
 
-        ModernUI.styleButton(nextButton);
-        rightBtns.add(nextButton);
-
         footer.add(rightBtns, BorderLayout.EAST);
-        footer.setPreferredSize(new Dimension(0, 54));
+        footer.setPreferredSize(new Dimension(0, 52));
         add(footer, BorderLayout.SOUTH);
 
         backButton.addActionListener(e -> frame.showSearch());
-        nextButton.addActionListener(e -> doNext());
     }
 
     public void prepare(FlightSchedule selected, Member me) {

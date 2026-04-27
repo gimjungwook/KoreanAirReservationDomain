@@ -33,17 +33,30 @@ public class ConfirmationPanel extends JPanel {
         super(new BorderLayout());
         this.frame = frame;
         setBackground(ModernUI.BACKGROUND);
-
+        setOpaque(true);
         buildContent();
     }
 
     private void buildContent() {
+        setBackground(ModernUI.BACKGROUND);
+
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(ModernUI.BACKGROUND);
+        centerPanel.setOpaque(true);
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(6, 6, 6, 6);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1.0;
+
         JPanel card = new JPanel(new GridBagLayout());
-        ModernUI.styleCard(card);
+        card.setBackground(ModernUI.CARD_BG);
+        card.setOpaque(true);
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(ModernUI.SUCCESS, 2),
-                BorderFactory.createEmptyBorder(32, 40, 32, 40)));
-        GridBagConstraints c = new GridBagConstraints();
+                BorderFactory.createEmptyBorder(24, 32, 24, 32)));
         c.insets = new Insets(10, 10, 10, 10);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
@@ -108,7 +121,10 @@ public class ConfirmationPanel extends JPanel {
         amountLabel.setForeground(ModernUI.TEXT_PRIMARY);
         card.add(amountLabel, c);
 
-        add(card, BorderLayout.CENTER);
+        c.gridy = 2; c.gridx = 0; c.gridwidth = 1; c.anchor = GridBagConstraints.NORTHWEST;
+        centerPanel.add(card, c);
+
+        add(centerPanel, BorderLayout.CENTER);
 
         JPanel footer = new JPanel(new BorderLayout());
         footer.setBackground(ModernUI.CARD_BG);
