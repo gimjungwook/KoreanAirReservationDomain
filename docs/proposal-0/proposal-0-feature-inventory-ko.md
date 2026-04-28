@@ -83,9 +83,6 @@ java -cp bin com.koreanair.reservation.app.swing.SwingApp
 
 ## <span style="color:red">📌 1. 시스템과 팀</span>
 
-> [!NOTE]
-> 🩹 **발표 단계 1 / 3** — 채운 내용 ① · 시스템 정의와 팀 분담
-
 ### <span style="color:red">1.1 시스템</span>
 
 - <span style="color:red">본 제안은 **대한항공 Skypass 티켓 예약 시스템**을 대상으로 한다.</span>
@@ -299,9 +296,6 @@ flowchart LR
 
 ## <span style="color:red">🎨 5. UML 다이어그램 (신규 추가)</span>
 
-> [!NOTE]
-> 🩹 **발표 단계 1 / 3** — 채운 내용 ② · UML 다이어그램 4종 (Use Case · Class · Sequence · State)
-
 > - <span style="color:red">본 섹션의 4종 다이어그램은 Iteration 1 시연 범위만 보여준다.</span>
 > - <span style="color:red">전체 최종 시스템 다이어그램이 아니라, 현재 코드에서 end-to-end로 실행되는 walking skeleton만 다룬다.</span>
 > - <span style="color:red">Use Case · Class · Sequence · State 관점에서 압축한 발표용 Mermaid 작업본이다.</span>
@@ -401,6 +395,16 @@ flowchart LR
 
 - <span style="color:red">Iteration 1 클래스 다이어그램은 시연 happy path에서 실제로 호출되는 Boundary, Control, Entity만 남긴다.</span>
 - <span style="color:red">취소·환불, GDS, 마일리지, multi-city, 관리자 기능은 이후 iteration 범위이므로 제외한다.</span>
+
+<div align="center">
+
+<img src="./images/iter1-class-diagram.png" width="95%">
+
+<br>
+
+<sub><span style="color:red">빨간 박스 = Iteration 1에서 실제 구현 및 시연 범위</span></sub>
+
+</div>
 
 ```mermaid
 classDiagram
