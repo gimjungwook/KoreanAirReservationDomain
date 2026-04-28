@@ -338,7 +338,7 @@ flowchart LR
     UC8 --- Payment
     UC8 --> UC9
 ```
-
+<img src="./capture/classDiagram_iteration1.png">
 - <span style="color:red">Actor는 Skypass 회원 1명으로 제한한다.</span>
 - <span style="color:red">비회원 조회, 관리자 기능, 마일리지, 환승·multi-city, 취소·환불은 iteration 1 다이어그램에서 제외한다.</span>
 - <span style="color:red">외부 시스템은 결제 승인을 위한 `PaymentGatewayInterface`만 포함한다.</span>
