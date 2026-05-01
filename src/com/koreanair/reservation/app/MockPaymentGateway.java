@@ -35,4 +35,11 @@ public class MockPaymentGateway implements PaymentGatewayInterface {
         System.out.printf("[PG] 승인 요청 amount=%s%n", payment.getAmount());
         return true;
     }
+
+    @Override
+    public boolean refund(Payment payment, BigDecimal amount) {
+        // Iteration 2: in-memory Mock — 항상 환불 승인 (authorize 와 동일한 패턴).
+        System.out.println("[PG] Refund authorized: " + amount + " for " + payment.getPaymentId());
+        return true;
+    }
 }

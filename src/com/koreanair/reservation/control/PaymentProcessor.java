@@ -18,6 +18,7 @@ import com.koreanair.reservation.domain.payment.PaymentMethod;
 public class PaymentProcessor {
 
     private PaymentGatewayInterface gateway;
+    private static long paymentSequence = 1;
 
     public PaymentProcessor() {
     }
@@ -82,6 +83,7 @@ public class PaymentProcessor {
             throw new IllegalArgumentException("결제 금액은 0보다 커야 합니다.");
         }
         Payment payment = new Payment();
+        payment.setPaymentId(paymentSequence++);
         payment.setAmount(BigDecimal.valueOf(amount));
         payment.setPaymentMethod(PaymentMethod.CREDIT_CARD);
         boolean authorized = gateway != null

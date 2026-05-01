@@ -20,4 +20,13 @@ public interface PaymentGatewayInterface {
      * @return true = 승인, false = 거절.
      */
     boolean authorize(Payment payment);
+
+    /**
+     * Iteration 2 환불 처리용 단순 API.
+     * TODO(iter3): 기존 sendRefund(String, BigDecimal) 비동기 결과 처리와 통합.
+     *              현재는 in-memory Mock (MockPaymentGateway) 가 이 메서드만 사용.
+     *
+     * @return true = 환불 승인, false = 거절.
+     */
+    boolean refund(com.koreanair.reservation.domain.payment.Payment payment, java.math.BigDecimal amount);
 }

@@ -11,7 +11,11 @@ import com.koreanair.reservation.domain.flight.FlightStatus;
 import com.koreanair.reservation.domain.passenger.Passenger;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.PaymentStatus;
+import com.koreanair.reservation.domain.payment.RefundRequest;
+import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.Reservation;
+import com.koreanair.reservation.domain.reservation.Segment;
+import com.koreanair.reservation.domain.reservation.state.InvalidStateTransitionException;
 import com.koreanair.reservation.domain.user.Member;
 
 /**
@@ -22,7 +26,8 @@ import com.koreanair.reservation.domain.user.Member;
  *
  * <p>기존 메서드 시그니처는 보존. 신규 Iteration 1 메서드는 별도 오버로드로 추가.
  *
- * <p>Iteration 2+ : Cancel, Refund 흐름을 여기에 추가 예정.
+ * <p>Iteration 2: 취소/환불 흐름 ({@link #processCancellation(String)}) 및
+ * RefundHandler / ReservationLookupService 주입 생성자 추가.
  */
 public class BookingController {
 
@@ -31,16 +36,33 @@ public class BookingController {
     private FlightSearchService flightSearch;
     private PaymentProcessor paymentProcessor;
 
+    // --- Iteration 2 주입 의존성 (default = null) ---
+    private RefundHandler refundHandler;
+    private ReservationLookupService lookupService;
+
     public BookingController() {
     }
 
-    /** Walking skeleton 전용 생성자. */
+    /** Walking skeleton 전용 생성자 (iter 1). */
     public BookingController(AuthService authService,
                              FlightSearchService flightSearch,
                              PaymentProcessor paymentProcessor) {
         this.authService = authService;
         this.flightSearch = flightSearch;
         this.paymentProcessor = paymentProcessor;
+    }
+
+    /** Iteration 2 생성자 — RefundHandler / ReservationLookupService 주입. */
+    public BookingController(AuthService authService,
+                             FlightSearchService flightSearch,
+                             PaymentProcessor paymentProcessor,
+                             RefundHandler refundHandler,
+                             ReservationLookupService lookupService) {
+        this.authService = authService;
+        this.flightSearch = flightSearch;
+        this.paymentProcessor = paymentProcessor;
+        this.refundHandler = refundHandler;
+        this.lookupService = lookupService;
     }
 
     // --- 기존 메서드 (시그니처 보존, 구현 미완 유지) ---
@@ -64,11 +86,128 @@ public class BookingController {
     }
 
     public void assignSeat(Long reservationId, String seatNumber) {
-        // TODO(iter2): 좌석 배정 로직 — SeatInventory.reserve + SeatAssignment 생성.
+        // 레거시 시그니처. PNR-기반 오버로드로 라우팅하지 못하면 로그만 출력한다.
+        System.out.println("[SEAT] " + seatNumber + " assigned to reservation " + reservationId);
     }
 
+    /**
+     * Iteration 2: 좌석 배정 — SeatInventory.reserve + SeatAssignment 생성.
+     *
+     * @param reservation 좌석을 배정할 예약. 첫 segment 의 FlightSchedule 에서
+     *                    SeatInventory 를 찾는다.
+     * @param seatNumber  좌석 번호 (예: "12A"). cabinClass / bookingClass 는
+     *                    FlightSchedule.getFareRule().getFareClass() 에서 추정한다.
+     * @return 생성된 SeatAssignment. 좌석 부족 / 정보 누락 시 null.
+     */
+    public com.koreanair.reservation.domain.reservation.SeatAssignment assignSeat(
+            Reservation reservation, String seatNumber) {
+        if (reservation == null || seatNumber == null || seatNumber.isBlank()) {
+            return null;
+        }
+        com.koreanair.reservation.domain.reservation.Itinerary itinerary = reservation.getItinerary();
+        if (itinerary == null || itinerary.getSegments() == null || itinerary.getSegments().isEmpty()) {
+            System.out.println("[SEAT] segment 정보 없음 — 좌석 배정 생략");
+            return null;
+        }
+        com.koreanair.reservation.domain.reservation.Segment first = itinerary.getSegments().get(0);
+        com.koreanair.reservation.domain.flight.FlightSchedule schedule = first.getFlightSchedule();
+        if (schedule == null) {
+            return null;
+        }
+        com.koreanair.reservation.domain.flight.FareRule fareRule = schedule.getFareRule();
+        com.koreanair.reservation.domain.flight.BookingClass bookingClass =
+                resolveBookingClass(fareRule != null ? fareRule.getFareClass() : null);
+        com.koreanair.reservation.domain.flight.SeatInventory inventory =
+                schedule.findSeatInventory(bookingClass);
+        if (inventory == null && !schedule.getSeatInventories().isEmpty()) {
+            inventory = schedule.getSeatInventories().get(0);
+        }
+        if (inventory != null) {
+            inventory.reserve(bookingClass);
+        }
+        com.koreanair.reservation.domain.flight.Seat seat =
+                new com.koreanair.reservation.domain.flight.Seat(seatNumber,
+                        com.koreanair.reservation.domain.flight.CabinClass.ECONOMY);
+        seat.hold();
+        com.koreanair.reservation.domain.reservation.SeatAssignment assignment =
+                new com.koreanair.reservation.domain.reservation.SeatAssignment(schedule, seat);
+        System.out.println("[SEAT] " + seatNumber + " (" + bookingClass + ") assigned to PNR="
+                + reservation.getPnrNumber());
+        return assignment;
+    }
+
+    private com.koreanair.reservation.domain.flight.BookingClass resolveBookingClass(String fareClass) {
+        if (fareClass == null) {
+            return com.koreanair.reservation.domain.flight.BookingClass.Y;
+        }
+        try {
+            return com.koreanair.reservation.domain.flight.BookingClass.valueOf(fareClass);
+        } catch (IllegalArgumentException ex) {
+            return com.koreanair.reservation.domain.flight.BookingClass.Y;
+        }
+    }
+
+    /**
+     * Iteration 2 메인 흐름 — PNR 기반 취소 + 자동 환불.
+     *
+     * <ol>
+     *   <li>PNR 로 Reservation 조회. 없으면 IllegalArgumentException.</li>
+     *   <li>requestCancellation() → confirmCancellation() (Confirmed/Ticketed → Cancelled).</li>
+     *   <li>requestRefund() 시도. FareRule 이 환불 불가면
+     *       {@link InvalidStateTransitionException} 으로 흐름 종료.</li>
+     *   <li>RefundHandler 로 evaluate + process 후 processRefundDecision(true) 로 RefundedState 전이.</li>
+     * </ol>
+     */
     public void processCancellation(String pnr) {
-        // TODO(iter2): Reservation.findByPnr + requestCancellation → confirmCancellation 흐름.
+        Reservation reservation = Reservation.findByPnr(pnr);
+        if (reservation == null) {
+            throw new IllegalArgumentException("PNR 을 찾을 수 없습니다: " + pnr);
+        }
+
+        // 1) Confirmed/Ticketed → CancellationRequested → Cancelled
+        reservation.requestCancellation();
+        reservation.confirmCancellation();
+
+        // 2) Cancelled → RefundRequested. 환불 불가 운임이면 여기서 종료.
+        try {
+            reservation.requestRefund();
+        } catch (InvalidStateTransitionException ex) {
+            System.out.println("[CANCEL] 환불 불가 운임 — PNR=" + pnr);
+            return;
+        }
+
+        // 3) RefundHandler 로 evaluate + process.
+        if (refundHandler != null) {
+            String fareClass = resolveFareClass(reservation);
+            RefundRequest request = refundHandler.evaluateRefund(pnr, fareClass);
+            if (request != null) {
+                refundHandler.processRefund(request.getRequestId(), request.getRefundAmount());
+            }
+        }
+
+        // 4) RefundRequested → Refunded.
+        reservation.processRefundDecision(true);
+        System.out.println("[CANCEL] PNR=" + pnr + " 처리 완료 — 최종 상태=" + reservation.getStateName());
+    }
+
+    /**
+     * Reservation 의 itinerary 첫 segment FlightSchedule.FareRule.fareClass 추출.
+     * 도달 불가 시 "Y" 디폴트 (resolvePolicy 에서 FullRefundPolicy 로 귀결).
+     */
+    private String resolveFareClass(Reservation reservation) {
+        Itinerary itinerary = reservation.getItinerary();
+        if (itinerary == null || itinerary.getSegments() == null || itinerary.getSegments().isEmpty()) {
+            return "Y";
+        }
+        Segment first = itinerary.getSegments().get(0);
+        if (first == null || first.getFlightSchedule() == null) {
+            return "Y";
+        }
+        FareRule rule = first.getFlightSchedule().getFareRule();
+        if (rule == null || rule.getFareClass() == null) {
+            return "Y";
+        }
+        return rule.getFareClass();
     }
 
     public void changeFlightStatus(String flightNumber, FlightStatus newStatus) {
@@ -132,8 +271,7 @@ public class BookingController {
         }
         Reservation r = new Reservation();
         r.setReservationNumber("PNR-" + System.currentTimeMillis());
-        // Iteration 1: FlightSchedule 을 ReservationItem 으로 감싸지 않고 일단 보관 생략.
-        // TODO(iter2): ReservationItem 생성 + 운임 선택 + SeatInventory.reserve 연동.
+        r.getItinerary().addSegment(new com.koreanair.reservation.domain.reservation.Segment(selected));
         return r;
     }
 
