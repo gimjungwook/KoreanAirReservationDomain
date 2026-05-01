@@ -10,6 +10,13 @@ public class Member extends User {
     private String memberNumber;
     private List<Reservation> reservations = new ArrayList<>();
 
+    public Member() {
+    }
+
+    public Member(String memberNumber) {
+        this.memberNumber = memberNumber;
+    }
+
     public String getMemberNumber() {
         return memberNumber;
     }

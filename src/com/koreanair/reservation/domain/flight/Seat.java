@@ -9,6 +9,18 @@ public class Seat {
     private boolean aisleSeat;
     private boolean extraLegroom;
 
+    public Seat() {
+    }
+
+    public Seat(String seatNumber, CabinClass cabinClass) {
+        this.seatNumber = seatNumber;
+        this.cabinClass = cabinClass;
+        this.status = SeatStatus.AVAILABLE;
+        this.windowSeat = false;
+        this.aisleSeat = false;
+        this.extraLegroom = false;
+    }
+
     public String getSeatNumber() {
         return seatNumber;
     }
@@ -19,6 +31,22 @@ public class Seat {
 
     public SeatStatus getStatus() {
         return status;
+    }
+
+    public boolean isWindowSeat() {
+        return windowSeat;
+    }
+
+    public boolean isAisleSeat() {
+        return aisleSeat;
+    }
+
+    public boolean isExtraLegroom() {
+        return extraLegroom;
+    }
+
+    public boolean isAvailable() {
+        return status == SeatStatus.AVAILABLE;
     }
 
     public void hold() {
