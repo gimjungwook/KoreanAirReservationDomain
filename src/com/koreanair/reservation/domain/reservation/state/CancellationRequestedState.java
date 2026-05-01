@@ -4,11 +4,9 @@ import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.ReservationStatus;
 
 /**
- * 취소 요청 접수 상태 — Iteration 1 스텁.
+ * 취소 요청 접수 상태 — FareRule 확인과 cancellationPenalty 계산이라는 중간 단계를 표현한다.
  *
- * <p>FareRule 확인과 cancellationPenalty 계산이라는 중간 단계를 표현한다.
- * <p>Iteration 2 에서 구현 예정 전이:
- *   - confirmCancellation() -> CancelledState
+ * <p>Iteration 2 활성화: confirmCancellation() 으로 CancelledState 전이.
  */
 public class CancellationRequestedState extends AbstractReservationState {
 

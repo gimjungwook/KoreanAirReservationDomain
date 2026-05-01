@@ -4,12 +4,10 @@ import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.ReservationStatus;
 
 /**
- * 발권 완료 상태 — Iteration 1 스텁.
+ * 발권 완료 상태 — Ticket 이 ISSUED 된 직후의 상태.
  *
- * <p>Iteration 1 에서는 Happy Path 가 ConfirmedState 에서 멈추므로 이 상태로는 진입하지 않는다.
- * <p>Iteration 2 에서 ConfirmedState.issueTicket() 이 실제 전이를 수행하면 여기로 진입한다.
- * <p>그 시점에 구현해야 할 것:
- *   - requestCancellation() -> CancellationRequestedState (발권 수수료 적용)
+ * <p>Iteration 2 활성화: requestCancellation() 으로 CancellationRequestedState 전이.
+ * 발권 후 취소이므로 후속 환불 단계에서 발권 수수료 / 위약금이 추가될 수 있다.
  */
 public class TicketedState extends AbstractReservationState {
 

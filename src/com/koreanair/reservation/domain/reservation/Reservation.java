@@ -2,7 +2,9 @@ package com.koreanair.reservation.domain.reservation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.koreanair.reservation.domain.passenger.Passenger;
 import com.koreanair.reservation.domain.payment.Payment;
@@ -38,6 +40,12 @@ public class Reservation {
     private List<ReservationItem> reservationItems = new ArrayList<>();
     private List<Payment> payments = new ArrayList<>();
     private List<Ticket> tickets = new ArrayList<>();
+
+    /**
+     * Iteration 2: PNR -> Reservation 인메모리 레지스트리.
+     * setReservationNumber() 시점에 등록되어 findByPnr 조회를 지원한다.
+     */
+    private static final Map<String, Reservation> REGISTRY = new HashMap<>();
 
     // --- State 패턴 ---
     private ReservationState currentState;
@@ -100,6 +108,11 @@ public class Reservation {
         payments.add(payment);
     }
 
+    /** Iteration 2: 발권 시 Reservation 의 tickets 컬렉션에 e-Ticket 을 추가. */
+    public void addTicket(Ticket ticket) {
+        tickets.add(ticket);
+    }
+
     /**
      * 기존 빈 메서드 → State 위임으로 채움. processPayment 경로의 최종 단계.
      * 외부 호출자는 결제가 실제 성공한 뒤 이 메서드를 통해 상태 전이를 트리거한다.
@@ -158,8 +171,15 @@ public class Reservation {
         this.status = newStatus;
     }
 
+    /**
+     * Iteration 2: PNR 로 Reservation 을 조회한다.
+     * 등록은 {@link #setReservationNumber(String)} 호출 시점에 자동 수행.
+     */
     public static Reservation findByPnr(String pnr) {
-        return null;
+        if (pnr == null) {
+            return null;
+        }
+        return REGISTRY.get(pnr);
     }
 
     public String getContactEmail() {
@@ -167,7 +187,7 @@ public class Reservation {
     }
 
     public Reservation getReservationDetail(String pnr) {
-        return null;
+        return findByPnr(pnr);
     }
 
     // --- State 패턴 전용 메서드 (신규) ---
@@ -237,6 +257,9 @@ public class Reservation {
 
     public void setReservationNumber(String reservationNumber) {
         this.reservationNumber = reservationNumber;
+        if (reservationNumber != null) {
+            REGISTRY.put(reservationNumber, this);
+        }
     }
 
     public void setRequester(User requester) {

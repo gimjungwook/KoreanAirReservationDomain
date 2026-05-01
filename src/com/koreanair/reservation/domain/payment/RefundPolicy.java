@@ -1,8 +1,10 @@
 package com.koreanair.reservation.domain.payment;
 
+import java.math.BigDecimal;
+
 public interface RefundPolicy {
 
-    int calculateRefundAmount(int baseAmount);
+    BigDecimal calculateRefundAmount(BigDecimal baseAmount);
 
     String getRefundType();
 }

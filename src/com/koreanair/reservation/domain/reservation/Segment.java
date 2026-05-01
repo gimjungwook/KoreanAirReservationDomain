@@ -15,6 +15,22 @@ public class Segment {
     private FlightSchedule flightSchedule;
     private Airport airport;
 
+    public Segment() {
+    }
+
+    public Segment(FlightSchedule flightSchedule) {
+        this.flightSchedule = flightSchedule;
+        this.sequenceNumber = 1;
+        if (flightSchedule != null) {
+            this.departureTime = flightSchedule.getDepartureDateTime();
+            this.arrivalTime = flightSchedule.getArrivalDateTime();
+        }
+    }
+
+    public void setFlightSchedule(FlightSchedule flightSchedule) {
+        this.flightSchedule = flightSchedule;
+    }
+
     public int getSequenceNumber() {
         return sequenceNumber;
     }
