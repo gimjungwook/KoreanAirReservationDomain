@@ -43,8 +43,12 @@ public class ConsoleReservationUI implements ReservationUI {
 
     @Override
     public void displaySeatMap(Object aircraftType) {
-        // TODO(iter2): 좌석맵 렌더링 — AircraftType.getSeatLayout() 기반.
-        System.out.println("=== 좌석맵 (Iteration 2) ===");
+        // Iteration 2: AircraftType 좌석 레이아웃 연동 전 단계 — 6열(A-F) × 5행 ASCII 그리드.
+        System.out.println("=== 좌석맵 ===");
+        System.out.println("    A  B  C    D  E  F");
+        for (int row = 1; row <= 5; row++) {
+            System.out.printf("%2d  □  □  □    □  □  □%n", row);
+        }
     }
 
     @Override

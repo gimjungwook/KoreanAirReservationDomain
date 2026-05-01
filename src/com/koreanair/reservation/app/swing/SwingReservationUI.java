@@ -44,9 +44,16 @@ public class SwingReservationUI implements ReservationUI {
 
     @Override
     public void displaySeatMap(Object aircraftType) {
-        // TODO(iter2): JPanel 기반 좌석맵 렌더.
+        // Iteration 2: 좌석 선택 화면은 SeatSelectionPanel 이 담당하며 MainFrame.showSeatSelection
+        // 으로 직접 진입한다. ReservationUI 인터페이스 호환성 유지를 위해 본 메서드는 진입 안내만 표시.
+        if (parent instanceof MainFrame) {
+            MainFrame frame = (MainFrame) parent;
+            frame.showSeatSelection(null);
+            return;
+        }
+        // Fallback — 부모 프레임이 없는 경우 안내 다이얼로그.
         JOptionPane.showMessageDialog(parent,
-                "좌석맵 기능은 Iteration 2 에서 제공 예정입니다.",
+                "좌석 선택 화면으로 이동하려면 메인 프레임이 필요합니다.",
                 "안내",
                 JOptionPane.INFORMATION_MESSAGE);
     }
