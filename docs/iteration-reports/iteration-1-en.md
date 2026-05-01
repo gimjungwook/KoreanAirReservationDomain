@@ -4,13 +4,16 @@ updated: 2026-04-25
 type: deliverable
 project: OODP Design Project #2 — Korean Air Skypass Ticket Reservation System
 course: ECE312 Object-Oriented Design Patterns (Spring 2026)
-submission: Proposal#0
+submission: Iteration 1 — Walking Skeleton (State pattern)
 team: A — Jungwook Kim, Jaeho Lee, Gyungdong Kim
 status: final
 language: en
 ---
 
-# <span style="color:red">Proposal#0 — Feature Inventory and Iteration Plan</span>
+# <span style="color:red">Iteration 1 — Feature Inventory & Walking Skeleton (State pattern)</span>
+
+[**🇰🇷 한국어 버전**](iteration-1-ko.md) · [**➡ Iteration 2 (Strategy)**](iteration-2-ko.md)
+
 
 <span style="color:red">**Korean Air Skypass Ticket Reservation System**</span>
 

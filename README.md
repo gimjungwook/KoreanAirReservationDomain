@@ -8,7 +8,7 @@
 [![IDE](https://img.shields.io/badge/IDE-Eclipse-2C2255?style=flat-square&logo=eclipseide&logoColor=white)](https://www.eclipse.org/)
 [![UML](https://img.shields.io/badge/UML-AmaterasUML-1E90FF?style=flat-square)](http://amateras.sourceforge.jp/)
 [![Patterns](https://img.shields.io/badge/GoF-State%20%C2%B7%20Strategy%20%C2%B7%20Observer%20%C2%B7%20Singleton-6A5ACD?style=flat-square)](https://en.wikipedia.org/wiki/Design_Patterns)
-[![Iteration](https://img.shields.io/badge/Iteration-1%20%2F%204-FF8C00?style=flat-square)](#-진행-상태)
+[![Iteration](https://img.shields.io/badge/Iteration-2%20%2F%204-FF8C00?style=flat-square)](#-진행-상태)
 [![License](https://img.shields.io/badge/License-Academic%20Reference-708090?style=flat-square)](#%EF%B8%8F-라이선스-및-학술-무결성)
 
 </div>
@@ -18,7 +18,7 @@
 설계프로젝트 #1에서 만든 UML 모델을 자바 데스크톱 애플리케이션으로 구현하고, 4번의 iteration을 거치며 점진적으로 정제해 나가는 프로젝트. 각 iteration은 하나의 주축 디자인 패턴을 중심에 둔다.
 
 > [!NOTE]
-> 본 저장소는 진행 중인 산출물입니다. iteration 1 **walking skeleton**이 끝까지 동작하며, iteration 2부터는 계획 단계입니다 (자세한 계획은 [`docs/proposal-0/`](docs/proposal-0/) 참조).
+> 본 저장소는 진행 중인 산출물입니다. iteration 2 **Strategy 패턴 구현**까지 끝까지 동작하며, iteration 3부터는 계획 단계입니다 (각 iteration 보고서는 [`docs/iteration-reports/`](docs/iteration-reports/) 참조).
 
 ---
 
@@ -27,7 +27,7 @@
 | Iteration | 패턴 | 상태 | 다루는 기능 |
 | :---: | :--- | :---: | :--- |
 | **1** | **State** — 8개 구상 상태 클래스 | ✅ 동작 | 회원 가입 · 로그인 · 검색 · 직항 · 승객 · 결제 |
-| **2** | **Strategy** — `RefundPolicy` family | 📋 계획 | 취소 · 환불 · e-Ticket · 예약 조회 |
+| **2** | **Strategy** — `RefundPolicy` family | ✅ 동작 | 취소 · 환불 · e-Ticket · 예약 조회 · 좌석 선택 · salted-hash auth |
 | **3** | **Observer** — 비동기 이벤트 전파 | 📋 계획 | 환승 · multi-city · 마일리지 · 자동 취소 |
 | **4** | **Singleton** + 옵션 **Factory Method** | 📋 계획 | 관리자 환불 · 전역 설정 · PDF · 실시간 추적 |
 
@@ -224,11 +224,12 @@ UML 다이어그램 4종(use case · class · sequence · state)은 `com.koreana
 
 ## 📄 제출물
 
-iteration별 제출물은 [`docs/`](docs/) 아래에 보관합니다.
+iteration별 보고서는 [`docs/iteration-reports/`](docs/iteration-reports/) 아래에 보관합니다.
 
-| 제출물 | 영문 (제출본) | 한국어 (검토본) |
-| :--- | :---: | :---: |
-| **Proposal #0** — Feature Inventory & Iteration Plan | [📄 EN](docs/proposal-0/proposal-0-feature-inventory.md) | [📄 KO](docs/proposal-0/proposal-0-feature-inventory-ko.md) |
+| Iteration | 패턴 | 한국어 | 영문 |
+| :---: | :--- | :---: | :---: |
+| **1** | State (Walking Skeleton) | [📄 KO](docs/iteration-reports/iteration-1-ko.md) | [📄 EN](docs/iteration-reports/iteration-1-en.md) |
+| **2** | Strategy (`RefundPolicy` family) | [📄 KO](docs/iteration-reports/iteration-2-ko.md) | — |
 
 ---
 

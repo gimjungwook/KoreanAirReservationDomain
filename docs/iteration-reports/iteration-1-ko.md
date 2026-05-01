@@ -4,7 +4,7 @@ updated: 2026-04-25
 type: deliverable
 project: OODP 설계프로젝트 #2 — 대한항공 Skypass 티켓 예약 시스템
 course: ECE312 객체지향 설계패턴 (2026년 1학기)
-submission: Proposal#0
+submission: Iteration 1 — Walking Skeleton (State pattern)
 team: A — 김정욱, 이재호, 김경동
 status: final
 language: ko
@@ -12,17 +12,16 @@ language: ko
 
 <div align="center">
 
-# ✈️ <span style="color:red">Proposal #0 — Feature Inventory & Iteration 계획</span>
+# ✈️ <span style="color:red">Iteration 1 — Feature Inventory & Walking Skeleton (State 패턴)</span>
 
 ### <span style="color:red">대한항공 Skypass 티켓 예약 시스템</span>
 
 [![Course](https://img.shields.io/badge/ECE312-OODP%202026%20Spring-darkgreen?style=flat-square)](https://github.com/gimjungwook/KoreanAirReservationDomain)
-[![Submission](https://img.shields.io/badge/Submission-Proposal%20%230-blue?style=flat-square)](https://github.com/gimjungwook/KoreanAirReservationDomain/tree/main/docs/proposal-0)
-[![Team](https://img.shields.io/badge/Team-A%20(3%20members)-orange?style=flat-square)](#-1-시스템과-팀)
-[![Source](https://img.shields.io/badge/Code-KoreanAirReservationDomain-lightgrey?style=flat-square&logo=github)](https://github.com/gimjungwook/KoreanAirReservationDomain)
 [![Iteration](https://img.shields.io/badge/Iteration-1%20%2F%204-red?style=flat-square)](#-6-iteration-1-구현-신규-추가)
+[![Pattern](https://img.shields.io/badge/Pattern-State-6A5ACD?style=flat-square)](#-3-design-pattern-roadmap)
+[![Source](https://img.shields.io/badge/Code-KoreanAirReservationDomain-lightgrey?style=flat-square&logo=github)](https://github.com/gimjungwook/KoreanAirReservationDomain)
 
-[**🇬🇧 English version**](proposal-0-feature-inventory.md) · [**📂 Source code**](https://github.com/gimjungwook/KoreanAirReservationDomain)
+[**🇬🇧 English version**](iteration-1-en.md) · [**➡ Iteration 2 (Strategy)**](iteration-2-ko.md) · [**📂 Source code**](https://github.com/gimjungwook/KoreanAirReservationDomain)
 
 </div>
 
