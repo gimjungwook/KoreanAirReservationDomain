@@ -27,7 +27,7 @@ language: ko
 
 > [!IMPORTANT]
 > ### 📣 Iteration 1 → Iteration 2
-> **Iteration 1에서는 8개 기능을 얇게 끝까지 통과시키는 walking skeleton을 만들었다.** Iteration 2는 그 위에 Strategy 패턴(`RefundPolicy` family)을 중심으로 **취소·환불·발권·예약 조회**를 본격적으로 채운다. 본 발표는 (1) Strategy 도입 동기, (2) 새로 활성화되는 5개 State 전이, (3) 11개 sub-feature가 어떻게 코드로 떨어졌는지를 다룬다.
+> **Iteration 1에서는 8개 기능을 얇게 끝까지 통과시키는 walking skeleton을 만들었습니다.** Iteration 2는 그 위에 Strategy 패턴(`RefundPolicy` family)을 중심으로 **취소·환불·발권·예약 조회**를 본격적으로 채웁니다. 본 발표는 (1) Strategy 도입 동기, (2) 새로 활성화되는 5개 State 전이, (3) 11개 sub-feature가 어떻게 코드로 떨어졌는지를 다룹니다.
 
 ### 🗺 발표 흐름
 
@@ -61,7 +61,7 @@ language: ko
 
 ---
 
-## 📌 0. 실행 방법 및 시연
+## 📌 0. 실행 방법
 
 ### 0.1 컴파일
 
@@ -70,42 +70,19 @@ cd KoreanAirReservationDomain
 javac -sourcepath src -d bin $(find src -name "*.java" | grep -v "tools/")
 ```
 
-### 0.2 실행
-
-| 모드 | 진입점 | Iteration 2 시연 흐름 |
-| --- | --- | --- |
-| 콘솔 | `com.koreanair.reservation.app.App` | 검색 → 예약 → 결제 → **발권 → 취소 요청 → 환불 자동 처리** |
-| Swing GUI | `com.koreanair.reservation.app.swing.SwingApp` | 위 흐름 + **예약 조회 화면 + 좌석 선택 패널 + 환불 진행 패널** |
+### 0.2 Swing UI 실행
 
 ```bash
 java -cp bin com.koreanair.reservation.app.swing.SwingApp
-```
-
-### 0.3 콘솔 출력 예 (Iteration 2 종단 시연)
-
-```
-[STATE] Initiated -> PendingPayment
-[STATE] PendingPayment -> Confirmed
-[STATE] Confirmed -> Ticketed                          ← Iter 2 신규
-[TICKET] e-Ticket KE-251020-0001 issued for 김정욱
-[STATE] Ticketed -> CancellationRequested              ← Iter 2 신규
-[STATE] CancellationRequested -> Cancelled             ← Iter 2 신규
-[STATE] Cancelled -> RefundRequested                   ← Iter 2 신규
-[STRATEGY] FareRule(Y) -> FullRefundPolicy -> 500,000 KRW
-[STATE] RefundRequested -> Refunded                    ← Iter 2 신규
-[REFUND] Refund-2510-001 disbursed via mock PG
 ```
 
 ---
 
 ## 📌 1. Iteration 2 범위
 
-> [!NOTE]
-> 🩹 **발표 단계 1 / 3** — Iteration 1이 의도적으로 stub로 남겨둔 corner를 닫는다.
-
 ### 1.1 한 문단 요약
 
-Iteration 2는 iteration 1에서 만들어진 예약을 **조회·발권·취소·환불 가능한 대상**으로 확장한다. 회원과 비회원 모두 PNR로 자기 예약을 찾을 수 있어야 하므로 **예약 조회 기능**이 먼저 들어간다. `Confirmed` / `Ticketed` 상태의 예약에 대해서만 취소 요청을 받고, 운임 규칙에 따라 환불 정책이 달라지므로 **Strategy 패턴**의 주 적용 지점이 된다. switch 기반 환불 구현은 새 운임 클래스가 추가될 때 환불 코드, 취소 코드, 보고 코드를 함께 건드릴 위험이 있다. Strategy는 각 환불 규칙을 `RefundPolicy` 구현 클래스로 분리하고, `RefundHandler`는 선택된 정책만 실행하게 만든다.
+Iteration 2는 iteration 1에서 만들어진 예약을 **조회·발권·취소·환불 가능한 대상**으로 확장합니다. 회원과 비회원 모두 PNR로 자기 예약을 찾을 수 있어야 하므로 **예약 조회 기능**이 먼저 들어갑니다. `Confirmed` / `Ticketed` 상태의 예약에 대해서만 취소 요청을 받고, 운임 규칙에 따라 환불 정책이 달라지므로 **Strategy 패턴**의 주 적용 지점이 됩니다. switch 기반 환불 구현은 새 운임 클래스가 추가될 때 환불 코드, 취소 코드, 보고 코드를 함께 건드릴 위험이 있습니다. Strategy는 각 환불 규칙을 `RefundPolicy` 구현 클래스로 분리하고, `RefundHandler`는 선택된 정책만 실행하게 만듭니다.
 
 ### 1.2 Iteration 1과의 코드 차이 (요약)
 
@@ -148,7 +125,7 @@ src/com/koreanair/reservation/
     └── RefundPanel.java                      ← 신규 (환불 진행 표시)
 ```
 
-총 변경: 약 **22개 파일** (수정 16 + 신규 6).
+총 변경은 약 **22개 파일** (수정 16 + 신규 6)입니다.
 
 ### 1.3 ECB 계층별 변경 요약
 
@@ -202,16 +179,18 @@ flowchart LR
     AS --> Guest
 ```
 
+- 사용자가 Boundary 패널 4종(Lookup·Seat·Cancel·Refund)으로 진입하는 신규 경로를 보여줍니다.
+- Control 계층에 `ReservationLookupService`가 신규로 추가되어 회원·비회원 분기 조회를 담당합니다.
+- Domain 계층은 `RefundPolicy` family와 8개 State + `Ticket`을 중심으로 책임이 확장됩니다.
+- 인증 흐름은 `Login → AuthService → Guest.verifyIdentity` 한 줄로 일원화됩니다.
+
 ---
 
 ## 📌 2. Strategy 패턴 도입 동기
 
-> [!NOTE]
-> 🩹 **발표 단계 2 / 3** — 이번 iteration의 주축 패턴이 풀어내는 문제.
-
 ### 2.1 문제: 운임별 환불 분기
 
-대한항공 운임은 운임 규칙에 따라 환불 가능 여부와 환불 비율이 다르다. 단순 if/else / switch 로 표현하면:
+대한항공 운임은 운임 규칙에 따라 환불 가능 여부와 환불 비율이 다릅니다. 단순 if/else / switch 로 표현하면 다음과 같습니다.
 
 ```java
 // 안티패턴 — 환불 정책이 RefundHandler 내부에 박힌다
@@ -226,15 +205,15 @@ public BigDecimal calculateRefund(FareRule rule, BigDecimal base) {
 }
 ```
 
-이 구조의 문제:
+이 구조의 문제는 다음과 같습니다.
 
-1. **새 운임 클래스 추가 = `RefundHandler` 수정** (Open-Closed 위반).
-2. **취소 페널티·보고서·관리자 검토 분기**까지 같은 if 사슬에 모이면 폭발한다.
-3. **테스트가 어렵다**. 정책 1건만 검증하려면 전체 분기를 통과해야 한다.
+1. **새 운임 클래스 추가 = `RefundHandler` 수정** (Open-Closed 위반입니다).
+2. **취소 페널티·보고서·관리자 검토 분기**까지 같은 if 사슬에 모이면 폭발합니다.
+3. **테스트가 어렵습니다**. 정책 1건만 검증하려면 전체 분기를 통과해야 합니다.
 
 ### 2.2 해법: Strategy 패턴
 
-각 환불 규칙을 `RefundPolicy` 구현 클래스로 분리한다. `RefundHandler`는 `FareRule`을 보고 적절한 `RefundPolicy`를 선택해서 실행만 한다.
+각 환불 규칙을 `RefundPolicy` 구현 클래스로 분리합니다. `RefundHandler`는 `FareRule`을 보고 적절한 `RefundPolicy`를 선택해서 실행만 합니다.
 
 ```mermaid
 classDiagram
@@ -268,6 +247,11 @@ classDiagram
     RefundHandler ..> RefundPolicy : selects
 ```
 
+- `RefundPolicy` 인터페이스 한 곳에서 환불 금액 산정 책임을 정의합니다.
+- 3종 구상 클래스(`FullRefundPolicy`·`PartialRefundPolicy`·`NoRefundPolicy`)가 운임 클래스별 환불 비율을 캡슐화합니다.
+- `RefundHandler`는 `resolvePolicy()`로 적절한 Strategy를 선택만 하고, 실제 계산은 위임합니다.
+- 새 운임이 추가되어도 `RefundHandler` 본문은 수정하지 않고 `RefundPolicy` 구현체만 추가하면 됩니다.
+
 ### 2.3 패턴 적용 후 코드
 
 ```java
@@ -285,7 +269,7 @@ public BigDecimal evaluateRefund(FareRule rule, BigDecimal base) {
 }
 ```
 
-새 운임 (`E`, `K`, ...) 이 추가되면 `XXXRefundPolicy` 클래스를 추가하고 `resolvePolicy` 의 매핑 한 줄을 추가한다. **`RefundHandler` 의 다른 코드는 손대지 않는다.**
+새 운임 (`E`, `K`, ...) 이 추가되면 `XXXRefundPolicy` 클래스를 추가하고 `resolvePolicy` 의 매핑 한 줄을 추가합니다. **`RefundHandler` 의 다른 코드는 손대지 않습니다.**
 
 ### 2.4 왜 다른 패턴이 아닌가
 
@@ -302,7 +286,7 @@ public BigDecimal evaluateRefund(FareRule rule, BigDecimal base) {
 ## 📊 3. Iteration 2 기능 분해
 
 > [!NOTE]
-> Iteration 1 보고서 §3.2의 11개 sub-feature를 Iteration 2 코드에 매핑.
+> Iteration 1 보고서 §3.2의 11개 sub-feature를 Iteration 2 코드에 매핑합니다.
 
 | # | Category | Sub-feature | 시연 포인트 | 핵심 클래스/메서드 |
 | :---: | :--- | :--- | :--- | :--- |
@@ -337,7 +321,7 @@ public BigDecimal evaluateRefund(FareRule rule, BigDecimal base) {
 ## 🎨 4. UML 다이어그램 — Iteration 2
 
 > [!NOTE]
-> 본 섹션의 4종 다이어그램은 **Iteration 2 시연 범위**를 보여준다. Iteration 1 doc의 다이어그램은 walking skeleton 만 다뤘으므로, 여기서 새로 활성화된 영역을 강조한다.
+> 본 섹션의 4종 다이어그램은 **Iteration 2 시연 범위**를 보여줍니다. Iteration 1 doc의 다이어그램은 walking skeleton 만 다뤘으므로, 여기서 새로 활성화된 영역을 강조합니다.
 
 ### 4.1 Use Case Diagram — Iteration 2
 
@@ -378,7 +362,10 @@ flowchart LR
     UC_Select -. include .-> UC_Seat
 ```
 
-✨ = Iteration 2에서 새로 활성화된 use case.
+- ✨ 표시는 Iteration 2에서 새로 활성화된 7개 use case입니다.
+- 회원은 로그인 후 좌석 선택·발권·예약 조회·취소·마일리지 조회까지 전 흐름을 사용할 수 있습니다.
+- 비회원은 PNR + 이름 + 이메일로 인증한 뒤 조회·취소를 진행할 수 있습니다.
+- `UC_Refund`는 외부 결제 게이트웨이와 연동되어 환불 송금을 수행합니다.
 
 ### 4.2 Class Diagram — Strategy family
 
@@ -455,6 +442,11 @@ classDiagram
     FareRule ..> RefundPolicy : checkRefundPolicy
 ```
 
+- `FareRule.checkRefundPolicy()`가 fareRule에 적합한 `RefundPolicy`를 반환하는 진입점 역할을 합니다.
+- `RefundHandler`가 `RefundPolicy`를 선택·실행하면서 `RefundRequest`/`Refund` 엔티티의 생애주기를 관리합니다.
+- `RefundStatus` enum이 `RefundRequest`와 `Refund` 양쪽의 상태값을 통일하여 일관성을 유지합니다.
+- `PaymentGatewayInterface`로 PG 환불 송금을 추상화하여 mock과 실제 구현을 교체할 수 있습니다.
+
 ### 4.3 Sequence Diagram — Cancel & Refund
 
 ```mermaid
@@ -486,9 +478,14 @@ sequenceDiagram
     BC-->>UI: 환불 완료 화면
 ```
 
+- `BookingController`가 `Reservation`의 3단 State 전이를 순차적으로 트리거합니다.
+- `RefundHandler` 내부에서 `resolvePolicy` → `calculateRefundAmount` 순서로 Strategy가 동작합니다.
+- PG 송금이 성공한 뒤에야 `Reservation`에 `processRefundDecision(true)`가 전달됩니다.
+- 최종 `RefundRequested → Refunded` 전이로 환불 거래가 종결됩니다.
+
 ### 4.4 State Diagram — Iter 2 transitions
 
-Iteration 1에서는 3개 전이만 활성. Iteration 2에서 **5개 전이가 추가로 활성화** 된다.
+Iteration 1에서는 3개 전이만 활성이었고, Iteration 2에서 **5개 전이가 추가로 활성화**됩니다.
 
 ```mermaid
 stateDiagram-v2
@@ -507,7 +504,12 @@ stateDiagram-v2
     Cancelled --> [*]
 ```
 
-> Iter 1 활성: 3개. Iter 2 추가 활성: 7개. 누적: **10개 전이**.
+- Iteration 1에서 활성화된 3개 전이는 ✅, Iteration 2 신규 7개 전이는 ✨로 표시됩니다.
+- `Confirmed` 상태에서 발권(`Ticketed`) 또는 취소(`CancellationRequested`) 두 갈래로 분기 가능합니다.
+- `RefundRequested`는 승인/거절 결과에 따라 `Refunded` 또는 `Cancelled`로 종결됩니다.
+- `Refunded`와 `Cancelled`는 모두 종착 상태이므로 추가 전이를 허용하지 않습니다.
+
+> Iter 1 활성: 3개. Iter 2 추가 활성: 7개. 누적: **10개 전이**입니다.
 
 ### 4.5 Reservation lookup 흐름 (신규)
 
@@ -536,6 +538,11 @@ sequenceDiagram
         RLS-->>UI: 단건 Reservation
     end
 ```
+
+- 회원은 로그인 세션 기반으로 `Member.getReservations()`를 통해 다건 조회를 진행합니다.
+- 비회원은 PNR + 이름 + 이메일 3요소를 `AuthService.verifyGuest`로 검증한 뒤 단건 조회를 받습니다.
+- 두 경로 모두 `ReservationLookupService`를 단일 진입점으로 사용합니다.
+- `Reservation.findByPnr`는 in-memory 맵 기반으로 조회되며, DB 연동은 향후 iter에서 다룹니다.
 
 ---
 
@@ -572,7 +579,7 @@ sequenceDiagram
 
 ### 6.1 Walking Skeleton → Expanded Skeleton
 
-Iteration 1의 walking skeleton은 **하나의 happy path**가 끝까지 동작했다 (검색 → 결제). Iteration 2의 expanded skeleton은 **세 갈래** path 가 모두 끝까지 동작한다:
+Iteration 1의 walking skeleton은 **하나의 happy path**가 끝까지 동작했습니다 (검색 → 결제). Iteration 2의 expanded skeleton은 **세 갈래** path 가 모두 끝까지 동작합니다.
 
 ```mermaid
 flowchart TB
@@ -615,6 +622,11 @@ flowchart TB
     style Ticketed fill:#E0E0FF
 ```
 
+- 결제 완료 후 사용자는 Path A(발권) 또는 Path B(취소·환불) 중 한 갈래를 선택합니다.
+- `Ticketed` 상태에서도 취소 요청이 가능하므로 Path A → Path B 연결이 성립합니다.
+- 주황색 Strategy 선택 노드는 환불 가능 fareRule인 경우에만 실행됩니다.
+- `isRefundable=false` 운임은 `Cancelled`로 바로 종료되며 `RefundRequested`로 진입하지 않습니다.
+
 ### 6.2 핵심 시연 시나리오
 
 #### 시나리오 1 — e-Ticket 발권 (Path A)
@@ -649,7 +661,7 @@ flowchart TB
 
 ### 6.3 State 패턴 + Strategy 패턴의 협업
 
-Iteration 1에서 도입한 State 패턴과 Iteration 2에서 도입한 Strategy 패턴이 어떻게 협업하는지가 본 iter 의 핵심 발표 포인트다.
+Iteration 1에서 도입한 State 패턴과 Iteration 2에서 도입한 Strategy 패턴이 어떻게 협업하는지가 본 iter 의 핵심 발표 포인트입니다.
 
 ```mermaid
 flowchart LR
@@ -667,29 +679,34 @@ flowchart LR
     style Strategy fill:#FFE4B5
 ```
 
+- State 패턴은 Reservation의 생애주기 전이 가능 여부를 담당합니다.
+- Strategy 패턴은 환불 금액 산정 알고리즘을 담당합니다.
+- `RefundRequested` 진입 시점에 State가 Strategy에게 금액 산정을 위임합니다.
+- 두 패턴이 다른 축(상태 vs 알고리즘)을 변화시키므로 클래스 분리의 정당성이 확보됩니다.
+
 **역할 분리:**
 
-- **State**: "지금 어떤 전이가 허용되는가" — `Confirmed` 에서만 `requestCancellation` 허용, `Refunded` 는 종착.
-- **Strategy**: "얼마를 환불할 것인가" — fareRule 만 보고 결정, 상태 무관.
+- **State**: "지금 어떤 전이가 허용되는가" — `Confirmed` 에서만 `requestCancellation` 허용, `Refunded` 는 종착입니다.
+- **Strategy**: "얼마를 환불할 것인가" — fareRule 만 보고 결정하며, 상태와 무관합니다.
 
-두 패턴이 **다른 축**을 변화시킨다는 점이 클래스 분리의 정당성. 같은 if 사슬에 둘 다 박으면 두 축이 얽힌다.
+두 패턴이 **다른 축**을 변화시킨다는 점이 클래스 분리의 정당성입니다. 같은 if 사슬에 둘 다 박으면 두 축이 얽힙니다.
 
 ---
 
 ## 🚧 7. Iteration 2 한계 (의도적)
 
 > [!NOTE]
-> Iteration 2 시연은 끝까지 동작한다. 다만 Iteration 3에서 명시적으로 닫을 corner를 미리 나열한다.
+> Iteration 2 시연은 끝까지 동작합니다. 다만 Iteration 3에서 명시적으로 닫을 corner를 미리 나열합니다.
 
-- **환불 송금은 mock PG 다.** `MockPaymentGateway.refund(...)` 는 즉시 `true` 반환. 실제 PG 환불 API 호출은 Iteration 4 영역.
-- **Observer 미도입.** 좌석 hold 만료, 결제 실패 후 자동 취소, FlightSchedule 변경 전파 — 모두 Iteration 3에서 다룬다. 본 iter 는 명시적 호출 (`BookingController.processCancellation`) 로 트리거.
-- **환승·multi-city 미지원.** `Itinerary` 와 `Segment` 클래스는 stub 그대로 둔다. Iteration 3에서 connecting flight 검색 + MCT 검증 도입.
-- **마일리지 적용 결제 미지원.** Iteration 2 는 **잔액 조회만** 추가하고, 마일리지 차감 결제는 Iteration 3.
-- **관리자 예외 환불 미도입.** 본 iter 는 `RefundHandler.resolvePolicy` 가 자동으로 정책 선택. 관리자가 검토·반려하는 경로는 Iteration 4의 Singleton + Factory Method 와 함께.
-- **e-Ticket PDF 미지원.** Ticket 객체는 만들어지지만 PDF export 는 Iteration 4.
-- **Reservation 영속화는 in-memory.** `Reservation.findByPnr(pnr)` 는 in-memory 맵에서 조회. DB 연동 없음.
-- **salted-hash 는 SHA-256 + per-member salt 수준.** 운영 등급 KDF (bcrypt, scrypt, Argon2) 는 본 학기 학습 범위 밖.
-- **GDS Interface 는 stub.** `boundary.GDSInterface` 는 인터페이스만 존재. Iteration 3에서 외부 GDS mock 어댑터 도입.
+- **환불 송금은 mock PG입니다.** `MockPaymentGateway.refund(...)` 는 즉시 `true`를 반환합니다. 실제 PG 환불 API 호출은 Iteration 4 영역입니다.
+- **Observer 미도입.** 좌석 hold 만료, 결제 실패 후 자동 취소, FlightSchedule 변경 전파는 모두 Iteration 3에서 다룹니다. 본 iter 는 명시적 호출(`BookingController.processCancellation`)로 트리거합니다.
+- **환승·multi-city 미지원.** `Itinerary` 와 `Segment` 클래스는 stub 그대로 둡니다. Iteration 3에서 connecting flight 검색 + MCT 검증을 도입합니다.
+- **마일리지 적용 결제 미지원.** Iteration 2 는 **잔액 조회만** 추가하고, 마일리지 차감 결제는 Iteration 3에서 다룹니다.
+- **관리자 예외 환불 미도입.** 본 iter 는 `RefundHandler.resolvePolicy` 가 자동으로 정책을 선택합니다. 관리자가 검토·반려하는 경로는 Iteration 4의 Singleton + Factory Method 와 함께 도입합니다.
+- **e-Ticket PDF 미지원.** Ticket 객체는 만들어지지만 PDF export는 Iteration 4에서 다룹니다.
+- **Reservation 영속화는 in-memory입니다.** `Reservation.findByPnr(pnr)` 는 in-memory 맵에서 조회하며, DB 연동은 없습니다.
+- **salted-hash 는 SHA-256 + per-member salt 수준입니다.** 운영 등급 KDF(bcrypt, scrypt, Argon2)는 본 학기 학습 범위 밖입니다.
+- **GDS Interface 는 stub입니다.** `boundary.GDSInterface` 는 인터페이스만 존재합니다. Iteration 3에서 외부 GDS mock 어댑터를 도입합니다.
 
 ---
 
