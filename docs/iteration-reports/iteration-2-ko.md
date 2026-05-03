@@ -177,6 +177,9 @@ flowchart LR
     States --> Refund
     BC --> Seat
     AS --> Guest
+
+    classDef newNode fill:#FFD6D6,stroke:#E57373,stroke-width:2px,color:#000
+    class New_Lookup,New_Seat,New_Cancel,New_Refund,New_RLS newNode
 ```
 
 - 사용자가 Boundary 패널 4종(Lookup·Seat·Cancel·Refund)으로 진입하는 신규 경로를 보여줍니다.
@@ -360,6 +363,9 @@ flowchart LR
     UC_Refund --- Payment
     UC_Verify -. precondition .-> UC_Lookup
     UC_Select -. include .-> UC_Seat
+
+    classDef newNode fill:#FFD6D6,stroke:#E57373,stroke-width:2px,color:#000
+    class UC_Verify,UC_Seat,UC_IssueTicket,UC_Lookup,UC_Cancel,UC_Refund,UC_Mileage newNode
 ```
 
 - ✨ 표시는 Iteration 2에서 새로 활성화된 7개 use case입니다.
@@ -502,9 +508,13 @@ stateDiagram-v2
     RefundRequested --> Cancelled : processRefundDecision(rejected)<br/>(iter2 ✨)
     Refunded --> [*]
     Cancelled --> [*]
+
+    classDef newNode fill:#FFD6D6,stroke:#E57373,stroke-width:2px,color:#000
+    class Ticketed,CancellationRequested,RefundRequested,Refunded newNode
 ```
 
 - Iteration 1에서 활성화된 3개 전이는 ✅, Iteration 2 신규 7개 전이는 ✨로 표시됩니다.
+- 빨간색으로 강조된 4개 state(`Ticketed`·`CancellationRequested`·`RefundRequested`·`Refunded`)가 Iteration 2에서 처음 도달 가능해진 신규 상태입니다.
 - `Confirmed` 상태에서 발권(`Ticketed`) 또는 취소(`CancellationRequested`) 두 갈래로 분기 가능합니다.
 - `RefundRequested`는 승인/거절 결과에 따라 `Refunded` 또는 `Cancelled`로 종결됩니다.
 - `Refunded`와 `Cancelled`는 모두 종착 상태이므로 추가 전이를 허용하지 않습니다.
@@ -616,15 +626,14 @@ flowchart TB
     Refunded --> Done
     Ticketed --> Done
 
-    style Strategy_Pick fill:#FFE4B5,stroke:#FF8C00
-    style Refunded fill:#E0FFE0
-    style Cancelled fill:#FFE0E0
-    style Ticketed fill:#E0E0FF
+    classDef newNode fill:#FFD6D6,stroke:#E57373,stroke-width:2px,color:#000
+    class Issue,Ticketed,Cancel,CancelReq,Confirmed_Cancel,Refund_Choice,RefundReq,Refunded newNode
+    style Strategy_Pick fill:#FFE4B5,stroke:#FF8C00,stroke-width:2px,color:#000
 ```
 
 - 결제 완료 후 사용자는 Path A(발권) 또는 Path B(취소·환불) 중 한 갈래를 선택합니다.
 - `Ticketed` 상태에서도 취소 요청이 가능하므로 Path A → Path B 연결이 성립합니다.
-- 주황색 Strategy 선택 노드는 환불 가능 fareRule인 경우에만 실행됩니다.
+- 빨간색 노드는 Iteration 2에서 새로 추가된 흐름이며, 주황색 Strategy 선택 노드는 본 iter 의 핵심 패턴 적용 지점입니다.
 - `isRefundable=false` 운임은 `Cancelled`로 바로 종료되며 `RefundRequested`로 진입하지 않습니다.
 
 ### 6.2 핵심 시연 시나리오
