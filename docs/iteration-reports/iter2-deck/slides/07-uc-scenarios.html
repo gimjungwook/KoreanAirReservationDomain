@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>08 · UC 시나리오 — iter 2 신규</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 12px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: -0.005em; background: var(--tossblue-bg); color: var(--tossblue); }
+
+  .grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .uc { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 24px 28px; display: flex; flex-direction: column; }
+  .uc .uc-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
+  .uc .uc-head .id { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--tossblue); }
+  .uc .uc-head .name { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); margin-top: 2px; }
+  .uc .uc-head .actor { font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+
+  .uc .row { display: grid; grid-template-columns: 90px 1fr; gap: 12px; padding: 8px 0; align-items: start; font-size: 14px; line-height: 1.55; }
+  .uc .row .lab { font-size: 11.5px; font-weight: 700; color: var(--ink-4); letter-spacing: 0.04em; text-transform: uppercase; padding-top: 2px; }
+  .uc .row .val { color: var(--ink-2); font-weight: 500; }
+  .uc .row .val code { font-family: var(--font-mono); font-size: 12.5px; color: var(--tossblue); background: var(--tossblue-bg); padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+  .uc .row .val ol { list-style: none; counter-reset: step; margin: 0; }
+  .uc .row .val ol li { counter-increment: step; padding-left: 26px; position: relative; padding-top: 2px; padding-bottom: 2px; }
+  .uc .row .val ol li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 1px;
+    width: 18px; height: 18px;
+    background: var(--ink); color: #FFFFFF;
+    border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+    font-family: var(--font-mono);
+    display: flex; align-items: center; justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .uc .row .val .alt { color: var(--ink-3); font-size: 13px; padding-top: 4px; }
+  .uc .row .val .alt strong { color: var(--negative); font-weight: 700; }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">UC 시나리오 — iter 2 신규</div>
+    <div class="subtitle">취소 · 환불 · 발권 · Guest 조회 · 4개 시나리오</div>
+  </div>
+  <div class="pill">iter 1 시나리오는 보고서 누적</div>
+</div>
+
+<div class="grid">
+
+  <section class="uc">
+    <div class="uc-head">
+      <div>
+        <div class="id">UC-08</div>
+        <div class="name">Cancel Booking</div>
+      </div>
+      <div class="actor">Member · Reservation</div>
+    </div>
+    <div class="row"><div class="lab">전제</div><div class="val">예약 상태 = Confirmed 또는 Ticketed · 회원 인증 완료</div></div>
+    <div class="row"><div class="lab">기본 흐름</div><div class="val"><ol>
+      <li>Member가 예약 조회 후 취소 클릭</li>
+      <li><code>processCancellation(pnr)</code> 호출</li>
+      <li>Reservation → CancellationRequested 전이</li>
+      <li>fare rule 검증 후 Cancelled 전이</li>
+    </ol></div></div>
+    <div class="row"><div class="lab">대안</div><div class="val"><div class="alt">A1. 환불 불가 fare class → <strong>Refund Denied</strong> 분기로 이어짐</div></div></div>
+  </section>
+
+  <section class="uc">
+    <div class="uc-head">
+      <div>
+        <div class="id">UC-09</div>
+        <div class="name">Issue e-Ticket</div>
+      </div>
+      <div class="actor">System · Reservation</div>
+    </div>
+    <div class="row"><div class="lab">전제</div><div class="val">예약 상태 = Confirmed · 좌석 배정 완료</div></div>
+    <div class="row"><div class="lab">기본 흐름</div><div class="val"><ol>
+      <li>Reservation이 issueTicket() 호출</li>
+      <li><code>Ticket.generate(reservation, passenger, seat)</code></li>
+      <li>티켓 번호 <code>KE-yyMMdd-NNNN</code> 부여</li>
+      <li>Reservation → Ticketed 전이</li>
+    </ol></div></div>
+    <div class="row"><div class="lab">사후</div><div class="val">Reservation에 Ticket 객체 추가, 발권 완료</div></div>
+  </section>
+
+  <section class="uc">
+    <div class="uc-head">
+      <div>
+        <div class="id">UC-10</div>
+        <div class="name">Process Refund</div>
+      </div>
+      <div class="actor">Member · RefundHandler · PG</div>
+    </div>
+    <div class="row"><div class="lab">전제</div><div class="val">예약 상태 = Cancelled · fare rule 환불 가능</div></div>
+    <div class="row"><div class="lab">기본 흐름</div><div class="val"><ol>
+      <li>Reservation → RefundRequested 전이</li>
+      <li><code>RefundHandler.evaluateRefund(pnr, fareClass)</code></li>
+      <li><code>resolvePolicy(fareRule)</code> Strategy 해석</li>
+      <li>policy.calculateRefundAmount(paid) 위임</li>
+      <li>PG sendRefund + Reservation → Refunded</li>
+    </ol></div></div>
+    <div class="row"><div class="lab">대안</div><div class="val"><div class="alt">A1. fare class V/O → <strong>NoRefundPolicy</strong> · 0원 반환</div></div></div>
+  </section>
+
+  <section class="uc">
+    <div class="uc-head">
+      <div>
+        <div class="id">UC-11</div>
+        <div class="name">Retrieve Booking by PNR</div>
+      </div>
+      <div class="actor">Guest · AuthService · LookupService</div>
+    </div>
+    <div class="row"><div class="lab">전제</div><div class="val">Guest 보유 정보 = PNR + 본인 이름 + 이메일</div></div>
+    <div class="row"><div class="lab">기본 흐름</div><div class="val"><ol>
+      <li>Guest가 PNR + 이름 + 이메일 입력</li>
+      <li><code>AuthService.verifyGuest(...)</code> 3중 검증</li>
+      <li><code>ReservationLookupService.findByGuestPnr(...)</code></li>
+      <li>예약 스냅샷 반환 (UI 표시)</li>
+    </ol></div></div>
+    <div class="row"><div class="lab">대안</div><div class="val"><div class="alt">A1. 검증 실패 → <code>"INVALID_CREDENTIALS"</code> · 디테일 미노출</div><div class="alt">A2. <strong>5회 누적 실패 → 15분 soft-lock</strong></div></div></div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>iter 2 · UC 시나리오 신규 4개 (취소 · 발권 · 환불 · Guest 조회)</span>
+  <span class="pg">07 / 15</span>
+</div>
+
+</body>
+</html>

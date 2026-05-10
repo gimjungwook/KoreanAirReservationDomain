@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>11 · DP#2 Strategy — 교과서 vs 팀</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 16px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--tossblue-bg); color: var(--tossblue); }
+
+  .pair { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pane { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 28px 32px; display: flex; flex-direction: column; }
+  .pane.book .head h2 { color: var(--ink); }
+  .pane.team .head h2 { color: var(--tossblue); }
+  .pane .head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; border-bottom: 1px solid var(--rule); margin-bottom: 24px; }
+  .pane .head h2 { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: -0.025em; }
+  .pane .head .src { font-size: 12px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+
+  /* SVG style class diagram */
+  .diagram { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .diagram svg { max-width: 100%; max-height: 100%; }
+
+  .cls-box {
+    fill: var(--surface);
+    stroke: var(--ink-3);
+    stroke-width: 1.5;
+  }
+  .cls-box.iface { stroke: var(--negative); stroke-dasharray: 6 4; }
+  .cls-box.team-impl { stroke: var(--tossblue); }
+  .cls-title { font-family: var(--font-mono); font-size: 14px; font-weight: 700; fill: var(--ink); }
+  .cls-stereotype { font-family: var(--font-mono); font-size: 11px; font-style: italic; fill: var(--ink-4); }
+  .cls-method { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-2); }
+  .cls-divider { stroke: var(--rule); stroke-width: 1; }
+  .arrow-line { stroke: var(--ink-3); stroke-width: 1.5; fill: none; }
+  .arrow-line.dashed { stroke-dasharray: 6 4; }
+
+  .legend { padding: 14px 0 0; display: flex; gap: 16px; font-size: 12px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; padding-top: 14px; border-top: 1px solid var(--rule); margin-top: 18px; }
+  .legend .ll { display: flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 16px; height: 8px; border-radius: 2px; background: var(--ink-3); }
+  .legend .swatch.iface { background: transparent; border: 1.5px dashed var(--negative); }
+  .legend .swatch.team { background: var(--tossblue); }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">DP#2 Strategy — 교과서 vs 우리 팀</div>
+    <div class="subtitle">RefundPolicy family는 GoF 원형 그대로</div>
+  </div>
+  <div class="pill">PDF 별첨#2 §1-1 가이드</div>
+</div>
+
+<div class="pair">
+
+  <section class="pane book">
+    <div class="head">
+      <h2>교과서 · GoF Strategy</h2>
+      <span class="src">Design Patterns (Gamma et al.) · ch.5</span>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg">
+        <!-- Context -->
+        <rect class="cls-box" x="60" y="40" width="200" height="86" rx="6"/>
+        <text class="cls-title" x="160" y="62" text-anchor="middle">Context</text>
+        <line class="cls-divider" x1="60" y1="76" x2="260" y2="76"/>
+        <text class="cls-method" x="76" y="98">contextInterface()</text>
+        <text class="cls-method" x="76" y="116">— uses strategy</text>
+
+        <!-- Strategy interface -->
+        <rect class="cls-box iface" x="350" y="40" width="200" height="106" rx="6"/>
+        <text class="cls-stereotype" x="450" y="62" text-anchor="middle">«interface»</text>
+        <text class="cls-title" x="450" y="80" text-anchor="middle">Strategy</text>
+        <line class="cls-divider" x1="350" y1="96" x2="550" y2="96"/>
+        <text class="cls-method" x="366" y="118">+ algorithmInterface()</text>
+
+        <!-- Context → Strategy (uses, association) -->
+        <line class="arrow-line" x1="260" y1="80" x2="350" y2="80"/>
+        <polygon points="346,76 354,80 346,84" fill="#4E5968"/>
+        <text class="cls-method" x="278" y="74" fill="#4E5968">strategy</text>
+
+        <!-- Concrete Strategies -->
+        <rect class="cls-box" x="80" y="240" width="170" height="64" rx="6"/>
+        <text class="cls-title" x="165" y="264" text-anchor="middle">ConcreteStrategyA</text>
+        <line class="cls-divider" x1="80" y1="278" x2="250" y2="278"/>
+        <text class="cls-method" x="96" y="296">+ algorithmInterface()</text>
+
+        <rect class="cls-box" x="280" y="240" width="170" height="64" rx="6"/>
+        <text class="cls-title" x="365" y="264" text-anchor="middle">ConcreteStrategyB</text>
+        <line class="cls-divider" x1="280" y1="278" x2="450" y2="278"/>
+        <text class="cls-method" x="296" y="296">+ algorithmInterface()</text>
+
+        <rect class="cls-box" x="480" y="240" width="100" height="64" rx="6"/>
+        <text class="cls-title" x="530" y="264" text-anchor="middle">…</text>
+
+        <!-- realization arrows (dashed, hollow triangle) -->
+        <line class="arrow-line dashed" x1="165" y1="240" x2="430" y2="170"/>
+        <line class="arrow-line dashed" x1="365" y1="240" x2="450" y2="170"/>
+        <line class="arrow-line dashed" x1="530" y1="240" x2="470" y2="170"/>
+        <polygon points="445,150 460,170 430,170" fill="white" stroke="#4E5968" stroke-width="1.5"/>
+
+        <!-- Note -->
+        <text class="cls-stereotype" x="300" y="400" text-anchor="middle">Context는 Strategy의 인터페이스만 알고,</text>
+        <text class="cls-stereotype" x="300" y="418" text-anchor="middle">알고리즘 종류는 런타임에 다형성으로 결정</text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="pane team">
+    <div class="head">
+      <h2>우리 팀 · RefundPolicy family</h2>
+      <span class="src">KoreanAirReservationDomain · iter 2</span>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg">
+        <!-- Context = RefundHandler -->
+        <rect class="cls-box team-impl" x="40" y="40" width="220" height="106" rx="6"/>
+        <text class="cls-stereotype" x="150" y="62" text-anchor="middle">«control»</text>
+        <text class="cls-title" x="150" y="80" text-anchor="middle">RefundHandler</text>
+        <line class="cls-divider" x1="40" y1="96" x2="260" y2="96"/>
+        <text class="cls-method" x="56" y="116">evaluateRefund(pnr, fc)</text>
+        <text class="cls-method" x="56" y="134">resolvePolicy(fareRule)</text>
+
+        <!-- Strategy interface = RefundPolicy -->
+        <rect class="cls-box iface" x="350" y="40" width="220" height="106" rx="6"/>
+        <text class="cls-stereotype" x="460" y="62" text-anchor="middle">«interface»</text>
+        <text class="cls-title" x="460" y="80" text-anchor="middle">RefundPolicy</text>
+        <line class="cls-divider" x1="350" y1="96" x2="570" y2="96"/>
+        <text class="cls-method" x="366" y="116">calculateRefundAmount(int)</text>
+        <text class="cls-method" x="366" y="134">getRefundType()</text>
+
+        <!-- arrow -->
+        <line class="arrow-line" x1="260" y1="92" x2="350" y2="92"/>
+        <polygon points="346,88 354,92 346,96" fill="#4E5968"/>
+        <text class="cls-method" x="280" y="84" fill="#4E5968">policy</text>
+
+        <!-- Concretes -->
+        <rect class="cls-box team-impl" x="40" y="240" width="170" height="64" rx="6"/>
+        <text class="cls-title" x="125" y="264" text-anchor="middle">FullRefundPolicy</text>
+        <line class="cls-divider" x1="40" y1="278" x2="210" y2="278"/>
+        <text class="cls-method" x="56" y="296">→ paid</text>
+
+        <rect class="cls-box team-impl" x="220" y="240" width="170" height="64" rx="6"/>
+        <text class="cls-title" x="305" y="264" text-anchor="middle">PartialRefundPolicy</text>
+        <line class="cls-divider" x1="220" y1="278" x2="390" y2="278"/>
+        <text class="cls-method" x="236" y="296">→ paid - penalty</text>
+
+        <rect class="cls-box team-impl" x="400" y="240" width="170" height="64" rx="6"/>
+        <text class="cls-title" x="485" y="264" text-anchor="middle">NoRefundPolicy</text>
+        <line class="cls-divider" x1="400" y1="278" x2="570" y2="278"/>
+        <text class="cls-method" x="416" y="296">→ 0</text>
+
+        <!-- realization -->
+        <line class="arrow-line dashed" x1="125" y1="240" x2="440" y2="170"/>
+        <line class="arrow-line dashed" x1="305" y1="240" x2="460" y2="170"/>
+        <line class="arrow-line dashed" x1="485" y1="240" x2="480" y2="170"/>
+        <polygon points="455,150 470,170 440,170" fill="white" stroke="#3182F6" stroke-width="1.5"/>
+
+        <text class="cls-stereotype" x="300" y="400" text-anchor="middle">Y → Full · M/B → Partial · V/O → No</text>
+        <text class="cls-stereotype" x="300" y="418" text-anchor="middle">FareRule.checkRefundPolicy()가 매핑 담당</text>
+      </svg>
+    </div>
+  </section>
+
+</div>
+
+<div class="legend">
+  <span class="ll"><span class="swatch iface"></span>«interface»</span>
+  <span class="ll"><span class="swatch"></span>구상 클래스</span>
+  <span class="ll"><span class="swatch team"></span>우리 팀 적용 클래스</span>
+  <span style="margin-left:auto; color: var(--ink-3);">교과서 구조와 1:1 일치 — Context = RefundHandler · Strategy = RefundPolicy · Concrete = Full / Partial / No</span>
+</div>
+
+<div class="footer">
+  <span>iter 2 · DP#2 Strategy · 교과서 vs 팀 구성도 비교</span>
+  <span class="pg">10 / 15</span>
+</div>
+
+</body>
+</html>

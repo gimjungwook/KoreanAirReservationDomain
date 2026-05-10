@@ -8,12 +8,19 @@ import org.eclipse.swt.graphics.RGB;
 import java.io.FileWriter;
 
 /**
- * Generates State Diagrams as Activity Diagrams (.acd) for:
- * 1. Reservation - booking lifecycle
- * 2. FlightSchedule - flight operations lifecycle
- * 3. Seat - seat availability lifecycle
+ * Generates State Diagrams as Activity Diagrams (.acd) for Iteration 1 scope:
+ * 1. Reservation — booking lifecycle (8 노드 모두 표시, 단 활성 전이는 4개만)
+ * 2. FlightSchedule — 변화 없음 (iter1·iter2 동일)
+ * 3. Seat — 변화 없음 (iter1·iter2 동일)
+ *
+ * <p>Reservation 다이어그램은 4/28 발표 자료의 "Walking Skeleton" 합의에 따라
+ *   start→Initiated→PendingPayment→Confirmed / PendingPayment→Cancelled 4개 전이만
+ *   실제 구현·전이 노출. 나머지 5개 전이(Confirmed→Ticketed, *→CancellationRequested,
+ *   CancellationRequested→Cancelled, Cancelled→RefundRequested/end1, RefundRequested→*)는
+ *   iter2 활성 예정이므로 본 generator 에서 그리지 않음.
+ *   단 노드(상태) 자체는 8개 모두 박스로 표시 — Class Diagram 의 스텁 처리와 동일한 의도.
  */
-public class GenerateStateDiagrams {
+public class GenerateStateDiagramsIter1 {
 
     static RGB WHITE = new RGB(255, 255, 206);
     static RGB BLACK = new RGB(0, 0, 0);
@@ -93,41 +100,37 @@ public class GenerateStateDiagrams {
 
         InitialStateModel start = initial(300, 10, root);
 
-        // Spread states horizontally to prevent label overlap on bidirectional flows
-        ActionModel initiated = state("Initiated", 250, 70, 150, 40, root);
-        ActionModel pendingPayment = state("PendingPayment", 200, 170, 180, 40, root);
-        ActionModel confirmed = state("Confirmed", 350, 290, 150, 40, root);
-        ActionModel ticketed = state("Ticketed", 620, 190, 140, 40, root);
-        ActionModel cancReq = state("CancellationRequested", 580, 400, 220, 40, root);
-        ActionModel cancelled = state("Cancelled", 200, 530, 150, 40, root);
-        ActionModel refundReq = state("RefundRequested", 520, 650, 180, 40, root);
-        ActionModel refunded = state("Refunded", 520, 770, 150, 40, root);
+        // 8 노드 모두 표시 (iter2 활성 예정 노드 포함, 단 전이는 iter1 활성분만)
+        ActionModel initiated      = state("Initiated",             250, 70,  150, 40, root);
+        ActionModel pendingPayment = state("PendingPayment",        200, 170, 180, 40, root);
+        ActionModel confirmed      = state("Confirmed",             350, 290, 150, 40, root);
+        ActionModel ticketed       = state("Ticketed (iter2)",      620, 190, 180, 40, root);
+        ActionModel cancReq        = state("CancellationRequested (iter2)", 580, 400, 280, 40, root);
+        ActionModel cancelled      = state("Cancelled",             200, 530, 150, 40, root);
+        ActionModel refundReq      = state("RefundRequested (iter2)", 520, 650, 230, 40, root);
+        ActionModel refunded       = state("Refunded (iter2)",      520, 770, 200, 40, root);
 
-        // Waypoint routes "refund denied" backward flow to avoid label overlap
-        ActionModel wpRefundDenied = waypoint(210, 670, root);
+        // (iter1 단계에선 final state 도 활성 분기만 그려둠 — refund/non-refundable 종단은 iter2)
+        // 활성 전이 4개:
+        //   start → Initiated
+        //   Initiated → PendingPayment   (passenger info entered)
+        //   PendingPayment → Confirmed   (payment approved)
+        //   PendingPayment → Cancelled   (payment failed / timeout)
+        flow(start,          initiated,      "itinerary selected");
+        flow(initiated,      pendingPayment, "passenger info entered");
+        flow(pendingPayment, confirmed,      "payment approved");
+        flow(pendingPayment, cancelled,      "payment failed / timeout");
 
-        FinalStateModel end1 = finalState(520, 540, root);   // non-refundable
-        FinalStateModel end2 = finalState(570, 840, root);
+        // ticketed / cancReq / refundReq / refunded → 노드만 두고 전이 미연결 (iter2 활성 예정)
+        // unused warning 회피를 위해 명시적으로 참조만 유지
+        if (ticketed == null || cancReq == null || refundReq == null || refunded == null) {
+            throw new IllegalStateException("iter2 stub nodes must be present");
+        }
 
-        flow(start, initiated, "itinerary selected");
-        flow(initiated, pendingPayment, "passenger info entered");
-        flow(pendingPayment, confirmed, "payment approved");
-        flow(pendingPayment, cancelled, "payment failed / timeout");
-        flow(confirmed, ticketed, "e-ticket issued");
-        flow(confirmed, cancReq, "cancellation requested");
-        flow(ticketed, cancReq, "cancellation requested");
-        flow(cancReq, cancelled, "fare rule verified");
-        flow(cancelled, refundReq, "refund requested");      // diagonal right-down
-        flow(cancelled, end1, "non-refundable fare");
-        flow(refundReq, refunded, "refund approved");
-        flow(refundReq, wpRefundDenied, "refund denied");     // goes left to waypoint
-        flow(wpRefundDenied, cancelled, "");                   // then up to Cancelled
-        flow(refunded, end2, "");
-
-        try (FileWriter fw = new FileWriter("src/reservationState.acd")) {
+        try (FileWriter fw = new FileWriter("src/reservationState-iter1.acd")) {
             fw.write(serialize(root));
         }
-        System.out.println("Generated: src/reservationState.acd");
+        System.out.println("Generated: src/reservationState-iter1.acd");
     }
 
     static void generateFlightSchedule() throws Exception {
@@ -149,9 +152,9 @@ public class GenerateStateDiagrams {
         FinalStateModel end2 = finalState(550, 310, root);
 
         flow(start, scheduled, "flight schedule created");
-        flow(scheduled, delayed, "delay reported");            // horizontal right
-        flow(delayed, wpDelayResolved, "delay resolved");      // diagonal down-left to waypoint
-        flow(wpDelayResolved, scheduled, "");                   // diagonal up-left to Scheduled
+        flow(scheduled, delayed, "delay reported");
+        flow(delayed, wpDelayResolved, "delay resolved");
+        flow(wpDelayResolved, scheduled, "");
         flow(scheduled, boardingOpen, "boarding time reached");
         flow(delayed, boardingOpen, "delay resolved, boarding starts");
         flow(boardingOpen, departed, "aircraft departed");
@@ -161,10 +164,10 @@ public class GenerateStateDiagrams {
         flow(arrived, end1, "");
         flow(cancelled, end2, "");
 
-        try (FileWriter fw = new FileWriter("src/flightScheduleState.acd")) {
+        try (FileWriter fw = new FileWriter("src/flightScheduleState-iter1.acd")) {
             fw.write(serialize(root));
         }
-        System.out.println("Generated: src/flightScheduleState.acd");
+        System.out.println("Generated: src/flightScheduleState-iter1.acd");
     }
 
     static void generateSeat() throws Exception {
@@ -178,33 +181,32 @@ public class GenerateStateDiagrams {
         ActionModel checkedIn = state("CheckedIn", 250, 460, 150, 40, root);
         ActionModel occupied = state("Occupied", 250, 590, 150, 40, root);
 
-        // Waypoints route backward flows to the LEFT, avoiding overlap with forward flows
-        ActionModel wpHeldBack = waypoint(80, 140, root);     // Held → Available return
-        ActionModel wpBookedBack = waypoint(80, 200, root);   // Booked → Available return
+        ActionModel wpHeldBack = waypoint(80, 140, root);
+        ActionModel wpBookedBack = waypoint(80, 200, root);
 
         FinalStateModel end = finalState(300, 670, root);
 
         flow(start, available, "seat initialized");
-        flow(available, held, "passenger selects seat");       // straight down
-        flow(held, wpHeldBack, "hold timeout / cancelled");    // goes left to waypoint
-        flow(wpHeldBack, available, "");                        // then up-right to Available
-        flow(held, booked, "payment approved");                // straight down
-        flow(booked, wpBookedBack, "booking cancelled");       // goes left to waypoint
-        flow(wpBookedBack, available, "");                      // then up-right to Available
+        flow(available, held, "passenger selects seat");
+        flow(held, wpHeldBack, "hold timeout / cancelled");
+        flow(wpHeldBack, available, "");
+        flow(held, booked, "payment approved");
+        flow(booked, wpBookedBack, "booking cancelled");
+        flow(wpBookedBack, available, "");
         flow(booked, checkedIn, "check-in completed");
         flow(checkedIn, occupied, "passenger boarded");
         flow(occupied, end, "");
 
-        try (FileWriter fw = new FileWriter("src/seatState.acd")) {
+        try (FileWriter fw = new FileWriter("src/seatState-iter1.acd")) {
             fw.write(serialize(root));
         }
-        System.out.println("Generated: src/seatState.acd");
+        System.out.println("Generated: src/seatState-iter1.acd");
     }
 
     public static void main(String[] args) throws Exception {
         generateReservation();
         generateFlightSchedule();
         generateSeat();
-        System.out.println("All 3 state diagrams generated!");
+        System.out.println("All 3 state diagrams (iter1) generated!");
     }
 }

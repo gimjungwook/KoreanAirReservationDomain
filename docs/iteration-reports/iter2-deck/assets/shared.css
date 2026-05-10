@@ -1,0 +1,175 @@
+/* shared.css — Iter2 Deck · Toss-inspired design tokens
+   Loaded by every slide. Soft Toss Blue primary, generous radii, big numerals. */
+
+:root {
+  /* Surface */
+  --bg:        #F2F4F6;     /* Toss page bg */
+  --surface:   #FFFFFF;
+  --surface-2: #F9FAFB;
+
+  /* Ink */
+  --ink:       #191F28;     /* Toss black */
+  --ink-2:     #333D4B;
+  --ink-3:     #4E5968;
+  --ink-4:     #8B95A1;
+  --ink-5:     #B0B8C1;
+
+  /* Border */
+  --rule:      #E5E8EB;
+  --rule-soft: #F2F4F6;
+
+  /* Brand */
+  --tossblue:    #3182F6;     /* primary */
+  --tossblue-2:  #1B64DA;
+  --tossblue-bg: #E8F2FF;     /* tinted bg pop */
+  --tossblue-bg-soft: #F4F8FF;
+
+  /* Semantic */
+  --positive:   #16A34A;
+  --positive-bg:#E6F7EC;
+  --negative:   #F04452;
+  --negative-bg:#FFEEEF;
+  --warn:       #F2A30F;
+  --warn-bg:    #FFF6E0;
+
+  /* Backwards-compat aliases (so existing slides don't break before rewrite) */
+  --accent:    var(--tossblue);
+  --success:   var(--positive);
+  --danger:    var(--negative);
+
+  /* Typography */
+  --font-display: "Pretendard Variable", "Pretendard",
+                  -apple-system, BlinkMacSystemFont,
+                  "Inter Tight", "Inter", sans-serif;
+  --font-body:    "Pretendard Variable", "Pretendard",
+                  -apple-system, BlinkMacSystemFont,
+                  "Inter", sans-serif;
+  --font-mono:    "JetBrains Mono", "SF Mono", "Menlo", ui-monospace, monospace;
+
+  /* Radii — Toss heavy on round */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  /* Shadows — soft, layered */
+  --shadow-sm: 0 1px 2px rgba(25,31,40,0.04), 0 0 0 1px rgba(25,31,40,0.04);
+  --shadow:    0 2px 8px rgba(25,31,40,0.04), 0 0 0 1px rgba(25,31,40,0.04);
+  --shadow-lg: 0 8px 32px rgba(25,31,40,0.06), 0 0 0 1px rgba(25,31,40,0.04);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
+  overflow: hidden;
+  letter-spacing: -0.01em;
+}
+
+body {
+  padding: 96px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header band ─────────────────────────────────────────────── */
+.deck-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink-4);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: var(--tossblue);
+}
+.eyebrow .accent { color: var(--tossblue); font-weight: 700; }
+.eyebrow .success { color: var(--positive); font-weight: 700; }
+
+.deck-page {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Display ──────────────────────────────────────────── */
+.display-title {
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.display-subtitle {
+  font-family: var(--font-body);
+  font-size: 22px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--ink-3);
+  margin-top: 14px;
+  max-width: 1100px;
+  text-wrap: pretty;
+  letter-spacing: -0.015em;
+}
+
+/* ── Reusable atoms ─────────────────────────────────────── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  background: var(--rule-soft);
+  color: var(--ink-3);
+}
+.tag--brand    { color: var(--tossblue); background: var(--tossblue-bg); }
+.tag--positive { color: var(--positive); background: var(--positive-bg); }
+.tag--negative { color: var(--negative); background: var(--negative-bg); }
+.tag--warn     { color: var(--warn);     background: var(--warn-bg); }
+.tag--mono     { font-family: var(--font-mono); font-weight: 500; }
+
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: 32px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 24px 0;
+}

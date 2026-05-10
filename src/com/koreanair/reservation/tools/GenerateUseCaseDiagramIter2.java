@@ -14,7 +14,7 @@ import java.io.FileWriter;
  * Run as: Java Application (right-click → Run As → Java Application)
  * Output: src/reservationSystem.ucd
  */
-public class GenerateUseCaseDiagram {
+public class GenerateUseCaseDiagramIter2 {
 
     static RGB WHITE = new RGB(255, 255, 206);
     static RGB BLACK = new RGB(0, 0, 0);
@@ -100,6 +100,7 @@ public class GenerateUseCaseDiagram {
         UsecaseModel viewETicket      = uc("View e-Ticket",             380, 520, 150, 40, system);
         UsecaseModel refundDenied     = uc("Refund Denied",             380, 640, 170, 40, system);
         UsecaseModel retrievePNR      = uc("Retrieve Booking by PNR",   380, 760, 240, 40, system);
+        UsecaseModel issueTicket      = uc("Issue e-Ticket",            60,  640, 170, 40, system);
 
         // Right column
         UsecaseModel reviewRefund     = uc("Review Refund Request",     700, 160, 240, 40, system);
@@ -141,6 +142,7 @@ public class GenerateUseCaseDiagram {
 
         // === INCLUDE ===
         include(bookFlight, makePayment);
+        include(bookFlight, issueTicket);   // iter2: Make Payment 성공 후 e-Ticket 발권
         include(applyMileage, login);
         include(bookMultiSeg, bookFlight);
         include(retrievePNR, viewBooking);
@@ -159,14 +161,14 @@ public class GenerateUseCaseDiagram {
 
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + xstream.toXML(root);
 
-        String outputPath = "src/reservationSystem.ucd";
+        String outputPath = "src/reservationSystem-iter2.ucd";
         try (FileWriter fw = new FileWriter(outputPath)) {
             fw.write(xml);
         }
 
         System.out.println("Generated: " + outputPath);
-        System.out.println("Use cases: 16, Actors: 7");
-        System.out.println("Associations: 17, Includes: 5, Extends: 4");
-        System.out.println("Total connections: 26");
+        System.out.println("Use cases: 17 (+Issue e-Ticket iter2), Actors: 7");
+        System.out.println("Associations: 17, Includes: 6 (+bookFlight->issueTicket), Extends: 4");
+        System.out.println("Total connections: 27");
     }
 }

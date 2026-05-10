@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>13 · State Diagram</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 20px; }
+  .top .left { display: flex; align-items: baseline; gap: 16px; }
+  .top .title { font-family: var(--font-display); font-size: 44px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 18px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .stats { display: flex; gap: 12px; }
+  .top .stat-pill { display: inline-flex; align-items: baseline; gap: 8px; height: 40px; padding: 0 18px; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); font-size: 15px; font-weight: 600; color: var(--ink-3); }
+  .top .stat-pill .lab { color: var(--ink-4); }
+  .top .stat-pill .v { color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .top .stat-pill.brand { background: var(--tossblue-bg); border-color: transparent; color: var(--tossblue); }
+  .top .stat-pill.brand .v { color: var(--tossblue); }
+
+  .pair { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .pane { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; }
+  .pane .pane-head { display: flex; justify-content: space-between; align-items: center; padding: 4px 12px 16px; }
+  .pane .pane-head .h { font-family: var(--font-display); font-size: 28px; font-weight: 800; letter-spacing: -0.025em; }
+  .pane.iter1 .pane-head .h { color: var(--ink-3); }
+  .pane.iter2 .pane-head .h { color: var(--tossblue); }
+  .pane .pane-head .stat { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--rule-soft); color: var(--ink-3); }
+  .pane.iter2 .pane-head .stat { background: var(--tossblue-bg); color: var(--tossblue); }
+  .canvas { flex: 1; position: relative; background: var(--surface-2); border-radius: var(--r-lg); overflow: hidden; min-height: 600px; }
+  .canvas img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .canvas .ghost { position: absolute; inset: 0; border: 2px dashed var(--ink-5); border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+  .canvas .ghost .filename { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--ink-3); }
+  .canvas .ghost .small { font-size: 13px; font-weight: 600; color: var(--ink-5); letter-spacing: -0.005em; }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">State Diagram (Reservation)</div>
+    <div class="subtitle">iter 1 vs iter 2 — sub iteration State 활성</div>
+  </div>
+  <div class="stats">
+    <div class="stat-pill"><span class="lab">iter 1</span><span class="v">3 / 8 활성</span></div>
+    <div class="stat-pill brand"><span class="lab">iter 2</span><span class="v">8 / 8 활성</span><span class="lab">·</span><span class="v">+5</span></div>
+  </div>
+</div>
+
+<div class="pair">
+  <section class="pane iter1">
+    <div class="pane-head">
+      <span class="h">iter 1</span>
+      <span class="stat">3 transitions live · 5 stub</span>
+    </div>
+    <div class="canvas">
+      <img src="../assets/diagrams/reservationState-iter1.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">reservationState-iter1.png</span>
+        <span class="small">AmaterasUML PNG export here</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane iter2">
+    <div class="pane-head">
+      <span class="h">iter 2</span>
+      <span class="stat">+5 transitions activated · 8 / 8 live</span>
+    </div>
+    <div class="canvas">
+      <img src="../assets/diagrams/reservationState-iter2.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">reservationState-iter2.png</span>
+        <span class="small">AmaterasUML PNG export here</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="footer">
+  <span>iter 2 · State Diagram · 신규 활성: issueTicket / requestCancellation / confirmCancellation / requestRefund / processRefundDecision</span>
+  <span class="pg">12 / 15</span>
+</div>
+
+</body>
+</html>

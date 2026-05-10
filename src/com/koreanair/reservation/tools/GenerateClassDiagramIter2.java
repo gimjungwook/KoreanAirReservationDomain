@@ -20,15 +20,22 @@ import java.util.ResourceBundle;
 
 /**
  * Generates the Korean Air Reservation System Class Diagram (.cld)
- * using AmaterasModeler's own model classes + XStream serialization.
+ * for ITERATION 2 — full scope including Strategy refund family,
+ * RefundHandler, AuthService.verifyGuest, ReservationLookupService,
+ * Ticket entity, and PaymentGateway.sendRefund.
  *
- * Output: src/classDiagram.cld
+ * Uses AmaterasModeler's own model classes + XStream serialization.
+ *
+ * Output: src/classDiagram-iter2.cld
+ *
+ * Companion: {@link GenerateClassDiagramIter1} emits the
+ * walking-skeleton subset (iter1 scope only).
  *
  * NOTE: Runs outside Eclipse, so we must bootstrap UMLPlugin by
  *       reflectively invoking ReflectionFactory to bypass the
  *       AbstractUIPlugin constructor chain.
  */
-public class GenerateClassDiagram {
+public class GenerateClassDiagramIter2 {
 
     /**
      * Bootstrap the UMLPlugin singleton without triggering the full
@@ -250,12 +257,17 @@ public class GenerateClassDiagram {
         guest.addChild(attr("guestSessionId", "String", Visibility.PRIVATE));
         guest.addChild(op("getGuestSessionId", "String", Visibility.PUBLIC));
 
-        ClassModel mileageAccount = cls("MileageAccount", "entity", 30, 395, 220, 115,
-                ENTITY_BG, root);                                      // 1a+2o=3 → 109→115
-        mileageAccount.addChild(attr("balance", "int", Visibility.PRIVATE));
-        mileageAccount.addChild(op("getBalance", "int", Visibility.PUBLIC));
+        ClassModel mileageAccount = cls("MileageAccount", "entity", 30, 395, 220, 170,
+                ENTITY_BG, root);                                      // 2a+4o=6 → 163→170
+        mileageAccount.addChild(attr("accountId", "Long", Visibility.PRIVATE));
+        mileageAccount.addChild(attr("balance", "BigDecimal", Visibility.PRIVATE));
+        mileageAccount.addChild(op("getBalance", "BigDecimal", Visibility.PUBLIC));
         mileageAccount.addChild(op("updateBalance", "void", Visibility.PUBLIC,
-                new String[][]{{"remainingMileage", "int"}}));
+                new String[][]{{"remainingMileage", "BigDecimal"}}));
+        mileageAccount.addChild(op("deposit", "void", Visibility.PUBLIC,
+                new String[][]{{"amount", "BigDecimal"}}));
+        mileageAccount.addChild(op("withdraw", "boolean", Visibility.PUBLIC,
+                new String[][]{{"amount", "BigDecimal"}}));
 
         // ── FlightSchedule family (top-center) ─────────────────────
         ClassModel flightSchedule = cls("FlightSchedule", "entity", 540, 30, 240, 200,
@@ -279,8 +291,7 @@ public class GenerateClassDiagram {
         fareRule.addChild(attr("cancellationPenalty", "BigDecimal", Visibility.PRIVATE));
         fareRule.addChild(op("isRefundable", "boolean", Visibility.PUBLIC));
         fareRule.addChild(op("getChangeFee", "BigDecimal", Visibility.PUBLIC));
-        fareRule.addChild(op("checkRefundPolicy", "FareRule", Visibility.PUBLIC,
-                new String[][]{{"fareClass", "String"}}));
+        fareRule.addChild(op("checkRefundPolicy", "RefundPolicy", Visibility.PUBLIC));
 
         // ── AircraftType, Seat, Airport (top-right) ─────────────────
         ClassModel aircraftType = cls("AircraftType", "entity", 820, 30, 210, 135,
@@ -293,14 +304,14 @@ public class GenerateClassDiagram {
         ClassModel seat = cls("Seat", "entity", 1070, 30, 210, 200,
                 ENTITY_BG, root);                                      // 3a+5o=8 → 199→200
         seat.addChild(attr("seatNumber", "String", Visibility.PRIVATE));
-        seat.addChild(attr("seatClass", "String", Visibility.PRIVATE));
-        seat.addChild(attr("status", "String", Visibility.PRIVATE));
+        seat.addChild(attr("cabinClass", "CabinClass", Visibility.PRIVATE));
+        seat.addChild(attr("status", "SeatStatus", Visibility.PRIVATE));
         seat.addChild(op("getSeatNumber", "String", Visibility.PUBLIC));
-        seat.addChild(op("getStatus", "String", Visibility.PUBLIC));
+        seat.addChild(op("getStatus", "SeatStatus", Visibility.PUBLIC));
         seat.addChild(op("hold", "void", Visibility.PUBLIC,
-                new String[][]{{"timeout", "int"}}));
+                new String[][]{{"timeoutMinutes", "int"}}));
         seat.addChild(op("updateStatus", "void", Visibility.PUBLIC,
-                new String[][]{{"newStatus", "String"}}));
+                new String[][]{{"newStatus", "SeatStatus"}}));
         seat.addChild(op("release", "void", Visibility.PUBLIC));
 
         ClassModel airport = cls("Airport", "entity", 1070, 250, 210, 150,
@@ -312,23 +323,28 @@ public class GenerateClassDiagram {
         airport.addChild(op("getAirportName", "String", Visibility.PUBLIC));
 
         // ── Reservation chain (middle row) ──────────────────────────
-        ClassModel reservation = cls("Reservation", "entity", 290, 490, 230, 340,
-                ENTITY_BG, root);                                      // 4a+11o=15 → 325→340
+        ClassModel reservation = cls("Reservation", "entity", 290, 490, 230, 380,
+                ENTITY_BG, root);                                      // 4a+13o=17 → 361→380
         reservation.addChild(attr("pnrNumber", "String", Visibility.PRIVATE));
-        reservation.addChild(attr("reservationDate", "Date", Visibility.PRIVATE));
+        reservation.addChild(attr("reservationDate", "LocalDateTime", Visibility.PRIVATE));
         reservation.addChild(attr("currentState", "ReservationState", Visibility.PRIVATE));
-        reservation.addChild(attr("status", "String", Visibility.PRIVATE));
+        reservation.addChild(attr("status", "ReservationStatus", Visibility.PRIVATE));
         reservation.addChild(op("getPnrNumber", "String", Visibility.PUBLIC));
-        reservation.addChild(op("getStatus", "String", Visibility.PUBLIC));
+        reservation.addChild(op("getStatus", "ReservationStatus", Visibility.PUBLIC));
         reservation.addChild(op("create", "Reservation", Visibility.PUBLIC,
-                new String[][]{{"initialStatus", "String"}}));
+                new String[][]{{"initialStatus", "ReservationStatus"}}));
         reservation.addChild(op("setState", "void", Visibility.PUBLIC,
-                new String[][]{{"state", "ReservationState"}}));
+                new String[][]{{"next", "ReservationState"}}));
         reservation.addChild(op("getStateName", "String", Visibility.PUBLIC));
-        reservation.addChild(op("enterPassengerInfo", "void", Visibility.PUBLIC));
+        reservation.addChild(op("enterPassengerInfo", "void", Visibility.PUBLIC,
+                new String[][]{{"p", "Passenger"}}));
         reservation.addChild(op("processPayment", "void", Visibility.PUBLIC));
         reservation.addChild(op("handlePaymentFailure", "void", Visibility.PUBLIC));
         reservation.addChild(op("issueTicket", "void", Visibility.PUBLIC));
+        reservation.addChild(op("addTicket", "void", Visibility.PUBLIC,
+                new String[][]{{"ticket", "Ticket"}}));
+        reservation.addChild(op("addPayment", "void", Visibility.PUBLIC,
+                new String[][]{{"payment", "Payment"}}));
         reservation.addChild(op("requestCancellation", "void", Visibility.PUBLIC));
         reservation.addChild(op("confirmCancellation", "void", Visibility.PUBLIC));
         reservation.addChild(op("requestRefund", "void", Visibility.PUBLIC));
@@ -346,49 +362,60 @@ public class GenerateClassDiagram {
         itinerary.addChild(op("getTripType", "String", Visibility.PUBLIC));
         itinerary.addChild(op("getSegments", "List", Visibility.PUBLIC));
 
-        ClassModel segment = cls("Segment", "entity", 810, 490, 240, 170,
-                ENTITY_BG, root);                                      // 4a+2o=6 → 163→170
+        ClassModel segment = cls("Segment", "entity", 810, 490, 240, 205,
+                ENTITY_BG, root);                                      // 4a+4o=8 → 199→205
         segment.addChild(attr("sequenceNumber", "int", Visibility.PRIVATE));
-        segment.addChild(attr("departureTime", "DateTime", Visibility.PRIVATE));
-        segment.addChild(attr("arrivalTime", "DateTime", Visibility.PRIVATE));
+        segment.addChild(attr("departureTime", "LocalDateTime", Visibility.PRIVATE));
+        segment.addChild(attr("arrivalTime", "LocalDateTime", Visibility.PRIVATE));
         segment.addChild(attr("connectionTime", "Duration", Visibility.PRIVATE));
         segment.addChild(op("getSequenceNumber", "int", Visibility.PUBLIC));
-        segment.addChild(op("getDepartureTime", "DateTime", Visibility.PUBLIC));
+        segment.addChild(op("getDepartureTime", "LocalDateTime", Visibility.PUBLIC));
+        segment.addChild(op("getFlightSchedule", "FlightSchedule", Visibility.PUBLIC));
+        segment.addChild(op("setFlightSchedule", "void", Visibility.PUBLIC,
+                new String[][]{{"flightSchedule", "FlightSchedule"}}));
 
         // ── Transaction family (bottom row, y=800 due to taller Reservation) ───
-        ClassModel payment = cls("Payment", "entity", 290, 800, 220, 170,
-                ENTITY_BG, root);                                      // 3a+3o=6 → 163→170
-        payment.addChild(attr("paymentId", "String", Visibility.PRIVATE));
+        ClassModel payment = cls("Payment", "entity", 290, 880, 220, 220,
+                ENTITY_BG, root);                                      // 4a+5o=9 → 217→220
+        payment.addChild(attr("paymentId", "Long", Visibility.PRIVATE));
         payment.addChild(attr("amount", "BigDecimal", Visibility.PRIVATE));
-        payment.addChild(attr("status", "String", Visibility.PRIVATE));
-        payment.addChild(op("getPaymentId", "String", Visibility.PUBLIC));
+        payment.addChild(attr("paymentMethod", "PaymentMethod", Visibility.PRIVATE));
+        payment.addChild(attr("status", "PaymentStatus", Visibility.PRIVATE));
+        payment.addChild(op("getPaymentId", "Long", Visibility.PUBLIC));
         payment.addChild(op("getAmount", "BigDecimal", Visibility.PUBLIC));
-        payment.addChild(op("getStatus", "String", Visibility.PUBLIC));
+        payment.addChild(op("getStatus", "PaymentStatus", Visibility.PUBLIC));
+        payment.addChild(op("pay", "void", Visibility.PUBLIC));
+        payment.addChild(op("fail", "void", Visibility.PUBLIC));
 
-        ClassModel ticket = cls("Ticket", "entity", 550, 800, 210, 150,
-                ENTITY_BG, root);                                      // 2a+3o=5 → 145→150
+        ClassModel ticket = cls("Ticket", "entity", 550, 800, 210, 220,
+                ENTITY_BG, root);                                      // 3a+6o=9 → 217→220
         ticket.addChild(attr("ticketNumber", "String", Visibility.PRIVATE));
-        ticket.addChild(attr("issueDate", "Date", Visibility.PRIVATE));
+        ticket.addChild(attr("status", "TicketStatus", Visibility.PRIVATE));
+        ticket.addChild(attr("issuedAt", "LocalDateTime", Visibility.PRIVATE));
         ticket.addChild(op("getTicketNumber", "String", Visibility.PUBLIC));
-        ticket.addChild(op("getIssueDate", "Date", Visibility.PUBLIC));
+        ticket.addChild(op("getStatus", "TicketStatus", Visibility.PUBLIC));
+        ticket.addChild(op("issue", "void", Visibility.PUBLIC));
+        ticket.addChild(op("cancel", "void", Visibility.PUBLIC));
+        ticket.addChild(op("generate", "Ticket", Visibility.PUBLIC,
+                new String[][]{{"reservation", "Reservation"}, {"passenger", "Passenger"}, {"seat", "Seat"}}));
         ticket.addChild(op("getByReservation", "Ticket", Visibility.PUBLIC,
                 new String[][]{{"pnr", "String"}}));
 
         ClassModel refundRequest = cls("RefundRequest", "entity", 800, 800, 230, 235,
                 ENTITY_BG, root);                                      // 5a+5o=10 → 235→235
         refundRequest.addChild(attr("requestId", "String", Visibility.PRIVATE));
-        refundRequest.addChild(attr("requestDate", "Date", Visibility.PRIVATE));
+        refundRequest.addChild(attr("requestDate", "LocalDateTime", Visibility.PRIVATE));
         refundRequest.addChild(attr("refundAmount", "BigDecimal", Visibility.PRIVATE));
-        refundRequest.addChild(attr("status", "String", Visibility.PRIVATE));
-        refundRequest.addChild(attr("refundType", "String", Visibility.PRIVATE));
+        refundRequest.addChild(attr("status", "RefundStatus", Visibility.PRIVATE));
+        refundRequest.addChild(attr("reason", "String", Visibility.PRIVATE));
         refundRequest.addChild(op("getRequestId", "String", Visibility.PUBLIC));
-        refundRequest.addChild(op("getStatus", "String", Visibility.PUBLIC));
+        refundRequest.addChild(op("getStatus", "RefundStatus", Visibility.PUBLIC));
         refundRequest.addChild(op("queryByStatus", "List", Visibility.PUBLIC,
-                new String[][]{{"status", "String"}}));
+                new String[][]{{"status", "RefundStatus"}}));
         refundRequest.addChild(op("getDetail", "RefundRequest", Visibility.PUBLIC,
                 new String[][]{{"requestId", "String"}}));
         refundRequest.addChild(op("updateStatus", "void", Visibility.PUBLIC,
-                new String[][]{{"newStatus", "String"}}));
+                new String[][]{{"newStatus", "RefundStatus"}}));
 
         // ─────────────────────────────────────────────────────────────
         //  CONTROL CLASSES  (light blue)
@@ -488,6 +515,62 @@ public class GenerateClassDiagram {
                 new String[][]{{"origin", "String"}, {"destination", "String"}}));
         gdsInterface.addChild(op("getPartnerAvailability", "List", Visibility.PUBLIC,
                 new String[][]{{"flightNumber", "String"}}));
+
+        // ─────────────────────────────────────────────────────────────
+        //  ITERATION 2 신규 — Refund entity / AuthService / FlightSearchService / ReservationLookupService
+        //  좌하단 빈 공간 (x=30, y=620~) 에 배치하여 기존 레이아웃 보존
+        // ─────────────────────────────────────────────────────────────
+
+        // Refund (entity) — RefundRequest 와 별개의 트랜잭션 결과 엔티티
+        ClassModel refund = cls("Refund", "entity", 30, 620, 240, 280,
+                ENTITY_BG, root);                                      // 5a+8o=13 → 289→280
+        refund.addChild(attr("refundId", "Long", Visibility.PRIVATE));
+        refund.addChild(attr("refundIdString", "String", Visibility.PRIVATE));
+        refund.addChild(attr("refundAmount", "BigDecimal", Visibility.PRIVATE));
+        refund.addChild(attr("status", "RefundStatus", Visibility.PRIVATE));
+        refund.addChild(attr("reason", "String", Visibility.PRIVATE));
+        refund.addChild(op("getRefundId", "Long", Visibility.PUBLIC));
+        refund.addChild(op("getRefundIdString", "String", Visibility.PUBLIC));
+        refund.addChild(op("getRefundAmount", "BigDecimal", Visibility.PUBLIC));
+        refund.addChild(op("getStatus", "RefundStatus", Visibility.PUBLIC));
+        refund.addChild(op("approve", "void", Visibility.PUBLIC));
+        refund.addChild(op("reject", "void", Visibility.PUBLIC,
+                new String[][]{{"reason", "String"}}));
+        refund.addChild(op("complete", "void", Visibility.PUBLIC));
+
+        // AuthService (control) — iter2 신규
+        ClassModel authService = cls("AuthService", "control", 1340, 30, 260, 220,
+                CONTROL_BG, root);                                     // 8o → 199→220
+        authService.addChild(op("registerMember", "Member", Visibility.PUBLIC,
+                new String[][]{{"member", "Member"}, {"skypassNumber", "String"}, {"password", "String"}}));
+        authService.addChild(op("login", "Member", Visibility.PUBLIC,
+                new String[][]{{"skypassNumber", "String"}, {"password", "String"}}));
+        authService.addChild(op("loginWithHash", "Member", Visibility.PUBLIC,
+                new String[][]{{"skypassNumber", "String"}, {"password", "String"}}));
+        authService.addChild(op("loginByName", "Member", Visibility.PUBLIC,
+                new String[][]{{"name", "String"}, {"password", "String"}}));
+        authService.addChild(op("verifyGuest", "boolean", Visibility.PUBLIC,
+                new String[][]{{"pnr", "String"}, {"name", "String"}, {"email", "String"}}));
+        authService.addChild(op("logout", "void", Visibility.PUBLIC));
+        authService.addChild(op("currentMember", "Member", Visibility.PUBLIC));
+        authService.addChild(op("generateSkypassNumber", "String", Visibility.PUBLIC));
+
+        // FlightSearchService (control) — iter1 walking-skeleton, iter2에서도 활용
+        ClassModel flightSearchService = cls("FlightSearchService", "control", 1340, 270, 260, 115,
+                CONTROL_BG, root);                                     // 3o → 109→115
+        flightSearchService.addChild(op("addSchedule", "void", Visibility.PUBLIC,
+                new String[][]{{"schedule", "FlightSchedule"}}));
+        flightSearchService.addChild(op("search", "List", Visibility.PUBLIC,
+                new String[][]{{"fromAirportCode", "String"}, {"toAirportCode", "String"}, {"date", "LocalDate"}}));
+        flightSearchService.addChild(op("getCatalog", "List", Visibility.PUBLIC));
+
+        // ReservationLookupService (control) — iter2 신규 (회원/비회원 분기 조회)
+        ClassModel reservationLookupService = cls("ReservationLookupService", "control", 1340, 395, 260, 95,
+                CONTROL_BG, root);                                     // 2o → 91→95
+        reservationLookupService.addChild(op("findByMember", "List", Visibility.PUBLIC,
+                new String[][]{{"member", "Member"}}));
+        reservationLookupService.addChild(op("findByGuestPnr", "Reservation", Visibility.PUBLIC,
+                new String[][]{{"pnr", "String"}, {"name", "String"}, {"email", "String"}}));
 
         // ─────────────────────────────────────────────────────────────
         //  STRATEGY PATTERN — RefundPolicy (light yellow, entity area)
@@ -601,6 +684,18 @@ public class GenerateClassDiagram {
         dependency(skypassInterface, mileageAccount);
         dependency(gdsInterface, flightSchedule);
 
+        // ── Iteration 2 신규 의존 / 연관 ─────────────────────────────
+        dependency(refundHandler, refund);              // RefundHandler creates Refund
+        association(refundRequest, refund, "1", "0..1");// RefundRequest -> Refund (승인 시 1:1)
+        dependency(authService, reservation);            // verifyGuest 가 Reservation.findByPnr 사용
+        dependency(flightSearchService, flightSchedule); // 직항 검색
+        dependency(bookingController, flightSearchService);
+        dependency(bookingController, authService);
+        dependency(bookingController, refundHandler);
+        dependency(bookingController, reservationLookupService);
+        dependency(reservationLookupService, authService);
+        dependency(reservationLookupService, reservation);
+
         // ── Strategy pattern (RefundPolicy) ─────────────────────────
         realization(fullRefundPolicy, refundPolicy);
         realization(partialRefundPolicy, refundPolicy);
@@ -627,35 +722,38 @@ public class GenerateClassDiagram {
 
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + xstream.toXML(root);
 
-        String outputPath = "src/classDiagram.cld";
+        String outputPath = "src/classDiagram-iter2.cld";
         try (FileWriter fw = new FileWriter(outputPath)) {
             fw.write(xml);
         }
 
-        System.out.println("Generated: " + outputPath);
+        System.out.println("[Iter2] Generated: " + outputPath);
         System.out.println();
-        System.out.println("=== Summary ===");
-        System.out.println("Entity classes:   15  (original)");
-        System.out.println("Control classes:   3  (original)");
+        System.out.println("=== Summary (Iter2 — Full Scope) ===");
+        System.out.println("Entity classes:   16  (+Refund iter2)");
+        System.out.println("Control classes:   6  (+AuthService +FlightSearchService +ReservationLookupService iter2)");
         System.out.println("Boundary classes:  4  (original)");
         System.out.println("--- Design Patterns (3rd revision) ---");
         System.out.println("Strategy interfaces: 1  (RefundPolicy)");
         System.out.println("Strategy concretes:  3  (FullRefundPolicy, PartialRefundPolicy, NoRefundPolicy)");
         System.out.println("State interfaces:    1  (ReservationState)");
         System.out.println("State concretes:     8  (Initiated~Refunded)");
-        System.out.println("Total classes:      35  (22 original + 13 pattern)");
+        System.out.println("Total classes:      39  (26 original + 13 pattern)");
         System.out.println();
         System.out.println("BookingController ops: 14 (processSearch~reconfirmGuestIdentity)");
         System.out.println("PaymentProcessor  ops:  4 (+calculateTotal)");
         System.out.println("RefundHandler     ops:  6 (+getRefundDetail, +resolvePolicy)");
+        System.out.println("AuthService       ops:  8 (+loginWithHash, +verifyGuest iter2)");
+        System.out.println("FlightSearchService ops: 3");
+        System.out.println("ReservationLookupService ops: 2 (iter2 신규)");
         System.out.println("PaymentGatewayInterface ops: 3 (+sendRefund)");
         System.out.println("SkypassInterface  ops:  4 (+deductMileage, +verifyAndDeduct)");
         System.out.println();
         System.out.println("Generalizations:   2  (SkypassMember->Passenger, Guest->Passenger)");
         System.out.println("Compositions:      4  (+Reservation*--ReservationState)");
-        System.out.println("Associations:     10  (+Ticket--Segment)");
-        System.out.println("Dependencies:     12  (+RefundHandler-->RefundPolicy)");
+        System.out.println("Associations:     11  (+RefundRequest--Refund)");
+        System.out.println("Dependencies:     20  (+iter2 9개)");
         System.out.println("Realizations:     11  (3 Strategy + 8 State)");
-        System.out.println("Total relations:  39  (26 original + 13 new)");
+        System.out.println("Total relations:  48");
     }
 }

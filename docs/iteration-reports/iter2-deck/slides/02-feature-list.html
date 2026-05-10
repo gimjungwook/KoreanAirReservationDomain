@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>02 · 양식#1 — 전체 기능</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 12px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .right { display: flex; gap: 10px; }
+  .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: -0.005em; background: var(--surface); border: 1px solid var(--rule); color: var(--ink-3); }
+  .top .pill .v { color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .top .pill.brand { background: var(--tossblue-bg); border-color: transparent; color: var(--tossblue); }
+  .top .pill.brand .v { color: var(--tossblue); }
+
+  .table-card {
+    flex: 1;
+    background: var(--surface);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow);
+    padding: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th {
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    color: var(--ink-4);
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: 0;
+    text-transform: uppercase;
+  }
+  thead th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+  thead th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+  tbody td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.45;
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td.fn { font-weight: 700; color: var(--ink); width: 200px; }
+  tbody td.sub { color: var(--ink-2); font-weight: 500; }
+  tbody td.iter { width: 60px; text-align: center; font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+  td .check { color: var(--ink-3); }
+  td .check.done { color: var(--positive); font-weight: 800; }
+  td .check.cur  { color: var(--tossblue); font-weight: 800; }
+  td .check.future { color: var(--ink-5); }
+
+  .legend { padding: 10px 8px 4px; display: flex; gap: 18px; font-size: 12px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .legend .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+  .legend .swatch.done { background: var(--positive); }
+  .legend .swatch.cur  { background: var(--tossblue); }
+  .legend .swatch.future { background: var(--ink-5); opacity: 0.55; }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">양식#1 — 전체 기능 리스트</div>
+    <div class="subtitle">대한항공 Skypass 예약 시스템 · iter1 → iter2 누적</div>
+  </div>
+  <div class="right">
+    <div class="pill"><span>완료</span> <span class="v">14</span></div>
+    <div class="pill brand"><span>iter 2 추가</span> <span class="v">+11</span></div>
+    <div class="pill"><span>iter 3+ 예정</span> <span class="v">9</span></div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><span class="swatch done"></span>iter 1 완료</span>
+  <span><span class="swatch cur"></span>iter 2 신규/활성</span>
+  <span><span class="swatch future"></span>iter 3·4 예정</span>
+</div>
+
+<div class="table-card">
+<table>
+  <thead><tr>
+    <th>기능군</th><th>세부기능</th>
+    <th class="iter">iter 1</th><th class="iter">iter 2</th><th class="iter">iter 3</th><th class="iter">iter 4</th>
+  </tr></thead>
+  <tbody>
+    <tr><td class="fn">인증·회원</td><td class="sub">회원 로그인 (Skypass)</td>
+      <td class="iter"><span class="check done">✓</span></td><td class="iter"><span class="check cur">↑</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">salted SHA-256 인증 강화</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">Guest 본인 확인 (PNR + 이름 + 이메일)</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+
+    <tr><td class="fn">검색·예약</td><td class="sub">항공편 검색 (편도)</td>
+      <td class="iter"><span class="check done">✓</span></td><td class="iter"><span class="check done">✓</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">예약 생성 (단일 segment)</td>
+      <td class="iter"><span class="check done">✓</span></td><td class="iter"><span class="check done">✓</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">승객 정보 입력</td>
+      <td class="iter"><span class="check done">✓</span></td><td class="iter"><span class="check done">✓</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">좌석 자동 배정 → 좌석 맵 선택</td>
+      <td class="iter"><span class="check done">✓</span></td><td class="iter"><span class="check cur">↑</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">결제 (PG 송금)</td>
+      <td class="iter"><span class="check done">✓</span></td><td class="iter"><span class="check done">✓</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">예약 확정 + 운임 검증</td>
+      <td class="iter"><span class="check done">✓</span></td><td class="iter"><span class="check done">✓</span></td><td class="iter"></td><td class="iter"></td></tr>
+
+    <tr><td class="fn">발권</td><td class="sub">e-Ticket 발급 (KE-yyMMdd-NNNN)</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">e-Ticket PDF export</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td></tr>
+
+    <tr><td class="fn">조회</td><td class="sub">회원 예약 이력 조회</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">Guest PNR 단건 조회</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+
+    <tr><td class="fn">취소·환불</td><td class="sub">예약 취소 요청 + 확정</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">환불 정책 자동 해석 (Strategy)</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">PG 환불 송금</td>
+      <td class="iter"></td><td class="iter"><span class="check cur">●</span></td><td class="iter"></td><td class="iter"></td></tr>
+
+    <tr><td class="fn">마일리지</td><td class="sub">마일리지 적립 (확정 시)</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">마일리지 차감 결제</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td><td class="iter"></td></tr>
+
+    <tr><td class="fn">환승·다도시</td><td class="sub">Connecting flight 예약</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">Multi-city · open-jaw</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">GDS interline 검색</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td><td class="iter"></td></tr>
+
+    <tr><td class="fn">알림·이벤트</td><td class="sub">좌석 hold 카운트다운 (Observer)</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td><td class="iter"></td></tr>
+    <tr><td class="fn"></td><td class="sub">flight status 브로드캐스트 (Observer)</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td><td class="iter"></td></tr>
+
+    <tr><td class="fn">관리자</td><td class="sub">스케줄 관리 + 환불 검토</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td></tr>
+    <tr><td class="fn"></td><td class="sub">AppSettings (Singleton)</td>
+      <td class="iter"></td><td class="iter"></td><td class="iter"></td><td class="iter"><span class="check future">○</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="footer">
+  <span>iter 2 · 양식#1 — 전체 기능 리스트 · iter 1 14개 + iter 2 신규 11개</span>
+  <span class="pg">02 / 15</span>
+</div>
+
+</body>
+</html>

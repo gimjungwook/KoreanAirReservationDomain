@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>04 · 양식#3 — Iteration별 Refactoring/DP</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 12px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: -0.005em; background: var(--tossblue-bg); color: var(--tossblue); }
+
+  .table-card { flex: 1; background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 8px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  thead th { text-align: left; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; letter-spacing: -0.005em; color: var(--ink-4); padding: 16px 18px; background: var(--surface-2); text-transform: uppercase; }
+  thead th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+  thead th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+  tbody td { padding: 18px 18px; border-bottom: 1px solid var(--rule); color: var(--ink-2); line-height: 1.55; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+
+  td.iter { width: 90px; font-family: var(--font-display); font-weight: 800; color: var(--ink); font-size: 18px; letter-spacing: -0.02em; }
+  td.iter .badge { display: inline-flex; height: 28px; padding: 0 12px; border-radius: 999px; align-items: center; font-size: 13px; font-weight: 700; }
+  td.iter .badge.done { background: var(--positive-bg); color: var(--positive); }
+  td.iter .badge.cur  { background: var(--tossblue-bg); color: var(--tossblue); }
+  td.iter .badge.future { background: var(--rule-soft); color: var(--ink-5); }
+
+  td.sub { width: 90px; font-family: var(--font-mono); font-weight: 600; color: var(--ink-3); font-size: 14px; }
+  td.item { width: 280px; }
+  td.item .name { font-weight: 700; color: var(--ink); font-size: 16px; letter-spacing: -0.015em; display: block; margin-bottom: 4px; }
+  td.item .name code { font-family: var(--font-mono); font-size: 14px; color: var(--tossblue); background: var(--tossblue-bg); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+  td.item .kind { font-size: 12px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; text-transform: uppercase; }
+  td.note { color: var(--ink-3); font-size: 14px; }
+  td.note code { font-family: var(--font-mono); font-size: 12.5px; color: var(--tossblue); background: var(--tossblue-bg); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+  td.note .pg { font-family: var(--font-mono); font-size: 12px; color: var(--ink-5); display: block; margin-top: 4px; font-weight: 500; }
+
+  tr.is-current td { background: var(--tossblue-bg-soft); }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">양식#3 — Iteration별 Refactoring / DP</div>
+    <div class="subtitle">총 Refactoring 2회 · DP 2개 적용 (iter 2 기준)</div>
+  </div>
+  <div class="pill">PDF 별첨#1 양식 준수</div>
+</div>
+
+<div class="table-card">
+<table>
+  <thead><tr>
+    <th>Iteration</th><th>Sub-Iter</th><th>Refactoring / Design Pattern</th><th>적용처 / 내용 요약 / 기술된 페이지</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="iter"><span class="badge done">1st</span></td>
+      <td class="sub">—</td>
+      <td class="item">
+        <span class="name">Refactoring#1</span>
+        <span class="kind">walking skeleton + State 골격 설계</span>
+      </td>
+      <td class="note">
+        <code>ReservationState</code> abstract + 8개 구상 클래스 정의 (3개 활성, 5개 stub).<br>
+        DP#1 도입을 위한 사전 구조.
+        <span class="pg">발표자료 pp.7,9 · 보고서 pp.18-22</span>
+      </td>
+    </tr>
+    <tr>
+      <td class="iter"></td>
+      <td class="sub">—</td>
+      <td class="item">
+        <span class="name">DP#1 — <code>State</code></span>
+        <span class="kind">behavioral · 상태 캡슐화</span>
+      </td>
+      <td class="note">
+        <code>Reservation.currentState</code>가 행동을 위임. 상태별 허용 액션 분리.<br>
+        iter 1 활성: Initiated → PendingPayment → Confirmed.
+        <span class="pg">발표자료 pp.13 · 보고서 pp.24-28</span>
+      </td>
+    </tr>
+
+    <tr class="is-current">
+      <td class="iter"><span class="badge cur">2nd</span></td>
+      <td class="sub">2-1</td>
+      <td class="item">
+        <span class="name">DP#1 — <code>State</code> 보완</span>
+        <span class="kind">전이 5개 본문 채움</span>
+      </td>
+      <td class="note">
+        iter 1 stub 5개 (Ticketed / CancellationRequested / Cancelled / RefundRequested / Refunded)에 실제 전이 본문 구현. 8 / 8 활성.
+        <span class="pg">발표자료 pp.13 · 보고서 pp.24-32</span>
+      </td>
+    </tr>
+    <tr class="is-current">
+      <td class="iter"></td>
+      <td class="sub">2-1</td>
+      <td class="item">
+        <span class="name">Refactoring#2</span>
+        <span class="kind">DP#2 도입 사전 인터페이스 정의</span>
+      </td>
+      <td class="note">
+        <code>RefundPolicy</code> 인터페이스 도입. <code>FareRule.checkRefundPolicy()</code>가 fare class → policy 매핑.
+        <span class="pg">발표자료 pp.11-12 · 보고서 pp.30-34</span>
+      </td>
+    </tr>
+    <tr class="is-current">
+      <td class="iter"></td>
+      <td class="sub">2-2</td>
+      <td class="item">
+        <span class="name">DP#2 — <code>Strategy</code></span>
+        <span class="kind">behavioral · 알고리즘 가족 캡슐화</span>
+      </td>
+      <td class="note">
+        환불 정책 분기를 <code>RefundPolicy</code> family로 위임. Full / Partial / No 3개 구상.<br>
+        <code>RefundHandler</code>는 fare class를 모름.
+        <span class="pg">발표자료 pp.11-12 · 보고서 pp.34-40</span>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="iter"><span class="badge future">3rd</span></td>
+      <td class="sub">—</td>
+      <td class="item">
+        <span class="name">DP#3 — <code>Observer</code> (예정)</span>
+        <span class="kind">behavioral</span>
+      </td>
+      <td class="note">좌석 hold timer 만료 + flight status 브로드캐스트.<span class="pg">예상 발표자료 pp.- · 보고서 pp.-</span></td>
+    </tr>
+    <tr>
+      <td class="iter"><span class="badge future">final</span></td>
+      <td class="sub">4-1</td>
+      <td class="item">
+        <span class="name">DP#4 — <code>Singleton</code> (예정)</span>
+      </td>
+      <td class="note"><code>AppSettings</code> 전역 단일 인스턴스. 채점은 1개만 반영 — 도입 신중.</td>
+    </tr>
+    <tr>
+      <td class="iter"></td>
+      <td class="sub">4-2</td>
+      <td class="item">
+        <span class="name">DP#5 — <code>Factory Method</code> (예정)</span>
+      </td>
+      <td class="note"><code>PaymentMethodFactory</code> 결제 수단 다양화 대비.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="footer">
+  <span>iter 2 · 양식#3 — Iteration별 Refactoring/DP · DP 2개 활성 · State + Strategy</span>
+  <span class="pg">04 / 15</span>
+</div>
+
+</body>
+</html>

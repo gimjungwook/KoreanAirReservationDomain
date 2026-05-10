@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>01 · 표지</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body {
+    padding: 0;
+    background: #FFFFFF;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Soft Toss-blue radial wash bottom-right */
+  body::before {
+    content: "";
+    position: absolute;
+    bottom: -300px;
+    right: -200px;
+    width: 1100px;
+    height: 1100px;
+    background: radial-gradient(circle, #DCEAFF 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  /* Faint dot grid */
+  body::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(49,130,246,0.06) 1.2px, transparent 1.2px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .stage {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 96px 120px;
+  }
+
+  /* Top chip line */
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 36px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: var(--tossblue-bg);
+    color: var(--tossblue);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 999px;
+    background: var(--tossblue);
+  }
+  .top .right {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-4);
+    letter-spacing: -0.01em;
+  }
+
+  /* Iter shift mark */
+  .iter-mark {
+    margin-top: 96px;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--ink-4);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+  }
+  .iter-mark .from { opacity: 0.7; }
+  .iter-mark .arrow { color: var(--ink-5); font-size: 20px; }
+  .iter-mark .to {
+    color: var(--tossblue);
+    font-weight: 800;
+    font-size: 38px;
+    letter-spacing: -0.03em;
+  }
+
+  /* Big title */
+  .title {
+    margin-top: 28px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 168px;
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .title .punch { color: var(--tossblue); }
+
+  .lede {
+    margin-top: 36px;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--ink-3);
+    line-height: 1.5;
+    max-width: 1100px;
+    letter-spacing: -0.02em;
+  }
+  .lede strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* Bottom info card row */
+  .bottom {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .info-card {
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+  }
+  .info-card .lab {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-4);
+    letter-spacing: -0.005em;
+    margin-bottom: 8px;
+  }
+  .info-card .val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .info-card .val.mono {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .info-card .sub {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-4);
+    letter-spacing: -0.01em;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="top">
+    <div class="chip">
+      <span class="dot"></span>
+      ECE 312 · 객체지향 설계패턴 · Spring 2026
+    </div>
+    <div class="right">A팀 · iter 2 발표</div>
+  </div>
+
+  <div class="iter-mark">
+    <span class="from">iter 1 walking skeleton</span>
+    <span class="arrow">→</span>
+    <span class="to">iter 2</span>
+  </div>
+
+  <h1 class="title">
+    골격에서<br>
+    <span class="punch">동작하는 흐름.</span>
+  </h1>
+
+  <p class="lede">
+    대한항공 Skypass 예약 시스템에 <strong>Strategy 패턴</strong>을 더하고,<br>
+    iter 1에서 비워둔 <strong>State 전이 5개</strong>를 모두 켰습니다.
+  </p>
+
+  <div class="bottom">
+    <div class="info-card">
+      <div class="lab">발표</div>
+      <div class="val mono">2026 · 05 · 12</div>
+      <div class="sub">김기석 교수님</div>
+    </div>
+    <div class="info-card">
+      <div class="lab">팀</div>
+      <div class="val">A팀 · 김정욱 · 이재호 · 김경동</div>
+      <div class="sub">Team A</div>
+    </div>
+    <div class="info-card">
+      <div class="lab">코드베이스</div>
+      <div class="val mono">KoreanAirReservation<wbr>Domain</div>
+      <div class="sub">Java 17 · Eclipse · AmaterasUML</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

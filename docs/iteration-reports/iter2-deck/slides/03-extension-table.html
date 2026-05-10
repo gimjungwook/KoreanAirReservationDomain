@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>03 · 양식#2 — 확장기능 정리표</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 12px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: -0.005em; background: var(--negative-bg); color: var(--negative); }
+
+  .table-card { flex: 1; background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 8px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  thead th { text-align: left; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; letter-spacing: -0.005em; color: var(--ink-4); padding: 16px 18px; background: var(--surface-2); text-transform: uppercase; }
+  thead th:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+  thead th:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+  tbody td { padding: 16px 18px; border-bottom: 1px solid var(--rule); color: var(--ink-2); line-height: 1.5; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td.fn { font-weight: 700; color: var(--ink); width: 220px; font-size: 15px; }
+  tbody td .new { color: var(--negative); font-weight: 700; }
+  tbody td .new::before { content: "● "; color: var(--negative); }
+  tbody td.note { color: var(--ink-3); font-size: 13.5px; width: 320px; }
+  tbody td.note code { font-family: var(--font-mono); font-size: 12.5px; color: var(--tossblue); background: var(--tossblue-bg); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+
+  .legend { padding: 8px 8px 12px; display: flex; gap: 16px; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .legend strong { color: var(--negative); }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">양식#2 — 확장기능 정리표</div>
+    <div class="subtitle">확장 가능성 있는 기능만 · 직전 대비 신규는 빨간색</div>
+  </div>
+  <div class="pill">직전 대비 신규 — 빨간색</div>
+</div>
+
+<div class="legend">
+  <span><strong>● 신규</strong> = iter 1 발표 대비 추가된 확장 항목</span>
+</div>
+
+<div class="table-card">
+<table>
+  <thead><tr>
+    <th>기본 기능</th><th>확장기능 (추가/변경 가능성)</th><th>비고 (예상 refactoring/DP, 예상 구현 시점)</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="fn">예약 취소 + 환불</td>
+      <td><span class="new">fare class별 환불 정책 자동 해석</span> · <span class="new">PG 송금 연계</span></td>
+      <td class="note">Strategy <code>RefundPolicy</code> family · iter 2 적용 완료 · DP#2</td>
+    </tr>
+    <tr>
+      <td class="fn">예약 조회</td>
+      <td>회원 예약 이력 + <span class="new">Guest PNR 단건 조회</span></td>
+      <td class="note">Composite verify (PNR + 이름 + 이메일) · iter 2 · 5회 실패 → 15분 lock</td>
+    </tr>
+    <tr>
+      <td class="fn">결제·인증</td>
+      <td><span class="new">salted SHA-256 + per-member salt</span></td>
+      <td class="note">iter 1 평문 비교 → iter 2 보강 · 별도 DP 적용 없음 (refactoring only)</td>
+    </tr>
+    <tr>
+      <td class="fn">발권</td>
+      <td><span class="new">e-Ticket 발급 + 좌석 배정 연계</span></td>
+      <td class="note"><code>Ticket.generate()</code> 정적 팩토리 · <code>KE-yyMMdd-NNNN</code> · iter 2</td>
+    </tr>
+    <tr>
+      <td class="fn">좌석 선택</td>
+      <td>자동 → <span class="new">좌석 맵 사용자 선택 + Hold</span></td>
+      <td class="note">SeatInventory + SeatAssignment · iter 2 · iter 3에 Hold timeout Observer 예정</td>
+    </tr>
+    <tr>
+      <td class="fn">flight status 변동</td>
+      <td>flight 상태 변경 시 모든 예약에 자동 통보</td>
+      <td class="note">예상 DP — Observer · iter 3 도입 예정</td>
+    </tr>
+    <tr>
+      <td class="fn">결제 수단</td>
+      <td>카드 / 계좌이체 / 마일리지 / 모바일페이</td>
+      <td class="note">예상 DP — Factory Method (<code>PaymentMethodFactory</code>) · iter 4 도입 예정</td>
+    </tr>
+    <tr>
+      <td class="fn">환승 항공편</td>
+      <td>1 itinerary가 다중 segment 합성</td>
+      <td class="note">기존 Itinerary–Segment 관계 활용 · iter 3 본격 활성화 + GDS interline</td>
+    </tr>
+    <tr>
+      <td class="fn">앱 설정</td>
+      <td>전역 통화 / 언어 / 환경 설정</td>
+      <td class="note">예상 DP — Singleton (<code>AppSettings</code>) · iter 4 도입 예정</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="footer">
+  <span>iter 2 · 양식#2 — 확장기능 정리표 · 직전 대비 추가 = 빨간색</span>
+  <span class="pg">03 / 15</span>
+</div>
+
+</body>
+</html>

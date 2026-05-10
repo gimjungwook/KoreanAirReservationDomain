@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>10 · 중요 클래스·메서드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 12px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+
+  .grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-content: start; }
+  .cls { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 24px 26px; display: flex; flex-direction: column; }
+  .cls .pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: -0.005em; background: var(--rule-soft); color: var(--ink-3); margin-bottom: 8px; text-transform: uppercase; }
+  .cls .pill.entity   { background: rgba(232,170,66,0.10); color: #B45309; }
+  .cls .pill.control  { background: var(--tossblue-bg); color: var(--tossblue); }
+  .cls .pill.boundary { background: var(--positive-bg); color: var(--positive); }
+  .cls .pill.iface    { background: var(--negative-bg); color: var(--negative); }
+
+  .cls .name { font-family: var(--font-mono); font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -0.01em; line-height: 1.2; }
+  .cls .desc { margin-top: 8px; font-size: 13.5px; color: var(--ink-3); line-height: 1.55; font-weight: 500; }
+  .cls .methods { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--rule); display: flex; flex-direction: column; gap: 4px; }
+  .cls .methods .m { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-2); padding-left: 12px; position: relative; line-height: 1.55; }
+  .cls .methods .m::before { content: "·"; position: absolute; left: 0; color: var(--tossblue); font-weight: 700; }
+  .cls .methods .m .arg { color: var(--ink-4); }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">중요 클래스 · 메서드</div>
+    <div class="subtitle">iter 2 신규/변경 9개 클래스 · brief description</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <section class="cls">
+    <span class="pill iface">interface · NEW</span>
+    <div class="name">RefundPolicy</div>
+    <div class="desc">환불 알고리즘 가족 추상화. fare class별 구상 클래스 3개로 분기.</div>
+    <div class="methods">
+      <div class="m">calculateRefundAmount<span class="arg">(int paid)</span></div>
+      <div class="m">getRefundType<span class="arg">() : String</span></div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill entity">entity · NEW</span>
+    <div class="name">FullRefundPolicy</div>
+    <div class="desc">Y class 전액 환불. paid를 그대로 반환.</div>
+    <div class="methods">
+      <div class="m">calculateRefundAmount<span class="arg">(paid) → paid</span></div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill entity">entity · NEW</span>
+    <div class="name">PartialRefundPolicy</div>
+    <div class="desc">M / B class 부분 환불. 위약금 차감.</div>
+    <div class="methods">
+      <div class="m">calculateRefundAmount<span class="arg">(paid) → paid - penalty</span></div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill entity">entity · NEW</span>
+    <div class="name">NoRefundPolicy</div>
+    <div class="desc">V / O class 환불 불가. 0원 반환.</div>
+    <div class="methods">
+      <div class="m">calculateRefundAmount<span class="arg">(paid) → 0</span></div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill control">control · NEW</span>
+    <div class="name">RefundHandler</div>
+    <div class="desc">환불 오케스트레이션. policy 해석 + PG 송금 + state 전이 트리거.</div>
+    <div class="methods">
+      <div class="m">evaluateRefund<span class="arg">(pnr, fareClass)</span></div>
+      <div class="m">resolvePolicy<span class="arg">(fareRule) → RefundPolicy</span></div>
+      <div class="m">processRefund<span class="arg">(requestId, amount)</span></div>
+      <div class="m">denyRefund<span class="arg">(requestId, reason)</span></div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill control">control · NEW</span>
+    <div class="name">ReservationLookupService</div>
+    <div class="desc">예약 조회 분리. 회원 이력 + Guest PNR 단건.</div>
+    <div class="methods">
+      <div class="m">findByMember<span class="arg">(Member)</span></div>
+      <div class="m">findByGuestPnr<span class="arg">(pnr, name, email)</span></div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill entity">entity · NEW</span>
+    <div class="name">Ticket</div>
+    <div class="desc">e-Ticket 도메인. KE-yyMMdd-NNNN 식별자.</div>
+    <div class="methods">
+      <div class="m">generate<span class="arg">(reservation, passenger, seat)</span></div>
+      <div class="m">issue<span class="arg">() · cancel()</span></div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill entity">entity · NEW</span>
+    <div class="name">Refund · RefundRequest</div>
+    <div class="desc">환불 트랜잭션 결과 + 대기열 항목. 상태·금액·요청자 보유.</div>
+    <div class="methods">
+      <div class="m">Refund-yyMM-NNN id</div>
+      <div class="m">RefundStatus enum</div>
+    </div>
+  </section>
+
+  <section class="cls">
+    <span class="pill control">control · MOD</span>
+    <div class="name">AuthService</div>
+    <div class="desc">salted SHA-256 + Guest 3중 검증 추가. iter 1 평문 비교 대체.</div>
+    <div class="methods">
+      <div class="m">loginWithHash<span class="arg">(num, pw)</span></div>
+      <div class="m">verifyGuest<span class="arg">(pnr, name, email)</span></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>iter 2 · 중요 클래스·메서드 · 신규 7 + 변경 2</span>
+  <span class="pg">09 / 15</span>
+</div>
+
+</body>
+</html>

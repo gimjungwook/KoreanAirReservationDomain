@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>12 · DP#2 코드 전·후 + 매핑</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 16px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 36px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--tossblue-bg); color: var(--tossblue); }
+
+  .body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pane { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 24px 28px; display: flex; flex-direction: column; }
+  .pane .head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
+  .pane .head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.025em; }
+  .pane.before .head h2 { color: var(--negative); }
+  .pane.after  .head h2 { color: var(--tossblue); }
+  .pane .head .stamp { font-size: 12px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+
+  pre.code {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border-radius: var(--r-md);
+    padding: 18px 22px;
+    overflow: hidden;
+    white-space: pre;
+    margin: 0;
+  }
+  pre.code .kw  { color: var(--tossblue); font-weight: 600; }
+  pre.code .ty  { color: var(--ink); font-weight: 600; }
+  pre.code .str { color: var(--positive); }
+  pre.code .com { color: var(--ink-4); font-style: italic; }
+  pre.code .num { color: #B45309; }
+  pre.code .ins { color: var(--positive); font-weight: 700; }
+
+  .map-row {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--tossblue-bg-soft);
+    border: 1px solid rgba(49,130,246,0.2);
+    border-radius: var(--r-md);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: -0.005em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .map-row .lab {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    color: var(--tossblue);
+    font-weight: 700;
+  }
+  .map-row code { font-family: var(--font-mono); font-size: 13px; color: var(--tossblue); font-weight: 700; }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">DP#2 Strategy — 코드 전 · 후</div>
+    <div class="subtitle">RefundHandler.evaluateRefund() · 원 구성도의 어느 부분?</div>
+  </div>
+  <div class="pill">PDF 별첨#2 §2-1, §2-2 가이드</div>
+</div>
+
+<div class="body">
+
+  <section class="pane before">
+    <div class="head">
+      <h2>Before · iter 1 가정 코드</h2>
+      <span class="stamp">Strategy 없이 짠다면</span>
+    </div>
+<pre class="code"><span class="com">// RefundHandler — switch 분기 폭발</span>
+<span class="kw">public int</span> calculateRefund(<span class="ty">Reservation</span> r) {
+  <span class="kw">int</span> base = r.getPaidAmount();
+  <span class="kw">String</span> fc = r.getFareRule().getFareClass();
+
+  <span class="kw">switch</span> (fc) {
+    <span class="kw">case</span> <span class="str">"Y"</span>: <span class="kw">return</span> base;
+    <span class="kw">case</span> <span class="str">"M"</span>:
+    <span class="kw">case</span> <span class="str">"B"</span>: <span class="kw">return</span> base - <span class="num">50000</span>;
+    <span class="kw">case</span> <span class="str">"V"</span>:
+    <span class="kw">case</span> <span class="str">"O"</span>: <span class="kw">return</span> <span class="num">0</span>;
+    <span class="kw">default</span>: <span class="kw">throw new</span>
+      IllegalArgumentException(fc);
+  }
+}</pre>
+    <div class="map-row">
+      <span class="lab">매핑</span>
+      RefundHandler 안에 <code>fare class 분기</code> 직접 보유 — 교과서 구성도의 <strong>Context</strong>에 알고리즘이 박혀있는 안티패턴
+    </div>
+  </section>
+
+  <section class="pane after">
+    <div class="head">
+      <h2>After · iter 2 실제 코드</h2>
+      <span class="stamp">RefundHandler.java · evaluateRefund()</span>
+    </div>
+<pre class="code"><span class="com">// RefundHandler — Strategy 위임</span>
+<span class="kw">public</span> <span class="ty">RefundResult</span> evaluateRefund(<span class="ty">String</span> pnr,
+                                  <span class="ty">String</span> fareClass) {
+  <span class="ty">FareRule</span>     fr     = registry.lookup(fareClass);
+  <span class="ty">RefundPolicy</span> policy = <span class="ins">resolvePolicy(fr)</span>;
+  <span class="kw">int</span>          paid   = reservation.getPaidAmount();
+  <span class="kw">int</span>          refund = <span class="ins">policy.calculateRefundAmount(paid)</span>;
+  <span class="kw">return new</span> <span class="ty">RefundResult</span>(refund,
+                          policy.getRefundType());
+}
+
+<span class="com">// resolvePolicy — fare class 매핑 한 곳에 격리</span>
+<span class="kw">private</span> <span class="ty">RefundPolicy</span> resolvePolicy(<span class="ty">FareRule</span> fr) {
+  <span class="kw">return</span> fr.checkRefundPolicy();  <span class="com">// FareRule이 자기 policy 알고있음</span>
+}</pre>
+    <div class="map-row">
+      <span class="lab">매핑</span>
+      <code>policy.calculateRefundAmount()</code> 호출 = 교과서 구성도의 <strong>Context → Strategy.algorithmInterface()</strong> 위임
+    </div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>iter 2 · DP#2 Strategy · 코드 전·후 + 원 구성도 매핑</span>
+  <span class="pg">11 / 15</span>
+</div>
+
+</body>
+</html>

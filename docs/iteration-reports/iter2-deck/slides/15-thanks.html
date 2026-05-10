@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>05 · 감사합니다</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body {
+    padding: 0;
+    background: #FFFFFF;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Big soft Toss-blue wash from top-left */
+  body::before {
+    content: "";
+    position: absolute;
+    top: -300px;
+    left: -200px;
+    width: 1100px;
+    height: 1100px;
+    background: radial-gradient(circle, #DCEAFF 0%, transparent 65%);
+    pointer-events: none;
+  }
+  /* Mirror wash bottom-right */
+  body::after {
+    content: "";
+    position: absolute;
+    bottom: -200px;
+    right: -200px;
+    width: 900px;
+    height: 900px;
+    background: radial-gradient(circle, #DCEAFF 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .stage {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 96px;
+    text-align: center;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 40px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--tossblue-bg);
+    color: var(--tossblue);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 56px;
+  }
+  .chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 999px;
+    background: var(--tossblue);
+  }
+
+  .ko-big {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 220px;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .ko-big .punch { color: var(--tossblue); }
+
+  .en {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 32px;
+    color: var(--ink-3);
+    letter-spacing: -0.02em;
+    margin-bottom: 80px;
+  }
+
+  .ask {
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--ink-2);
+    letter-spacing: -0.02em;
+    margin-bottom: 96px;
+  }
+
+  .credit-card {
+    background: var(--surface);
+    border-radius: var(--r-xl);
+    padding: 24px 36px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .credit-card .lab {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--tossblue);
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .credit-card .names {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .credit-card .meta {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-4);
+    letter-spacing: 0;
+  }
+  .credit-card .sep {
+    width: 1px;
+    height: 28px;
+    background: var(--rule);
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="chip">
+    <span class="dot"></span>
+    iter 2 발표 종료
+  </div>
+
+  <h1 class="ko-big">감사합<span class="punch">니다.</span></h1>
+  <p class="en">Thank you.</p>
+
+  <p class="ask">질문 받겠습니다.</p>
+
+  <div class="credit-card">
+    <span class="lab">Team A</span>
+    <span class="sep"></span>
+    <span class="names">김정욱 · 이재호 · 김경동</span>
+    <span class="sep"></span>
+    <span class="meta">ECE 312 · Spring 2026</span>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>05 · 역할 분담</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 96px 120px; }
+  .head-row { display: flex; justify-content: space-between; align-items: center; }
+  .display-title { margin-top: 24px; font-size: 64px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+  .display-title .accent { color: var(--tossblue); }
+  .display-subtitle { margin-top: 14px; font-size: 20px; font-weight: 500; color: var(--ink-3); letter-spacing: -0.015em; }
+
+  .grid { margin-top: 56px; flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  .card { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 36px 32px; display: flex; flex-direction: column; }
+  .card .avatar {
+    width: 72px; height: 72px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--tossblue) 0%, #5BA3FF 100%);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-weight: 800;
+    color: #FFFFFF; font-size: 28px; letter-spacing: -0.02em;
+  }
+  .card .name {
+    margin-top: 18px;
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .card .role-pill {
+    display: inline-flex; align-self: flex-start;
+    align-items: center; gap: 6px; height: 28px; padding: 0 12px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: var(--tossblue-bg); color: var(--tossblue);
+    font-size: 13px; font-weight: 700; letter-spacing: -0.005em;
+  }
+
+  .card .section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); }
+  .card .section .lab { font-size: 12px; font-weight: 700; color: var(--ink-4); letter-spacing: -0.005em; text-transform: uppercase; margin-bottom: 8px; }
+  .card .section ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .card .section li { font-size: 15px; font-weight: 500; color: var(--ink-2); line-height: 1.5; padding-left: 14px; position: relative; }
+  .card .section li::before { content: "·"; position: absolute; left: 2px; color: var(--ink-4); font-weight: 700; }
+  .card .section li code { font-family: var(--font-mono); font-size: 13px; color: var(--tossblue); background: var(--tossblue-bg); padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+
+  /* iter 2 (이번 한 일) — 빨간색 강조 (PDF 가이드 "직전 대비 추가/변경 = 빨간색") */
+  .card .section.did {
+    margin: 16px -18px;
+    padding: 16px 18px;
+    background: var(--negative-bg);
+    border-radius: var(--r-md);
+    border-top: 0;
+  }
+  .card .section.did .lab {
+    color: var(--negative);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card .section.did .lab::before {
+    content: "●";
+    color: var(--negative);
+    font-size: 10px;
+  }
+  .card .section.did li { color: var(--negative); font-weight: 700; }
+  .card .section.did li::before { color: var(--negative); }
+  .card .section.did li code {
+    color: var(--negative);
+    background: rgba(240,68,82,0.12);
+    font-weight: 700;
+  }
+
+  .footer-bar {
+    margin-top: 48px;
+    background: var(--ink);
+    color: #FFFFFF;
+    border-radius: var(--r-xl);
+    padding: 24px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-bar .quote { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  .footer-bar .quote em { color: #8AB4FF; font-style: normal; }
+  .footer-bar .pg { font-family: var(--font-mono); font-size: 13px; color: rgba(255,255,255,0.55); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<div class="head-row">
+  <div class="eyebrow"><span class="dot"></span>iter 2 · <span class="accent">역할 분담</span></div>
+  <div class="deck-page">05 / 15</div>
+</div>
+
+<h1 class="display-title">한 사람당 <span class="accent">두 모듈씩</span>.</h1>
+<p class="display-subtitle">패턴 일관성을 위해 정욱이 4개 패턴 모두 담당. 도메인은 균등 분배.</p>
+
+<div class="grid">
+
+  <section class="card">
+    <span class="avatar">정</span>
+    <span class="name">김정욱</span>
+    <span class="role-pill">패턴 + 인프라</span>
+    <div class="section">
+      <div class="lab">iter 1 (완료)</div>
+      <ul>
+        <li><code>State</code> 8 클래스 + Reservation Context</li>
+        <li>Walking Skeleton + Swing app shell</li>
+      </ul>
+    </div>
+    <div class="section did">
+      <div class="lab">iter 2 (이번)</div>
+      <ul>
+        <li><code>Strategy</code> · <code>RefundPolicy</code> family</li>
+        <li><code>RefundHandler</code> 오케스트레이션</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="lab">iter 3 · 4 (예정)</div>
+      <ul>
+        <li><code>Observer</code> · <code>Singleton</code></li>
+        <li>통합 + AppSettings</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <span class="avatar">재</span>
+    <span class="name">이재호</span>
+    <span class="role-pill">검색·좌석·라우팅</span>
+    <div class="section">
+      <div class="lab">iter 1 (완료)</div>
+      <ul>
+        <li><code>AuthService</code> 평문 인증</li>
+        <li><code>FlightSearchService</code> · Itinerary · Segment</li>
+      </ul>
+    </div>
+    <div class="section did">
+      <div class="lab">iter 2 (이번)</div>
+      <ul>
+        <li>좌석 맵 (<code>SeatInventory</code> · <code>SeatAssignment</code>)</li>
+        <li><code>SeatSelectionPanel</code> Swing UI</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="lab">iter 3 · 4 (예정)</div>
+      <ul>
+        <li>환승 + 다도시 (Itinerary 다중 segment)</li>
+        <li>Admin Dashboard + Factory Method</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <span class="avatar">경</span>
+    <span class="name">김경동</span>
+    <span class="role-pill">결제·취소·조회</span>
+    <div class="section">
+      <div class="lab">iter 1 (완료)</div>
+      <ul>
+        <li><code>PaymentProcessor</code> · <code>FareRule</code></li>
+        <li><code>BookingController</code> + <code>ReservationUI</code></li>
+      </ul>
+    </div>
+    <div class="section did">
+      <div class="lab">iter 2 (이번)</div>
+      <ul>
+        <li>예약 조회 — 회원 + Guest 3중 검증</li>
+        <li>취소 흐름 + <code>ReservationLookupService</code></li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="lab">iter 3 · 4 (예정)</div>
+      <ul>
+        <li>마일리지 적립 / 차감 · Skypass 연동</li>
+        <li>e-Ticket PDF · Peer Review 문서</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<div class="footer-bar">
+  <div class="quote">"한 패턴은 <em>한 사람</em>이 일관되게."</div>
+  <div class="pg">05 / 15</div>
+</div>
+
+</body>
+</html>

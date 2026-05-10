@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>15 · 실행 화면 데모</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 16px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--positive-bg); color: var(--positive); }
+
+  .grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 18px; }
+  .shot { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 14px 16px 16px; display: flex; flex-direction: column; }
+  .shot .step-pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 12px; border-radius: 999px; font-family: var(--font-mono); font-size: 12px; font-weight: 700; background: var(--tossblue-bg); color: var(--tossblue); margin-bottom: 6px; }
+  .shot .name { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 4px; }
+  .shot .sub { font-size: 12.5px; font-weight: 500; color: var(--ink-4); letter-spacing: -0.005em; margin-bottom: 10px; }
+  .shot .canvas { flex: 1; position: relative; background: var(--surface-2); border-radius: var(--r-md); overflow: hidden; min-height: 240px; }
+  .shot .canvas img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .shot .canvas .ghost { position: absolute; inset: 0; border: 1.5px dashed var(--ink-5); border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; color: var(--ink-4); }
+  .shot .canvas .ghost .filename { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); font-weight: 500; }
+  .shot .canvas .ghost .small { font-size: 11px; color: var(--ink-5); }
+
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
+  .footer .pg { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-5); }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="left">
+    <div class="title">실행 화면 데모</div>
+    <div class="subtitle">Swing app · 9 패널 · iter 2 핵심 흐름</div>
+  </div>
+  <div class="pill">발표 시 라이브 데모</div>
+</div>
+
+<div class="grid">
+  <div class="shot">
+    <span class="step-pill">step 1</span>
+    <div class="name">Lookup</div>
+    <div class="sub">PNR 조회 · Member · Guest 탭</div>
+    <div class="canvas">
+      <img src="../assets/diagrams/demo-01-lookup.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">demo-01-lookup.png</span>
+        <span class="small">Swing screenshot</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shot">
+    <span class="step-pill">step 2</span>
+    <div class="name">Seat Selection</div>
+    <div class="sub">30×6 좌석 맵 + 선택</div>
+    <div class="canvas">
+      <img src="../assets/diagrams/demo-02-seat.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">demo-02-seat.png</span>
+        <span class="small">Swing screenshot</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shot">
+    <span class="step-pill">step 3</span>
+    <div class="name">Cancellation</div>
+    <div class="sub">사유 입력 + 환불 미리보기</div>
+    <div class="canvas">
+      <img src="../assets/diagrams/demo-03-cancellation.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">demo-03-cancellation.png</span>
+        <span class="small">Swing screenshot</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shot">
+    <span class="step-pill">step 4</span>
+    <div class="name">Refund</div>
+    <div class="sub">Strategy 해석 + PG 송금 진행</div>
+    <div class="canvas">
+      <img src="../assets/diagrams/demo-04-refund.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">demo-04-refund.png</span>
+        <span class="small">Swing screenshot</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shot">
+    <span class="step-pill">console</span>
+    <div class="name">State 전이 로그</div>
+    <div class="sub">[STATE] Confirmed → ... → Refunded</div>
+    <div class="canvas">
+      <img src="../assets/diagrams/demo-05-console.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">demo-05-console.png</span>
+        <span class="small">Console output</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shot">
+    <span class="step-pill">strategy</span>
+    <div class="name">정책 해석 로그</div>
+    <div class="sub">[STRATEGY] Y → FullRefundPolicy</div>
+    <div class="canvas">
+      <img src="../assets/diagrams/demo-06-strategy.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="ghost" style="display:none;">
+        <span class="filename">demo-06-strategy.png</span>
+        <span class="small">Console output</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>iter 2 · 실행 화면 데모 · 라이브 시연 + 콘솔 로그 백업</span>
+  <span class="pg">14 / 15</span>
+</div>
+
+</body>
+</html>
