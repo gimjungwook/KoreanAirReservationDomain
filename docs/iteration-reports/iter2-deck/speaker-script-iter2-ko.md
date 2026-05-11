@@ -72,11 +72,15 @@ Iteration 2에서는 조회, 발권, 취소, 환불 관련 use case가 추가되
 
 ## 07. UC 시나리오
 
-여기서는 iteration 2의 대표 use case 시나리오를 텍스트로 정리했습니다. 첫 번째는 회원 예약 조회입니다. 회원이 로그인하면 `ReservationLookupService`가 회원 ID 기준으로 예약 이력을 가져옵니다.
+여기서는 iteration 2에서 새로 들어온 use case 4개를 “사용자가 어디서 시작해서 어디로 이어지는가” 순서로 보겠습니다. 핵심 진입점은 예약 조회입니다. 예약을 먼저 찾아야 발권 여부를 확인하고, 취소와 환불도 진행할 수 있기 때문입니다.
 
-두 번째는 Guest PNR 조회입니다. Guest는 계정이 없기 때문에 PNR만으로 조회하게 하면 보안 문제가 생깁니다. 그래서 PNR, 이름, 이메일을 모두 확인하고, 실패 시에는 어떤 값이 틀렸는지 알려주지 않고 공통 오류만 반환합니다.
+먼저 오른쪽 아래가 아니라 이제 첫 번째로 보는 `Retrieve Booking by PNR`입니다. 회원은 로그인 세션을 기준으로 `ReservationLookupService.findByMember(member)`가 예약 이력을 반환하고, Guest는 계정이 없기 때문에 PNR만으로 조회하지 않습니다. PNR, 이름, 이메일 세 가지를 `AuthService.verifyGuest()`에서 모두 확인한 뒤 `findByGuestPnr()`로 단건 예약을 가져옵니다. 실패하면 어떤 값이 틀렸는지 말하지 않고 `INVALID_CREDENTIALS`만 반환합니다.
 
-세 번째는 예약 취소와 환불입니다. 예약 상태가 `Confirmed` 또는 `Ticketed`일 때만 취소 요청을 받을 수 있고, 취소가 확정되면 환불 요청 상태로 넘어갑니다. 이후 `RefundHandler`가 운임 규칙에 맞는 `RefundPolicy`를 선택해서 환불 금액을 계산합니다.
+그 다음 흐름이 `Cancel Booking`입니다. 사용자는 조회 화면에서 취소할 예약을 선택하고, 예약 상태가 `Confirmed` 또는 `Ticketed`일 때만 `processCancellation(pnr)`을 호출할 수 있습니다. 이때 State 패턴이 `CancellationRequested`, `Cancelled`로의 전이를 담당합니다.
+
+발권은 `Issue e-Ticket`으로 분리했습니다. 결제 확정과 좌석 배정이 끝난 `Confirmed` 예약에 대해 `Ticket.generate()`가 티켓 번호를 만들고, 예약은 `Ticketed` 상태로 넘어갑니다.
+
+마지막이 `Process Refund`입니다. 취소가 확정된 뒤에야 환불 요청 상태로 넘어가고, 여기서 Strategy 패턴이 작동합니다. `RefundHandler`는 운임 규칙을 보고 `RefundPolicy`를 선택한 뒤, 실제 환불 금액 계산은 `FullRefundPolicy`, `PartialRefundPolicy`, `NoRefundPolicy` 같은 정책 객체에 위임합니다.
 
 ---
 
@@ -148,13 +152,15 @@ Guest 조회 흐름에서는 `AuthService`가 PNR, 이름, 이메일을 확인�
 
 ## 14. 실행 화면 데모
 
-데모는 라이브 실행을 기준으로 준비했습니다. 첫 번째는 PNR 조회입니다. 회원은 로그인 세션으로 조회하고, Guest는 PNR, 이름, 이메일을 입력해서 본인 확인 후 예약 상세를 봅니다.
+데모는 Java Swing 화면과 터미널 콘솔을 같이 보여주는 방식으로 진행합니다. 먼저 터미널에서 `java -cp bin com.koreanair.reservation.app.swing.SwingApp`으로 실행하고, 화면 한쪽에는 Swing 앱을, 다른 한쪽에는 터미널을 놓습니다. 발표 중에는 UI 조작 결과가 콘솔에 `[STATE]`, `[STRATEGY]`, `[REFUND]`, `[PG]` 로그로 같이 찍히는지를 보여주면 됩니다.
+
+첫 번째는 예약 조회입니다. 회원은 로그인 후 예약 조회 버튼으로 `findByMember()` 흐름을 보여주고, Guest는 PNR, 이름, 이메일을 입력해서 `verifyGuest()`와 `findByGuestPnr()` 흐름을 보여줍니다. 이때 콘솔에 `[GUEST] verified` 로그가 찍히면 Guest 3중 검증이 통과했다는 근거로 짚습니다.
 
 두 번째는 좌석 선택입니다. Iteration 1에서는 자동 배정만 있었지만, Iteration 2에서는 좌석 맵에서 사용자가 좌석을 선택할 수 있습니다.
 
-세 번째와 네 번째는 취소와 환불입니다. 취소 사유를 입력하면 환불 미리보기를 보여주고, 확정하면 환불 정책을 해석해서 PG 환불 송금까지 진행합니다.
+세 번째와 네 번째는 취소와 환불입니다. 취소 사유를 입력하면 예약 상태가 `CancellationRequested`, `Cancelled`로 넘어가고, 터미널에는 `[STATE]` 로그가 찍힙니다. 환불 미리보기와 확정을 진행하면 `RefundHandler`가 정책을 해석하면서 `[STRATEGY] FareRule(...) -> FullRefundPolicy` 같은 로그를 출력하고, PG 환불 송금 단계에서는 `[PG]`, `[REFUND]` 로그가 이어집니다.
 
-만약 라이브 데모 환경 문제가 생기면, 이 슬라이드의 콘솔 로그 백업으로 State 전이와 Strategy 정책 해석이 실제 어떤 순서로 일어나는지 설명할 수 있습니다.
+발표자가 실제로 말할 포인트는 간단합니다. “왼쪽 Swing 화면은 Boundary이고, 터미널 로그는 Control과 Domain 내부에서 State/Strategy가 실행되는 증거입니다.” 만약 라이브 데모 환경 문제가 생기면, 이 슬라이드의 콘솔 로그 백업 이미지로 State 전이와 Strategy 정책 해석 순서를 설명하면 됩니다.
 
 ---
 

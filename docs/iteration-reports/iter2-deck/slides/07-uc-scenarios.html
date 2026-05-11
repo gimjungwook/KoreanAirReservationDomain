@@ -50,7 +50,7 @@
 <div class="top">
   <div class="left">
     <div class="title">UC 시나리오 — iter 2 신규</div>
-    <div class="subtitle">취소 · 환불 · 발권 · Guest 조회 · 4개 시나리오</div>
+    <div class="subtitle">조회에서 시작해 발권 · 취소 · 환불로 이어지는 4개 시나리오</div>
   </div>
   <div class="pill">iter 1 시나리오는 보고서 누적</div>
 </div>
@@ -60,14 +60,32 @@
   <section class="uc">
     <div class="uc-head">
       <div>
+        <div class="id">UC-11</div>
+        <div class="name">Retrieve Booking by PNR</div>
+      </div>
+      <div class="actor">Guest · AuthService · LookupService</div>
+    </div>
+    <div class="row"><div class="lab">전제</div><div class="val">Guest 보유 정보 = PNR + 본인 이름 + 이메일</div></div>
+    <div class="row"><div class="lab">기본 흐름</div><div class="val"><ol>
+      <li>Guest가 PNR + 이름 + 이메일 입력</li>
+      <li><code>AuthService.verifyGuest(...)</code> 3중 검증</li>
+      <li><code>ReservationLookupService.findByGuestPnr(...)</code></li>
+      <li>예약 스냅샷 반환 후 UI에서 취소/환불 진입</li>
+    </ol></div></div>
+    <div class="row"><div class="lab">대안</div><div class="val"><div class="alt">A1. 검증 실패 → <code>"INVALID_CREDENTIALS"</code> · 디테일 미노출</div><div class="alt">A2. <strong>회원 조회는 findByMember(member)</strong> 로 예약 이력 반환</div></div></div>
+  </section>
+
+  <section class="uc">
+    <div class="uc-head">
+      <div>
         <div class="id">UC-08</div>
         <div class="name">Cancel Booking</div>
       </div>
       <div class="actor">Member · Reservation</div>
     </div>
-    <div class="row"><div class="lab">전제</div><div class="val">예약 상태 = Confirmed 또는 Ticketed · 회원 인증 완료</div></div>
+    <div class="row"><div class="lab">전제</div><div class="val">예약 상태 = Confirmed 또는 Ticketed · 예약 조회 완료</div></div>
     <div class="row"><div class="lab">기본 흐름</div><div class="val"><ol>
-      <li>Member가 예약 조회 후 취소 클릭</li>
+      <li>조회 화면에서 취소 대상 예약 선택</li>
       <li><code>processCancellation(pnr)</code> 호출</li>
       <li>Reservation → CancellationRequested 전이</li>
       <li>fare rule 검증 후 Cancelled 전이</li>
@@ -112,28 +130,10 @@
     <div class="row"><div class="lab">대안</div><div class="val"><div class="alt">A1. fare class V/O → <strong>NoRefundPolicy</strong> · 0원 반환</div></div></div>
   </section>
 
-  <section class="uc">
-    <div class="uc-head">
-      <div>
-        <div class="id">UC-11</div>
-        <div class="name">Retrieve Booking by PNR</div>
-      </div>
-      <div class="actor">Guest · AuthService · LookupService</div>
-    </div>
-    <div class="row"><div class="lab">전제</div><div class="val">Guest 보유 정보 = PNR + 본인 이름 + 이메일</div></div>
-    <div class="row"><div class="lab">기본 흐름</div><div class="val"><ol>
-      <li>Guest가 PNR + 이름 + 이메일 입력</li>
-      <li><code>AuthService.verifyGuest(...)</code> 3중 검증</li>
-      <li><code>ReservationLookupService.findByGuestPnr(...)</code></li>
-      <li>예약 스냅샷 반환 (UI 표시)</li>
-    </ol></div></div>
-    <div class="row"><div class="lab">대안</div><div class="val"><div class="alt">A1. 검증 실패 → <code>"INVALID_CREDENTIALS"</code> · 디테일 미노출</div><div class="alt">A2. <strong>5회 누적 실패 → 15분 soft-lock</strong></div></div></div>
-  </section>
-
 </div>
 
 <div class="footer">
-  <span>iter 2 · UC 시나리오 신규 4개 (취소 · 발권 · 환불 · Guest 조회)</span>
+  <span>iter 2 · UC 시나리오 신규 4개 (조회 · 취소 · 발권 · 환불)</span>
   <span class="pg">07 / 15</span>
 </div>
 
