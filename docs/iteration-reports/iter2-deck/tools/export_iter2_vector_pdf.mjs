@@ -1,14 +1,16 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { writeFile, mkdir } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const repo = "/Users/lee/Documents/Codex/2026-05-10/new-chat/KoreanAirReservationDomain";
-const deck = `${repo}/docs/iteration-reports/iter2-deck`;
-const outDir = "/Users/lee/Documents/Codex/2026-05-11/files-mentioned-by-the-user-2";
+const toolDir = dirname(fileURLToPath(import.meta.url));
+const deck = dirname(toolDir);
+const outDir = process.env.ITER2_DECK_OUT || deck;
 const slidePdfDir = `${outDir}/iter2-vector-slide-pdfs`;
-const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const port = 9333;
+const chromePath = process.env.CHROME_PATH || findChromePath();
+const port = Number(process.env.CHROME_DEBUG_PORT || 9333);
 
 const slides = [
   "01-cover.html",
@@ -30,6 +32,17 @@ const slides = [
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function findChromePath() {
+  const candidates = [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+  ];
+  return candidates.find((path) => existsSync(path));
 }
 
 async function waitForChrome() {
@@ -95,7 +108,7 @@ function makeCdp(ws) {
 }
 
 async function renderOne(cdp, slide, index) {
-  const url = new URL(`${deck}/slides/${slide}`, "file://").href;
+  const url = pathToFileURL(`${deck}/slides/${slide}`).href;
   const loaded = cdp.waitEvent("Page.loadEventFired", 12000);
   await cdp.send("Page.navigate", { url });
   await loaded;
@@ -124,6 +137,9 @@ async function renderOne(cdp, slide, index) {
 }
 
 async function main() {
+  if (!chromePath) {
+    throw new Error("Chrome not found. Set CHROME_PATH=/path/to/chrome and retry.");
+  }
   await mkdir(slidePdfDir, { recursive: true });
   const profile = join(tmpdir(), `codex-chrome-profile-${Date.now()}`);
   const chrome = spawn(chromePath, [
@@ -151,6 +167,7 @@ async function main() {
     for (let i = 0; i < slides.length; i += 1) {
       await renderOne(cdp, slides[i], i + 1);
     }
+    console.log(`\nNext: python3 tools/merge_slide_pdfs.py`);
     ws.close();
   } finally {
     chrome.kill();
