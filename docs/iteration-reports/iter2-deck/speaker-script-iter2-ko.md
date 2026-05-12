@@ -114,6 +114,8 @@ Iteration 2에서 추가된 핵심 클래스는 `RefundPolicy` family, `RefundHa
 
 교과서 구조에서는 `Context`가 `Strategy` 인터페이스를 가지고 있고, 실제 알고리즘은 `ConcreteStrategy`들이 구현합니다. 저희 구현에서는 `RefundHandler`가 Context 역할을 하고, `RefundPolicy`가 Strategy 인터페이스 역할을 합니다. 구체 Strategy는 `FullRefundPolicy`, `PartialRefundPolicy`, `NoRefundPolicy`입니다.
 
+여기서 `paidAmount`는 사용자가 결제한 총액, 즉 `Payment.amount`들의 합계입니다. `penalty`는 취소 수수료입니다. 그래서 `FullRefundPolicy`는 `paidAmount` 전체를 돌려주고, `PartialRefundPolicy`는 결제액에서 수수료를 뺀 금액을 돌려주고, `NoRefundPolicy`는 0원을 반환합니다.
+
 중요한 점은 `RefundHandler`가 운임별 계산 공식을 직접 가지지 않는다는 것입니다. 만약 새 운임 정책이 생기면 `RefundPolicy` 구현체를 추가하거나 매핑만 조정하면 됩니다. 환불 workflow 자체를 다시 열 필요가 줄어듭니다.
 
 ---
@@ -135,6 +137,8 @@ Iteration 2에서 추가된 핵심 클래스는 `RefundPolicy` family, `RefundHa
 Strategy와 같은 방식으로 State도 교과서 구조와 팀 구현을 비교합니다. 교과서 State 패턴에서는 `Context`가 현재 `State` 객체를 들고 있고, 요청이 들어오면 상태 객체의 `handle()`에 행동을 위임합니다. 상태가 바뀌면 Context 안의 현재 State 참조가 다른 구상 State로 교체됩니다.
 
 저희 구현에서는 `Reservation`이 Context 역할을 합니다. `ReservationState`가 State 인터페이스이고, `InitiatedState`, `PendingPaymentState`, `ConfirmedState`, `TicketedState`, `CancellationRequestedState`, `CancelledState`, `RefundRequestedState`, `RefundedState`가 concrete state입니다.
+
+State 슬라이드에서 `ctx`라고 표시된 것은 `Reservation context`입니다. 즉 현재 상태 객체가 자기 혼자 상태를 바꾸는 것이 아니라, 인자로 받은 예약 객체 `ctx`에 대해 `ctx.setState(new TicketedState())`처럼 다음 상태를 넣어줍니다. `ConfirmedState`는 발권을 허용하고 `TicketedState`로 넘기고, `TicketedState`는 취소 요청을 허용하고 `CancellationRequestedState`로 넘기는 식입니다.
 
 Iteration 1에서는 이 구조는 있었지만 실제 동작은 3개 전이만 활성화되어 있었습니다. Iteration 2에서는 발권, 취소 요청, 취소 확정, 환불 요청, 환불 결정까지 5개 전이를 concrete state 안에 구현했습니다. 그래서 이번 iteration의 State는 “새로 처음 도입”이라기보다 “기존 DP를 실제 동작 가능한 concrete behavior로 보완”한 것입니다.
 

@@ -135,8 +135,8 @@
         <text class="cls-stereotype" x="460" y="62" text-anchor="middle">«interface»</text>
         <text class="cls-title" x="460" y="80" text-anchor="middle">RefundPolicy</text>
         <line class="cls-divider" x1="350" y1="96" x2="570" y2="96"/>
-        <text class="cls-method" x="366" y="116">calculateRefundAmount(int)</text>
-        <text class="cls-method" x="366" y="134">getRefundType()</text>
+        <text class="cls-method" x="366" y="116">calculateRefundAmount(paidAmount)</text>
+        <text class="cls-method" x="366" y="134">paidAmount = 실제 결제 총액</text>
 
         <!-- arrow -->
         <line class="arrow-line" x1="260" y1="92" x2="350" y2="92"/>
@@ -144,29 +144,32 @@
         <text class="cls-method" x="280" y="84" fill="#4E5968">policy</text>
 
         <!-- Concretes -->
-        <rect class="cls-box team-impl" x="40" y="240" width="170" height="64" rx="6"/>
-        <text class="cls-title" x="125" y="264" text-anchor="middle">FullRefundPolicy</text>
-        <line class="cls-divider" x1="40" y1="278" x2="210" y2="278"/>
-        <text class="cls-method" x="56" y="296">→ paid</text>
+        <rect class="cls-box team-impl" x="32" y="234" width="176" height="92" rx="6"/>
+        <text class="cls-title" x="120" y="258" text-anchor="middle">FullRefundPolicy</text>
+        <line class="cls-divider" x1="32" y1="272" x2="208" y2="272"/>
+        <text class="cls-method" x="48" y="292">입력: paidAmount</text>
+        <text class="cls-method" x="48" y="312">출력: 전액 환불</text>
 
-        <rect class="cls-box team-impl" x="220" y="240" width="170" height="64" rx="6"/>
-        <text class="cls-title" x="305" y="264" text-anchor="middle">PartialRefundPolicy</text>
-        <line class="cls-divider" x1="220" y1="278" x2="390" y2="278"/>
-        <text class="cls-method" x="236" y="296">→ paid - penalty</text>
+        <rect class="cls-box team-impl" x="212" y="234" width="176" height="92" rx="6"/>
+        <text class="cls-title" x="300" y="258" text-anchor="middle">PartialRefundPolicy</text>
+        <line class="cls-divider" x1="212" y1="272" x2="388" y2="272"/>
+        <text class="cls-method" x="228" y="292">입력: paidAmount</text>
+        <text class="cls-method" x="228" y="312">출력: 결제액 - 수수료</text>
 
-        <rect class="cls-box team-impl" x="400" y="240" width="170" height="64" rx="6"/>
-        <text class="cls-title" x="485" y="264" text-anchor="middle">NoRefundPolicy</text>
-        <line class="cls-divider" x1="400" y1="278" x2="570" y2="278"/>
-        <text class="cls-method" x="416" y="296">→ 0</text>
+        <rect class="cls-box team-impl" x="392" y="234" width="176" height="92" rx="6"/>
+        <text class="cls-title" x="480" y="258" text-anchor="middle">NoRefundPolicy</text>
+        <line class="cls-divider" x1="392" y1="272" x2="568" y2="272"/>
+        <text class="cls-method" x="408" y="292">입력: paidAmount</text>
+        <text class="cls-method" x="408" y="312">출력: 0원</text>
 
         <!-- realization -->
-        <line class="arrow-line dashed" x1="125" y1="240" x2="440" y2="170"/>
-        <line class="arrow-line dashed" x1="305" y1="240" x2="460" y2="170"/>
-        <line class="arrow-line dashed" x1="485" y1="240" x2="480" y2="170"/>
+        <line class="arrow-line dashed" x1="120" y1="234" x2="440" y2="170"/>
+        <line class="arrow-line dashed" x1="300" y1="234" x2="460" y2="170"/>
+        <line class="arrow-line dashed" x1="480" y1="234" x2="480" y2="170"/>
         <polygon points="455,150 470,170 440,170" fill="white" stroke="#3182F6" stroke-width="1.5"/>
 
-        <text class="cls-stereotype" x="300" y="400" text-anchor="middle">Y → Full · M/B → Partial · V/O → No</text>
-        <text class="cls-stereotype" x="300" y="418" text-anchor="middle">FareRule.checkRefundPolicy()가 매핑 담당</text>
+        <text class="cls-stereotype" x="300" y="396" text-anchor="middle">Y/B → 전액 · M/할인 → 부분 · V/O/불가 → 0원</text>
+        <text class="cls-stereotype" x="300" y="416" text-anchor="middle">paidAmount는 Payment.amount 합계, penalty는 취소 수수료</text>
       </svg>
     </div>
   </section>
@@ -177,12 +180,12 @@
   <span class="ll"><span class="swatch iface"></span>«interface»</span>
   <span class="ll"><span class="swatch"></span>구상 클래스</span>
   <span class="ll"><span class="swatch team"></span>우리 팀 적용 클래스</span>
-  <span style="margin-left:auto; color: var(--ink-3);">교과서 구조와 1:1 일치 — Context = RefundHandler · Strategy = RefundPolicy · Concrete = Full / Partial / No</span>
+  <span style="margin-left:auto; color: var(--ink-3);">paidAmount = 결제 총액 · penalty = 취소 수수료 · Context = RefundHandler</span>
 </div>
 
 <div class="footer">
   <span>iter 2 · DP#2 Strategy · 교과서 vs 팀 구성도 비교</span>
-  <span class="pg">10 / 15</span>
+  <span class="pg">10 / 17</span>
 </div>
 
 </body>
