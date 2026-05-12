@@ -9,8 +9,8 @@ OUT = DECK / "iter2-final-hq.pdf"
 
 def main():
     files = sorted(SLIDE_DIR.glob("*.pdf"))
-    if len(files) != 15:
-        raise SystemExit(f"Expected 15 slide PDFs in {SLIDE_DIR}, found {len(files)}")
+    if len(files) != 17:
+        raise SystemExit(f"Expected 17 slide PDFs in {SLIDE_DIR}, found {len(files)}")
 
     writer = PdfWriter()
     for path in files:

@@ -1,6 +1,6 @@
 # Iter 2 Deck - 사용 가이드
 
-> 5/12 OODP iter 2 발표용 슬라이드 (15장).
+> 5/12 OODP iter 2 발표용 슬라이드 (17장).
 > 슬라이드는 한국어 본문 + 영어 코드/클래스명/패턴명. `iter2-final-hq.pdf`는 이 폴더의 HTML 슬라이드와 diagram assets에서 재생성할 수 있다.
 
 ---
@@ -26,10 +26,10 @@
 | 파일/폴더 | 역할 |
 |---|---|
 | `index.html` | 발표용 슬라이드 플레이어 |
-| `slides/*.html` | 15장 슬라이드 원본. 문구/표/코드는 여기서 수정 |
+| `slides/*.html` | 17장 슬라이드 원본. 문구/표/코드는 여기서 수정 |
 | `assets/shared.css` | 공통 디자인 토큰 |
 | `assets/diagrams/*.png` | Use Case, Class, State, Sequence, demo 백업 이미지 |
-| `speaker-script-iter2-ko.md` | 15장 기준 한국어 발표 대본 + 예상 Q&A |
+| `speaker-script-iter2-ko.md` | 17장 기준 한국어 발표 대본 + 예상 Q&A |
 | `iter2-final-hq.pdf` | 제출/발표용 고화질 PDF |
 | `tools/generate_diagram_assets.py` | placeholder 없이 발표 가능한 PNG diagram asset 재생성 |
 | `tools/export_iter2_vector_pdf.mjs` | 각 HTML slide를 고화질 벡터 PDF로 출력 |
@@ -120,7 +120,7 @@ iter2-deck/
 ├── README.md                      이 문서
 ├── brand-spec.md                  디자인 토큰·색·폰트 결정 기록
 ├── speaker-notes.md               한국어 구두 멘트 + Q&A
-├── speaker-script-iter2-ko.md      15장 기준 발표 대본
+├── speaker-script-iter2-ko.md      17장 기준 발표 대본
 ├── index.html                     deck 진입점 (브라우저에서 더블클릭)
 ├── iter2-final-hq.pdf             최종 고화질 PDF
 ├── slides/
@@ -156,7 +156,7 @@ python3 tools/merge_slide_pdfs.py
 
 ```text
 iter2-vector-slide-pdfs/       # 슬라이드별 벡터 PDF
-iter2-final-hq.pdf             # 최종 15페이지 PDF
+iter2-final-hq.pdf             # 최종 17페이지 PDF
 ```
 
 ---
@@ -176,6 +176,6 @@ iter2-final-hq.pdf             # 최종 15페이지 PDF
 - [ ] `assets/diagrams/` PNG가 모두 표시되는지 확인
 - [ ] 브라우저에서 `index.html` 풀스크린 동작 확인
 - [ ] 키보드 ←/→/숫자/P 모두 작동
-- [ ] `iter2-final-hq.pdf` 15페이지, 16:9 가로 방향 확인
+- [ ] `iter2-final-hq.pdf` 17페이지, 16:9 가로 방향 확인
 - [ ] HDMI / 어댑터 / USB 백업
 - [ ] `speaker-script-iter2-ko.md` 한 번 통독 + 1회 리허설

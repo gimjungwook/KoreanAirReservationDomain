@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>13 · DP#1 State — 코드 전·후</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 16px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 36px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); }
+  .top .pill { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--tossblue-bg); color: var(--tossblue); }
+  .body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pane { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 24px 28px; display: flex; flex-direction: column; }
+  .pane .head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
+  .pane .head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.025em; }
+  .pane.before .head h2 { color: var(--negative); }
+  .pane.after .head h2 { color: var(--tossblue); }
+  .stamp { font-size: 12px; font-weight: 600; color: var(--ink-4); }
+  pre.code { flex: 1; font-family: var(--font-mono); font-size: 14px; line-height: 1.65; color: var(--ink-2); background: var(--surface-2); border-radius: var(--r-md); padding: 18px 22px; overflow: hidden; white-space: pre; margin: 0; }
+  .kw { color: var(--tossblue); font-weight: 600; }
+  .ty { color: var(--ink); font-weight: 700; }
+  .str { color: var(--positive); }
+  .com { color: var(--ink-4); font-style: italic; }
+  .map-row { margin-top: 14px; padding: 12px 14px; background: var(--tossblue-bg-soft); border: 1px solid rgba(49,130,246,0.2); border-radius: var(--r-md); font-size: 13.5px; font-weight: 600; color: var(--ink-3); }
+  .map-row code { font-family: var(--font-mono); font-size: 13px; color: var(--tossblue); font-weight: 700; }
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); }
+  .footer .pg { font-family: var(--font-mono); color: var(--ink-5); }
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="left">
+    <div class="title">DP#1 State — 코드 전 · 후</div>
+    <div class="subtitle">iter 1 stub 전이를 iter 2 concrete state 행동으로 보완</div>
+  </div>
+  <div class="pill">PDF 별첨#2 §2-1, §2-2 가이드</div>
+</div>
+<div class="body">
+  <section class="pane before">
+    <div class="head"><h2>Before · iter 1 stub</h2><span class="stamp">클래스는 있으나 행동은 미활성</span></div>
+<pre class="code"><span class="com">// AbstractReservationState.java</span>
+<span class="kw">public void</span> issueTicket(<span class="ty">Reservation</span> ctx) {
+  invalid(<span class="str">"issueTicket"</span>);
+}
+
+<span class="kw">public void</span> requestCancellation(<span class="ty">Reservation</span> ctx) {
+  invalid(<span class="str">"requestCancellation"</span>);
+}
+
+<span class="kw">public void</span> requestRefund(<span class="ty">Reservation</span> ctx) {
+  invalid(<span class="str">"requestRefund"</span>);
+}
+
+<span class="com">// iter 1 의미</span>
+<span class="com">// State 클래스는 준비됐지만</span>
+<span class="com">// 발권·취소·환불 전이는 호출 시 예외</span></pre>
+    <div class="map-row">교과서 매핑: ConcreteState가 아직 handle()을 구현하지 않은 상태라, Context는 위임할 수 있지만 실제 행동은 거부된다.</div>
+  </section>
+  <section class="pane after">
+    <div class="head"><h2>After · iter 2 concrete behavior</h2><span class="stamp">ConfirmedState / CancelledState 등</span></div>
+<pre class="code"><span class="com">// ConfirmedState.java</span>
+<span class="kw">public void</span> issueTicket(<span class="ty">Reservation</span> ctx) {
+  <span class="kw">for</span> (<span class="ty">Passenger</span> p : ctx.getPassengers()) {
+    <span class="ty">Ticket</span> t = <span class="ty">Ticket</span>.generate(ctx, p, <span class="kw">null</span>);
+    ctx.addTicket(t);
+  }
+  ctx.setState(<span class="kw">new</span> <span class="ty">TicketedState</span>());
+  ctx.updateStatus(<span class="ty">ReservationStatus</span>.TICKETED);
+}
+
+<span class="kw">public void</span> requestCancellation(<span class="ty">Reservation</span> ctx) {
+  ctx.setState(<span class="kw">new</span> <span class="ty">CancellationRequestedState</span>());
+  ctx.updateStatus(<span class="ty">ReservationStatus</span>
+                   .CANCELLATION_REQUESTED);
+}</pre>
+    <div class="map-row"><code>ctx.setState(new TicketedState())</code>가 교과서 State 전이 지점. iter 2에서 5개 전이가 이 방식으로 실제 구현됐다.</div>
+  </section>
+</div>
+<div class="footer">
+  <span>iter 2 · DP#1 State 보완 · 코드 전·후 + 원 구성도 매핑</span>
+  <span class="pg">13 / 17</span>
+</div>
+</body>
+</html>

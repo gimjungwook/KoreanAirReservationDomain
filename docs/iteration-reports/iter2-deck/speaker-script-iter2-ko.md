@@ -128,7 +128,27 @@ Iteration 2에서 추가된 핵심 클래스는 `RefundPolicy` family, `RefundHa
 
 ---
 
-## 12. State Diagram
+## 12. State 교과서 구조 vs 팀 구현
+
+Strategy와 같은 방식으로 State도 교과서 구조와 팀 구현을 비교합니다. 교과서 State 패턴에서는 `Context`가 현재 `State` 객체를 들고 있고, 요청이 들어오면 상태 객체의 `handle()`에 행동을 위임합니다. 상태가 바뀌면 Context 안의 현재 State 참조가 다른 구상 State로 교체됩니다.
+
+저희 구현에서는 `Reservation`이 Context 역할을 합니다. `ReservationState`가 State 인터페이스이고, `InitiatedState`, `PendingPaymentState`, `ConfirmedState`, `TicketedState`, `CancellationRequestedState`, `CancelledState`, `RefundRequestedState`, `RefundedState`가 concrete state입니다.
+
+Iteration 1에서는 이 구조는 있었지만 실제 동작은 3개 전이만 활성화되어 있었습니다. Iteration 2에서는 발권, 취소 요청, 취소 확정, 환불 요청, 환불 결정까지 5개 전이를 concrete state 안에 구현했습니다. 그래서 이번 iteration의 State는 “새로 처음 도입”이라기보다 “기존 DP를 실제 동작 가능한 concrete behavior로 보완”한 것입니다.
+
+---
+
+## 13. State 코드 전후
+
+이 슬라이드는 State 패턴을 코드 관점에서 설명합니다. 왼쪽은 iteration 1의 의미입니다. `AbstractReservationState`에는 `issueTicket`, `requestCancellation`, `requestRefund` 같은 메서드가 있었지만, 아직 해당 상태에서 구현하지 않은 행동은 `invalid()`로 막혀 있었습니다. 즉 클래스 구조는 준비됐지만 발권·취소·환불 행동은 아직 실행되지 않았습니다.
+
+오른쪽은 iteration 2에서 `ConfirmedState`가 실제 행동을 가진 모습입니다. `issueTicket()`은 승객별 티켓을 만들고 `ctx.setState(new TicketedState())`로 전이합니다. `requestCancellation()`은 `CancellationRequestedState`로 상태를 바꾸고 예약 status도 함께 업데이트합니다.
+
+여기서 `ctx.setState(new TicketedState())`가 교과서 State 패턴의 핵심 전이 지점입니다. Context인 `Reservation`이 상태별 행동을 직접 if/switch로 처리하지 않고, 현재 concrete state가 허용된 행동과 다음 상태를 결정합니다.
+
+---
+
+## 14. State Diagram
 
 State Diagram은 iteration 1과 iteration 2의 차이가 가장 잘 보이는 슬라이드입니다.
 
@@ -140,7 +160,7 @@ Iteration 2에서는 5개 전이를 추가로 활성화했습니다. `Confirmed`
 
 ---
 
-## 13. Sequence Diagram
+## 15. Sequence Diagram
 
 Sequence Diagram은 두 개 흐름을 보여줍니다. 왼쪽은 취소와 환불 흐름이고, 오른쪽은 Guest 예약 조회 흐름입니다.
 
@@ -150,7 +170,7 @@ Guest 조회 흐름에서는 `AuthService`가 PNR, 이름, 이메일을 확인�
 
 ---
 
-## 14. 실행 화면 데모
+## 16. 실행 화면 데모
 
 데모는 Java Swing 화면과 터미널 콘솔을 같이 보여주는 방식으로 진행합니다. 먼저 터미널에서 `java -cp bin com.koreanair.reservation.app.swing.SwingApp`으로 실행하고, 화면 한쪽에는 Swing 앱을, 다른 한쪽에는 터미널을 놓습니다. 발표 중에는 UI 조작 결과가 콘솔에 `[STATE]`, `[STRATEGY]`, `[REFUND]`, `[PG]` 로그로 같이 찍히는지를 보여주면 됩니다.
 
@@ -164,7 +184,7 @@ Guest 조회 흐름에서는 `AuthService`가 PNR, 이름, 이메일을 확인�
 
 ---
 
-## 15. 마무리
+## 17. 마무리
 
 정리하겠습니다. Iteration 2에서는 전체 기능 리스트와 확장기능 정리표를 업데이트했고, 별첨#1의 refactoring/design pattern 표를 추가했습니다.
 

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>12 · DP#1 State — 교과서 vs 팀</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { background: var(--bg); padding: 60px 80px; }
+  .top { display: flex; justify-content: space-between; align-items: center; padding: 0 8px 16px; }
+  .top .left { display: flex; align-items: baseline; gap: 14px; }
+  .top .title { font-family: var(--font-display); font-size: 40px; font-weight: 800; letter-spacing: -0.035em; }
+  .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
+  .top .pill { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--tossblue-bg); color: var(--tossblue); }
+  .pair { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .pane { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 28px 32px; display: flex; flex-direction: column; }
+  .pane .head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; border-bottom: 1px solid var(--rule); margin-bottom: 22px; }
+  .pane .head h2 { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: -0.025em; }
+  .pane.team .head h2 { color: var(--tossblue); }
+  .pane .head .src { font-size: 12px; font-weight: 600; color: var(--ink-4); }
+  .diagram { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .diagram svg { max-width: 100%; max-height: 100%; }
+  .box { fill: var(--surface); stroke: var(--ink-3); stroke-width: 1.5; }
+  .box.iface { stroke: var(--negative); stroke-dasharray: 6 4; }
+  .box.team { stroke: var(--tossblue); }
+  .title-t { font-family: var(--font-mono); font-size: 14px; font-weight: 700; fill: var(--ink); }
+  .st { font-family: var(--font-mono); font-size: 11px; font-style: italic; fill: var(--ink-4); }
+  .m { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-2); }
+  .div { stroke: var(--rule); stroke-width: 1; }
+  .line { stroke: var(--ink-3); stroke-width: 1.5; fill: none; }
+  .line.d { stroke-dasharray: 6 4; }
+  .note { margin-top: 18px; padding: 14px 16px; border-radius: var(--r-md); background: var(--tossblue-bg-soft); border: 1px solid rgba(49,130,246,0.18); font-size: 13px; font-weight: 600; color: var(--ink-3); }
+  .footer { margin-top: 14px; padding: 0 8px; display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--ink-4); }
+  .footer .pg { font-family: var(--font-mono); color: var(--ink-5); }
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="left">
+    <div class="title">DP#1 State — 교과서 vs 우리 팀</div>
+    <div class="subtitle">iter 2에서는 기존 State DP를 8 / 8 실행 가능한 concrete state로 보완</div>
+  </div>
+  <div class="pill">PDF 별첨#2 §1-1 가이드</div>
+</div>
+
+<div class="pair">
+  <section class="pane book">
+    <div class="head">
+      <h2>교과서 · GoF State</h2>
+      <span class="src">Context가 현재 State 객체에 행동 위임</span>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box" x="55" y="55" width="205" height="104" rx="6"/>
+        <text class="title-t" x="158" y="78" text-anchor="middle">Context</text>
+        <line class="div" x1="55" y1="94" x2="260" y2="94"/>
+        <text class="m" x="72" y="118">request()</text>
+        <text class="m" x="72" y="138">state.handle()</text>
+        <rect class="box iface" x="355" y="55" width="190" height="104" rx="6"/>
+        <text class="st" x="450" y="78" text-anchor="middle">«interface»</text>
+        <text class="title-t" x="450" y="96" text-anchor="middle">State</text>
+        <line class="div" x1="355" y1="112" x2="545" y2="112"/>
+        <text class="m" x="372" y="136">handle()</text>
+        <line class="line" x1="260" y1="105" x2="355" y2="105"/>
+        <polygon points="351,101 359,105 351,109" fill="#4E5968"/>
+        <text class="m" x="282" y="96">currentState</text>
+        <rect class="box" x="95" y="260" width="170" height="64" rx="6"/>
+        <text class="title-t" x="180" y="285" text-anchor="middle">ConcreteStateA</text>
+        <line class="div" x1="95" y1="299" x2="265" y2="299"/>
+        <text class="m" x="112" y="318">handle()</text>
+        <rect class="box" x="335" y="260" width="170" height="64" rx="6"/>
+        <text class="title-t" x="420" y="285" text-anchor="middle">ConcreteStateB</text>
+        <line class="div" x1="335" y1="299" x2="505" y2="299"/>
+        <text class="m" x="352" y="318">handle()</text>
+        <line class="line d" x1="180" y1="260" x2="430" y2="185"/>
+        <line class="line d" x1="420" y1="260" x2="450" y2="185"/>
+        <polygon points="435,165 450,185 420,185" fill="white" stroke="#4E5968" stroke-width="1.5"/>
+        <text class="st" x="300" y="395" text-anchor="middle">상태별 행동을 State 구현체로 분리하고,</text>
+        <text class="st" x="300" y="415" text-anchor="middle">Context는 현재 상태 객체에 요청을 위임한다.</text>
+      </svg>
+    </div>
+  </section>
+  <section class="pane team">
+    <div class="head">
+      <h2>우리 팀 · ReservationState family</h2>
+      <span class="src">KoreanAirReservationDomain · iter 1 → iter 2</span>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box team" x="40" y="45" width="230" height="118" rx="6"/>
+        <text class="st" x="155" y="68" text-anchor="middle">«entity context»</text>
+        <text class="title-t" x="155" y="87" text-anchor="middle">Reservation</text>
+        <line class="div" x1="40" y1="104" x2="270" y2="104"/>
+        <text class="m" x="58" y="126">issueTicket()</text>
+        <text class="m" x="58" y="145">requestCancellation()</text>
+        <rect class="box iface" x="350" y="45" width="220" height="118" rx="6"/>
+        <text class="st" x="460" y="68" text-anchor="middle">«interface»</text>
+        <text class="title-t" x="460" y="87" text-anchor="middle">ReservationState</text>
+        <line class="div" x1="350" y1="104" x2="570" y2="104"/>
+        <text class="m" x="368" y="126">issueTicket(ctx)</text>
+        <text class="m" x="368" y="145">requestRefund(ctx)</text>
+        <line class="line" x1="270" y1="105" x2="350" y2="105"/>
+        <polygon points="346,101 354,105 346,109" fill="#4E5968"/>
+        <text class="m" x="288" y="96">currentState</text>
+        <rect class="box team" x="34" y="240" width="132" height="58" rx="6"/>
+        <text class="title-t" x="100" y="264" text-anchor="middle">Confirmed</text>
+        <text class="m" x="52" y="284">issueTicket()</text>
+        <rect class="box team" x="176" y="240" width="132" height="58" rx="6"/>
+        <text class="title-t" x="242" y="264" text-anchor="middle">Ticketed</text>
+        <text class="m" x="194" y="284">cancel()</text>
+        <rect class="box team" x="318" y="240" width="132" height="58" rx="6"/>
+        <text class="title-t" x="384" y="264" text-anchor="middle">Cancelled</text>
+        <text class="m" x="336" y="284">refund()</text>
+        <rect class="box team" x="460" y="240" width="132" height="58" rx="6"/>
+        <text class="title-t" x="526" y="264" text-anchor="middle">Refunded</text>
+        <text class="m" x="478" y="284">terminal</text>
+        <line class="line d" x1="100" y1="240" x2="440" y2="185"/>
+        <line class="line d" x1="242" y1="240" x2="455" y2="185"/>
+        <line class="line d" x1="384" y1="240" x2="470" y2="185"/>
+        <line class="line d" x1="526" y1="240" x2="485" y2="185"/>
+        <polygon points="455,165 470,185 440,185" fill="white" stroke="#3182F6" stroke-width="1.5"/>
+        <text class="st" x="300" y="390" text-anchor="middle">iter 1: 3개 전이만 live, 5개는 stub</text>
+        <text class="st" x="300" y="410" text-anchor="middle">iter 2: 발권·취소·환불 5개 전이를 실제 구현</text>
+      </svg>
+    </div>
+  </section>
+</div>
+<div class="note">매핑: Context = <b>Reservation</b>, State = <b>ReservationState</b>, ConcreteState = <b>Initiated/PendingPayment/Confirmed/Ticketed/CancellationRequested/Cancelled/RefundRequested/Refunded</b>.</div>
+<div class="footer">
+  <span>iter 2 · DP#1 State 보완 · 교과서 vs 팀 구성도 비교</span>
+  <span class="pg">12 / 17</span>
+</div>
+</body>
+</html>

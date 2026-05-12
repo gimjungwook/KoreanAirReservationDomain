@@ -24,6 +24,8 @@ const slides = [
   "09-class-detail.html",
   "10-strategy-textbook-vs-team.html",
   "11-strategy-code.html",
+  "12-state-textbook-vs-team.html",
+  "13-state-code.html",
   "12-state-diagram.html",
   "13-sequence-diagram.html",
   "14-demo.html",
