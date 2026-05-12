@@ -122,9 +122,11 @@ Iteration 2에서 추가된 핵심 클래스는 `RefundPolicy` family, `RefundHa
 
 이 슬라이드는 코드 관점에서 Strategy의 효과를 설명합니다. 왼쪽의 before는 의도적으로 피하려고 한 구조입니다. `RefundHandler` 안에서 fare class를 `if/else` 또는 `switch`로 계속 분기하면, 새 운임이 생길 때마다 같은 control 클래스를 수정해야 합니다.
 
-오른쪽 after에서는 `FareRule.checkRefundPolicy()`가 적절한 `RefundPolicy`를 반환하고, `RefundHandler`는 `policy.calculateRefundAmount(paidAmount)`만 호출합니다.
+오른쪽 after에서는 논리 구조를 더 직접 보여줍니다. `resolvePolicy(fareRule)`가 `FareRule`의 환불 가능 여부와 fare class를 보고 `NoRefundPolicy`, `FullRefundPolicy`, `PartialRefundPolicy` 중 하나를 선택합니다. 그리고 `RefundHandler`는 선택된 policy의 `calculateRefundAmount(paidAmount)`만 호출합니다.
 
-이 구조의 장점은 Open-Closed Principle입니다. 새로운 정책은 새 클래스로 확장하고, 이미 검증된 환불 오케스트레이션 코드는 그대로 둡니다. 테스트도 정책 단위로 분리할 수 있습니다.
+구체 policy 세 개도 같이 봐야 합니다. `FullRefundPolicy`는 결제 금액 전체를 반환하고, `PartialRefundPolicy`는 페널티를 제외한 금액을 반환하고, `NoRefundPolicy`는 0원을 반환합니다. 이 세 클래스가 교과서 구성도의 `ConcreteStrategy`입니다.
+
+다만 현재 `resolvePolicy()` 안에는 아직 if 분기가 남아 있습니다. 이번 iteration에서는 Strategy 적용 범위를 환불 계산 알고리즘 분리까지로 잡았고, 다음 iteration 또는 final에서는 이 선택 로직을 `RefundPolicyFactory`로 분리하면 Factory Method 적용 후보가 됩니다. 즉 Strategy는 이미 적용했고, policy 선택 객체 생성 부분은 다음 DP 확장 지점입니다.
 
 ---
 
@@ -178,7 +180,7 @@ Guest 조회 흐름에서는 `AuthService`가 PNR, 이름, 이메일을 확인�
 
 두 번째는 좌석 선택입니다. Iteration 1에서는 자동 배정만 있었지만, Iteration 2에서는 좌석 맵에서 사용자가 좌석을 선택할 수 있습니다.
 
-세 번째와 네 번째는 취소와 환불입니다. 취소 사유를 입력하면 예약 상태가 `CancellationRequested`, `Cancelled`로 넘어가고, 터미널에는 `[STATE]` 로그가 찍힙니다. 환불 미리보기와 확정을 진행하면 `RefundHandler`가 정책을 해석하면서 `[STRATEGY] FareRule(...) -> FullRefundPolicy` 같은 로그를 출력하고, PG 환불 송금 단계에서는 `[PG]`, `[REFUND]` 로그가 이어집니다.
+세 번째와 네 번째는 취소와 환불입니다. 취소 사유를 입력하면 예약 상태가 `CancellationRequested`, `Cancelled`로 넘어가고, 터미널에는 `[STATE]` 로그가 찍힙니다. 이 부분이 State DP 보완을 실제로 보여주는 데모입니다. 환불 미리보기와 확정을 진행하면 `RefundHandler`가 정책을 해석하면서 `[STRATEGY] FareRule(...) -> FullRefundPolicy` 같은 로그를 출력하고, PG 환불 송금 단계에서는 `[PG]`, `[REFUND]` 로그가 이어집니다.
 
 발표자가 실제로 말할 포인트는 간단합니다. “왼쪽 Swing 화면은 Boundary이고, 터미널 로그는 Control과 Domain 내부에서 State/Strategy가 실행되는 증거입니다.” 만약 라이브 데모 환경 문제가 생기면, 이 슬라이드의 콘솔 로그 백업 이미지로 State 전이와 Strategy 정책 해석 순서를 설명하면 됩니다.
 

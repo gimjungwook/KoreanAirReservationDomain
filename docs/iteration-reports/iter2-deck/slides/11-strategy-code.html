@@ -14,7 +14,7 @@
   .top .subtitle { font-size: 16px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.015em; }
   .top .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--tossblue-bg); color: var(--tossblue); }
 
-  .body { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .body { flex: 1; display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 24px; }
   .pane { background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 24px 28px; display: flex; flex-direction: column; }
   .pane .head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin-bottom: 14px; }
   .pane .head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.025em; }
@@ -23,14 +23,13 @@
   .pane .head .stamp { font-size: 12px; font-weight: 600; color: var(--ink-4); letter-spacing: -0.005em; }
 
   pre.code {
-    flex: 1;
     font-family: var(--font-mono);
-    font-size: 14.5px;
-    line-height: 1.7;
+    font-size: 13.3px;
+    line-height: 1.55;
     color: var(--ink-2);
     background: var(--surface-2);
     border-radius: var(--r-md);
-    padding: 18px 22px;
+    padding: 16px 18px;
     overflow: hidden;
     white-space: pre;
     margin: 0;
@@ -41,6 +40,49 @@
   pre.code .com { color: var(--ink-4); font-style: italic; }
   pre.code .num { color: #B45309; }
   pre.code .ins { color: var(--positive); font-weight: 700; }
+  .after-grid { flex: 1; display: grid; grid-template-rows: auto 1fr auto; gap: 10px; }
+  .policy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .policy {
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    min-height: 136px;
+  }
+  .policy .p-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--tossblue);
+    margin-bottom: 8px;
+  }
+  .policy pre {
+    font-family: var(--font-mono);
+    font-size: 11.6px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    white-space: pre-wrap;
+    margin: 0;
+  }
+  .factory-note {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    background: var(--warn-bg);
+    border: 1px solid rgba(242,163,15,0.28);
+    color: var(--ink-2);
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: -0.005em;
+  }
+  .factory-note .tag2 {
+    font-family: var(--font-mono);
+    color: var(--warn);
+    font-weight: 800;
+  }
 
   .map-row {
     margin-top: 14px;
@@ -112,21 +154,45 @@
       <h2>After · iter 2 실제 코드</h2>
       <span class="stamp">RefundHandler.java · evaluateRefund()</span>
     </div>
-<pre class="code"><span class="com">// RefundHandler — Strategy 위임</span>
-<span class="kw">public</span> <span class="ty">RefundResult</span> evaluateRefund(<span class="ty">String</span> pnr,
-                                  <span class="ty">String</span> fareClass) {
-  <span class="ty">FareRule</span>     fr     = registry.lookup(fareClass);
-  <span class="ty">RefundPolicy</span> policy = <span class="ins">resolvePolicy(fr)</span>;
-  <span class="kw">int</span>          paid   = reservation.getPaidAmount();
-  <span class="kw">int</span>          refund = <span class="ins">policy.calculateRefundAmount(paid)</span>;
-  <span class="kw">return new</span> <span class="ty">RefundResult</span>(refund,
-                          policy.getRefundType());
+    <div class="after-grid">
+<pre class="code"><span class="com">// RefundHandler — Context: 정책 선택 후 계산 위임</span>
+<span class="kw">private</span> <span class="ty">RefundPolicy</span> resolvePolicy(<span class="ty">FareRule</span> rule) {
+  <span class="kw">if</span> (rule == <span class="kw">null</span> || !rule.isRefundable()) <span class="kw">return new</span> <span class="ty">NoRefundPolicy</span>();
+  <span class="kw">String</span> fc = rule.getFareClass();
+  <span class="kw">if</span> (<span class="str">"Y"</span>.equals(fc) || <span class="str">"B"</span>.equals(fc)) <span class="kw">return new</span> <span class="ty">FullRefundPolicy</span>();
+  <span class="kw">return new</span> <span class="ty">PartialRefundPolicy</span>();
 }
 
-<span class="com">// resolvePolicy — fare class 매핑 한 곳에 격리</span>
-<span class="kw">private</span> <span class="ty">RefundPolicy</span> resolvePolicy(<span class="ty">FareRule</span> fr) {
-  <span class="kw">return</span> fr.checkRefundPolicy();  <span class="com">// FareRule이 자기 policy 알고있음</span>
-}</pre>
+<span class="ty">RefundPolicy</span> policy = <span class="ins">resolvePolicy(fareRule)</span>;
+<span class="ty">BigDecimal</span> amount = <span class="ins">policy.calculateRefundAmount(paid)</span>;</pre>
+      <div class="policy-grid">
+        <div class="policy">
+          <div class="p-title">FullRefundPolicy</div>
+<pre>calculate(paid) {
+  return paid;
+}
+// Y / B fare</pre>
+        </div>
+        <div class="policy">
+          <div class="p-title">PartialRefundPolicy</div>
+<pre>calculate(paid) {
+  return paid - penalty;
+}
+// 할인 운임</pre>
+        </div>
+        <div class="policy">
+          <div class="p-title">NoRefundPolicy</div>
+<pre>calculate(paid) {
+  return 0;
+}
+// 환불 불가</pre>
+        </div>
+      </div>
+      <div class="factory-note">
+        <span class="tag2">NEXT DP</span>
+        <span><code>resolvePolicy()</code>의 if 분기는 다음 iteration에서 <b>RefundPolicyFactory</b> / Factory Method로 분리할 후보.</span>
+      </div>
+    </div>
     <div class="map-row">
       <span class="lab">매핑</span>
       <code>policy.calculateRefundAmount()</code> 호출 = 교과서 구성도의 <strong>Context → Strategy.algorithmInterface()</strong> 위임
@@ -136,8 +202,8 @@
 </div>
 
 <div class="footer">
-  <span>iter 2 · DP#2 Strategy · 코드 전·후 + 원 구성도 매핑</span>
-  <span class="pg">11 / 15</span>
+  <span>iter 2 · DP#2 Strategy · concrete policies + Factory 후보</span>
+  <span class="pg">11 / 17</span>
 </div>
 
 </body>

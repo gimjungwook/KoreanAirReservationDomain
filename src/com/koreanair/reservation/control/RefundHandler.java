@@ -185,6 +185,13 @@ public class RefundHandler {
         return resolvePolicy(fareRule).getClass().getSimpleName();
     }
 
+    /**
+     * Iteration 2 Strategy 선택 지점.
+     *
+     * <p>현재는 RefundHandler 안에서 fare rule -> concrete RefundPolicy 매핑을 단순 분기로 둔다.
+     * Iteration 4에서 결제 수단 factory를 도입할 때, 이 매핑도 RefundPolicyFactory로 분리하면
+     * Factory Method 적용 후보가 된다.
+     */
     private RefundPolicy resolvePolicy(FareRule fareRule) {
         if (fareRule == null || !fareRule.isRefundable()) {
             return new NoRefundPolicy();
