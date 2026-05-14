@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>UC Diagram Editor — Iter 3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Geist", "Inter", -apple-system, sans-serif;
+    background: #FAFAFA;
+    color: #000;
+    padding: 16px;
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    background: #FFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 8px;
+  }
+  .toolbar h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .toolbar button, .toolbar label {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid #EAEAEA;
+    border-radius: 6px;
+    background: #FFF;
+    color: #000;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .toolbar button:hover { background: #F4F4F5; }
+  .toolbar button.primary { background: #000; color: #FFF; border-color: #000; }
+  .toolbar input[type="file"] { display: none; }
+  .toolbar .info {
+    font-family: "Geist Mono", monospace;
+    font-size: 11px;
+    color: #737373;
+    margin-left: auto;
+  }
+  .toolbar .saved {
+    font-family: "Geist Mono", monospace;
+    font-size: 11px;
+    color: #DC2626;
+    font-weight: 600;
+  }
+  .canvas-wrap {
+    background: #FFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  svg { display: block; cursor: default; }
+  .uc {
+    cursor: grab;
+  }
+  .uc.dragging { cursor: grabbing; }
+  .uc ellipse {
+    fill: #FFF;
+    stroke: #171717;
+    stroke-width: 2;
+  }
+  .uc.new ellipse {
+    fill: #FEE2E2;
+    stroke: #DC2626;
+    stroke-width: 3;
+  }
+  .uc text {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 18px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    fill: #171717;
+    pointer-events: none;
+  }
+  .uc.new text { fill: #DC2626; }
+  .uc .badge {
+    fill: #DC2626;
+    stroke: #DC2626;
+  }
+  .uc .badge-text {
+    fill: #FFF;
+    font-size: 11px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .actor {
+    cursor: grab;
+  }
+  .actor.dragging { cursor: grabbing; }
+  .actor circle, .actor line {
+    fill: #FFF;
+    stroke: #000;
+    stroke-width: 2;
+  }
+  .actor text {
+    font-family: "Geist Mono", monospace;
+    font-size: 16px;
+    font-weight: 600;
+    text-anchor: middle;
+    fill: #000;
+    pointer-events: none;
+  }
+  .assoc-line {
+    stroke: #525252;
+    stroke-width: 2;
+    fill: none;
+    pointer-events: none;
+  }
+  .rel-line {
+    stroke: #DC2626;
+    stroke-width: 2;
+    stroke-dasharray: 6 6;
+    fill: none;
+    pointer-events: none;
+  }
+  .rel-label-bg {
+    fill: #FFF;
+    stroke: #DC2626;
+    stroke-width: 1;
+    pointer-events: none;
+  }
+  .rel-label {
+    fill: #DC2626;
+    font-family: "Geist Mono", monospace;
+    font-size: 14px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+  }
+  .system-box {
+    fill: #FAFAFA;
+    stroke: #000;
+    stroke-width: 2;
+  }
+  .system-label {
+    font-family: "Geist Mono", monospace;
+    font-size: 14px;
+    fill: #737373;
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>UC Editor</h1>
+  <button class="primary" id="export">Export JSON</button>
+  <label for="import-file">Import JSON</label>
+  <input type="file" id="import-file" accept="application/json" />
+  <button id="reset">Reset to default</button>
+  <span class="saved" id="saved-status">●  ready</span>
+  <span class="info">drag UCs and actors · auto-saved in browser · Export JSON → save to <code>tools/uc-layout.json</code> → re-run python generator</span>
+</div>
+
+<div class="canvas-wrap">
+  <svg id="canvas" viewBox="0 0 1920 1080" width="1536" height="864"
+       xmlns="http://www.w3.org/2000/svg">
+    <!-- system box (matches python sys_x1=280, sys_x2=1640, top=40, bottom=h-70) -->
+    <rect class="system-box" x="280" y="40" width="1360" height="970" rx="14" />
+    <text class="system-label" x="300" y="64">Korean Air Reservation System (boundary)</text>
+
+    <!-- groups will be populated by JS -->
+    <g id="rels-layer"></g>
+    <g id="assocs-layer"></g>
+    <g id="ucs-layer"></g>
+    <g id="actors-layer"></g>
+  </svg>
+</div>
+
+<script>
+// ── Default layout (matches python generator default) ──
+const DEFAULT_LAYOUT = {
+  ucs: [
+    // LEFT column (x=410)
+    { name: "View Booking",                col: "left", row: 0, isNew: false },
+    { name: "Cancel Booking",              col: "left", row: 1, isNew: false },
+    { name: "Search Flights",              col: "left", row: 2, isNew: false },
+    { name: "Search Connecting Flights",   col: "left", row: 3, isNew: true  },
+    { name: "Book Flight",                 col: "left", row: 4, isNew: false },
+    { name: "Book Multi-city Trip",        col: "left", row: 5, isNew: true  },
+    { name: "Manage Flight",               col: "left", row: 6, isNew: false },
+    { name: "Notify Flight Change",        col: "left", row: 7, isNew: true  },
+    // RIGHT column (x=1000)
+    { name: "Login",                       col: "right", row: 0, isNew: false },
+    { name: "Retrieve by PNR",             col: "right", row: 1, isNew: false },
+    { name: "Issue e-Ticket",              col: "right", row: 2, isNew: false },
+    { name: "Select Seat",                 col: "right", row: 3, isNew: false },
+    { name: "Pay with Mileage",            col: "right", row: 4, isNew: true  },
+    { name: "Make Payment",                col: "right", row: 5, isNew: false },
+    { name: "Auto-cancel on Hold Expiry",  col: "right", row: 6, isNew: true  },
+  ],
+  actors: [
+    { name: "Passenger",       side: "left",  row: 0 },
+    { name: "Skypass Member",  side: "left",  row: 1 },
+    { name: "Guest",           side: "left",  row: 2 },
+    { name: "Admin",           side: "left",  row: 3 },
+    { name: "Payment Gateway", side: "right", row: 0 },
+    { name: "Skypass System",  side: "right", row: 1 },
+    { name: "GDS",             side: "right", row: 2 },
+  ],
+  assocs: [
+    ["Passenger", "Search Flights"],
+    ["Passenger", "Book Flight"],
+    ["Passenger", "Select Seat"],
+    ["Passenger", "View Booking"],
+    ["Passenger", "Cancel Booking"],
+    ["Passenger", "Search Connecting Flights"],
+    ["Passenger", "Book Multi-city Trip"],
+    ["Skypass Member", "Login"],
+    ["Skypass Member", "Pay with Mileage"],
+    ["Guest", "Retrieve by PNR"],
+    ["Admin", "Login"],
+    ["Admin", "Manage Flight"],
+    ["Admin", "Notify Flight Change"],
+    ["Payment Gateway", "Make Payment"],
+    ["Skypass System", "Pay with Mileage"],
+    ["GDS", "Search Connecting Flights"],
+  ],
+  rels: [
+    ["Search Connecting Flights", "Search Flights",     "include"],
+    ["Book Multi-city Trip",      "Book Flight",        "include"],
+    ["Book Flight",               "Issue e-Ticket",     "include"],
+    ["Pay with Mileage",          "Make Payment",       "extend"],
+    ["Auto-cancel on Hold Expiry","Make Payment",       "extend"],
+    ["Notify Flight Change",      "Manage Flight",      "extend"],
+  ],
+  actorGens: [
+    ["Skypass Member", "Passenger"],
+    ["Guest",          "Passenger"],
+  ],
+};
+
+// Layout constants
+const UC_W = 320;
+const UC_H = 64;
+const ROW_H = 120;
+const COL_X = { left: 350, right: 940 };   // matches python inner_left_x/inner_right_x
+const COL_TOP = 110;
+const ACTOR_X = { left: 100, right: 1820 }; // matches python pad_x+70
+const ACTOR_TOP = 150;
+const ACTOR_SPACING = 200;
+
+// Convert default layout to absolute pixel coords
+function defaultToCoords(layout) {
+  const ucs = layout.ucs.map(u => ({
+    ...u,
+    x: COL_X[u.col],
+    y: COL_TOP + u.row * ROW_H,
+  }));
+  const actors = layout.actors.map(a => ({
+    ...a,
+    x: ACTOR_X[a.side],
+    y: ACTOR_TOP + a.row * ACTOR_SPACING,
+  }));
+  return {
+    ucs, actors,
+    assocs: layout.assocs,
+    rels: layout.rels,
+    actorGens: layout.actorGens || [],
+  };
+}
+
+// ── Auto-save / restore via localStorage ──
+const STORAGE_KEY = "iter3-uc-editor-state";
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const saved = document.getElementById("saved-status");
+    if (saved) {
+      saved.textContent = "●  saved " + new Date().toLocaleTimeString();
+      saved.style.color = "#DC2626";
+    }
+  } catch (_) {}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  return null;
+}
+
+const restored = loadFromStorage();
+let state = restored || defaultToCoords(DEFAULT_LAYOUT);
+if (restored) {
+  setTimeout(() => {
+    const saved = document.getElementById("saved-status");
+    if (saved) saved.textContent = "●  restored from browser";
+  }, 100);
+}
+
+// ── Render ──
+const ucsLayer = document.getElementById("ucs-layer");
+const actorsLayer = document.getElementById("actors-layer");
+const assocsLayer = document.getElementById("assocs-layer");
+const relsLayer = document.getElementById("rels-layer");
+const svg = document.getElementById("canvas");
+
+function ucCenter(uc) {
+  return { x: uc.x + UC_W / 2, y: uc.y + UC_H / 2 };
+}
+
+function ucEdge(uc, side) {
+  const cy = uc.y + UC_H / 2;
+  if (side === "left") return { x: uc.x, y: cy };
+  if (side === "right") return { x: uc.x + UC_W, y: cy };
+  if (side === "top") return { x: uc.x + UC_W / 2, y: uc.y };
+  if (side === "bot") return { x: uc.x + UC_W / 2, y: uc.y + UC_H };
+}
+
+function actorAnchor(actor) {
+  const dx = actor.side === "left" ? 24 : -24;
+  return { x: actor.x + dx, y: actor.y + 16 };
+}
+
+// Pick stick figure edge anchor closest to target_y so each association
+// line starts from the FACING edge (head/arm/leg), not a single fixed point.
+function actorAnchorFor(actor, targetY) {
+  const cx = actor.x;
+  const y0 = actor.y;
+  const isLeft = actor.side === "left";
+  const dirSign = isLeft ? 1 : -1;
+  if (targetY < y0 - 8) {
+    return { x: cx + dirSign * 16, y: y0 - 16 };  // head right/left
+  } else if (targetY > y0 + 40) {
+    return { x: cx + dirSign * 14, y: y0 + 60 };  // leg
+  } else {
+    return { x: cx + dirSign * 22, y: y0 + 14 };  // arm tip
+  }
+}
+
+function findUC(name) { return state.ucs.find(u => u.name === name); }
+function findActor(name) { return state.actors.find(a => a.name === name); }
+
+function render() {
+  ucsLayer.innerHTML = "";
+  actorsLayer.innerHTML = "";
+  assocsLayer.innerHTML = "";
+  relsLayer.innerHTML = "";
+
+  // Associations
+  state.assocs.forEach(([aName, uName]) => {
+    const a = findActor(aName);
+    const u = findUC(uName);
+    if (!a || !u) return;
+    const side = a.side === "left" ? "left" : "right";
+    const up = ucEdge(u, side);
+    const ap = actorAnchorFor(a, up.y);
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("class", "assoc-line");
+    line.setAttribute("x1", ap.x);
+    line.setAttribute("y1", ap.y);
+    line.setAttribute("x2", up.x);
+    line.setAttribute("y2", up.y);
+    assocsLayer.appendChild(line);
+  });
+
+  // include / extend — straight lines, label centered on midpoint.
+  // Group by destination so multiple arrows to same UC get lane offsets.
+  const dstGroups = {};
+  state.rels.forEach(rel => {
+    const dst = rel[1];
+    (dstGroups[dst] = dstGroups[dst] || []).push(rel);
+  });
+  Object.values(dstGroups).forEach(group => {
+    group.forEach(([sName, dName, kind], laneIdx) => {
+      const s = findUC(sName);
+      const d = findUC(dName);
+      if (!s || !d) return;
+      const sameCol = Math.abs(s.x - d.x) < 5;
+      let sp, dp, ang;
+      if (sameCol) {
+        // adjacent vertical
+        if (s.y + UC_H / 2 > d.y + UC_H / 2) {
+          sp = ucEdge(s, "top"); dp = ucEdge(d, "bot");
+          ang = -Math.PI / 2;
+        } else {
+          sp = ucEdge(s, "bot"); dp = ucEdge(d, "top");
+          ang = Math.PI / 2;
+        }
+        const laneSign = (laneIdx % 2 === 0 ? -1 : 1) * Math.ceil((laneIdx + 1) / 2);
+        sp.x += laneSign * 28;
+        dp.x += laneSign * 28;
+      } else {
+        // cross column — diagonal between facing edges
+        if (s.x < d.x) {
+          sp = ucEdge(s, "right"); dp = ucEdge(d, "left");
+        } else {
+          sp = ucEdge(s, "left"); dp = ucEdge(d, "right");
+        }
+        ang = Math.atan2(dp.y - sp.y, dp.x - sp.x);
+      }
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("class", "rel-line");
+      line.setAttribute("x1", sp.x); line.setAttribute("y1", sp.y);
+      line.setAttribute("x2", dp.x); line.setAttribute("y2", dp.y);
+      relsLayer.appendChild(line);
+      // arrowhead
+      const head = 11;
+      const ax1 = dp.x - head * Math.cos(ang - Math.PI / 6);
+      const ay1 = dp.y - head * Math.sin(ang - Math.PI / 6);
+      const ax2 = dp.x - head * Math.cos(ang + Math.PI / 6);
+      const ay2 = dp.y - head * Math.sin(ang + Math.PI / 6);
+      const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      tri.setAttribute("points", `${dp.x},${dp.y} ${ax1},${ay1} ${ax2},${ay2}`);
+      tri.setAttribute("fill", "#FFF");
+      tri.setAttribute("stroke", "#DC2626");
+      tri.setAttribute("stroke-width", 2);
+      relsLayer.appendChild(tri);
+      // label centered on midpoint
+      const midX = (sp.x + dp.x) / 2;
+      const midY = (sp.y + dp.y) / 2;
+      const labelText = "«" + kind + "»";
+      const labelW = labelText.length * 9 + 12;
+      const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      bg.setAttribute("class", "rel-label-bg");
+      bg.setAttribute("x", midX - labelW / 2);
+      bg.setAttribute("y", midY - 12);
+      bg.setAttribute("width", labelW);
+      bg.setAttribute("height", 24);
+      bg.setAttribute("rx", 4);
+      relsLayer.appendChild(bg);
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute("class", "rel-label");
+      text.setAttribute("x", midX);
+      text.setAttribute("y", midY + 1);
+      text.textContent = labelText;
+      relsLayer.appendChild(text);
+    });
+  });
+
+  // UCs
+  state.ucs.forEach(uc => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "uc" + (uc.isNew ? " new" : ""));
+    g.setAttribute("data-name", uc.name);
+
+    const cx = uc.x + UC_W / 2;
+    const cy = uc.y + UC_H / 2;
+    const e = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    e.setAttribute("cx", cx);
+    e.setAttribute("cy", cy);
+    e.setAttribute("rx", UC_W / 2);
+    e.setAttribute("ry", UC_H / 2);
+    g.appendChild(e);
+
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", cx);
+    t.setAttribute("y", cy + 1);
+    t.textContent = uc.name;
+    g.appendChild(t);
+
+    if (uc.isNew) {
+      const bx = uc.x + UC_W - 56;
+      const by = uc.y - 4;
+      const badge = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      badge.setAttribute("class", "badge");
+      badge.setAttribute("x", bx);
+      badge.setAttribute("y", by);
+      badge.setAttribute("width", 48);
+      badge.setAttribute("height", 20);
+      badge.setAttribute("rx", 3);
+      g.appendChild(badge);
+      const bt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      bt.setAttribute("class", "badge-text");
+      bt.setAttribute("x", bx + 24);
+      bt.setAttribute("y", by + 11);
+      bt.textContent = "NEW";
+      g.appendChild(bt);
+    }
+
+    ucsLayer.appendChild(g);
+    attachDrag(g, uc);
+  });
+
+  // Actor generalization (child →▷ parent, open triangle).
+  // Line endpoints are at FIGURE EDGE (head top / leg bottom), not center,
+  // so line doesn't overlap stick figure body.
+  // Stick figure: head ellipse (cx-16..cx+16, y-26..y+6), body (cx, y+4..y+44),
+  // legs spread to y+70. Total figure spans y-26 to y+70.
+  const FIG_TOP = -42;   // head top + 16px breathing room above
+  const FIG_BOT = 92;    // leg bottom + 22px breathing room below
+
+  (state.actorGens || []).forEach(([childName, parentName]) => {
+    const c = findActor(childName);
+    const p = findActor(parentName);
+    if (!c || !p) return;
+    let sx, sy, ex, ey, ang;
+    if (c.y > p.y) {
+      // child below parent — line goes UP from child head top to parent leg bottom
+      sx = c.x; sy = c.y + FIG_TOP;
+      ex = p.x; ey = p.y + FIG_BOT;
+      ang = -Math.PI / 2;  // arrowhead points up into parent leg bottom
+    } else {
+      // child above parent
+      sx = c.x; sy = c.y + FIG_BOT;
+      ex = p.x; ey = p.y + FIG_TOP;
+      ang = Math.PI / 2;
+    }
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", sx); line.setAttribute("y1", sy);
+    line.setAttribute("x2", ex); line.setAttribute("y2", ey);
+    line.setAttribute("stroke", "#171717");
+    line.setAttribute("stroke-width", 2);
+    actorsLayer.appendChild(line);
+    // Open triangle on parent end pointing INTO parent
+    const head = 14;
+    const ax1 = ex - head * Math.cos(ang - Math.PI / 6);
+    const ay1 = ey - head * Math.sin(ang - Math.PI / 6);
+    const ax2 = ex - head * Math.cos(ang + Math.PI / 6);
+    const ay2 = ey - head * Math.sin(ang + Math.PI / 6);
+    const tri = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    tri.setAttribute("points", `${ex},${ey} ${ax1},${ay1} ${ax2},${ay2}`);
+    tri.setAttribute("fill", "#FFF");
+    tri.setAttribute("stroke", "#171717");
+    tri.setAttribute("stroke-width", 2);
+    actorsLayer.appendChild(tri);
+  });
+
+  // Actors
+  state.actors.forEach(actor => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "actor");
+    g.setAttribute("data-name", actor.name);
+
+    const cx = actor.x;
+    const cy = actor.y;
+    const head = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    head.setAttribute("cx", cx); head.setAttribute("cy", cy - 16);
+    head.setAttribute("r", 14);
+    g.appendChild(head);
+    const body = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    body.setAttribute("x1", cx); body.setAttribute("y1", cy);
+    body.setAttribute("x2", cx); body.setAttribute("y2", cy + 36);
+    g.appendChild(body);
+    const arms = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    arms.setAttribute("x1", cx - 22); arms.setAttribute("y1", cy + 14);
+    arms.setAttribute("x2", cx + 22); arms.setAttribute("y2", cy + 14);
+    g.appendChild(arms);
+    const lleg = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    lleg.setAttribute("x1", cx); lleg.setAttribute("y1", cy + 36);
+    lleg.setAttribute("x2", cx - 14); lleg.setAttribute("y2", cy + 60);
+    g.appendChild(lleg);
+    const rleg = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    rleg.setAttribute("x1", cx); rleg.setAttribute("y1", cy + 36);
+    rleg.setAttribute("x2", cx + 14); rleg.setAttribute("y2", cy + 60);
+    g.appendChild(rleg);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", cx); t.setAttribute("y", cy + 80);
+    t.textContent = actor.name;
+    g.appendChild(t);
+
+    actorsLayer.appendChild(g);
+    attachDrag(g, actor);
+  });
+}
+
+function hashCode(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i);
+  return h;
+}
+
+// ── Dragging ──
+let dragging = null;
+let dragOffset = { x: 0, y: 0 };
+
+function svgPoint(evt) {
+  const pt = svg.createSVGPoint();
+  pt.x = evt.clientX; pt.y = evt.clientY;
+  const ctm = svg.getScreenCTM().inverse();
+  return pt.matrixTransform(ctm);
+}
+
+function attachDrag(g, obj) {
+  g.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    dragging = obj;
+    g.classList.add("dragging");
+    const pt = svgPoint(e);
+    dragOffset = { x: pt.x - obj.x, y: pt.y - obj.y };
+  });
+}
+
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
+
+document.addEventListener("mousemove", (e) => {
+  if (!dragging) return;
+  const pt = svgPoint(e);
+  // clamp inside viewBox (1920x1080) with margin so actor head/UC stays visible
+  dragging.x = clamp(pt.x - dragOffset.x, 60, 1860);
+  dragging.y = clamp(pt.y - dragOffset.y, 60, 1020);
+  render();
+});
+
+document.addEventListener("mouseup", () => {
+  if (!dragging) return;
+  document.querySelectorAll(".dragging").forEach(el => el.classList.remove("dragging"));
+  dragging = null;
+  saveToStorage();
+});
+
+// ── Export / Import ──
+document.getElementById("export").addEventListener("click", () => {
+  const exportData = {
+    ucs: state.ucs.map(u => ({ name: u.name, x: Math.round(u.x), y: Math.round(u.y), isNew: u.isNew })),
+    actors: state.actors.map(a => ({ name: a.name, x: Math.round(a.x), y: Math.round(a.y), side: a.side })),
+    assocs: state.assocs,
+    rels: state.rels,
+    actorGens: state.actorGens || [],
+  };
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "uc-layout.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("import-file").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      state = data;
+      render();
+      saveToStorage();
+    } catch (err) {
+      alert("Invalid JSON: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("Reset to default layout? (browser cache 도 삭제)")) {
+    localStorage.removeItem(STORAGE_KEY);
+    state = defaultToCoords(DEFAULT_LAYOUT);
+    render();
+    const saved = document.getElementById("saved-status");
+    if (saved) saved.textContent = "●  reset";
+  }
+});
+
+render();
+</script>
+
+</body>
+</html>

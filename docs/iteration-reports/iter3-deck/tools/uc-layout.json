@@ -1,0 +1,246 @@
+{
+  "ucs": [
+    {
+      "name": "View Booking",
+      "x": 379,
+      "y": 550,
+      "isNew": false
+    },
+    {
+      "name": "Cancel Booking",
+      "x": 330,
+      "y": 169,
+      "isNew": false
+    },
+    {
+      "name": "Search Flights",
+      "x": 356,
+      "y": 368,
+      "isNew": false
+    },
+    {
+      "name": "Search Connecting Flights",
+      "x": 353,
+      "y": 256,
+      "isNew": true
+    },
+    {
+      "name": "Book Flight",
+      "x": 376,
+      "y": 661,
+      "isNew": false
+    },
+    {
+      "name": "Book Multi-city Trip",
+      "x": 378,
+      "y": 808,
+      "isNew": true
+    },
+    {
+      "name": "Manage Flight",
+      "x": 1259,
+      "y": 104,
+      "isNew": false
+    },
+    {
+      "name": "Notify Flight Change",
+      "x": 1256,
+      "y": 258,
+      "isNew": true
+    },
+    {
+      "name": "Login",
+      "x": 696,
+      "y": 60,
+      "isNew": false
+    },
+    {
+      "name": "Retrieve by PNR",
+      "x": 394,
+      "y": 909,
+      "isNew": false
+    },
+    {
+      "name": "Issue e-Ticket",
+      "x": 918,
+      "y": 665,
+      "isNew": false
+    },
+    {
+      "name": "Select Seat",
+      "x": 343,
+      "y": 460,
+      "isNew": false
+    },
+    {
+      "name": "Pay with Mileage",
+      "x": 758,
+      "y": 133,
+      "isNew": true
+    },
+    {
+      "name": "Make Payment",
+      "x": 1304,
+      "y": 506,
+      "isNew": false
+    },
+    {
+      "name": "Auto-cancel on Hold Expiry",
+      "x": 819,
+      "y": 526,
+      "isNew": true
+    }
+  ],
+  "actors": [
+    {
+      "name": "Passenger",
+      "x": 116,
+      "y": 615,
+      "side": "left"
+    },
+    {
+      "name": "Skypass Member",
+      "x": 205,
+      "y": 60,
+      "side": "left"
+    },
+    {
+      "name": "Guest",
+      "x": 138,
+      "y": 915,
+      "side": "left"
+    },
+    {
+      "name": "Admin",
+      "x": 1794,
+      "y": 60,
+      "side": "left"
+    },
+    {
+      "name": "Payment Gateway",
+      "x": 1781,
+      "y": 599,
+      "side": "right"
+    },
+    {
+      "name": "Skypass System",
+      "x": 1748,
+      "y": 295,
+      "side": "right"
+    },
+    {
+      "name": "GDS",
+      "x": 221,
+      "y": 266,
+      "side": "right"
+    }
+  ],
+  "assocs": [
+    [
+      "Passenger",
+      "Search Flights"
+    ],
+    [
+      "Passenger",
+      "Book Flight"
+    ],
+    [
+      "Passenger",
+      "Select Seat"
+    ],
+    [
+      "Passenger",
+      "View Booking"
+    ],
+    [
+      "Passenger",
+      "Cancel Booking"
+    ],
+    [
+      "Passenger",
+      "Search Connecting Flights"
+    ],
+    [
+      "Passenger",
+      "Book Multi-city Trip"
+    ],
+    [
+      "Skypass Member",
+      "Login"
+    ],
+    [
+      "Skypass Member",
+      "Pay with Mileage"
+    ],
+    [
+      "Guest",
+      "Retrieve by PNR"
+    ],
+    [
+      "Admin",
+      "Login"
+    ],
+    [
+      "Admin",
+      "Manage Flight"
+    ],
+    [
+      "Admin",
+      "Notify Flight Change"
+    ],
+    [
+      "Payment Gateway",
+      "Make Payment"
+    ],
+    [
+      "Skypass System",
+      "Pay with Mileage"
+    ],
+    [
+      "GDS",
+      "Search Connecting Flights"
+    ]
+  ],
+  "rels": [
+    [
+      "Search Connecting Flights",
+      "Search Flights",
+      "include"
+    ],
+    [
+      "Book Multi-city Trip",
+      "Book Flight",
+      "include"
+    ],
+    [
+      "Book Flight",
+      "Issue e-Ticket",
+      "include"
+    ],
+    [
+      "Pay with Mileage",
+      "Make Payment",
+      "extend"
+    ],
+    [
+      "Auto-cancel on Hold Expiry",
+      "Make Payment",
+      "extend"
+    ],
+    [
+      "Notify Flight Change",
+      "Manage Flight",
+      "extend"
+    ]
+  ],
+  "actorGens": [
+    [
+      "Skypass Member",
+      "Passenger"
+    ],
+    [
+      "Guest",
+      "Passenger"
+    ]
+  ]
+}
