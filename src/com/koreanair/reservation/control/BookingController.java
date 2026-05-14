@@ -8,6 +8,7 @@ import com.koreanair.reservation.domain.flight.Airport;
 import com.koreanair.reservation.domain.flight.FareRule;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.flight.FlightStatus;
+import com.koreanair.reservation.domain.passenger.MileageAccount;
 import com.koreanair.reservation.domain.passenger.Passenger;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.PaymentStatus;
@@ -296,13 +297,31 @@ public class BookingController {
             throw new IllegalArgumentException("운임 규칙 검증 실패: " + fareRule);
         }
         long total = paymentProcessor.calculateTotalAmount(baseFare, tax);
-        Payment payment = paymentProcessor.processPaymentCharge(total);
+        Payment payment = paymentProcessor.processPaymentCharge(total, reservation.getPnrNumber());
 
         if (payment.getStatus() == PaymentStatus.PAID) {
             reservation.addPayment(payment);
             reservation.processPayment();      // State 전이
-        } else {
-            reservation.handlePaymentFailure(); // State 전이
+        }
+        // 실패 시 handlePaymentFailure 전이는 ReservationAutoCancelListener가 자동 호출 (iter3).
+        return payment;
+    }
+
+    /**
+     * Iteration 3 — 마일리지 결제. MileageAccount에서 차감 후 결제 전이를 트리거한다.
+     * 잔액 부족 시 PaymentFailedEvent가 자동 발행되어 listener가 Reservation을 취소한다.
+     */
+    public Payment confirmMileagePayment(Reservation reservation,
+                                         MileageAccount account,
+                                         long mileageCost) {
+        if (reservation == null || account == null) {
+            throw new IllegalArgumentException("Reservation/MileageAccount가 필요합니다.");
+        }
+        Payment payment = paymentProcessor.processMileagePayment(
+                account, mileageCost, reservation.getPnrNumber());
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            reservation.addPayment(payment);
+            reservation.processPayment();
         }
         return payment;
     }
