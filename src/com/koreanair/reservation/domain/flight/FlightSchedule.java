@@ -6,7 +6,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FlightSchedule {
+import com.koreanair.reservation.domain.event.EventPublisher;
+import com.koreanair.reservation.domain.event.FlightStatusChangedEvent;
+
+/**
+ * FlightSchedule. Iteration 3에서 Observer 패턴의 Subject로 격상.
+ * {@link #changeStatus(FlightStatus)} 호출 시 {@link FlightStatusChangedEvent}를 발행.
+ */
+public class FlightSchedule extends EventPublisher {
 
     private Long scheduleId;
     private Flight flight;
@@ -73,7 +80,11 @@ public class FlightSchedule {
     }
 
     public void changeStatus(FlightStatus status) {
+        FlightStatus previous = this.status;
         this.status = status;
+        if (previous != status) {
+            publish(new FlightStatusChangedEvent(this, previous, status));
+        }
     }
 
     public void addSeatInventory(SeatInventory seatInventory) {
@@ -109,6 +120,6 @@ public class FlightSchedule {
     }
 
     public void updateStatus(FlightStatus newStatus) {
-        this.status = newStatus;
+        changeStatus(newStatus);
     }
 }

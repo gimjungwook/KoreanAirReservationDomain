@@ -1,5 +1,7 @@
 package com.koreanair.reservation.domain.flight;
 
+import java.time.LocalDateTime;
+
 public class Seat {
 
     private String seatNumber;
@@ -8,6 +10,8 @@ public class Seat {
     private boolean windowSeat;
     private boolean aisleSeat;
     private boolean extraLegroom;
+    private LocalDateTime holdExpiresAt;
+    private String heldByPnr;
 
     public Seat() {
     }
@@ -50,11 +54,38 @@ public class Seat {
     }
 
     public void hold() {
-        this.status = SeatStatus.HELD;
+        hold(15, null);
     }
 
     public void hold(int timeoutMinutes) {
-        hold();
+        hold(timeoutMinutes, null);
+    }
+
+    public void hold(int timeoutMinutes, String pnr) {
+        this.status = SeatStatus.HELD;
+        this.holdExpiresAt = LocalDateTime.now().plusMinutes(timeoutMinutes);
+        this.heldByPnr = pnr;
+    }
+
+    public LocalDateTime getHoldExpiresAt() {
+        return holdExpiresAt;
+    }
+
+    public String getHeldByPnr() {
+        return heldByPnr;
+    }
+
+    public boolean isHoldExpired() {
+        return status == SeatStatus.HELD
+                && holdExpiresAt != null
+                && LocalDateTime.now().isAfter(holdExpiresAt);
+    }
+
+    public boolean isHoldExpiredAt(LocalDateTime now) {
+        return status == SeatStatus.HELD
+                && holdExpiresAt != null
+                && now != null
+                && now.isAfter(holdExpiresAt);
     }
 
     public void updateStatus(SeatStatus newStatus) {
@@ -67,5 +98,7 @@ public class Seat {
 
     public void release() {
         this.status = SeatStatus.AVAILABLE;
+        this.holdExpiresAt = null;
+        this.heldByPnr = null;
     }
 }
