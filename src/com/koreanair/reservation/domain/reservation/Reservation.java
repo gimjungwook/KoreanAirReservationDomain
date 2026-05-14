@@ -259,6 +259,7 @@ public class Reservation {
         this.reservationNumber = reservationNumber;
         if (reservationNumber != null) {
             REGISTRY.put(reservationNumber, this);
+            com.koreanair.reservation.control.ReservationRegistry.DEFAULT.register(this);
         }
     }
 

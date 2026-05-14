@@ -3,19 +3,20 @@ package com.koreanair.reservation.control;
 import java.math.BigDecimal;
 
 import com.koreanair.reservation.boundary.PaymentGatewayInterface;
+import com.koreanair.reservation.domain.event.EventPublisher;
+import com.koreanair.reservation.domain.event.PaymentFailedEvent;
 import com.koreanair.reservation.domain.flight.FareRule;
+import com.koreanair.reservation.domain.passenger.MileageAccount;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
 /**
  * PaymentProcessor — Control 계층.
  *
- * <p>기존 시그니처는 그대로 보존. Iteration 1 Walking Skeleton 용 메서드는
- * 이름을 달리하여(or 파라미터 타입 차이로) 오버로드 추가.
- *
- * <p>TODO(iter3): applyMileage — MileageAccount·SkypassInterface 연동.
+ * <p>Iteration 3: Observer 패턴의 Subject로 격상. 결제 실패 시
+ * {@link PaymentFailedEvent}를 발행한다. 마일리지 결제 분기도 추가.
  */
-public class PaymentProcessor {
+public class PaymentProcessor extends EventPublisher {
 
     private PaymentGatewayInterface gateway;
     private static long paymentSequence = 1;
@@ -79,6 +80,13 @@ public class PaymentProcessor {
      * @return Payment 객체 (성공 시 PAID, 실패 시 FAILED).
      */
     public Payment processPaymentCharge(long amount) {
+        return processPaymentCharge(amount, null);
+    }
+
+    /**
+     * Iteration 3 오버로드: 결제 실패 시 {@link PaymentFailedEvent}를 발행하기 위해 PNR을 함께 받는다.
+     */
+    public Payment processPaymentCharge(long amount, String reservationPnr) {
         if (amount <= 0) {
             throw new IllegalArgumentException("결제 금액은 0보다 커야 합니다.");
         }
@@ -92,6 +100,35 @@ public class PaymentProcessor {
             payment.pay();
         } else {
             payment.fail();
+            publish(new PaymentFailedEvent(payment, reservationPnr, "gateway-declined"));
+        }
+        return payment;
+    }
+
+    /**
+     * Iteration 3: 마일리지 결제. MileageAccount 잔액에서 차감하고 성공 여부를 Payment에 반영한다.
+     *
+     * @param account     사용자 마일리지 계정
+     * @param mileageCost 차감할 마일리지 (= 결제 금액과 1:1 매핑한다고 가정)
+     * @param pnr         실패 시 발행할 이벤트의 reservationPnr
+     */
+    public Payment processMileagePayment(MileageAccount account, long mileageCost, String pnr) {
+        if (account == null) {
+            throw new IllegalArgumentException("마일리지 계정이 필요합니다.");
+        }
+        if (mileageCost <= 0) {
+            throw new IllegalArgumentException("마일리지 결제 금액은 0보다 커야 합니다.");
+        }
+        Payment payment = new Payment();
+        payment.setPaymentId(paymentSequence++);
+        payment.setAmount(BigDecimal.valueOf(mileageCost));
+        payment.setPaymentMethod(PaymentMethod.MILEAGE);
+        boolean charged = account.withdraw(BigDecimal.valueOf(mileageCost));
+        if (charged) {
+            payment.pay();
+        } else {
+            payment.fail();
+            publish(new PaymentFailedEvent(payment, pnr, "insufficient-mileage"));
         }
         return payment;
     }
