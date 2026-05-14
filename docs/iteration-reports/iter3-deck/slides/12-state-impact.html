@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · State 변화 영향</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 17px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    margin-bottom: 24px;
+  }
+  .layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .panel {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .panel.accent {
+    border-color: var(--accent);
+  }
+  .panel .lbl {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+  }
+  .panel.accent .lbl { color: var(--accent); font-weight: 600; }
+  .panel .h {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+  }
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .flow .state {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--ink-2);
+  }
+  .flow .state.new {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .flow .state.term {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .flow .arr {
+    font-family: var(--font-mono);
+    color: var(--ink-5);
+    font-size: 22px;
+  }
+  .ev {
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: 22px;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+  .ev .event { color: var(--accent); font-weight: 600; }
+  .ev strong { color: var(--ink); display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: 17px; letter-spacing: -0.01em; }
+  .note {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-size: 15px;
+    color: var(--ink-3);
+    line-height: 1.55;
+  }
+  .note strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>State Diagram — Iter 3 영향</span>
+  <span class="deck-page">12 / 21</span>
+</div>
+
+<div class="section-eyebrow">STATE IMPACT · SEAT + FLIGHTSCHEDULE</div>
+<h2 class="section-h">상태는 그대로, 트리거 방식이 바뀐다</h2>
+<p class="lead">iter3는 Reservation 상태를 추가하지 않는다. 대신 Seat과 FlightSchedule의 전이가 이벤트 발행 부수효과를 동반한다. 상태 다이어그램은 동일하지만 트리거 라벨이 달라진다.</p>
+
+<div class="layout">
+  <div class="panel accent">
+    <div class="lbl">SEAT LIFECYCLE</div>
+    <div class="h">Seat — hold 만료 자동 해제</div>
+
+    <div class="flow">
+      <span class="state">Available</span>
+      <span class="arr">→</span>
+      <span class="state">Held</span>
+      <span class="arr">→</span>
+      <span class="state">Booked</span>
+      <span class="arr">→</span>
+      <span class="state term">Occupied</span>
+    </div>
+
+    <div class="ev">
+      <strong>iter3 신규 전이</strong>
+      Held → Available · <span class="event">SeatHoldMonitor.sweep()</span><br/>
+      → <span class="event">SeatHoldExpiredEvent</span> publish<br/>
+      → <span class="event">ReservationHoldListener.onEvent</span> → seat.release()
+    </div>
+
+    <div class="ev">
+      <strong>Seat 신규 필드</strong>
+      holdExpiresAt : LocalDateTime<br/>
+      heldByPnr : String<br/>
+      isHoldExpired() : boolean
+    </div>
+
+    <div class="note">
+      <strong>핵심</strong> — 만료 판정은 Seat 본인이 하고, 부수효과(예약 취소)는 listener가 가져간다. Seat이 Reservation을 직접 알지 못한다.
+    </div>
+  </div>
+
+  <div class="panel accent">
+    <div class="lbl">FLIGHT SCHEDULE LIFECYCLE</div>
+    <div class="h">FlightSchedule — 전파 책임 분리</div>
+
+    <div class="flow">
+      <span class="state">Scheduled</span>
+      <span class="arr">→</span>
+      <span class="state">Delayed</span>
+      <span class="arr">→</span>
+      <span class="state">BoardingOpen</span>
+      <span class="arr">→</span>
+      <span class="state">Departed</span>
+      <span class="arr">→</span>
+      <span class="state term">Arrived</span>
+    </div>
+    <div class="flow">
+      <span class="state">Scheduled / Delayed</span>
+      <span class="arr">→</span>
+      <span class="state new">Cancelled</span>
+    </div>
+
+    <div class="ev">
+      <strong>iter3 전이 부수효과</strong>
+      changeStatus(newStatus) — 모든 전이에서<br/>
+      → <span class="event">FlightStatusChangedEvent(prev, new)</span> publish<br/>
+      → <span class="event">AffectedReservationListener</span> 가 registry.all() 순회
+    </div>
+
+    <div class="ev">
+      <strong>왜 1:N 전파인가</strong>
+      한 schedule을 itinerary에 포함하는 Reservation이 N개. DELAYED · CANCELLED · DEPARTED 어떤 상태든 모든 N에게 통지가 필요. Observer가 정확히 1-to-N notification 시나리오.
+    </div>
+
+    <div class="note">
+      <strong>핵심</strong> — FlightSchedule이 ReservationRegistry를 직접 알지 않는다. publish만 하고, listener가 registry를 owns한다.
+    </div>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · State Impact</span>
+  <span>Reservation states 동일 · Seat + FlightSchedule 전이에 publish 부수효과</span>
+</div>
+
+</body>
+</html>

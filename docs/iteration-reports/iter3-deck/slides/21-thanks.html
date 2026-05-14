@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · 감사합니다</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .left .label {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: inline-block;
+  }
+  .left h1 {
+    font-family: var(--font-display);
+    font-size: 120px;
+    line-height: 0.95;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+  }
+  .left h1 .accent {
+    color: var(--accent);
+  }
+  .left .sub {
+    font-size: 26px;
+    color: var(--ink-3);
+    max-width: 720px;
+    line-height: 1.5;
+    margin-top: 32px;
+  }
+  .left .qa-strip {
+    margin-top: 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .preview {
+    border-left: 1px solid var(--rule);
+    padding-left: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .preview .lab {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .preview .h {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.028em;
+    margin-bottom: 8px;
+  }
+  .preview ul {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    font-size: 22px;
+    color: var(--ink-2);
+  }
+  .preview ul li {
+    display: flex;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .preview ul li::before {
+    content: "→";
+    font-family: var(--font-mono);
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>End — Iter 3 발표 종료</span>
+  <span class="deck-page">21 / 21</span>
+</div>
+
+<div class="layout">
+  <div class="left">
+    <span class="label">Korean Air Reservation · Team A</span>
+    <h1>감사합니다<br/><span class="accent">Observer Pattern</span></h1>
+    <p class="sub">부수효과는 호출자가 아니라 listener가 가져갑니다. 다음 iter4는 Singleton과 Factory Method로 전역 설정과 일정 종류별 생성 책임을 분리합니다.</p>
+
+    <div class="qa-strip">
+      <span class="tag tag--solid">Questions?</span>
+      <span class="tag tag--mono">3 Subjects</span>
+      <span class="tag tag--mono">3 Listeners</span>
+      <span class="tag tag--mono">4 Event types</span>
+      <span class="tag tag--mono">Connecting + Multi-city</span>
+      <span class="tag tag--mono">Mileage payment</span>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="lab">PREVIEW · ITER 4</div>
+    <div class="h">Singleton + Factory Method</div>
+    <ul>
+      <li><code>AppConfig</code> Singleton — 폰트·언어·통화 전역 설정</li>
+      <li><code>ItineraryFactory</code> Factory Method — Direct/Connecting/MultiCity 생성</li>
+      <li>관리자 예외 환불 검토 경로 (Strategy + 관리자 승인)</li>
+      <li>e-Ticket PDF 다운로드</li>
+      <li>Reservation 상태 실시간 추적 (iter3 Observer 위에 구축)</li>
+      <li>마일리지 적립 (현재 차감만 구현됨)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> ECE312 OODP 2026 봄 · Team A</span>
+  <span>김정욱 · 이재호 · 김경동</span>
+</div>
+
+</body>
+</html>

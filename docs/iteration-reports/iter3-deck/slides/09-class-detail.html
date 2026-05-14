@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · 중요 클래스 · 메서드</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 17px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    margin-bottom: 24px;
+  }
+  table.det {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    font-size: 15px;
+  }
+  table.det th, table.det td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  table.det th {
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+  }
+  table.det code {
+    font-size: 22px;
+    padding: 1px 6px;
+  }
+  table.det td.cls {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  table.det td.role {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  table.det tr.new td { background: var(--accent-soft); }
+  table.det tr.new td.cls { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>중요 클래스 · 메서드 · Iter 3</span>
+  <span class="deck-page">09 / 21</span>
+</div>
+
+<div class="section-eyebrow">CLASS / METHOD INDEX · 14 ROWS</div>
+<h2 class="section-h">발표자가 가리킬 진입점 메서드</h2>
+<p class="lead">Subject 3종과 Listener 3종 + Itinerary/Mileage 확장. 각 행이 한 발표 포인트.</p>
+
+<table class="det">
+  <thead>
+    <tr>
+      <th style="width:24%;">클래스</th>
+      <th style="width:14%;">ECB 역할</th>
+      <th style="width:62%;">Iter3 핵심 메서드</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="new"><td class="cls">DomainEvent (abstract)</td><td class="role">Domain · Event</td>
+      <td><code>occurredAt</code>, <code>sourceId</code>, <code>getEventType()</code> — 모든 이벤트 베이스</td></tr>
+
+    <tr class="new"><td class="cls">EventListener (interface)</td><td class="role">Domain · Observer</td>
+      <td><code>onEvent(DomainEvent event)</code> — 구현체가 instanceof 분기</td></tr>
+
+    <tr class="new"><td class="cls">EventPublisher (abstract)</td><td class="role">Domain · Subject</td>
+      <td><code>subscribe(listener)</code>, <code>unsubscribe(listener)</code>, <code>publish(event)</code></td></tr>
+
+    <tr class="new"><td class="cls">SeatHoldMonitor</td><td class="role">Control · Subject</td>
+      <td><code>track(seat, pnr)</code>, <code>sweep()</code> — 만료 좌석 검출 후 SeatHoldExpiredEvent 발행</td></tr>
+
+    <tr class="new"><td class="cls">ReservationHoldListener</td><td class="role">Control · Listener</td>
+      <td><code>onEvent(event)</code> — Seat.release + Reservation.handlePaymentFailure</td></tr>
+
+    <tr><td class="cls">PaymentProcessor (확장)</td><td class="role">Control · Subject</td>
+      <td>extends EventPublisher · <code>processPaymentCharge(amount, pnr)</code> · <code>processMileagePayment(account, cost, pnr)</code></td></tr>
+
+    <tr class="new"><td class="cls">ReservationAutoCancelListener</td><td class="role">Control · Listener</td>
+      <td><code>onEvent(event)</code> — Reservation.findByPnr + handlePaymentFailure</td></tr>
+
+    <tr><td class="cls">FlightSchedule (확장)</td><td class="role">Domain · Subject</td>
+      <td>extends EventPublisher · <code>changeStatus(newStatus)</code> 내부에서 FlightStatusChangedEvent 발행</td></tr>
+
+    <tr class="new"><td class="cls">AffectedReservationListener</td><td class="role">Control · Listener</td>
+      <td><code>onEvent(event)</code> — registry.all() 순회 → schedule 참조 Reservation 필터링</td></tr>
+
+    <tr class="new"><td class="cls">ReservationRegistry</td><td class="role">Control · Registry</td>
+      <td><code>register</code>, <code>findByPnr</code>, <code>all()</code> — 활성 Reservation 전수 순회</td></tr>
+
+    <tr class="new"><td class="cls">Itinerary (확장)</td><td class="role">Domain · Entity</td>
+      <td><code>connecting(first, second)</code>, <code>multiCity(list)</code>, <code>isConnectionTimeValid(MCT)</code></td></tr>
+
+    <tr class="new"><td class="cls">ItinerarySearchService</td><td class="role">Control · Service</td>
+      <td><code>searchDirect(from, to, date)</code>, <code>searchConnecting(from, to, date, MCT)</code></td></tr>
+
+    <tr><td class="cls">Seat (확장)</td><td class="role">Domain · Entity</td>
+      <td><code>hold(timeoutMinutes, pnr)</code> · <code>holdExpiresAt</code> · <code>isHoldExpired()</code></td></tr>
+
+    <tr class="new"><td class="cls">MockSkypassInterface</td><td class="role">Boundary · Mock</td>
+      <td><code>verifyMembership</code>, <code>getMileageBalance</code>, <code>deductMileage</code>, <code>verifyAndDeduct</code></td></tr>
+  </tbody>
+</table>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Class Detail</span>
+  <span>3 Subjects · 3 Listeners · 1 Registry · 1 Search Service · 1 Mock</span>
+</div>
+
+</body>
+</html>

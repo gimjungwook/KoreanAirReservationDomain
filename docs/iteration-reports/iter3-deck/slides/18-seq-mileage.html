@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · SC-05 Mileage Payment</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .topbar { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 18px; }
+  .topbar .lhs { display: flex; align-items: baseline; gap: 18px; }
+  .topbar .scnum { font-family: var(--font-mono); font-size: 18px; color: var(--accent); font-weight: 600; letter-spacing: 0.04em; }
+  .topbar .h { font-family: var(--font-display); font-size: 40px; font-weight: 600; letter-spacing: -0.03em; }
+  .topbar .pat { font-family: var(--font-mono); font-size: 14px; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.06em; }
+  .diagram { flex: 1; border: 1px solid var(--rule); border-radius: var(--r-md); overflow: hidden; background: var(--surface-2); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .diagram img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .strip { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .panel { border: 1px solid var(--rule); border-radius: var(--r-md); padding: 16px 18px; background: var(--surface); }
+  .panel.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .panel .lbl { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-4); margin-bottom: 4px; }
+  .panel.accent .lbl { color: var(--accent); font-weight: 600; }
+  .panel .h { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -0.022em; margin-bottom: 6px; }
+  .panel .body { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+  .panel .body code { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="lhs">
+    <span class="scnum">SC-05</span>
+    <span class="h">Sequence — Mileage Payment</span>
+  </div>
+  <span class="pat">PAYMENT 확장 · 18 / 21</span>
+</div>
+
+<div class="diagram">
+  <img src="../assets/diagrams/mileagePayment-iter3.png" alt="mileagePayment-iter3" />
+</div>
+
+<div class="strip">
+  <div class="panel">
+    <div class="lbl">TRIGGER</div>
+    <div class="h">member: payWithMileage(reservation, cost)</div>
+    <div class="body">UI → BookingController.confirmMileagePayment. PaymentMethod.MILEAGE 신규 enum.</div>
+  </div>
+  <div class="panel">
+    <div class="lbl">FLOW</div>
+    <div class="h">2-step debit</div>
+    <div class="body">(1) <code>MileageAccount.withdraw</code> 로컬 차감 → (2) <code>SkypassInterface.verifyAndDeduct</code> 외부 검증 → 둘 다 성공 시 Confirmed 전이.</div>
+  </div>
+  <div class="panel accent">
+    <div class="lbl">FAILURE PATH (재사용)</div>
+    <div class="h">잔액 부족 → SC-02와 동일</div>
+    <div class="body"><code>PaymentFailedEvent("insufficient-mileage")</code> → AutoCancelListener가 동일 listener로 처리 → Observer 인프라 재사용 = 도입 가치 입증.</div>
+  </div>
+</div>
+
+</body>
+</html>

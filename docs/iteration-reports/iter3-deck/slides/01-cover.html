@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Cover</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .cover-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .left .label {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: inline-block;
+  }
+  .left h1 {
+    font-family: var(--font-display);
+    font-size: 96px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    color: var(--ink);
+  }
+  .left h1 .accent {
+    color: var(--accent);
+  }
+  .left .sub {
+    margin-top: 32px;
+    font-size: 26px;
+    line-height: 1.5;
+    color: var(--ink-3);
+    max-width: 720px;
+    letter-spacing: -0.012em;
+  }
+  .left .tags {
+    margin-top: 40px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .right {
+    border-left: 1px solid var(--rule);
+    padding-left: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .right .meta {
+    display: grid;
+    gap: 28px;
+  }
+  .meta-row .k {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+    margin-bottom: 8px;
+  }
+  .meta-row .v {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .meta-row .v.mono {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    background: transparent;
+    padding: 0;
+    color: var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>OODP 설계프로젝트 #3 · 2026 봄</span>
+  <span class="deck-page">01 / 21</span>
+</div>
+
+<div class="cover-grid">
+  <div class="left">
+    <span class="label">Iteration 3 — Observer Pattern</span>
+    <h1>이벤트로<br/><span class="accent">예약을 살아 움직이게</span></h1>
+    <p class="sub">
+      좌석 hold 만료, 결제 실패, 항공편 상태 변경 — 이전까지 명시적 호출로만 처리되던 부수효과를
+      Observer 패턴으로 분리합니다. Itinerary 환승 + 마일리지 결제가 마지막 walking skeleton 칸을 메웁니다.
+    </p>
+    <div class="tags">
+      <span class="tag tag--solid">Observer</span>
+      <span class="tag tag--mono">3 Subjects</span>
+      <span class="tag tag--mono">3 Listeners</span>
+      <span class="tag tag--mono">4 Event types</span>
+      <span class="tag tag--mono">Connecting + MultiCity</span>
+      <span class="tag tag--mono">Mileage payment</span>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="meta">
+      <div class="meta-row">
+        <div class="k">과목</div>
+        <div class="v">ECE312 · 객체지향 설계패턴</div>
+      </div>
+      <div class="meta-row">
+        <div class="k">팀</div>
+        <div class="v">A — 김정욱 · 이재호 · 김경동</div>
+      </div>
+      <div class="meta-row">
+        <div class="k">소스 베이스라인</div>
+        <div class="v mono">KoreanAirReservationDomain</div>
+      </div>
+      <div class="meta-row">
+        <div class="k">제출일</div>
+        <div class="v mono">2026-05-14</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Observer Pattern</span>
+  <span>State (iter1) + Strategy (iter2) + Observer (iter3)</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Observer 코드 전·후</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 20px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    margin-bottom: 20px;
+  }
+  .codes {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .code-card {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+  }
+  .code-card.before { background: var(--surface-2); }
+  .code-card.after  {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .code-card .lbl {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+  }
+  .code-card.after .lbl { color: var(--accent); font-weight: 600; }
+  .code-card .h {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+  }
+  pre {
+    margin: 0;
+    background: #0A0A0A;
+    color: #E6E6E6;
+    padding: 14px 16px;
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1.45;
+    overflow: hidden;
+    flex: 1;
+  }
+  pre .kw  { color: #FF7B72; }
+  pre .ty  { color: #79C0FF; }
+  pre .fn  { color: #D2A8FF; }
+  pre .str { color: #A5D6FF; }
+  pre .com { color: #8B949E; font-style: italic; }
+  .note {
+    font-size: 17px;
+    color: var(--ink-3);
+    line-height: 1.5;
+    padding-top: 4px;
+  }
+  .note strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>Observer · 코드 전·후 (PaymentProcessor)</span>
+  <span class="deck-page">11 / 21</span>
+</div>
+
+<div class="section-eyebrow">CODE DIFF · iter2 → iter3</div>
+<h2 class="section-h">호출자가 부수효과를 직접 호출 → listener 위임</h2>
+<p class="lead">결제 실패 후 Reservation을 Cancelled로 전이하는 책임이 iter2까지는 BookingController에 있었다. iter3에서는 publisher / listener가 그 부담을 나눠 가진다.</p>
+
+<div class="codes">
+  <div class="code-card before">
+    <div class="lbl">BEFORE · iter2 · 호출자 책임</div>
+    <div class="h">BookingController.confirmPayment</div>
+<pre><span class="kw">public</span> <span class="ty">Payment</span> <span class="fn">confirmPayment</span>(<span class="ty">Reservation</span> r,
+                              <span class="ty">FareRule</span> rule,
+                              <span class="kw">long</span> baseFare,
+                              <span class="kw">long</span> tax) {
+    <span class="kw">if</span> (!paymentProcessor.<span class="fn">validateFareRule</span>(rule)) {
+        <span class="kw">throw new</span> <span class="ty">IllegalArgumentException</span>(...);
+    }
+    <span class="kw">long</span> total = paymentProcessor.<span class="fn">calculateTotalAmount</span>(baseFare, tax);
+    <span class="ty">Payment</span> payment = paymentProcessor.<span class="fn">processPaymentCharge</span>(total);
+
+    <span class="kw">if</span> (payment.<span class="fn">getStatus</span>() == <span class="ty">PaymentStatus</span>.PAID) {
+        r.<span class="fn">addPayment</span>(payment);
+        r.<span class="fn">processPayment</span>();
+    } <span class="kw">else</span> {
+        <span class="com">// 호출자가 직접 전이를 책임진다</span>
+        r.<span class="fn">handlePaymentFailure</span>();
+    }
+    <span class="kw">return</span> payment;
+}</pre>
+    <div class="note">
+      <strong>문제</strong> — 동일한 "실패 시 Cancelled 전이"가 마일리지 결제, 좌석 hold 만료, 항공편 취소에서도 필요. 매번 호출자에서 같은 if/else를 반복해야 한다.
+    </div>
+  </div>
+
+  <div class="code-card after">
+    <div class="lbl">AFTER · iter3 · publish + listener</div>
+    <div class="h">PaymentProcessor + Listener</div>
+<pre><span class="com">// PaymentProcessor — Subject</span>
+<span class="kw">public class</span> <span class="ty">PaymentProcessor</span> <span class="kw">extends</span> <span class="ty">EventPublisher</span> {
+  <span class="kw">public</span> <span class="ty">Payment</span> <span class="fn">processPaymentCharge</span>(<span class="kw">long</span> amount, <span class="ty">String</span> pnr) {
+    ...
+    <span class="kw">if</span> (authorized) {
+        payment.<span class="fn">pay</span>();
+    } <span class="kw">else</span> {
+        payment.<span class="fn">fail</span>();
+        <span class="fn">publish</span>(<span class="kw">new</span> <span class="ty">PaymentFailedEvent</span>(
+            payment, pnr, <span class="str">"gateway-declined"</span>));
+    }
+    <span class="kw">return</span> payment;
+  }
+}
+
+<span class="com">// ReservationAutoCancelListener — Observer</span>
+<span class="kw">public class</span> <span class="ty">ReservationAutoCancelListener</span>
+       <span class="kw">implements</span> <span class="ty">EventListener</span> {
+  <span class="kw">public void</span> <span class="fn">onEvent</span>(<span class="ty">DomainEvent</span> e) {
+    <span class="kw">if</span> (!(e <span class="kw">instanceof</span> <span class="ty">PaymentFailedEvent</span> ev)) <span class="kw">return</span>;
+    <span class="ty">Reservation</span> r = <span class="ty">Reservation</span>.<span class="fn">findByPnr</span>(ev.<span class="fn">getReservationPnr</span>());
+    <span class="kw">if</span> (r != <span class="kw">null</span>) r.<span class="fn">handlePaymentFailure</span>();
+  }
+}</pre>
+    <div class="note">
+      <strong>변화</strong> — BookingController에서 <code>handlePaymentFailure()</code> 직접 호출 사라짐. 새 결제 실패 발생원(SC-05 마일리지) 추가돼도 PaymentProcessor 한 곳에서 publish하면 listener가 동일하게 반응.
+    </div>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Code Diff</span>
+  <span>호출자 비대화 방지 · 부수효과 위임</span>
+</div>
+
+</body>
+</html>

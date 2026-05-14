@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Demo · Mileage + Itinerary 실행 결과</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 20px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .lead code { font-size: 22px; }
+  .demo-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .panel {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel .head {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel .head .num {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-4);
+  }
+  .panel .head .h {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+  }
+  .console {
+    flex: 1;
+    background: #0A0A0A;
+    color: #E6E6E6;
+    padding: 18px 22px;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    line-height: 1.65;
+    overflow: auto;
+  }
+  .console .state    { color: #D2A8FF; }
+  .console .mileage  { color: #79C0FF; }
+  .console .result   { color: #7EE787; font-weight: 600; }
+  .console .accent   { color: #00DFD8; }
+  .console .ok       { color: #7EE787; }
+  .console .bad      { color: #FF7B72; }
+  .annot {
+    padding: 14px 18px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--rule);
+    font-size: 17px;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+  .annot strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span><span class="accent">실시연 결과</span> · Iter3DemoRunner — SC-04 / SC-05</span>
+  <span class="deck-page">20 / 21</span>
+</div>
+
+<p class="lead">동일한 <code>Iter3DemoRunner</code>가 마일리지 결제와 connecting itinerary MCT 검증까지 검증. 출력 원본은 <code>assets/iter3-demo-output.txt</code>.</p>
+
+<div class="demo-grid">
+  <div class="panel">
+    <div class="head">
+      <span class="num">SC-04 · MILEAGE PAYMENT</span>
+      <span class="h">PaymentProcessor.processMileagePayment</span>
+    </div>
+    <div class="console">
+<span class="state">[STATE] Initiated -> PendingPayment</span>
+<span class="mileage">[MILEAGE] balance before = 50000</span>
+<span class="mileage">[MILEAGE] balance after  = 20000</span>
+<span class="mileage">[MILEAGE] external skypass.deduct = <span class="ok">true</span></span>
+<span class="state">[STATE] PendingPayment -> Confirmed</span>
+<span class="result">[RESULT] payment=PAID reservation=Confirmed</span>
+    </div>
+    <div class="annot">
+      <strong>검증</strong> — MileageAccount.withdraw(30,000)으로 잔액 50k → 20k 차감.
+      외부 SkypassInterface.verifyAndDeduct가 true 반환 → Confirmed 전이.
+      잔액 부족 시 PaymentFailedEvent → SC-02 listener가 처리 (재사용).
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="head">
+      <span class="num">SC-05 · ITINERARY MCT</span>
+      <span class="h">Itinerary.isConnectionTimeValid</span>
+    </div>
+    <div class="console">
+<span class="accent">[ICN→NRT→JFK 120m layover]</span>
+<span class="accent">                       valid=<span class="ok">true</span></span>
+
+<span class="accent">[ICN→NRT→JFK 20m layover ]</span>
+<span class="accent">                       valid=<span class="bad">false</span></span>
+    </div>
+    <div class="annot">
+      <strong>검증</strong> — MCT(국제 90분) 검증.
+      120분 layover는 통과, 20분 layover는 거절.
+      ItinerarySearchService.searchConnecting가 통과한 후보만 결과에 포함.
+    </div>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Demo extension</span>
+  <span>SC-04 · SC-05 모두 동일 runner에서 실행됨</span>
+</div>
+
+</body>
+</html>

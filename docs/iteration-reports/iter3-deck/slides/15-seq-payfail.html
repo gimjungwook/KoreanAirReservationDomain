@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · SC-02 Payment Failure</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .topbar {
+    display: flex; align-items: baseline; justify-content: space-between;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 14px; margin-bottom: 18px;
+  }
+  .topbar .lhs { display: flex; align-items: baseline; gap: 18px; }
+  .topbar .scnum {
+    font-family: var(--font-mono); font-size: 18px;
+    color: var(--accent); font-weight: 600; letter-spacing: 0.04em;
+  }
+  .topbar .h {
+    font-family: var(--font-display); font-size: 40px;
+    font-weight: 600; letter-spacing: -0.03em;
+  }
+  .topbar .pat {
+    font-family: var(--font-mono); font-size: 14px;
+    color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .diagram {
+    flex: 1;
+    border: 1px solid var(--rule); border-radius: var(--r-md);
+    overflow: hidden; background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .diagram img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .strip {
+    margin-top: 18px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  .panel {
+    border: 1px solid var(--rule); border-radius: var(--r-md);
+    padding: 16px 18px; background: var(--surface);
+  }
+  .panel.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .panel .lbl {
+    font-family: var(--font-mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-4); margin-bottom: 4px;
+  }
+  .panel.accent .lbl { color: var(--accent); font-weight: 600; }
+  .panel .h {
+    font-family: var(--font-display); font-size: 18px;
+    font-weight: 600; letter-spacing: -0.022em; margin-bottom: 6px;
+  }
+  .panel .body { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+  .panel .body code { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="lhs">
+    <span class="scnum">SC-02</span>
+    <span class="h">Sequence — Payment Failure Auto-cancel</span>
+  </div>
+  <span class="pat">OBSERVER · 15 / 21</span>
+</div>
+
+<div class="diagram">
+  <img src="../assets/diagrams/paymentFailureAutoCancel-iter3.png" alt="paymentFailureAutoCancel-iter3" />
+</div>
+
+<div class="strip">
+  <div class="panel accent">
+    <div class="lbl">TRIGGER</div>
+    <div class="h">gateway.authorize() = false</div>
+    <div class="body">학습 프로젝트: FailingGateway.declineNext = true · 실 시나리오: 카드 한도 초과·네트워크 타임아웃.</div>
+  </div>
+  <div class="panel">
+    <div class="lbl">VS ITER2</div>
+    <div class="h">호출자 직접 호출 사라짐</div>
+    <div class="body">iter2 BookingController에 if/else 분기 있었음 → iter3: PaymentProcessor가 publish만. 마일리지(SC-05)도 같은 listener 재사용.</div>
+  </div>
+  <div class="panel">
+    <div class="lbl">EVENT PAYLOAD</div>
+    <div class="h">PaymentFailedEvent</div>
+    <div class="body"><code>payment</code> · <code>reservationPnr</code> · <code>reason</code> (gateway-declined / insufficient-mileage)</div>
+  </div>
+</div>
+
+</body>
+</html>

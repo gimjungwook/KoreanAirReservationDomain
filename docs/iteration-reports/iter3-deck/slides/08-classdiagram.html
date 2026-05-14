@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Class Diagram</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .diagram-frame {
+    flex: 1;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  .diagram-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .diagram-frame .placeholder {
+    width: 100%;
+    min-height: 600px;
+    border: 1px dashed var(--rule);
+    border-radius: var(--r-sm);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    color: var(--ink-4);
+    font-size: 22px;
+  }
+  .legend-bar {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 18px;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 22px;
+    color: var(--ink-3);
+  }
+  .legend-bar .item { display: inline-flex; align-items: center; gap: 8px; }
+  .legend-bar .swatch {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--accent);
+    color: #FFF;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .legend-bar .tri-solid {
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 10px solid var(--ink);
+  }
+  .legend-bar .blue-box {
+    width: 14px; height: 14px;
+    border: 2px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>UML — Class Diagram (Iter 3 · Observer family + 도메인 확장)</span>
+  <span class="deck-page">08 / 21</span>
+</div>
+
+<div class="section-eyebrow">CLASS DIAGRAM · 12 NEW · 3 MODIFIED</div>
+<h2 class="section-h">Observer 인프라 3종 + 도메인 확장 4종 — NEW badge로 표시</h2>
+
+<div class="diagram-frame">
+  <img src="../assets/diagrams/classDiagram-iter3.png"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+       alt="classDiagram-iter3" />
+  <div class="placeholder" style="display:none;">
+    <div>classDiagram-iter3.png</div>
+    <div>missing — run python3 tools/generate_diagram_assets.py</div>
+  </div>
+</div>
+
+<div class="legend-bar">
+  <div class="item"><span class="swatch">NEW</span><span>iter3 신규 (12개)</span></div>
+  <div class="item"><span class="blue-box"></span><span>Observer abstract / interface base</span></div>
+  <div class="item"><span class="tri-solid"></span><span>solid line + 삼각형 = inheritance</span></div>
+  <div class="item">dashed line + 삼각형 = realization</div>
+  <div class="item">side spine routing — 화살표가 concrete box 위 통과 안 함</div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Class Diagram</span>
+  <span>3 hierarchies · NEW badge · domain extensions in bottom band</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · 양식#3 Iter별 R/DP</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 17px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    margin-bottom: 24px;
+  }
+  table.rdp {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    font-size: 22px;
+  }
+  table.rdp th, table.rdp td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  table.rdp th {
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+    font-weight: 500;
+  }
+  table.rdp td.it {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  table.rdp tr.iter3 td { background: var(--accent-soft); }
+  table.rdp tr.iter3 td.it { color: var(--accent); font-weight: 600; }
+  table.rdp td.pat {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    color: var(--ink-2);
+  }
+  .pat.observer  { color: var(--accent); font-weight: 600; }
+  .pat.strategy  { color: var(--ink); font-weight: 500; }
+  .pat.state     { color: var(--ink); font-weight: 500; }
+  .legend {
+    margin-top: 20px;
+    display: flex;
+    gap: 18px;
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: var(--ink-4);
+  }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 8px; height: 8px; border-radius: 999px; }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>양식 #3 — Iteration별 R(Requirement) / DP(Design Pattern)</span>
+  <span class="deck-page">04 / 21</span>
+</div>
+
+<div class="section-eyebrow">R/DP MAPPING · Iter1 → Iter4</div>
+<h2 class="section-h">패턴이 도입되는 자리, 도입 이유</h2>
+<p class="lead">각 iteration에서 채워야 할 요구사항(R)과 그 요구사항을 깔끔하게 처리하기 위해 도입한 디자인 패턴(DP)의 매핑. iter3는 부수효과 발행이 늘어나는 시점이라 Observer가 자연스럽게 들어온다.</p>
+
+<table class="rdp">
+  <thead>
+    <tr>
+      <th style="width:7%;">Iter</th>
+      <th style="width:30%;">Requirement (R)</th>
+      <th style="width:18%;">Design Pattern (DP)</th>
+      <th style="width:25%;">진입점 클래스</th>
+      <th style="width:20%;">도입 동기</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="it">iter1</td><td>Booking 생애주기 전이</td><td class="pat state">State</td><td><code>Reservation.currentState</code></td><td>전이 분기 폭발 방지</td></tr>
+    <tr><td class="it">iter1</td><td>Walking skeleton happy path</td><td class="pat">—</td><td><code>BookingController</code></td><td>한 갈래 path 우선</td></tr>
+    <tr><td class="it">iter2</td><td>운임별 환불 정책</td><td class="pat strategy">Strategy</td><td><code>RefundPolicy</code> family</td><td>운임 추가 = 정책 추가 (OCP)</td></tr>
+    <tr><td class="it">iter2</td><td>Cancel/Refund 5개 전이</td><td class="pat state">State 확장</td><td><code>CancelledState</code> · <code>RefundRequestedState</code></td><td>iter1 State 확장</td></tr>
+    <tr class="iter3"><td class="it">iter3 +</td><td>좌석 hold 만료 자동 처리</td><td class="pat observer">Observer</td><td><code>SeatHoldMonitor</code> · <code>ReservationHoldListener</code></td><td>호출자 vs 부수효과 분리</td></tr>
+    <tr class="iter3"><td class="it">iter3 +</td><td>결제 실패 → 자동 취소</td><td class="pat observer">Observer</td><td><code>PaymentProcessor</code> · <code>ReservationAutoCancelListener</code></td><td>실패 경로 일관 처리</td></tr>
+    <tr class="iter3"><td class="it">iter3 +</td><td>FlightSchedule 변경 전파</td><td class="pat observer">Observer</td><td><code>FlightSchedule</code> · <code>AffectedReservationListener</code></td><td>1-to-N 통지</td></tr>
+    <tr class="iter3"><td class="it">iter3 +</td><td>Connecting · Multi-city</td><td class="pat">— (도메인 확장)</td><td><code>Itinerary</code> · <code>ItinerarySearchService</code></td><td>Segment 다중화 + MCT</td></tr>
+    <tr class="iter3"><td class="it">iter3 +</td><td>마일리지 결제</td><td class="pat">— (도메인 확장)</td><td><code>MileageAccount</code> · <code>MockSkypassInterface</code></td><td>결제 수단 분기</td></tr>
+    <tr><td class="it">iter4</td><td>전역 설정 / 일정 종류별 생성</td><td class="pat">Singleton + Factory</td><td><code>AppConfig</code> · <code>ItineraryFactory</code></td><td>관리자 예외 환불 · PDF</td></tr>
+  </tbody>
+</table>
+
+<div class="legend">
+  <span class="item"><span class="dot" style="background:var(--ink);"></span>State / Strategy</span>
+  <span class="item"><span class="dot" style="background:var(--accent);"></span>Observer (iter3)</span>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · R/DP Mapping</span>
+  <span>iter3 patterns: 1 (Observer · 3 적용 지점)</span>
+</div>
+
+</body>
+</html>

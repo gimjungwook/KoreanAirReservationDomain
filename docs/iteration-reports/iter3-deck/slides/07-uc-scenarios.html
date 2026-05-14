@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · UC 시나리오</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 17px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    margin-bottom: 24px;
+  }
+  .scenarios {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 18px;
+  }
+  .sc {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sc.accent {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .sc .num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .sc.accent .num { color: var(--accent); font-weight: 600; }
+  .sc .title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    line-height: 1.2;
+  }
+  .sc .trigger {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sc.accent .trigger { border-bottom-color: var(--accent); }
+  .sc ol {
+    counter-reset: step;
+    list-style: none;
+    display: grid;
+    gap: 6px;
+    font-size: 17px;
+    color: var(--ink-2);
+  }
+  .sc ol li {
+    counter-increment: step;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+  }
+  .sc ol li::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    background: #FFFFFF;
+    padding: 2px 6px;
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .span-2 { grid-column: span 2; }
+  code { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>Use Case 시나리오 — Iter 3 시연 5종</span>
+  <span class="deck-page">07 / 21</span>
+</div>
+
+<div class="section-eyebrow">5 KEY SCENARIOS</div>
+<h2 class="section-h">발표 시연용 5개 흐름</h2>
+<p class="lead">각 시나리오는 발표 시 콘솔/Swing에서 끝까지 동작하는 단위. 3개 Observer + Connecting + Mileage.</p>
+
+<div class="scenarios">
+  <div class="sc accent">
+    <div class="num">SC-01 · OBSERVER</div>
+    <div class="title">좌석 hold 만료 자동 해제</div>
+    <div class="trigger">TRIGGER · scheduler.sweep()</div>
+    <ol>
+      <li>회원이 좌석 선택 → <code>Seat.hold(15, pnr)</code>로 holdExpiresAt 세팅</li>
+      <li>결제 단계로 이동하지 않은 채 15분 경과</li>
+      <li><code>SeatHoldMonitor.sweep()</code>이 만료 좌석 감지</li>
+      <li><code>SeatHoldExpiredEvent</code> 발행 → listener가 release + handlePaymentFailure</li>
+      <li>좌석 Available, 예약 Cancelled로 종결</li>
+    </ol>
+  </div>
+
+  <div class="sc accent">
+    <div class="num">SC-02 · OBSERVER</div>
+    <div class="title">결제 실패 자동 취소</div>
+    <div class="trigger">TRIGGER · gateway.authorize() → false</div>
+    <ol>
+      <li>회원이 결제 정보 입력 후 submitPayment 호출</li>
+      <li><code>processPaymentCharge(amount, pnr)</code> 실행</li>
+      <li>gateway.authorize() 거절 → <code>payment.fail()</code></li>
+      <li><code>PaymentFailedEvent("gateway-declined")</code> 발행</li>
+      <li>AutoCancelListener가 PendingPayment → Cancelled</li>
+    </ol>
+  </div>
+
+  <div class="sc accent">
+    <div class="num">SC-03 · OBSERVER</div>
+    <div class="title">FlightSchedule 변경 전파</div>
+    <div class="trigger">TRIGGER · admin.changeFlightStatus(KE001, CANCELLED)</div>
+    <ol>
+      <li>관리자가 항공편 취소 명령 입력</li>
+      <li><code>FlightSchedule.changeStatus(CANCELLED)</code> — 내부 publish</li>
+      <li><code>FlightStatusChangedEvent</code>가 prev/new status 담아 broadcast</li>
+      <li>AffectedReservationListener가 registry에서 schedule 참조 예약 필터링</li>
+      <li>각 Reservation에 <code>evaluateImpact</code> 호출 + 콘솔 로그</li>
+    </ol>
+  </div>
+
+  <div class="sc">
+    <div class="num">SC-04 · ITINERARY</div>
+    <div class="title">환승 일정 MCT 검증</div>
+    <div class="trigger">TRIGGER · 사용자: ICN → JFK (date)</div>
+    <ol>
+      <li>UI가 <code>searchConnecting(from, to, date, MCT)</code> 호출</li>
+      <li>catalog 순회로 a.dest == b.origin && b.dest == to 인 (a, b) 쌍 탐색</li>
+      <li>각 쌍을 <code>Itinerary.connecting(a, b)</code>로 래핑</li>
+      <li><code>isConnectionTimeValid(MCT)</code>로 layover ≥ 90분 검증</li>
+      <li>통과한 Itinerary만 결과 리스트에 추가</li>
+    </ol>
+  </div>
+
+  <div class="sc span-2">
+    <div class="num">SC-05 · MILEAGE PAYMENT</div>
+    <div class="title">마일리지 결제 + 잔액 부족 시 자동 취소</div>
+    <div class="trigger">TRIGGER · 회원: payWithMileage(reservation, mileageCost)</div>
+    <ol>
+      <li>회원이 결제 화면에서 "마일리지 결제" 선택, cost 입력</li>
+      <li><code>BookingController.confirmMileagePayment(reservation, account, cost)</code> 호출</li>
+      <li><code>processMileagePayment</code> — <code>account.withdraw</code>로 차감 시도 → 성공 시 <code>payment.pay()</code> + Reservation.processPayment 전이 (PendingPayment → Confirmed)</li>
+      <li>잔액 부족 시 <code>PaymentFailedEvent("insufficient-mileage")</code> 발행 → SC-02와 같은 listener로 자동 취소</li>
+    </ol>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · UC 시나리오 5종</span>
+  <span>Observer 3 (accent) · Itinerary 1 · Mileage 1</span>
+</div>
+
+</body>
+</html>

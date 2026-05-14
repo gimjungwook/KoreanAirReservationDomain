@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · 양식#1 전체 기능</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .layout {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 56px;
+  }
+  .side h2 {
+    font-family: var(--font-display);
+    font-size: 48px;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+  }
+  .side h2 .accent { color: var(--accent); }
+  .side p {
+    margin-top: 20px;
+    font-size: 17px;
+    color: var(--ink-3);
+    line-height: 1.55;
+    max-width: 360px;
+  }
+  .stat {
+    margin-top: 40px;
+    display: grid;
+    gap: 16px;
+  }
+  .stat .row {
+    display: flex; align-items: baseline; gap: 14px;
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+  }
+  .stat .num {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    min-width: 60px;
+  }
+  .stat .lab {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+  }
+  table.feat {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    font-size: 22px;
+  }
+  table.feat th {
+    padding: 12px 14px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-4);
+  }
+  table.feat td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  td.iter {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+  }
+  td.iter-3 {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  td.feat-name { font-weight: 500; color: var(--ink); }
+  tr.iter3-row td { background: var(--accent-soft); }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>양식 #1 — Korean Air Reservation 전체 기능</span>
+  <span class="deck-page">02 / 21</span>
+</div>
+
+<div class="layout">
+  <div class="side">
+    <h2>walking skeleton<br/><span class="accent">마지막 살을 채운다</span></h2>
+    <p>iter1·2에서 채운 11개 기능 위에 iter3가 더하는 것 — Observer로 묶인 부수효과 3종, Itinerary 환승·multi-city, 마일리지 결제까지 5가지.</p>
+    <div class="stat">
+      <div class="row"><span class="num">17</span><span class="lab">전체 기능 (cumulative)</span></div>
+      <div class="row"><span class="num">5</span><span class="lab">iter3 신규</span></div>
+      <div class="row"><span class="num">3</span><span class="lab">Observer 적용 자리</span></div>
+    </div>
+  </div>
+
+  <table class="feat">
+    <thead>
+      <tr>
+        <th style="width:24%;">Category</th>
+        <th style="width:46%;">Sub-feature</th>
+        <th style="width:14%;">Iter</th>
+        <th style="width:16%;">패턴</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Authentication</td><td class="feat-name">Member profile · 마일리지 잔액</td><td class="iter">iter2</td><td class="iter">—</td></tr>
+      <tr><td>Authentication</td><td class="feat-name">Guest verification</td><td class="iter">iter2</td><td class="iter">—</td></tr>
+      <tr><td>Booking Flow</td><td class="feat-name">Direct flight 검색·선택</td><td class="iter">iter1</td><td class="iter">—</td></tr>
+      <tr><td>Booking Flow</td><td class="feat-name">Seat selection</td><td class="iter">iter2</td><td class="iter">—</td></tr>
+      <tr><td>Reservation Lookup</td><td class="feat-name">Member 이력 / Guest 단건</td><td class="iter">iter2</td><td class="iter">—</td></tr>
+      <tr><td>Cancellation</td><td class="feat-name">CancellationRequested → Cancelled</td><td class="iter">iter2</td><td class="iter">State</td></tr>
+      <tr><td>Refund</td><td class="feat-name">환불 정책 선택 + 자동 환불</td><td class="iter">iter2</td><td class="iter">Strategy</td></tr>
+      <tr><td>e-Ticket</td><td class="feat-name">e-Ticket 발권</td><td class="iter">iter2</td><td class="iter">State</td></tr>
+      <tr class="iter3-row"><td>Hold Lifecycle</td><td class="feat-name">좌석 hold 15분 만료 자동 해제</td><td class="iter iter-3">iter3 +</td><td class="iter iter-3">Observer</td></tr>
+      <tr class="iter3-row"><td>Payment Failure</td><td class="feat-name">결제 실패 자동 취소 publisher</td><td class="iter iter-3">iter3 +</td><td class="iter iter-3">Observer</td></tr>
+      <tr class="iter3-row"><td>Flight Operations</td><td class="feat-name">FlightSchedule 변경 N개 전파</td><td class="iter iter-3">iter3 +</td><td class="iter iter-3">Observer</td></tr>
+      <tr class="iter3-row"><td>Itinerary</td><td class="feat-name">Connecting + Multi-city · MCT 검증</td><td class="iter iter-3">iter3 +</td><td class="iter iter-3">—</td></tr>
+      <tr class="iter3-row"><td>Payment</td><td class="feat-name">마일리지 결제 · MileageAccount 차감</td><td class="iter iter-3">iter3 +</td><td class="iter iter-3">—</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Feature Inventory</span>
+  <span>iter3 신규 = 5 (accent 강조) · 누적 13</span>
+</div>
+
+</body>
+</html>

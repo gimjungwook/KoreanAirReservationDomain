@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Use Case Diagram</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .topbar {
+    display: flex; align-items: baseline; justify-content: space-between;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 14px; margin-bottom: 18px;
+  }
+  .topbar .lhs { display: flex; align-items: baseline; gap: 18px; }
+  .topbar .label {
+    font-family: var(--font-mono); font-size: 16px;
+    color: var(--accent); font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .topbar .h {
+    font-family: var(--font-display); font-size: 40px;
+    font-weight: 600; letter-spacing: -0.03em;
+  }
+  .topbar .pat {
+    font-family: var(--font-mono); font-size: 14px;
+    color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .diagram {
+    flex: 1;
+    border: 1px solid var(--rule); border-radius: var(--r-md);
+    overflow: hidden; background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .diagram img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .diagram .placeholder {
+    width: 100%; min-height: 600px;
+    border: 1px dashed var(--rule); border-radius: var(--r-sm);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px;
+    font-family: var(--font-mono); color: var(--ink-4); font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="lhs">
+    <span class="label">USE CASE</span>
+    <span class="h">신규 5개 — 자동화 경로가 늘어난다</span>
+  </div>
+  <span class="pat">17 UCs · 5 NEW · include/extend annotated · 06 / 21</span>
+</div>
+
+<div class="diagram">
+  <img src="../assets/diagrams/reservationSystem-iter3.png"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+       alt="reservationSystem-iter3" />
+  <div class="placeholder" style="display:none;">
+    <div>reservationSystem-iter3.png</div>
+    <div>missing — run python3 tools/generate_diagram_assets.py</div>
+  </div>
+</div>
+
+</body>
+</html>

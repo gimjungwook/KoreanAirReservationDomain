@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Demo · Observer 3종 실행 결과</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 20px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .lead code { font-size: 22px; }
+  .demo-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 16px;
+  }
+  .boot {
+    grid-column: 1 / span 3;
+    background: #0A0A0A;
+    color: #E6E6E6;
+    border-radius: var(--r-md);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    line-height: 1.5;
+  }
+  .boot .tag {
+    color: #7EE787;
+    font-weight: 600;
+  }
+  .boot .arrow {
+    color: #79C0FF;
+  }
+  .panel {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel.accent { border-color: var(--accent); }
+  .panel .head {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel.accent .head { background: var(--accent-soft); border-bottom-color: var(--accent); }
+  .panel .head .num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-4);
+  }
+  .panel.accent .head .num { color: var(--accent); font-weight: 600; }
+  .panel .head .h {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .console {
+    flex: 1;
+    background: #0A0A0A;
+    color: #E6E6E6;
+    padding: 12px 14px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.55;
+    overflow: auto;
+  }
+  .console .l { display: block; }
+  .console .state   { color: #D2A8FF; }
+  .console .gate    { color: #FFA657; }
+  .console .expiry  { color: #FF7B72; }
+  .console .cancel  { color: #FF7B72; }
+  .console .init    { color: #79C0FF; }
+  .console .sweep   { color: #79C0FF; }
+  .console .result  { color: #7EE787; font-weight: 600; }
+  .console .admin   { color: #FFA657; }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span><span class="accent">실시연 결과</span> · Iter3DemoRunner — 3 Observer 시나리오</span>
+  <span class="deck-page">19 / 21</span>
+</div>
+
+<p class="lead">실행 명령: <code>java -cp bin com.koreanair.reservation.app.Iter3DemoRunner</code> — 아래는 실제 콘솔 출력 그대로. mockup 없이 진짜 stdout 캡쳐.</p>
+
+<div class="demo-grid">
+  <div class="boot">
+    <span class="tag">[BOOT]</span> event subscribers loaded<br/>
+    &nbsp;&nbsp;SeatHoldMonitor    .subscriberCount = 1<br/>
+    &nbsp;&nbsp;PaymentProcessor   .subscriberCount = 1<br/>
+    &nbsp;&nbsp;<span class="arrow">→</span> ReservationHoldListener         registered<br/>
+    &nbsp;&nbsp;<span class="arrow">→</span> ReservationAutoCancelListener   registered<br/>
+    &nbsp;&nbsp;<span class="arrow">→</span> AffectedReservationListener     attached per FlightSchedule
+  </div>
+
+  <div class="panel accent">
+    <div class="head">
+      <span class="num">SC-01 · OBSERVER</span>
+      <span class="h">Seat hold expiry</span>
+    </div>
+    <div class="console">
+<span class="l"><span class="state">[STATE] Initiated -> PendingPayment</span></span>
+<span class="l"><span class="init">[INIT] tracked seat 12A</span></span>
+<span class="l">      (PNR=PNR-DEMO01,</span>
+<span class="l">       holdExpiresAt=...10:19:36)</span>
+<span class="l"><span class="expiry">[HOLD-EXPIRY] seat 12A released</span></span>
+<span class="l"><span class="state">[STATE] PendingPayment -> Cancelled</span></span>
+<span class="l"><span class="expiry">[HOLD-EXPIRY] PNR=PNR-DEMO01</span></span>
+<span class="l"><span class="expiry">              auto-cancelled</span></span>
+<span class="l"><span class="sweep">[SWEEP] fired=1 events</span></span>
+<span class="l"><span class="result">[RESULT] seat=12A state=AVAILABLE</span></span>
+<span class="l"><span class="result">         reservation=Cancelled</span></span>
+    </div>
+  </div>
+
+  <div class="panel accent">
+    <div class="head">
+      <span class="num">SC-02 · OBSERVER</span>
+      <span class="h">Payment failure</span>
+    </div>
+    <div class="console">
+<span class="l"><span class="state">[STATE] Initiated -> PendingPayment</span></span>
+<span class="l"><span class="gate">[GATEWAY] authorize -> false</span></span>
+<span class="l"><span class="gate">          (amount=320000)</span></span>
+<span class="l"><span class="state">[STATE] PendingPayment -> Cancelled</span></span>
+<span class="l"><span class="cancel">[AUTO-CANCEL] PNR=PNR-DEMO02</span></span>
+<span class="l"><span class="cancel">              reason=gateway-declined</span></span>
+<span class="l"><span class="result">[RESULT] payment.status=FAILED</span></span>
+<span class="l"><span class="result">         reservation=Cancelled</span></span>
+    </div>
+  </div>
+
+  <div class="panel accent">
+    <div class="head">
+      <span class="num">SC-03 · OBSERVER</span>
+      <span class="h">Flight propagation</span>
+    </div>
+    <div class="console">
+<span class="l"><span class="admin">[ADMIN] changeFlightStatus(KE001,</span></span>
+<span class="l"><span class="admin">                            CANCELLED)</span></span>
+<span class="l"><span class="cancel">[FLIGHT-CANCEL] PNR=PNR-DEMO03A</span></span>
+<span class="l"><span class="cancel">  flight=KE001</span></span>
+<span class="l"><span class="cancel">  SCHEDULED -> CANCELLED</span></span>
+<span class="l"><span class="cancel">[FLIGHT-CANCEL] PNR=PNR-DEMO03B</span></span>
+<span class="l"><span class="cancel">  flight=KE001</span></span>
+<span class="l"><span class="cancel">  SCHEDULED -> CANCELLED</span></span>
+<span class="l"><span class="result">[RESULT] schedule.status=CANCELLED</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Demo Observer 3종</span>
+  <span>출력 원본: assets/iter3-demo-output.txt</span>
+</div>
+
+</body>
+</html>

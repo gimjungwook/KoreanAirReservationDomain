@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · 양식#2 확장기능</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  .lead {
+    font-size: 22px;
+    color: var(--ink-3);
+    max-width: 1400px;
+    line-height: 1.5;
+    margin-bottom: 28px;
+  }
+  .grid-3 {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+  }
+  .ext-card {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-md);
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ext-card.accent {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .ext-card .meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-4);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .ext-card.accent .meta { color: var(--accent); font-weight: 600; }
+  .ext-card .ttl {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+  .ext-card .desc {
+    font-size: 22px;
+    color: var(--ink-3);
+    line-height: 1.55;
+  }
+  .ext-card .impl {
+    margin-top: auto;
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: var(--ink-2);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-sm);
+    padding: 8px 10px;
+  }
+  .ext-card.accent .impl {
+    background: #FFFFFF;
+    border-color: var(--accent);
+  }
+  .span-2 { grid-column: span 2; }
+</style>
+</head>
+<body>
+
+<div class="deck-header">
+  <span class="eyebrow"><span class="dot"></span>양식 #2 — Iter3 확장기능 5종</span>
+  <span class="deck-page">03 / 21</span>
+</div>
+
+<div class="section-eyebrow">5 NEW · 3 OBSERVER + 2 DOMAIN EXTENSION</div>
+<h2 class="section-h">iter3가 더한 5개 확장기능</h2>
+<p class="lead">3개는 Observer 패턴 적용 — 부수효과를 호출자에서 떼어 listener로 분리. 2개는 도메인 확장 — Itinerary와 Payment의 단일 경로를 분기시킨다.</p>
+
+<div class="grid-3">
+  <div class="ext-card accent">
+    <div class="meta">EXT-01 · OBSERVER</div>
+    <div class="ttl">좌석 hold 만료 자동화</div>
+    <p class="desc">결제 미완료 좌석을 15분 후 자동 회수. SeatHoldMonitor.sweep()이 만료 좌석을 발견하면 SeatHoldExpiredEvent를 발행하고, ReservationHoldListener가 좌석을 해제하고 Reservation을 Cancelled로 전이.</p>
+    <div class="impl">SeatHoldMonitor → SeatHoldExpiredEvent → ReservationHoldListener</div>
+  </div>
+
+  <div class="ext-card accent">
+    <div class="meta">EXT-02 · OBSERVER</div>
+    <div class="ttl">결제 실패 자동 취소</div>
+    <p class="desc">iter2까지는 호출부가 직접 handlePaymentFailure를 호출했다. iter3에서는 PaymentProcessor가 PaymentFailedEvent를 발행하고 listener가 자동으로 전이를 수행.</p>
+    <div class="impl">PaymentProcessor → PaymentFailedEvent → ReservationAutoCancelListener</div>
+  </div>
+
+  <div class="ext-card accent">
+    <div class="meta">EXT-03 · OBSERVER</div>
+    <div class="ttl">FlightSchedule 변경 전파</div>
+    <p class="desc">관리자가 changeStatus(CANCELLED)를 호출하면 해당 schedule을 itinerary에 포함하는 모든 Reservation에 영향이 전파된다. AffectedReservationListener가 ReservationRegistry를 순회.</p>
+    <div class="impl">FlightSchedule → FlightStatusChangedEvent → AffectedReservationListener</div>
+  </div>
+
+  <div class="ext-card">
+    <div class="meta">EXT-04 · ITINERARY</div>
+    <div class="ttl">Connecting + Multi-city</div>
+    <p class="desc">Itinerary.connecting(first, second)로 2-leg 환승 일정을 만든다. isConnectionTimeValid(MCT)가 환승 시간이 최소 60분(국내) / 90분(국제) 이상인지 검증.</p>
+    <div class="impl">Itinerary.DIRECT | CONNECTING | MULTI_CITY · MCT 60 / 90</div>
+  </div>
+
+  <div class="ext-card span-2">
+    <div class="meta">EXT-05 · PAYMENT</div>
+    <div class="ttl">마일리지 적용 결제</div>
+    <p class="desc">PaymentMethod.MILEAGE 신규 enum. PaymentProcessor.processMileagePayment(account, cost, pnr)가 MileageAccount.withdraw로 차감하고 실패 시 PaymentFailedEvent 발행 — 일반 결제 실패 경로와 동일하게 자동 취소된다. MockSkypassInterface가 외부 Skypass 시스템의 in-memory mock을 제공.</p>
+    <div class="impl">PaymentMethod.MILEAGE · MileageAccount.withdraw · MockSkypassInterface</div>
+  </div>
+</div>
+
+<div class="deck-footer">
+  <span class="brand"><span class="triangle"></span> Iter 3 · Extensions</span>
+  <span>3 × Observer (accent) + 2 × Domain extension</span>
+</div>
+
+</body>
+</html>
