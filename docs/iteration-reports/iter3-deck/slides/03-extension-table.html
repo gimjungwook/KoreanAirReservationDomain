@@ -5,27 +5,28 @@
 <title>Iter 3 · 양식#2 확장기능</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
+  body { padding: 44px 64px; }
   .lead {
-    font-size: 22px;
+    font-size: 18px;
     color: var(--ink-3);
     max-width: 1400px;
-    line-height: 1.5;
-    margin-bottom: 28px;
+    line-height: 1.4;
+    margin-bottom: 18px;
   }
   .grid-3 {
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
-    gap: 20px;
+    gap: 14px;
   }
   .ext-card {
     border: 1px solid var(--rule);
     border-radius: var(--r-md);
-    padding: 24px 26px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
   .ext-card.accent {
     border-color: var(--accent);
@@ -41,25 +42,25 @@
   .ext-card.accent .meta { color: var(--accent); font-weight: 600; }
   .ext-card .ttl {
     font-family: var(--font-display);
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 600;
     letter-spacing: -0.025em;
     line-height: 1.2;
   }
   .ext-card .desc {
-    font-size: 22px;
+    font-size: 18px;
     color: var(--ink-3);
-    line-height: 1.55;
+    line-height: 1.38;
   }
   .ext-card .impl {
     margin-top: auto;
     font-family: var(--font-mono);
-    font-size: 17px;
+    font-size: 14px;
     color: var(--ink-2);
     background: var(--surface);
     border: 1px solid var(--rule);
     border-radius: var(--r-sm);
-    padding: 8px 10px;
+    padding: 7px 9px;
   }
   .ext-card.accent .impl {
     background: #FFFFFF;
