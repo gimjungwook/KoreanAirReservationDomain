@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Pattern Code Map — Strategy</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { padding: 48px 64px; }
+  .lead { font-size: 18px; color: var(--ink-3); margin-bottom: 18px; max-width: 1500px; }
+  .grid { flex: 1; display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 18px; min-height: 0; }
+  .panel { border: 1px solid var(--rule); border-radius: var(--r-md); padding: 18px; display: flex; flex-direction: column; min-height: 0; }
+  .panel.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .lbl { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-4); margin-bottom: 8px; }
+  .h { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 10px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .cardx { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-sm); padding: 12px; min-height: 116px; }
+  .cardx .name { font-family: var(--font-mono); font-size: 14px; color: var(--accent); margin-bottom: 8px; }
+  .cardx .body { font-size: 17px; color: var(--ink-2); line-height: 1.45; }
+  .map { display: grid; gap: 8px; font-size: 18px; }
+  .row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-sm); }
+  .k { font-family: var(--font-mono); color: var(--accent); font-size: 14px; }
+  .v { color: var(--ink-2); line-height: 1.45; }
+  pre { margin: 0; background: #0A0A0A; color: #E6E6E6; padding: 14px 16px; border-radius: var(--r-sm); font-family: var(--font-mono); font-size: 13.2px; line-height: 1.32; overflow: hidden; flex: 1; }
+  .kw { color: #FF7B72; } .ty { color: #79C0FF; } .fn { color: #D2A8FF; } .com { color: #8B949E; font-style: italic; } .str { color: #A5D6FF; }
+</style>
+</head>
+<body>
+
+<div class="section-eyebrow">PATTERN CODE MAP · STRATEGY</div>
+<h2 class="section-h">Strategy는 “환불 계산식”을 정책 클래스로 분리한다</h2>
+<p class="lead"><code>RefundHandler</code>는 어떤 정책인지 고른 뒤, 계산은 <code>RefundPolicy</code> 인터페이스에 맡긴다. 그래서 발표에서는 <code>paid</code>가 결제 총액이고, concrete policy마다 반환식이 달라진다고 설명하면 된다.</p>
+
+<div class="grid">
+  <div class="panel accent">
+    <div class="lbl">GoF role → team class</div>
+    <div class="h">RefundPolicy family</div>
+    <div class="map">
+      <div class="row"><div class="k">Context</div><div class="v"><code>RefundHandler</code> — 환불 흐름 orchestration</div></div>
+      <div class="row"><div class="k">Strategy</div><div class="v"><code>RefundPolicy</code> — <code>calculateRefundAmount(paid)</code></div></div>
+      <div class="row"><div class="k">Concrete</div><div class="v"><code>FullRefundPolicy</code>, <code>PartialRefundPolicy</code>, <code>NoRefundPolicy</code></div></div>
+      <div class="row"><div class="k">Selection</div><div class="v"><code>resolvePolicy(fareRule)</code> — fare class 기준 매핑</div></div>
+    </div>
+    <div class="cards">
+      <div class="cardx"><div class="name">Full</div><div class="body">입력 <code>paid</code><br/>출력 <code>paid</code><br/>전액 환불</div></div>
+      <div class="cardx"><div class="name">Partial</div><div class="body">입력 <code>paid</code><br/>출력 <code>paid × 0.5</code><br/>부분 환불</div></div>
+      <div class="cardx"><div class="name">No</div><div class="body">입력 <code>paid</code><br/>출력 <code>0</code><br/>환불 불가</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="lbl">actual code slice</div>
+    <div class="h">Context는 인터페이스만 호출한다</div>
+<pre><span class="com">// RefundHandler.java — Context</span>
+<span class="ty">RefundPolicy</span> policy = <span class="fn">resolvePolicy</span>(fareRule);
+<span class="ty">BigDecimal</span> paid = <span class="ty">BigDecimal</span>.ZERO;
+<span class="kw">for</span> (<span class="ty">Payment</span> p : reservation.<span class="fn">getPayments</span>()) {
+    <span class="kw">if</span> (p != <span class="kw">null</span> && p.<span class="fn">getAmount</span>() != <span class="kw">null</span>) {
+        paid = paid.<span class="fn">add</span>(p.<span class="fn">getAmount</span>());
+    }
+}
+<span class="ty">BigDecimal</span> refundAmount =
+    policy.<span class="fn">calculateRefundAmount</span>(paid);
+
+<span class="kw">private</span> <span class="ty">RefundPolicy</span> <span class="fn">resolvePolicy</span>(<span class="ty">FareRule</span> rule) {
+    <span class="kw">if</span> (rule == <span class="kw">null</span> || !rule.<span class="fn">isRefundable</span>()) {
+        <span class="kw">return new</span> <span class="ty">NoRefundPolicy</span>();
+    }
+    <span class="kw">if</span> (<span class="str">"Y"</span>.<span class="fn">equals</span>(rule.<span class="fn">getFareClass</span>())
+        || <span class="str">"B"</span>.<span class="fn">equals</span>(rule.<span class="fn">getFareClass</span>())) {
+        <span class="kw">return new</span> <span class="ty">FullRefundPolicy</span>();
+    }
+    <span class="kw">return new</span> <span class="ty">PartialRefundPolicy</span>();
+}
+
+<span class="com">// RefundPolicy.java — Strategy</span>
+<span class="kw">interface</span> <span class="ty">RefundPolicy</span> {
+    <span class="ty">BigDecimal</span> <span class="fn">calculateRefundAmount</span>(<span class="ty">BigDecimal</span> paid);
+}</pre>
+  </div>
+</div>
+
+</body>
+</html>

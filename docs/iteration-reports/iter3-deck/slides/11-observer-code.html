@@ -75,7 +75,7 @@
 
 <div class="deck-header">
   <span class="eyebrow"><span class="dot"></span>Observer · 코드 전·후 (PaymentProcessor)</span>
-  <span class="deck-page">11 / 21</span>
+  <span class="deck-page">11 / 24</span>
 </div>
 
 <div class="section-eyebrow">CODE DIFF · iter2 → iter3</div>
@@ -138,7 +138,7 @@
   }
 }</pre>
     <div class="note">
-      <strong>변화</strong> — BookingController에서 <code>handlePaymentFailure()</code> 직접 호출 사라짐. 새 결제 실패 발생원(SC-05 마일리지) 추가돼도 PaymentProcessor 한 곳에서 publish하면 listener가 동일하게 반응.
+      <strong>변화</strong> — BookingController에서 <code>handlePaymentFailure()</code> 직접 호출 사라짐. 새 발생원(마일리지 실패, 항공권 구매 후 버스티켓 발매)도 publisher가 이벤트만 발행하면 listener가 동일 구조로 반응.
     </div>
   </div>
 </div>

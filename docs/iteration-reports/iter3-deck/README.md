@@ -1,7 +1,8 @@
 # Iter 3 Deck — 사용 가이드 (Vercel-light)
 
-> 11/12주차 OODP iter 3 발표용 슬라이드 (21장). 한국어 본문 + 영어 코드/클래스명/패턴명.
+> 11/12주차 OODP iter 3 발표용 슬라이드 (24장). 한국어 본문 + 영어 코드/클래스명/패턴명.
 > `iter3-final-hq.pdf`는 이 폴더의 HTML 슬라이드와 diagram assets에서 재생성할 수 있다.
+> 2026-05-15 요구사항 반영: 항공권 구매와 연계되는 6개 대도시 우등고속 버스티켓 발매서비스를 iter3 Observer 적용 사례로 추가.
 
 > ⚠️ Demo 슬라이드(19, 20)의 콘솔 출력은 **mockup이 아니라 실제 캡쳐**.
 > `java -cp bin com.koreanair.reservation.app.Iter3DemoRunner`를 실행하면 같은 출력이 나온다.
@@ -30,7 +31,7 @@
 | 파일/폴더 | 역할 |
 |---|---|
 | `index.html` | Vercel-light 슬라이드 플레이어 |
-| `slides/*.html` | 15장 슬라이드 (한 파일 = 한 페이지) |
+| `slides/*.html` | 24장 슬라이드 (한 파일 = 한 페이지) |
 | `assets/shared.css` | Vercel-light 디자인 토큰 (Geist + gradient accents) |
 | `assets/diagrams/*.png` | Use Case · Class · Sequence · Demo backup |
 | `speaker-script-iter3-ko.md` | 한국어 발표 대본 + 예상 Q&A |
@@ -83,8 +84,8 @@ python3 tools/generate_diagram_assets.py
 | `seatHoldExpiry-iter3.png` | 14 (SC-01) |
 | `paymentFailureAutoCancel-iter3.png` | 15 (SC-02) |
 | `flightStatusPropagation-iter3.png` | 16 (SC-03) |
-| `connectingSearch-iter3.png` | 17 (SC-04) |
-| `mileagePayment-iter3.png` | 18 (SC-05) |
+| `connectingSearch-iter3.png` | 17 (SC-05) |
+| `mileagePayment-iter3.png` | 18 (SC-06) |
 
 Demo 슬라이드(19, 20)의 콘솔 출력은 PNG가 아닌 **실제 텍스트 캡쳐** — 갱신은 다음 절차:
 
@@ -129,8 +130,8 @@ python3 tools/merge_slide_pdfs.py
 결과:
 
 ```
-iter3-vector-slide-pdfs/       # 슬라이드별 벡터 PDF (21개)
-iter3-final-hq.pdf             # 최종 21페이지 PDF
+iter3-vector-slide-pdfs/       # 슬라이드별 벡터 PDF (24개)
+iter3-final-hq.pdf             # 최종 24페이지 PDF
 ```
 
 ---
@@ -140,29 +141,32 @@ iter3-final-hq.pdf             # 최종 21페이지 PDF
 ```
 iter3-deck/
 ├── README.md                       이 문서
-├── speaker-script-iter3-ko.md      15장 기준 발표 대본 + Q&A
+├── speaker-script-iter3-ko.md      24장 기준 발표 대본 + Q&A
 ├── index.html                      deck 진입점
 ├── slides/
 │   ├── 01-cover.html               Cover
 │   ├── 02-feature-list.html        전체 기능 표
-│   ├── 03-extension-table.html     iter3 확장 5종 카드
+│   ├── 03-extension-table.html     iter3 확장 6종 카드
 │   ├── 04-rdp-table.html           Iter별 R/DP 매핑
 │   ├── 05-roles.html               팀 A 역할 분담
 │   ├── 06-usecase.html             Use Case Diagram
-│   ├── 07-uc-scenarios.html        UC 시나리오 5종
+│   ├── 07-uc-scenarios.html        UC 시나리오 6종
 │   ├── 08-classdiagram.html        Class Diagram (UML notation)
-│   ├── 09-class-detail.html        중요 클래스 메서드 14
+│   ├── 09-class-detail.html        중요 클래스·메서드 인덱스
 │   ├── 10-observer-textbook-vs-team.html
 │   ├── 11-observer-code.html       코드 전·후 diff
 │   ├── 12-state-impact.html        Seat + FlightSchedule 영향
-│   ├── 13-sequence-overview.html   Sequence index (5개 sequence 안내)
+│   ├── 13-sequence-overview.html   Sequence / demo flow index (6개 흐름 안내)
 │   ├── 14-seq-hold.html            SC-01 Seat Hold Expiry
 │   ├── 15-seq-payfail.html         SC-02 Payment Failure
 │   ├── 16-seq-flight.html          SC-03 Flight Propagation
-│   ├── 17-seq-connecting.html      SC-04 Connecting Search
-│   ├── 18-seq-mileage.html         SC-05 Mileage Payment
-│   ├── 19-demo-observer.html       DEMO Observer 3종 (real console)
+│   ├── 17-seq-connecting.html      SC-05 Connecting Search
+│   ├── 18-seq-mileage.html         SC-06 Mileage Payment
+│   ├── 19-demo-observer.html       DEMO Observer 4종 (real console)
 │   ├── 20-demo-extension.html      DEMO Mileage + Itinerary (real console)
+│   ├── 21-pattern-state-code.html  State pattern 코드 맵
+│   ├── 22-pattern-strategy-code.html Strategy pattern 코드 맵
+│   ├── 23-pattern-observer-code-map.html Observer pattern 코드 맵
 │   └── 21-thanks.html              감사합니다 + iter4 preview
 ├── assets/
 │   ├── shared.css                  Vercel-light 디자인 토큰
@@ -180,7 +184,7 @@ iter3-deck/
 - [ ] `assets/diagrams/` PNG 13개 모두 표시되는지 확인
 - [ ] 브라우저에서 `index.html` 풀스크린 동작 확인
 - [ ] 키보드 ←/→/숫자/P 모두 작동
-- [ ] `iter3-final-hq.pdf` 15페이지, 16:9 가로 방향 확인
+- [ ] `iter3-final-hq.pdf` 24페이지, 16:9 가로 방향 확인
 - [ ] HDMI / 어댑터 / USB 백업
 - [ ] `speaker-script-iter3-ko.md` 한 번 통독 + 1회 리허설
 - [ ] SwingApp 실행 확인 (`java -cp bin com.koreanair.reservation.app.swing.SwingApp`)

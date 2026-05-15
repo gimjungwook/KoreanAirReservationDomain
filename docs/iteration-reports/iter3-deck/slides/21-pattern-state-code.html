@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Pattern Code Map — State</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { padding: 48px 64px; }
+  .lead { font-size: 18px; color: var(--ink-3); margin-bottom: 18px; max-width: 1500px; }
+  .grid { flex: 1; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 18px; min-height: 0; }
+  .panel { border: 1px solid var(--rule); border-radius: var(--r-md); padding: 18px; display: flex; flex-direction: column; min-height: 0; }
+  .panel.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .lbl { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-4); margin-bottom: 8px; }
+  .h { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 10px; }
+  .map { display: grid; gap: 8px; font-size: 18px; }
+  .row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-sm); }
+  .k { font-family: var(--font-mono); color: var(--accent); font-size: 14px; }
+  .v { color: var(--ink-2); line-height: 1.45; }
+  pre { margin: 0; background: #0A0A0A; color: #E6E6E6; padding: 14px 16px; border-radius: var(--r-sm); font-family: var(--font-mono); font-size: 14px; line-height: 1.35; overflow: hidden; flex: 1; }
+  .kw { color: #FF7B72; } .ty { color: #79C0FF; } .fn { color: #D2A8FF; } .com { color: #8B949E; font-style: italic; } .str { color: #A5D6FF; }
+  .flow { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 16px; color: var(--ink-3); }
+  .chip { border: 1px solid var(--rule); border-radius: 999px; padding: 4px 10px; background: var(--surface); color: var(--ink-2); }
+  .arr { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="section-eyebrow">PATTERN CODE MAP · STATE</div>
+<h2 class="section-h">State는 “상태별 허용 메서드”를 바로 보여준다</h2>
+<p class="lead">교과서의 Context / State / ConcreteState가 코드에서 그대로 드러난다. 발표 때는 왼쪽 매핑을 먼저 짚고, 오른쪽 코드에서 <code>currentState.method(this)</code>와 <code>ctx.setState(...)</code>만 보여주면 된다.</p>
+
+<div class="grid">
+  <div class="panel accent">
+    <div class="lbl">GoF role → team class</div>
+    <div class="h">Reservation lifecycle</div>
+    <div class="map">
+      <div class="row"><div class="k">Context</div><div class="v"><code>Reservation</code><br/>현재 상태를 <code>currentState</code>로 보관</div></div>
+      <div class="row"><div class="k">State</div><div class="v"><code>ReservationState</code><br/>8개 lifecycle 메서드 선언</div></div>
+      <div class="row"><div class="k">Concrete</div><div class="v"><code>ConfirmedState</code>, <code>TicketedState</code>, <code>CancelledState</code> 등</div></div>
+      <div class="row"><div class="k">Transition</div><div class="v">구체 상태가 <code>ctx.setState(new NextState())</code> 호출</div></div>
+    </div>
+    <div class="flow">
+      <span class="chip">Confirmed</span><span class="arr">issueTicket()</span>
+      <span class="chip">Ticketed</span><span class="arr">requestCancellation()</span>
+      <span class="chip">CancellationRequested</span><span class="arr">confirmCancellation()</span>
+      <span class="chip">Cancelled</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="lbl">actual code slice</div>
+    <div class="h">메서드는 Context에 있지만 판단은 State가 한다</div>
+<pre><span class="com">// Reservation.java — Context</span>
+<span class="kw">private</span> <span class="ty">ReservationState</span> currentState;
+
+<span class="kw">public</span> <span class="fn">Reservation</span>() {
+    <span class="kw">this</span>.currentState = <span class="kw">new</span> <span class="ty">InitiatedState</span>();
+}
+
+<span class="kw">public void</span> <span class="fn">issueTicket</span>() {
+    currentState.<span class="fn">issueTicket</span>(<span class="kw">this</span>);
+}
+
+<span class="kw">public void</span> <span class="fn">requestCancellation</span>() {
+    currentState.<span class="fn">requestCancellation</span>(<span class="kw">this</span>);
+}
+
+<span class="kw">public void</span> <span class="fn">setState</span>(<span class="ty">ReservationState</span> next) {
+    System.out.<span class="fn">printf</span>(<span class="str">"[STATE] %s -> %s%n"</span>,
+        currentState.<span class="fn">name</span>(), next.<span class="fn">name</span>());
+    currentState = next;
+}
+
+<span class="com">// ConfirmedState.java — ConcreteState</span>
+<span class="kw">public void</span> <span class="fn">issueTicket</span>(<span class="ty">Reservation</span> ctx) {
+    <span class="com">// Ticket.generate(...) 후</span>
+    ctx.<span class="fn">setState</span>(<span class="kw">new</span> <span class="ty">TicketedState</span>());
+    ctx.<span class="fn">updateStatus</span>(<span class="ty">ReservationStatus</span>.TICKETED);
+}</pre>
+  </div>
+</div>
+
+</body>
+</html>

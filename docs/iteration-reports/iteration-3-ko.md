@@ -331,7 +331,7 @@ flowchart LR
 
 ### 4.2 Class Diagram — Observer family
 
-(슬라이드 08 참조. `domain/event/` 패키지 7개 + Subject 3개 + Listener 3개 + 도메인 확장 5개)
+(슬라이드 08 참조. `domain/event/` 패키지 + Subject 4개 + Listener 4개 + 6개 대도시 우등고속 버스티켓 연계 + 도메인 확장)
 
 ### 4.3 Sequence Diagram — Payment 실패 자동 취소
 

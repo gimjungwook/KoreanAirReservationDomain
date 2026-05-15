@@ -89,13 +89,13 @@
 <body>
 
 <div class="deck-header">
-  <span class="eyebrow"><span class="dot"></span>Use Case 시나리오 — Iter 3 시연 5종</span>
-  <span class="deck-page">07 / 21</span>
+  <span class="eyebrow"><span class="dot"></span>Use Case 시나리오 — Iter 3 시연 6종</span>
+  <span class="deck-page">07 / 24</span>
 </div>
 
-<div class="section-eyebrow">5 KEY SCENARIOS</div>
-<h2 class="section-h">발표 시연용 5개 흐름</h2>
-<p class="lead">각 시나리오는 발표 시 콘솔/Swing에서 끝까지 동작하는 단위. 3개 Observer + Connecting + Mileage.</p>
+<div class="section-eyebrow">6 KEY SCENARIOS</div>
+<h2 class="section-h">발표 시연용 6개 흐름</h2>
+<p class="lead">각 시나리오는 발표 시 콘솔/Swing에서 끝까지 동작하는 단위. 4개 Observer + Connecting + Mileage. 버스티켓 연계는 항공권 구매 완료 이벤트에 listener가 반응하는 핵심 시연이다.</p>
 
 <div class="scenarios">
   <div class="sc accent">
@@ -137,8 +137,21 @@
     </ol>
   </div>
 
+  <div class="sc accent">
+    <div class="num">SC-04 · OBSERVER</div>
+    <div class="title">항공권 구매 연계 우등고속 버스티켓 발매</div>
+    <div class="trigger">TRIGGER · e-Ticket issued + bus city selected</div>
+    <ol>
+      <li>회원이 항공권 결제 후 <code>Reservation.issueTicket()</code>으로 e-Ticket 발급</li>
+      <li>사용자가 6개 대도시 중 버스 목적지 선택: 서울·부산·대구·광주·대전·인천</li>
+      <li><code>TicketPurchasePublisher.publishTicketIssued(..., BusCity)</code> 호출</li>
+      <li><code>BusTicketPurchaseListener.onEvent</code>가 이벤트 수신</li>
+      <li><code>BusTicketingService.issuePremiumTicket</code>으로 연계 버스티켓 발매</li>
+    </ol>
+  </div>
+
   <div class="sc">
-    <div class="num">SC-04 · ITINERARY</div>
+    <div class="num">SC-05 · ITINERARY</div>
     <div class="title">환승 일정 MCT 검증</div>
     <div class="trigger">TRIGGER · 사용자: ICN → JFK (date)</div>
     <ol>
@@ -150,8 +163,8 @@
     </ol>
   </div>
 
-  <div class="sc span-2">
-    <div class="num">SC-05 · MILEAGE PAYMENT</div>
+  <div class="sc">
+    <div class="num">SC-06 · MILEAGE PAYMENT</div>
     <div class="title">마일리지 결제 + 잔액 부족 시 자동 취소</div>
     <div class="trigger">TRIGGER · 회원: payWithMileage(reservation, mileageCost)</div>
     <ol>
@@ -164,8 +177,8 @@
 </div>
 
 <div class="deck-footer">
-  <span class="brand"><span class="triangle"></span> Iter 3 · UC 시나리오 5종</span>
-  <span>Observer 3 (accent) · Itinerary 1 · Mileage 1</span>
+  <span class="brand"><span class="triangle"></span> Iter 3 · UC 시나리오 6종</span>
+  <span>Observer 4 (accent) · Itinerary 1 · Mileage 1</span>
 </div>
 
 </body>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Iter 3 · Pattern Code Map — Observer</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  body { padding: 48px 64px; }
+  .lead { font-size: 18px; color: var(--ink-3); margin-bottom: 18px; max-width: 1500px; }
+  .grid { flex: 1; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 18px; min-height: 0; }
+  .panel { border: 1px solid var(--rule); border-radius: var(--r-md); padding: 18px; display: flex; flex-direction: column; min-height: 0; }
+  .panel.accent { border-color: var(--accent); background: var(--accent-soft); }
+  .lbl { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-4); margin-bottom: 8px; }
+  .h { font-family: var(--font-display); font-size: 24px; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 10px; }
+  .map { display: grid; gap: 8px; font-size: 18px; }
+  .row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-sm); }
+  .k { font-family: var(--font-mono); color: var(--accent); font-size: 14px; }
+  .v { color: var(--ink-2); line-height: 1.45; }
+  .flow { margin-top: 12px; padding: 12px; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-sm); font-family: var(--font-mono); font-size: 16px; line-height: 1.7; color: var(--ink-2); }
+  .flow b { color: var(--accent); font-weight: 600; }
+  pre { margin: 0; background: #0A0A0A; color: #E6E6E6; padding: 14px 16px; border-radius: var(--r-sm); font-family: var(--font-mono); font-size: 13.4px; line-height: 1.34; overflow: hidden; flex: 1; }
+  .kw { color: #FF7B72; } .ty { color: #79C0FF; } .fn { color: #D2A8FF; } .com { color: #8B949E; font-style: italic; } .str { color: #A5D6FF; }
+</style>
+</head>
+<body>
+
+<div class="section-eyebrow">PATTERN CODE MAP · OBSERVER</div>
+<h2 class="section-h">Observer는 “발행자는 publish만, listener가 반응”한다</h2>
+<p class="lead">iter3의 핵심은 호출자가 부수효과를 직접 처리하지 않는 것이다. Subject는 이벤트만 발행하고, 구독자는 관심 이벤트만 골라 상태 전이/좌석 해제/영향 예약 조회/연계 버스티켓 발매를 수행한다.</p>
+
+<div class="grid">
+  <div class="panel accent">
+    <div class="lbl">GoF role → team class</div>
+    <div class="h">EventPublisher + Listener</div>
+    <div class="map">
+      <div class="row"><div class="k">Subject</div><div class="v"><code>EventPublisher</code><br/><code>subscribe</code>, <code>unsubscribe</code>, <code>publish</code></div></div>
+      <div class="row"><div class="k">Observer</div><div class="v"><code>EventListener</code><br/><code>onEvent(DomainEvent)</code></div></div>
+      <div class="row"><div class="k">ConcreteSubject</div><div class="v"><code>SeatHoldMonitor</code>, <code>PaymentProcessor</code>, <code>FlightSchedule</code>, <code>TicketPurchasePublisher</code></div></div>
+      <div class="row"><div class="k">ConcreteObserver</div><div class="v"><code>ReservationHoldListener</code>, <code>ReservationAutoCancelListener</code>, <code>AffectedReservationListener</code>, <code>BusTicketPurchaseListener</code></div></div>
+    </div>
+    <div class="flow">
+      <b>SeatHoldMonitor.sweep()</b><br/>
+      → publish(<code>SeatHoldExpiredEvent</code>)<br/>
+      → <code>ReservationHoldListener.onEvent</code><br/>
+      → <code>seat.release()</code> + <code>r.handlePaymentFailure()</code>
+      <hr style="border:0;border-top:1px solid var(--rule);margin:8px 0;"/>
+      <b>TicketPurchasePublisher.publishTicketIssued()</b><br/>
+      → publish(<code>TicketIssuedEvent</code>)<br/>
+      → <code>BusTicketPurchaseListener.onEvent</code><br/>
+      → <code>issuePremiumTicket(..., BusCity)</code>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="lbl">actual code slice</div>
+    <div class="h">Subject는 listener 구현체를 모른다</div>
+<pre><span class="com">// EventPublisher.java — Subject base</span>
+<span class="kw">private final</span> <span class="ty">List</span>&lt;<span class="ty">EventListener</span>&gt; listeners =
+    <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+
+<span class="kw">public void</span> <span class="fn">subscribe</span>(<span class="ty">EventListener</span> listener) {
+    <span class="kw">if</span> (listener == <span class="kw">null</span> || listeners.<span class="fn">contains</span>(listener)) <span class="kw">return</span>;
+    listeners.<span class="fn">add</span>(listener);
+}
+
+<span class="kw">protected void</span> <span class="fn">publish</span>(<span class="ty">DomainEvent</span> event) {
+    <span class="kw">for</span> (<span class="ty">EventListener</span> listener : <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(listeners)) {
+        listener.<span class="fn">onEvent</span>(event);
+    }
+}
+
+<span class="com">// TicketPurchasePublisher.java — ConcreteSubject</span>
+<span class="kw">public void</span> <span class="fn">publishTicketIssued</span>(<span class="ty">Reservation</span> r,
+                              <span class="ty">Ticket</span> ticket,
+                              <span class="ty">BusCity</span> city) {
+    <span class="fn">publish</span>(<span class="kw">new</span> <span class="ty">TicketIssuedEvent</span>(r, ticket, city));
+}
+
+<span class="com">// BusTicketPurchaseListener.java — ConcreteObserver</span>
+<span class="kw">public void</span> <span class="fn">onEvent</span>(<span class="ty">DomainEvent</span> event) {
+    <span class="kw">if</span> (!(event <span class="kw">instanceof</span> <span class="ty">TicketIssuedEvent</span> e)) <span class="kw">return</span>;
+    <span class="kw">if</span> (e.<span class="fn">getRequestedBusCity</span>() == <span class="kw">null</span>) <span class="kw">return</span>;
+    busTicketingService.<span class="fn">issuePremiumTicket</span>(
+        e.<span class="fn">getReservation</span>(),
+        e.<span class="fn">getTicket</span>(),
+        e.<span class="fn">getRequestedBusCity</span>());
+}</pre>
+  </div>
+</div>
+
+</body>
+</html>

@@ -4,19 +4,26 @@ import com.koreanair.reservation.boundary.MockSkypassInterface;
 import com.koreanair.reservation.boundary.PaymentGatewayInterface;
 import com.koreanair.reservation.boundary.SkypassInterface;
 import com.koreanair.reservation.control.AffectedReservationListener;
+import com.koreanair.reservation.control.BusTicketPurchaseListener;
+import com.koreanair.reservation.control.BusTicketingService;
 import com.koreanair.reservation.control.PaymentProcessor;
 import com.koreanair.reservation.control.ReservationAutoCancelListener;
 import com.koreanair.reservation.control.ReservationHoldListener;
 import com.koreanair.reservation.control.ReservationRegistry;
 import com.koreanair.reservation.control.SeatHoldMonitor;
+import com.koreanair.reservation.control.TicketPurchasePublisher;
+import com.koreanair.reservation.domain.bus.BusCity;
 import com.koreanair.reservation.domain.flight.CabinClass;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.flight.FlightStatus;
 import com.koreanair.reservation.domain.flight.Seat;
 import com.koreanair.reservation.domain.passenger.MileageAccount;
+import com.koreanair.reservation.domain.passenger.Passenger;
+import com.koreanair.reservation.domain.passenger.PassengerType;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.Segment;
+import com.koreanair.reservation.domain.reservation.Ticket;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -43,9 +50,11 @@ public class Iter3DemoRunner {
         System.out.println();
         demoFlightStatusPropagation();
         System.out.println();
-        demoMileagePayment();
+        demoLinkedBusTicketIssue();
         System.out.println();
         demoConnectingItinerary();
+        System.out.println();
+        demoMileagePayment();
         System.out.println();
         System.out.println("==== Iter3 demo runner done ====");
     }
@@ -56,6 +65,8 @@ public class Iter3DemoRunner {
     private static SeatHoldMonitor monitor;
     private static PaymentProcessor payProc;
     private static FailingGateway failingGateway;
+    private static TicketPurchasePublisher ticketPublisher;
+    private static BusTicketingService busTicketingService;
 
     private static void bootSubscribers() {
         System.out.println("[BOOT] event subscribers loaded");
@@ -66,10 +77,16 @@ public class Iter3DemoRunner {
         payProc = new PaymentProcessor(failingGateway);
         payProc.subscribe(new ReservationAutoCancelListener());
 
+        ticketPublisher = new TicketPurchasePublisher();
+        busTicketingService = new BusTicketingService();
+        ticketPublisher.subscribe(new BusTicketPurchaseListener(busTicketingService));
+
         System.out.printf("  SeatHoldMonitor    .subscriberCount = %d%n", monitor.subscriberCount());
         System.out.printf("  PaymentProcessor   .subscriberCount = %d%n", payProc.subscriberCount());
+        System.out.printf("  TicketPublisher    .subscriberCount = %d%n", ticketPublisher.subscriberCount());
         System.out.println("  → ReservationHoldListener         registered");
         System.out.println("  → ReservationAutoCancelListener   registered");
+        System.out.println("  → BusTicketPurchaseListener       registered");
         System.out.println("  → AffectedReservationListener     attached per FlightSchedule");
     }
 
@@ -138,10 +155,28 @@ public class Iter3DemoRunner {
     }
 
     // ─────────────────────────────────────────────
-    // SC-04 — Mileage payment (success)
+    // SC-04 — Linked premium express bus ticket
+    // ─────────────────────────────────────────────
+    private static void demoLinkedBusTicketIssue() {
+        System.out.println("--- SC-04 Linked premium express bus ticket ---");
+        Reservation r = newReservation("PNR-DEMO04-BUS");
+        Passenger passenger = Passenger.create("Kim Jaeho", "jaeho@example.com",
+                "M12345678", java.time.LocalDate.of(1999, 1, 1), PassengerType.ADULT);
+        r.enterPassengerInfo(passenger);  // Initiated -> PendingPayment
+        r.processPayment();              // PendingPayment -> Confirmed
+        r.issueTicket();                 // Confirmed -> Ticketed
+
+        Ticket ticket = r.getTickets().isEmpty() ? null : r.getTickets().get(0);
+        ticketPublisher.publishTicketIssued(r, ticket, BusCity.BUSAN);
+        System.out.printf("[RESULT] linkedBusTickets=%d reservation=%s%n",
+                busTicketingService.getIssuedTickets().size(), r.getStateName());
+    }
+
+    // ─────────────────────────────────────────────
+    // SC-06 — Mileage payment (success)
     // ─────────────────────────────────────────────
     private static void demoMileagePayment() {
-        System.out.println("--- SC-04 Mileage payment ---");
+        System.out.println("--- SC-06 Mileage payment ---");
         SkypassInterface skypass = newSkypassMock("SK-DEMO", 50_000);
         MileageAccount acct = new MileageAccount();
         acct.deposit(BigDecimal.valueOf(50_000));

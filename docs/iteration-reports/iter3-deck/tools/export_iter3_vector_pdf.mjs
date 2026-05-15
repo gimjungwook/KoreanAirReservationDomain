@@ -33,6 +33,9 @@ const slides = [
   "18-seq-mileage.html",
   "19-demo-observer.html",
   "20-demo-extension.html",
+  "21-pattern-state-code.html",
+  "22-pattern-strategy-code.html",
+  "23-pattern-observer-code-map.html",
   "21-thanks.html",
 ];
 

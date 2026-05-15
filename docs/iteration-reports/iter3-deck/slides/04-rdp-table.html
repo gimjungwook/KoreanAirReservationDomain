@@ -64,12 +64,12 @@
 
 <div class="deck-header">
   <span class="eyebrow"><span class="dot"></span>양식 #3 — Iteration별 R(Requirement) / DP(Design Pattern)</span>
-  <span class="deck-page">04 / 21</span>
+  <span class="deck-page">04 / 24</span>
 </div>
 
 <div class="section-eyebrow">R/DP MAPPING · Iter1 → Iter4</div>
 <h2 class="section-h">패턴이 도입되는 자리, 도입 이유</h2>
-<p class="lead">각 iteration에서 채워야 할 요구사항(R)과 그 요구사항을 깔끔하게 처리하기 위해 도입한 디자인 패턴(DP)의 매핑. iter3는 부수효과 발행이 늘어나는 시점이라 Observer가 자연스럽게 들어온다.</p>
+<p class="lead">각 iteration에서 채워야 할 요구사항(R)과 그 요구사항을 깔끔하게 처리하기 위해 도입한 디자인 패턴(DP)의 매핑. iter3는 항공권 구매 후 버스티켓 연계 발매까지 포함해, 이벤트 기반 부수효과가 늘어나는 시점이라 Observer가 자연스럽게 들어온다.</p>
 
 <table class="rdp">
   <thead>
@@ -89,6 +89,7 @@
     <tr class="iter3"><td class="it">iter3 +</td><td>좌석 hold 만료 자동 처리</td><td class="pat observer">Observer</td><td><code>SeatHoldMonitor</code> · <code>ReservationHoldListener</code></td><td>호출자 vs 부수효과 분리</td></tr>
     <tr class="iter3"><td class="it">iter3 +</td><td>결제 실패 → 자동 취소</td><td class="pat observer">Observer</td><td><code>PaymentProcessor</code> · <code>ReservationAutoCancelListener</code></td><td>실패 경로 일관 처리</td></tr>
     <tr class="iter3"><td class="it">iter3 +</td><td>FlightSchedule 변경 전파</td><td class="pat observer">Observer</td><td><code>FlightSchedule</code> · <code>AffectedReservationListener</code></td><td>1-to-N 통지</td></tr>
+    <tr class="iter3"><td class="it">iter3 +</td><td>6개 대도시 우등고속 버스티켓 연계 발매</td><td class="pat observer">Observer</td><td><code>TicketPurchasePublisher</code> · <code>BusTicketPurchaseListener</code></td><td>항공권 구매 완료 이벤트 연계</td></tr>
     <tr class="iter3"><td class="it">iter3 +</td><td>Connecting · Multi-city</td><td class="pat">— (도메인 확장)</td><td><code>Itinerary</code> · <code>ItinerarySearchService</code></td><td>Segment 다중화 + MCT</td></tr>
     <tr class="iter3"><td class="it">iter3 +</td><td>마일리지 결제</td><td class="pat">— (도메인 확장)</td><td><code>MileageAccount</code> · <code>MockSkypassInterface</code></td><td>결제 수단 분기</td></tr>
     <tr><td class="it">iter4</td><td>전역 설정 / 일정 종류별 생성</td><td class="pat">Singleton + Factory</td><td><code>AppConfig</code> · <code>ItineraryFactory</code></td><td>관리자 예외 환불 · PDF</td></tr>
@@ -102,7 +103,7 @@
 
 <div class="deck-footer">
   <span class="brand"><span class="triangle"></span> Iter 3 · R/DP Mapping</span>
-  <span>iter3 patterns: 1 (Observer · 3 적용 지점)</span>
+  <span>iter3 patterns: 1 (Observer · 4 적용 지점)</span>
 </div>
 
 </body>

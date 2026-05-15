@@ -15,10 +15,10 @@
     border: 1px solid var(--rule);
     border-radius: var(--r-md);
     overflow: hidden;
-    font-size: 15px;
+    font-size: 13px;
   }
   table.det th, table.det td {
-    padding: 11px 16px;
+    padding: 7px 12px;
     border-bottom: 1px solid var(--rule);
     vertical-align: top;
   }
@@ -32,7 +32,7 @@
     color: var(--ink-4);
   }
   table.det code {
-    font-size: 22px;
+    font-size: 15px;
     padding: 1px 6px;
   }
   table.det td.cls {
@@ -57,12 +57,12 @@
 
 <div class="deck-header">
   <span class="eyebrow"><span class="dot"></span>중요 클래스 · 메서드 · Iter 3</span>
-  <span class="deck-page">09 / 21</span>
+  <span class="deck-page">09 / 24</span>
 </div>
 
-<div class="section-eyebrow">CLASS / METHOD INDEX · 14 ROWS</div>
+<div class="section-eyebrow">CLASS / METHOD INDEX · OBSERVER + BUS ADD-ON</div>
 <h2 class="section-h">발표자가 가리킬 진입점 메서드</h2>
-<p class="lead">Subject 3종과 Listener 3종 + Itinerary/Mileage 확장. 각 행이 한 발표 포인트.</p>
+<p class="lead">Subject 4종과 Listener 4종 + Itinerary/Mileage 확장. 항공권 구매 연계 버스티켓은 TicketIssuedEvent를 기준으로 설명한다.</p>
 
 <table class="det">
   <thead>
@@ -100,6 +100,15 @@
     <tr class="new"><td class="cls">AffectedReservationListener</td><td class="role">Control · Listener</td>
       <td><code>onEvent(event)</code> — registry.all() 순회 → schedule 참조 Reservation 필터링</td></tr>
 
+    <tr class="new"><td class="cls">TicketPurchasePublisher</td><td class="role">Control · Subject</td>
+      <td><code>publishTicketIssued(reservation, ticket, busCity)</code> — 항공권 발급 완료 이벤트 발행</td></tr>
+
+    <tr class="new"><td class="cls">BusTicketPurchaseListener</td><td class="role">Control · Listener</td>
+      <td><code>onEvent(event)</code> — TicketIssuedEvent 수신 → BusTicketingService 호출</td></tr>
+
+    <tr class="new"><td class="cls">BusTicketingService</td><td class="role">Control · Service</td>
+      <td><code>supportedCities()</code>, <code>issuePremiumTicket(...)</code> — 6개 대도시 우등고속 발매</td></tr>
+
     <tr class="new"><td class="cls">ReservationRegistry</td><td class="role">Control · Registry</td>
       <td><code>register</code>, <code>findByPnr</code>, <code>all()</code> — 활성 Reservation 전수 순회</td></tr>
 
@@ -119,7 +128,7 @@
 
 <div class="deck-footer">
   <span class="brand"><span class="triangle"></span> Iter 3 · Class Detail</span>
-  <span>3 Subjects · 3 Listeners · 1 Registry · 1 Search Service · 1 Mock</span>
+  <span>4 Subjects · 4 Listeners · bus-ticket add-on · mileage · itinerary</span>
 </div>
 
 </body>

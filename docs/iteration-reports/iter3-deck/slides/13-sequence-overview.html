@@ -15,13 +15,13 @@
   .seq-list {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 18px;
   }
   .seq-item {
     border: 1px solid var(--rule);
     border-radius: var(--r-md);
-    padding: 22px 22px 18px;
+    padding: 18px 16px 16px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -89,13 +89,13 @@
 <body>
 
 <div class="deck-header">
-  <span class="eyebrow"><span class="dot"></span>Sequence Diagrams — Overview (5 슬라이드 분량)</span>
-  <span class="deck-page">13 / 21</span>
+<span class="eyebrow"><span class="dot"></span>Sequence / Demo Flow — Overview</span>
+  <span class="deck-page">13 / 24</span>
 </div>
 
 <div class="section-eyebrow">SEQUENCE INDEX · 1 SLIDE PER DIAGRAM</div>
-<h2 class="section-h">5개 시퀀스 — 각 1장씩</h2>
-<p class="lead">발표 가독성을 위해 5개 sequence를 각각 한 슬라이드 전체에 표시한다. 다음 슬라이드부터 SC-01 → SC-05 순서.</p>
+<h2 class="section-h">6개 흐름 — Observer 4개가 중심</h2>
+<p class="lead">SC-04 버스티켓 연계는 별도 다이어그램 대신 Demo + Pattern Code Map에서 집중 설명한다. 핵심은 TicketIssuedEvent에 BusTicketPurchaseListener가 반응하는 Observer 구조다.</p>
 
 <div class="seq-list">
   <div class="seq-item accent">
@@ -117,13 +117,19 @@
     <div class="pat">SLIDE 16</div>
   </div>
   <div class="seq-item">
-    <div class="num">SC-04 · ITINERARY</div>
+    <div class="num">SC-04 · OBSERVER</div>
+    <div class="h">Air + Bus Ticket</div>
+    <p class="desc">e-Ticket issued → TicketIssuedEvent → BusTicketPurchaseListener → issuePremiumTicket(6 cities).</p>
+    <div class="pat">SLIDE 19 / 23</div>
+  </div>
+  <div class="seq-item">
+    <div class="num">SC-05 · ITINERARY</div>
     <div class="h">Connecting Search</div>
     <p class="desc">searchConnecting → catalog 순회 → Itinerary.connecting(a, b) → isConnectionTimeValid(MCT) → 통과만 반환.</p>
     <div class="pat">SLIDE 17</div>
   </div>
   <div class="seq-item">
-    <div class="num">SC-05 · MILEAGE</div>
+    <div class="num">SC-06 · MILEAGE</div>
     <div class="h">Mileage Payment</div>
     <p class="desc">processMileagePayment → MileageAccount.withdraw → SkypassInterface.verifyAndDeduct → addPayment + processPayment.</p>
     <div class="pat">SLIDE 18</div>
@@ -132,14 +138,14 @@
 
 <div class="insight">
   <div class="lbl">SHARED PATTERN</div>
-  <div class="h">3개 Observer 시퀀스 (SC-01·02·03) 모두 동일한 모양:<br/>
+  <div class="h">4개 Observer 흐름 (SC-01·02·03·04) 모두 동일한 모양:<br/>
     Subject가 <span class="accent">publish</span> → EventPublisher가 broadcast → Listener.<span class="accent">onEvent</span>가 instanceof 분기 → 도메인 메서드 호출.
   </div>
 </div>
 
 <div class="deck-footer">
   <span class="brand"><span class="triangle"></span> Iter 3 · Sequence Index</span>
-  <span>5 sequences · 5 slides · 발표 시 한 화면당 한 시퀀스</span>
+  <span>6 flows · Observer 4 · Bus ticket add-on 강조</span>
 </div>
 
 </body>

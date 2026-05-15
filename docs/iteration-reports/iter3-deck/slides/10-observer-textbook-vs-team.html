@@ -81,7 +81,7 @@
 
 <div class="deck-header">
   <span class="eyebrow"><span class="dot"></span>Observer 패턴 — 교과서 ↔ 팀 적용</span>
-  <span class="deck-page">10 / 21</span>
+  <span class="deck-page">10 / 24</span>
 </div>
 
 <div class="section-eyebrow">DESIGN PATTERN · OBSERVER (GoF)</div>
@@ -109,29 +109,29 @@
 
   <div class="col team">
     <div class="lbl">팀 A · iter3 적용</div>
-    <div class="h">3개 Subject · 3개 Listener</div>
-    <p class="def">좌석 hold 만료 · 결제 실패 · 항공편 변경 — 모두 "발행자는 부수효과를 모르고, listener가 자신의 책임만 수행"하는 구조로 통일.</p>
+    <div class="h">4개 Subject · 4개 Listener</div>
+    <p class="def">좌석 hold 만료 · 결제 실패 · 항공편 변경 · 항공권 구매 연계 버스티켓 — 모두 "발행자는 부수효과를 모르고, listener가 자신의 책임만 수행"하는 구조로 통일.</p>
     <div class="roles-grid">
       <div class="k">Subject (base)</div>
       <div class="v"><code>EventPublisher</code> abstract — subscribe / unsubscribe / publish</div>
       <div class="k">Observer (base)</div>
       <div class="v"><code>EventListener</code> interface — <code>onEvent(DomainEvent)</code></div>
       <div class="k">ConcreteSubject</div>
-      <div class="v"><code>SeatHoldMonitor</code> · <code>PaymentProcessor</code> · <code>FlightSchedule</code></div>
+      <div class="v"><code>SeatHoldMonitor</code> · <code>PaymentProcessor</code> · <code>FlightSchedule</code> · <code>TicketPurchasePublisher</code></div>
       <div class="k">ConcreteObserver</div>
-      <div class="v"><code>ReservationHoldListener</code> · <code>AutoCancelListener</code> · <code>AffectedReservationListener</code></div>
+      <div class="v"><code>ReservationHoldListener</code> · <code>AutoCancelListener</code> · <code>AffectedReservationListener</code> · <code>BusTicketPurchaseListener</code></div>
       <div class="k">Event payload</div>
       <div class="v">push-model — DomainEvent 서브클래스가 데이터 담아 전달</div>
     </div>
     <div class="why">
-      <strong>왜 도입했나</strong> — iter2까지는 호출자(BookingController)가 부수효과를 매번 직접 호출했다. iter3에서 동일 트리거가 3개로 늘면서 호출자가 비대해졌고, Observer로 부수효과를 listener에 위임해 단일 책임으로 분리.
+      <strong>왜 도입했나</strong> — iter2까지는 호출자(BookingController)가 부수효과를 매번 직접 호출했다. iter3에서 항공권 구매 후 버스티켓 발매처럼 연계 부수효과가 추가되면서 호출자가 비대해질 수 있어, Observer로 부수효과를 listener에 위임해 단일 책임으로 분리.
     </div>
   </div>
 </div>
 
 <div class="deck-footer">
   <span class="brand"><span class="triangle"></span> Iter 3 · Observer 교과서 vs 팀</span>
-  <span>1-to-N · loose coupling · push-model event payload</span>
+  <span>1-to-N · air ticket purchase event · bus add-on listener</span>
 </div>
 
 </body>

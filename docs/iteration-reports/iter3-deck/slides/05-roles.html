@@ -99,12 +99,12 @@
 
 <div class="deck-header">
   <span class="eyebrow"><span class="dot"></span>Iteration 3 · 팀 A 역할 분담</span>
-  <span class="deck-page">05 / 21</span>
+  <span class="deck-page">05 / 24</span>
 </div>
 
-<div class="section-eyebrow">3 MEMBERS · 5 EXTENSIONS</div>
+<div class="section-eyebrow">3 MEMBERS · 6 EXTENSIONS</div>
 <h2 class="section-h">누가, 어떤 책임을 맡았나</h2>
-<p class="lead">iter3 핵심 5종을 3인 분담. 각자 own한 영역에서 publisher와 listener 양쪽을 함께 책임지도록 묶었다.</p>
+<p class="lead">iter3 핵심 6종을 3인 분담. Observer는 publisher와 listener 양쪽을 함께 설명하고, 버스티켓 연계는 항공권 발권 이벤트의 추가 listener로 묶었다.</p>
 
 <div class="roles">
   <div class="role-card">
@@ -148,17 +148,17 @@
       <div class="avatar">KD</div>
       <div>
         <div class="name">김경동</div>
-        <div class="role">Itinerary · Mileage payment</div>
+        <div class="role">Ticket add-on · Itinerary · Mileage</div>
       </div>
     </div>
-    <div class="focus">Connecting flight + 마일리지 결제</div>
+    <div class="focus">항공권 연계 버스티켓 + Connecting flight + 마일리지 결제</div>
     <div class="items">
+      <div class="item"><span class="arr">→</span><span>TicketPurchasePublisher + BusTicketPurchaseListener</span></div>
       <div class="item"><span class="arr">→</span><span>Itinerary.connecting / multiCity + MCT 검증</span></div>
       <div class="item"><span class="arr">→</span><span>ItinerarySearchService — 1-stop 조합 탐색</span></div>
       <div class="item"><span class="arr">→</span><span>PaymentMethod.MILEAGE + processMileagePayment</span></div>
-      <div class="item"><span class="arr">→</span><span>MockSkypassInterface · sequence diagram</span></div>
     </div>
-    <div class="meta">EXT-04 + EXT-05</div>
+    <div class="meta">EXT-04 + EXT-05 + EXT-06</div>
   </div>
 </div>
 

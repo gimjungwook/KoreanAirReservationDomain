@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>Iter 3 · Demo · Observer 3종 실행 결과</title>
+<title>Iter 3 · Demo · Observer 4종 실행 결과</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   .lead {
@@ -16,19 +16,19 @@
   .demo-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto 1fr 1fr;
     gap: 16px;
   }
   .boot {
-    grid-column: 1 / span 3;
+    grid-column: 1 / span 2;
     background: #0A0A0A;
     color: #E6E6E6;
     border-radius: var(--r-md);
     padding: 12px 16px;
     font-family: var(--font-mono);
-    font-size: 22px;
-    line-height: 1.5;
+    font-size: 18px;
+    line-height: 1.35;
   }
   .boot .tag {
     color: #7EE787;
@@ -74,8 +74,8 @@
     color: #E6E6E6;
     padding: 12px 14px;
     font-family: var(--font-mono);
-    font-size: 14px;
-    line-height: 1.55;
+    font-size: 13px;
+    line-height: 1.42;
     overflow: auto;
   }
   .console .l { display: block; }
@@ -87,13 +87,14 @@
   .console .sweep   { color: #79C0FF; }
   .console .result  { color: #7EE787; font-weight: 600; }
   .console .admin   { color: #FFA657; }
+  .console .bus     { color: #7EE787; }
 </style>
 </head>
 <body>
 
 <div class="deck-header">
-  <span class="eyebrow"><span class="dot"></span><span class="accent">실시연 결과</span> · Iter3DemoRunner — 3 Observer 시나리오</span>
-  <span class="deck-page">19 / 21</span>
+  <span class="eyebrow"><span class="dot"></span><span class="accent">실시연 결과</span> · Iter3DemoRunner — 4 Observer 시나리오</span>
+  <span class="deck-page">19 / 24</span>
 </div>
 
 <p class="lead">실행 명령: <code>java -cp bin com.koreanair.reservation.app.Iter3DemoRunner</code> — 아래는 실제 콘솔 출력 그대로. mockup 없이 진짜 stdout 캡쳐.</p>
@@ -103,8 +104,10 @@
     <span class="tag">[BOOT]</span> event subscribers loaded<br/>
     &nbsp;&nbsp;SeatHoldMonitor    .subscriberCount = 1<br/>
     &nbsp;&nbsp;PaymentProcessor   .subscriberCount = 1<br/>
+    &nbsp;&nbsp;TicketPublisher    .subscriberCount = 1<br/>
     &nbsp;&nbsp;<span class="arrow">→</span> ReservationHoldListener         registered<br/>
     &nbsp;&nbsp;<span class="arrow">→</span> ReservationAutoCancelListener   registered<br/>
+    &nbsp;&nbsp;<span class="arrow">→</span> BusTicketPurchaseListener       registered<br/>
     &nbsp;&nbsp;<span class="arrow">→</span> AffectedReservationListener     attached per FlightSchedule
   </div>
 
@@ -162,10 +165,29 @@
 <span class="l"><span class="result">[RESULT] schedule.status=CANCELLED</span></span>
     </div>
   </div>
+
+  <div class="panel accent">
+    <div class="head">
+      <span class="num">SC-04 · OBSERVER</span>
+      <span class="h">Air + premium bus ticket</span>
+    </div>
+    <div class="console">
+<span class="l"><span class="state">[STATE] Initiated -> PendingPayment</span></span>
+<span class="l"><span class="state">[STATE] PendingPayment -> Confirmed</span></span>
+<span class="l">[TICKET] e-Ticket KE-260515-0001</span>
+<span class="l">         issued for Kim Jaeho</span>
+<span class="l"><span class="state">[STATE] Confirmed -> Ticketed</span></span>
+<span class="l"><span class="bus">[BUS] premium bus ticket</span></span>
+<span class="l"><span class="bus">      KOBUS-260515-0001 issued</span></span>
+<span class="l"><span class="bus">      city=부산 pnr=PNR-DEMO04-BUS</span></span>
+<span class="l"><span class="result">[RESULT] linkedBusTickets=1</span></span>
+<span class="l"><span class="result">         reservation=Ticketed</span></span>
+    </div>
+  </div>
 </div>
 
 <div class="deck-footer">
-  <span class="brand"><span class="triangle"></span> Iter 3 · Demo Observer 3종</span>
+  <span class="brand"><span class="triangle"></span> Iter 3 · Demo Observer 4종</span>
   <span>출력 원본: assets/iter3-demo-output.txt</span>
 </div>
 

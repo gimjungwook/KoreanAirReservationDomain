@@ -2,13 +2,15 @@
 [BOOT] event subscribers loaded
   SeatHoldMonitor    .subscriberCount = 1
   PaymentProcessor   .subscriberCount = 1
+  TicketPublisher    .subscriberCount = 1
   → ReservationHoldListener         registered
   → ReservationAutoCancelListener   registered
+  → BusTicketPurchaseListener       registered
   → AffectedReservationListener     attached per FlightSchedule
 
 --- SC-01 Seat hold expiry (HoldMonitor.sweep) ---
 [STATE] Initiated -> PendingPayment
-[INIT] tracked seat 12A (PNR=PNR-DEMO01, holdExpiresAt=2026-05-14T10:19:36.616948)
+[INIT] tracked seat 12A (PNR=PNR-DEMO01, holdExpiresAt=2026-05-15T16:04:05.032350)
 [HOLD-EXPIRY] seat 12A released
 [STATE] PendingPayment -> Cancelled
 [HOLD-EXPIRY] PNR=PNR-DEMO01 auto-cancelled
@@ -28,16 +30,24 @@
 [FLIGHT-CANCEL] PNR=PNR-DEMO03B flight=KE001 SCHEDULED -> CANCELLED
 [RESULT] schedule.status=CANCELLED
 
---- SC-04 Mileage payment ---
+--- SC-04 Linked premium express bus ticket ---
+[STATE] Initiated -> PendingPayment
+[STATE] PendingPayment -> Confirmed
+[TICKET] e-Ticket KE-260515-0001 issued for Kim Jaeho
+[STATE] Confirmed -> Ticketed
+[BUS] premium bus ticket KOBUS-260515-0001 issued: city=부산 pnr=PNR-DEMO04-BUS fare=39,000
+[RESULT] linkedBusTickets=1 reservation=Ticketed
+
+--- SC-05 Connecting itinerary (MCT check) ---
+[ICN→NRT→JFK 120m layover] valid=true
+[ICN→NRT→JFK 20m layover ] valid=false
+
+--- SC-06 Mileage payment ---
 [STATE] Initiated -> PendingPayment
 [MILEAGE] balance before = 50000
 [MILEAGE] balance after  = 20000
 [MILEAGE] external skypass.deduct = true
 [STATE] PendingPayment -> Confirmed
 [RESULT] payment=PAID reservation=Confirmed
-
---- SC-05 Connecting itinerary (MCT check) ---
-[ICN→NRT→JFK 120m layover] valid=true
-[ICN→NRT→JFK 20m layover ] valid=false
 
 ==== Iter3 demo runner done ====
