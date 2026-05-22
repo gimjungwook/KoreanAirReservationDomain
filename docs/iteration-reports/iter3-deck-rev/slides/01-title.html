@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 01 · Cover</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .cover { justify-content: center; }
+  .cover .iter-step { font-family: var(--mono); font-size: 24px; font-weight: 700; letter-spacing: 0.28em; color: var(--new); margin-bottom: 22px; }
+  .cover h1 { font-size: 118px; line-height: 0.98; letter-spacing: -0.045em; font-weight: 800; }
+  .cover h1 .obs { color: var(--event); }
+  .cover .subtitle { margin-top: 26px; font-size: 34px; color: var(--fg-muted); font-weight: 600; max-width: 1200px; line-height: 1.35; }
+  .cover .badge-row { margin-top: 44px; }
+  .cover .team { position: absolute; bottom: 90px; left: 96px; font-size: 22px; color: var(--fg-faint); font-weight: 600; }
+  .cover .team b { color: var(--fg); }
+  #coverFx { position: absolute; top: -120px; right: -180px; width: 1200px; height: 1000px; z-index: 0; opacity: 0.95; }
+</style>
+</head>
+<body>
+<section class="slide cover no-aurora">
+  <canvas id="coverFx"></canvas>
+  <div style="position:relative; z-index:2;">
+    <div class="iter-step">ITERATION 3 / 4 · REVISION</div>
+    <h1>Korean Air Reservation<br>— <span class="obs">Observer</span> 패턴</h1>
+    <div class="subtitle">발행자는 자기 상태 변화를 모르는 객체들에게 통지한다.<br>좌석 hold 만료 · 결제 실패 · 항공편 변경 — 같은 구조, 한 번의 패턴.</div>
+    <div class="badge-row">
+      <span class="badge">ECE312 객체지향 설계패턴</span>
+      <span class="badge accent">State → Strategy → Observer</span>
+      <span class="badge">Java 17 · AmaterasUML</span>
+    </div>
+  </div>
+  <div class="team">A팀 · <b>김정욱 · 이재호 · 김경동</b> · 한동대학교 · 2026년 1학기</div>
+</section>
+<script src="../vendor/three.min.js"></script>
+<script src="../assets/widgets.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    const c = document.getElementById('coverFx');
+    try { if (window.OODP && window.THREE) OODP.cover(c); } catch (e) { console.warn(e); }
+  });
+</script>
+</body>
+</html>

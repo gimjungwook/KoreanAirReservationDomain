@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 04 · 도입 동기</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .mot-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; margin-top: 26px; flex: 1; min-height: 0; }
+  .code-frame { max-height: 100%; }
+  .problem h3 { font-size: 30px; margin-bottom: 18px; color: var(--listener); }
+  .problem .src-list { list-style: none; margin-bottom: 26px; }
+  .problem .src-list li { display: flex; gap: 14px; align-items: flex-start; padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 23px; color: var(--fg-muted); }
+  .problem .src-list li .n { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--subject-bg); color: var(--subject); font-weight: 800; font-family: var(--mono); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .problem .src-list li b { color: var(--fg); }
+  .consequence { background: var(--listener-bg); border-left: 4px solid var(--listener); border-radius: 0 12px 12px 0; padding: 22px 26px; }
+  .consequence li { font-size: 22px; color: var(--fg-muted); line-height: 1.5; margin-left: 22px; }
+  .consequence li b { color: var(--listener); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="masthead"><span class="paper-cite">PART 1 · Observer · <b>도입 동기</b></span><span class="slide-counter">05 / 22</span></header>
+  <div class="slide-head" style="margin-top:108px">
+    <span class="eyebrow subject"><span class="dot"></span> 문제</span>
+    <h1 class="slide-title">발생원이 셋으로 늘면 호출자가 비대해진다.</h1>
+  </div>
+
+  <div class="mot-grid">
+    <div class="code-frame">
+      <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">iter2 · <b>BookingController</b>.confirmPayment</span></div>
+<pre class="code-body"><span class="kw">if</span> (payment.getStatus() == PaymentStatus.<span class="ty">PAID</span>) {
+    reservation.addPayment(payment);
+    reservation.processPayment();
+} <span class="kw">else</span> {
+    <span class="hot">reservation.handlePaymentFailure();</span>   <span class="cm">// 호출자가 부수효과 책임</span>
+}</pre>
+    </div>
+
+    <div class="problem">
+      <h3>iter3에서 같은 "자동 취소"가 필요한 발생원</h3>
+      <ul class="src-list">
+        <li><span class="n">1</span><span><b>좌석 hold 15분 만료</b> — SeatHoldMonitor가 발견</span></li>
+        <li><span class="n">2</span><span><b>결제 실패</b> — PaymentProcessor가 발견</span></li>
+        <li><span class="n">3</span><span><b>FlightSchedule 취소</b> — 관리자 명령</span></li>
+      </ul>
+      <div class="consequence">
+        <ul>
+          <li>호출자가 <b>N배로 비대</b>해진다</li>
+          <li>같은 코드가 <b>세 곳에 복제</b>된다</li>
+          <li>새 발생원마다 호출자 수정 → <b>OCP 위반</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot"><span>호출자 = 자기 책임 아닌 후속 처리까지 떠안음</span><span>해법: 발생원을 Subject로, 부수효과를 Listener로</span></footer>
+</section>
+</body>
+</html>

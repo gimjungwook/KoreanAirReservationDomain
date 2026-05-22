@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 13 · Seq 환승 MCT</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+  .panel-area { margin-top: 22px; flex: 1; min-height: 0; }
+  .diagram-frame { height: 100%; }
+  .code-frame { height: 100%; }
+  .code-body { font-size: 20px; }
+  .mct-chip { display: inline-flex; gap: 8px; align-items: center; font-family: var(--mono); font-size: 16px; color: var(--ecb-boundary); background: var(--ecb-boundary-bg); padding: 4px 12px; border-radius: 999px; }
+</style>
+</head>
+<body>
+<section class="slide" id="root">
+  <header class="masthead"><span class="paper-cite">PART 3 · Sequence · <b>환승 MCT 검증</b></span><span class="slide-counter">16 / 22</span></header>
+  <div class="head-row" style="margin-top:104px">
+    <div>
+      <span class="eyebrow listener"><span class="dot"></span> 데모의 120분 통과 / 20분 탈락은 이 한 줄</span>
+      <h1 class="slide-title" style="margin-bottom:0">환승 시간 검증 — layover ≥ MCT.</h1>
+    </div>
+    <div class="seg">
+      <button class="on" data-show="diagram">Sequence</button>
+      <button data-show="code">Itinerary</button>
+    </div>
+  </div>
+
+  <div class="panel-area">
+    <div data-panel="diagram" class="diagram-frame">
+      <img src="../assets/diagrams/connectingSearch-iter3.png" alt="Sequence — connecting itinerary MCT">
+      <div class="diagram-cap">AmaterasUML · connectingSearch-iter3 · ItinerarySearchService가 통과한 Itinerary만 반환</div>
+    </div>
+    <div data-panel="code" class="code-frame" style="display:none">
+      <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">domain/reservation/<b>Itinerary</b>.isConnectionTimeValid</span><span class="role event">ENTITY</span></div>
+<pre class="code-body"><span class="cm">// MCT: 국내 60분 / 국제 90분</span>
+<span class="kw">public boolean</span> isConnectionTimeValid(<span class="ty">Duration</span> minimumConnectionTime) {
+    <span class="kw">if</span> (segments.size() &lt; <span class="nu">2</span> || minimumConnectionTime == <span class="kw">null</span>) <span class="kw">return true</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i &lt; segments.size() - <span class="nu">1</span>; i++) {
+        <span class="ty">Segment</span> a = segments.get(i), b = segments.get(i + <span class="nu">1</span>);
+        <span class="kw">if</span> (a.getArrivalTime() == <span class="kw">null</span> || b.getDepartureTime() == <span class="kw">null</span>)
+            <span class="kw">return false</span>;
+        <span class="hot"><span class="ty">Duration</span> layover = <span class="ty">Duration</span>.between(a.getArrivalTime(), b.getDepartureTime());
+        <span class="kw">if</span> (layover.compareTo(minimumConnectionTime) &lt; <span class="nu">0</span>) <span class="kw">return false</span>;</span>
+    }
+    <span class="kw">return true</span>;
+}</pre>
+    </div>
+  </div>
+
+  <footer class="foot"><span><span class="mct-chip">ICN→NRT→JFK · 120m → valid</span> &nbsp; <span class="mct-chip">20m → invalid</span></span><span>layover = arrival(a) ↔ departure(b)</span></footer>
+</section>
+<script src="../assets/widgets.js"></script>
+<script>OODP.codeToggle(document.getElementById('root'));</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 11 · 정합성 매트릭스</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .trace { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 30px; align-items: stretch; }
+  .tcell { position: relative; border: 2px solid var(--border); border-radius: 16px; padding: 24px 26px; background: var(--bg-card); margin-right: 36px; }
+  .tcell:last-child { margin-right: 0; }
+  .tcell::after { content: "→"; position: absolute; right: -30px; top: 50%; transform: translateY(-50%); font-size: 30px; color: var(--new); font-weight: 800; }
+  .tcell:last-child::after { display: none; }
+  .tcell .layer { font-family: var(--mono); font-size: 16px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 14px; }
+  .tcell.uc .layer  { color: var(--event); }
+  .tcell.seq .layer { color: var(--listener); }
+  .tcell.cls .layer { color: var(--subject); }
+  .tcell.st .layer  { color: var(--ecb-boundary); }
+  .tcell .what { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--fg); line-height: 1.35; }
+  .tcell .det { font-size: 18px; color: var(--fg-faint); margin-top: 10px; line-height: 1.45; }
+  .req { margin-top: 26px; text-align: center; font-size: 22px; color: var(--fg-muted); }
+  .req b { color: var(--new); }
+  .axes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 40px; }
+  .axis { border: 2px solid var(--subject-lo); background: var(--subject-bg); border-radius: 14px; padding: 22px 26px; }
+  .axis h4 { font-family: var(--mono); font-size: 22px; color: var(--subject); margin-bottom: 8px; }
+  .axis p { font-size: 20px; color: var(--fg-muted); line-height: 1.45; }
+  .axis .ck { color: var(--subject); font-weight: 800; }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="masthead"><span class="paper-cite">PART 2 · 정합성 · <b>cross-consistency</b></span><span class="slide-counter">13 / 22</span></header>
+  <div class="slide-head" style="margin-top:104px">
+    <span class="eyebrow new"><span class="dot"></span> 하나의 요구사항이 네 다이어그램을 관통</span>
+    <h1 class="slide-title" style="margin-bottom:0">"결제 실패 시 자동 취소"를 추적하면.</h1>
+  </div>
+
+  <div class="trace">
+    <div class="tcell uc"><div class="layer">USE CASE</div><div class="what">Auto-cancel on Hold/Payfail</div><div class="det">«extend» Make Payment</div></div>
+    <div class="tcell seq"><div class="layer">SEQUENCE</div><div class="what">PaymentFailed 흐름</div><div class="det">PP → publish → Listener → R</div></div>
+    <div class="tcell cls"><div class="layer">CLASS</div><div class="what">ReservationAutoCancelListener</div><div class="det">onEvent(PaymentFailedEvent)</div></div>
+    <div class="tcell st"><div class="layer">STATE</div><div class="what">PendingPayment → Cancelled</div><div class="det">handlePaymentFailure()</div></div>
+  </div>
+  <div class="req">하나의 <b>요구사항</b>이 UC → Sequence → Class → State를 거쳐 <b>같은 코드 한 줄</b>로 떨어진다.</div>
+
+  <div class="axes">
+    <div class="axis"><h4><span class="ck">✓</span> State ↔ Class</h4><p>상태 전이 메서드(<code>handlePaymentFailure</code>)가 클래스의 listener 호출과 일치</p></div>
+    <div class="axis"><h4><span class="ck">✓</span> Sequence ↔ Class</h4><p>시퀀스 참여자가 모두 구체 ECB 클래스 — 추상 "System" 없음</p></div>
+    <div class="axis"><h4><span class="ck">✓</span> Sequence ↔ State</h4><p>시퀀스 마지막 Note의 전이가 State diagram 전이와 일치</p></div>
+  </div>
+
+  <footer class="foot"><span>평가 핵심: 다이어그램 개수가 아니라 연결 논리</span><span>세 정합성 축 모두 점검 완료</span></footer>
+</section>
+</body>
+</html>

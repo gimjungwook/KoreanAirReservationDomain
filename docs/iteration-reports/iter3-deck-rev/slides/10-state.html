@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 10 · State</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .state-flow { display: flex; align-items: center; gap: 10px; margin-top: 34px; flex-wrap: wrap; }
+  .st { border: 2px solid var(--border-strong); border-radius: 12px; padding: 16px 20px; font-family: var(--mono); font-size: 21px; font-weight: 700; background: var(--bg-card); }
+  .st.terminal { border-style: dashed; color: var(--fg-faint); }
+  .st.cancel { border-color: var(--listener); color: var(--listener); background: var(--listener-bg); }
+  .ar { color: var(--fg-quiet); font-family: var(--mono); font-size: 18px; }
+  .ev-arrow { color: var(--event); font-weight: 700; }
+  .impact { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 40px; }
+  .icard { border-left: 4px solid var(--event); background: var(--event-bg); border-radius: 0 14px 14px 0; padding: 24px 30px; }
+  .icard h4 { font-size: 26px; color: var(--event); margin-bottom: 10px; font-family: var(--mono); }
+  .icard p { font-size: 22px; color: var(--fg-muted); line-height: 1.5; }
+  .icard p code { font-family: var(--mono); font-size: 0.9em; background: #fff; padding: 0.05em 0.4em; border-radius: 5px; color: var(--fg); }
+  .keypoint { margin-top: 30px; background: var(--subject-bg); border-radius: 14px; padding: 22px 30px; font-size: 24px; color: var(--fg-muted); line-height: 1.5; }
+  .keypoint b { color: var(--subject); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="masthead"><span class="paper-cite">PART 2 · 정합성 · <b>State Diagram 변화</b></span><span class="slide-counter">12 / 22</span></header>
+  <div class="slide-head" style="margin-top:104px">
+    <span class="eyebrow subject"><span class="dot"></span> 새 상태는 없다 — 전이에 통지가 붙는다</span>
+    <h1 class="slide-title" style="margin-bottom:0">Reservation 상태는 그대로, 부수효과만 추가.</h1>
+  </div>
+
+  <div class="state-flow">
+    <span class="st">Initiated</span><span class="ar">→</span>
+    <span class="st">PendingPayment</span><span class="ar">→</span>
+    <span class="st">Confirmed</span><span class="ar">→</span>
+    <span class="st">Ticketed</span>
+    <span class="ar" style="margin-left:20px">⌎ <span class="ev-arrow">결제 실패/만료 시</span> ⌏</span>
+    <span class="st cancel">Cancelled</span>
+  </div>
+
+  <div class="impact">
+    <div class="icard">
+      <h4>Seat</h4>
+      <p><code>Held → Available</code> 전이가 <code>SeatHoldMonitor.sweep</code>으로 트리거되고, listener가 좌석 해제 + 예약 취소를 수행.</p>
+    </div>
+    <div class="icard">
+      <h4>FlightSchedule</h4>
+      <p>모든 <code>changeStatus(...)</code> 호출이 <code>FlightStatusChangedEvent</code> 발행을 동반 → 영향받는 예약에 전파.</p>
+    </div>
+  </div>
+
+  <div class="keypoint">
+    설계 판단: iter3는 새 상태를 만든 반복이 아니라 <b>기존 상태 전이에 이벤트 발행이라는 부수효과를 얹은</b> 반복이다. State 패턴(iter1)의 전이 가능 여부 판단은 그대로 유지된다.
+  </div>
+
+  <footer class="foot"><span>State diagram: Reservation / Seat / FlightSchedule</span><span>전이 자체는 iter1 State 패턴 — iter3는 통지를 부착</span></footer>
+</section>
+</body>
+</html>

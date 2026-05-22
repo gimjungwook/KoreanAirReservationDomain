@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 06 · 왜 Observer</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .why-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 44px; margin-top: 28px; flex: 1; min-height: 0; align-items: start; }
+  .dtable .fit { font-size: 26px; text-align: center; }
+  .crit { display: flex; flex-direction: column; gap: 18px; justify-content: center; }
+  .crit .cc { border: 2px solid var(--border); border-radius: 16px; padding: 22px 28px; }
+  .crit .cc.pick { border-color: var(--subject); background: var(--subject-bg); }
+  .crit .cc h4 { font-size: 26px; margin-bottom: 6px; }
+  .crit .cc.pick h4 { color: var(--subject); }
+  .crit .cc p { font-size: 21px; color: var(--fg-muted); line-height: 1.45; }
+  .crit .cc p b { color: var(--fg); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="masthead"><span class="paper-cite">PART 1 · Observer · <b>패턴 선택 근거</b></span><span class="slide-counter">07 / 22</span></header>
+  <div class="slide-head" style="margin-top:108px">
+    <span class="eyebrow subject"><span class="dot"></span> 왜 다른 패턴이 아닌가</span>
+    <h1 class="slide-title">1-to-N 통지 + 느슨한 결합 = Observer.</h1>
+  </div>
+
+  <div class="why-grid">
+    <table class="dtable">
+      <thead><tr><th>후보 패턴</th><th class="fit">적합</th><th>기각 이유</th></tr></thead>
+      <tbody>
+        <tr class="is-new"><td><b>Observer</b></td><td class="fit yes">✅</td><td>1-to-N 통지 + Subject가 Observer 구현을 모름. <b>채택</b></td></tr>
+        <tr><td>Mediator</td><td class="fit maybe">△</td><td>Subject가 셋뿐 — 중재자 과잉</td></tr>
+        <tr><td>Chain of Responsibility</td><td class="fit no">❌</td><td>한 핸들러만 처리 — 우리는 N개가 모두 수신</td></tr>
+        <tr><td>Command</td><td class="fit no">❌</td><td>"실행 단위 객체화"가 목적 — 통지 목적과 다름</td></tr>
+        <tr><td>Pub-Sub (브로커)</td><td class="fit maybe">△</td><td>인프라 단위 — 클래스 단위 학습 범위 밖</td></tr>
+      </tbody>
+    </table>
+
+    <div class="crit">
+      <div class="cc pick"><h4>① 1-to-N 통지</h4><p>한 번의 publish가 <b>모든 listener</b>에게 broadcast. hold·결제·항공편 어떤 발생원도 동일.</p></div>
+      <div class="cc pick"><h4>② 느슨한 결합</h4><p>Subject는 <code>EventListener</code> 인터페이스만 안다. 구현 클래스 추가는 <b>subscribe 한 줄</b> — 호출자 불변.</p></div>
+      <div class="cc"><h4>③ push 모델</h4><p><code>DomainEvent</code> 서브클래스가 payload를 들고 있어 listener가 subject를 <b>재조회할 필요 없음</b>.</p></div>
+    </div>
+  </div>
+
+  <footer class="foot"><span>패턴 선택 = 정답 암기가 아니라 맥락 적합성</span><span>OCP 만족 — 새 발생원·새 listener에 호출자 불변</span></footer>
+</section>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 07 · Observer 코드</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+  .panel-area { margin-top: 22px; flex: 1; min-height: 0; }
+  .codes { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; height: 100%; }
+  .code-frame { min-height: 0; }
+  .code-body { font-size: 18px; line-height: 1.5; }
+  /* structure panel */
+  .struct { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; height: 100%; align-content: center; }
+  .scol h4 { font-size: 22px; margin-bottom: 14px; font-family: var(--mono); letter-spacing: 0.04em; }
+  .scol.s-subj h4 { color: var(--subject); }
+  .scol.s-list h4 { color: var(--listener); }
+  .scol.s-ev h4 { color: var(--event); }
+  .sbox { border: 2px solid var(--border); border-radius: 14px; padding: 18px 22px; margin-bottom: 14px; background: var(--bg-card); }
+  .sbox .nm { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--fg); }
+  .sbox .mt { font-family: var(--mono); font-size: 17px; color: var(--fg-faint); margin-top: 6px; }
+  .sbox.base { border-style: dashed; }
+  .scol.s-subj .sbox.base { border-color: var(--subject-lo); background: var(--subject-bg); }
+  .scol.s-list .sbox.base { border-color: var(--listener-lo); background: var(--listener-bg); }
+  .scol.s-ev .sbox.base { border-color: var(--event-lo); background: var(--event-bg); }
+  .ext { text-align: center; color: var(--fg-quiet); font-family: var(--mono); font-size: 15px; margin: 2px 0 8px; }
+</style>
+</head>
+<body>
+<section class="slide" id="root">
+  <header class="masthead"><span class="paper-cite">PART 1 · Observer · <b>실제 소스</b></span><span class="slide-counter">08 / 22</span></header>
+  <div class="head-row" style="margin-top:104px">
+    <div>
+      <span class="eyebrow event"><span class="dot"></span> 디펜스 — 다이어그램 ↔ 코드</span>
+      <h1 class="slide-title" style="margin-bottom:0">domain/event/ 패키지의 실제 구현.</h1>
+    </div>
+    <div class="seg">
+      <button class="on" data-show="diagram">구조</button>
+      <button data-show="code">실제 코드</button>
+    </div>
+  </div>
+
+  <div class="panel-area">
+    <!-- 구조 패널 -->
+    <div data-panel="diagram" class="struct">
+      <div class="scol s-subj">
+        <h4>«abstract» Subject</h4>
+        <div class="sbox base"><div class="nm">EventPublisher</div><div class="mt">+subscribe / +unsubscribe<br>#publish(DomainEvent)</div></div>
+        <div class="ext">▲ extends</div>
+        <div class="sbox"><div class="nm">SeatHoldMonitor</div></div>
+        <div class="sbox"><div class="nm">PaymentProcessor</div></div>
+        <div class="sbox"><div class="nm">FlightSchedule</div></div>
+      </div>
+      <div class="scol s-list">
+        <h4>«interface» Observer</h4>
+        <div class="sbox base"><div class="nm">EventListener</div><div class="mt">+onEvent(DomainEvent)</div></div>
+        <div class="ext">▲ implements</div>
+        <div class="sbox"><div class="nm">ReservationHoldListener</div></div>
+        <div class="sbox"><div class="nm">ReservationAutoCancelListener</div></div>
+        <div class="sbox"><div class="nm">AffectedReservationListener</div></div>
+        <div class="sbox"><div class="nm">BusTicketPurchaseListener</div></div>
+      </div>
+      <div class="scol s-ev">
+        <h4>«abstract» Event</h4>
+        <div class="sbox base"><div class="nm">DomainEvent</div><div class="mt">+occurredAt · +sourceId<br>+getEventType()</div></div>
+        <div class="ext">▲ extends</div>
+        <div class="sbox"><div class="nm">SeatHoldExpiredEvent</div></div>
+        <div class="sbox"><div class="nm">PaymentFailedEvent</div></div>
+        <div class="sbox"><div class="nm">FlightStatusChangedEvent</div></div>
+        <div class="sbox"><div class="nm">TicketIssuedEvent</div></div>
+      </div>
+    </div>
+
+    <!-- 코드 패널 -->
+    <div data-panel="code" class="codes" style="display:none">
+      <div class="code-frame">
+        <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">domain/event/<b>EventPublisher</b>.java</span><span class="role subject">SUBJECT</span></div>
+<pre class="code-body"><span class="kw">public class</span> <span class="ty">EventPublisher</span> {
+  <span class="kw">private final</span> <span class="ty">List</span>&lt;<span class="ty">EventListener</span>&gt; listeners
+      = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+
+  <span class="kw">public void</span> subscribe(<span class="ty">EventListener</span> l) {
+    <span class="kw">if</span> (l == <span class="kw">null</span> || listeners.contains(l)) <span class="kw">return</span>;
+    listeners.add(l);
+  }
+
+  <span class="kw">protected void</span> <span class="hot">publish</span>(<span class="ty">DomainEvent</span> event) {
+    <span class="kw">for</span> (<span class="ty">EventListener</span> l : <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(listeners)) {
+      <span class="kw">try</span> { l.onEvent(event); }            <span class="cm">// 1-to-N broadcast</span>
+      <span class="kw">catch</span> (<span class="ty">RuntimeException</span> ex) {        <span class="cm">// 한 listener 실패가</span>
+        log(l, event, ex);                <span class="cm">// 다른 통지를 끊지 않음</span>
+      }
+    }
+  }
+}</pre>
+      </div>
+      <div class="code-frame">
+        <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">control/<b>ReservationAutoCancelListener</b>.java</span><span class="role listener">LISTENER</span></div>
+<pre class="code-body"><span class="kw">public class</span> <span class="ty">ReservationAutoCancelListener</span>
+    <span class="kw">implements</span> <span class="ty">EventListener</span> {
+
+  <span class="an">@Override</span>
+  <span class="kw">public void</span> onEvent(<span class="ty">DomainEvent</span> event) {
+    <span class="hot"><span class="kw">if</span> (!(event <span class="kw">instanceof</span> <span class="ty">PaymentFailedEvent</span>))
+      <span class="kw">return</span>;</span>                            <span class="cm">// 자기 타입만 처리</span>
+    <span class="ty">PaymentFailedEvent</span> e = (<span class="ty">PaymentFailedEvent</span>) event;
+    <span class="ty">Reservation</span> r = <span class="ty">Reservation</span>.findByPnr(e.getReservationPnr());
+    <span class="kw">if</span> (r == <span class="kw">null</span>) <span class="kw">return</span>;
+    r.handlePaymentFailure();             <span class="cm">// iter1 State 전이 호출</span>
+    println(<span class="st">"[AUTO-CANCEL] "</span> + e.getReason());
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot"><span>publish = 동기 broadcast + try-catch 격리</span><span>onEvent = instanceof로 selective handling</span></footer>
+</section>
+<script src="../assets/widgets.js"></script>
+<script>OODP.codeToggle(document.getElementById('root'));</script>
+</body>
+</html>

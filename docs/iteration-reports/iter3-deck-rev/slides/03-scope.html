@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 03 · 범위·변경분</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .scope-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 40px; margin-top: 26px; flex: 1; min-height: 0; }
+  .scope-grid .legend-new { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; color: var(--new); font-weight: 700; margin-bottom: 10px; }
+  .scope-grid .legend-new i { width: 16px; height: 16px; border-radius: 4px; background: var(--new-bg); border: 1px solid var(--new); }
+  .stats { display: flex; flex-direction: column; gap: 18px; justify-content: center; }
+  .statcard { border: 2px solid var(--border); border-radius: 18px; padding: 26px 30px; }
+  .statcard .big { font-size: 64px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .statcard.a .big { color: var(--new); }
+  .statcard.b .big { color: var(--subject); }
+  .statcard .lab { font-size: 21px; color: var(--fg-muted); font-weight: 600; margin-top: 8px; }
+  .statcard .sub { font-size: 17px; color: var(--fg-faint); margin-top: 4px; font-family: var(--mono); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="masthead"><span class="paper-cite">Korean Air Reservation · <b>Iteration 3 scope</b></span><span class="slide-counter">03 / 22</span></header>
+  <div class="slide-head" style="margin-top:108px">
+    <span class="eyebrow new"><span class="dot"></span> 범위 · 변경분 (빨강 = iter2 대비 신규)</span>
+    <h1 class="slide-title">무엇을 새로 채웠는가.</h1>
+  </div>
+
+  <div class="scope-grid">
+    <div>
+      <span class="legend-new"><i></i> iter2 대비 변경·신규</span>
+      <table class="dtable">
+        <thead><tr><th class="col-icon"></th><th>영역</th><th>Iteration 2</th><th>Iteration 3</th></tr></thead>
+        <tbody>
+          <tr class="is-new"><td class="col-icon">📡</td><td><b>부수효과 처리</b></td><td>호출자에서 직접 호출</td><td>Subject가 publish, <b>3 listener 수신·처리</b></td></tr>
+          <tr class="is-new"><td class="col-icon">🪑</td><td><b>좌석 hold 만료</b></td><td>미구현 (수동 해제)</td><td><b>SeatHoldMonitor.sweep</b> 자동 해제·취소</td></tr>
+          <tr class="is-new"><td class="col-icon">💳</td><td><b>결제 실패</b></td><td>호출자에서 직접 처리</td><td><b>PaymentFailedEvent → AutoCancelListener</b></td></tr>
+          <tr class="is-new"><td class="col-icon">✈️</td><td><b>항공편 변경</b></td><td>stub</td><td><b>changeStatus publish → 영향 예약 통지</b></td></tr>
+          <tr class="is-new"><td class="col-icon">🛫</td><td><b>Itinerary</b></td><td>DIRECT 1구간</td><td><b>CONNECTING + MULTI_CITY · MCT 검증</b></td></tr>
+          <tr class="is-new"><td class="col-icon">💴</td><td><b>결제 수단</b></td><td>카드만</td><td><b>MILEAGE 분기 + Skypass mock</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stats">
+      <div class="statcard a"><div class="big">19</div><div class="lab">변경 파일 (수정 6 + 신규 13)</div><div class="sub">domain/event/ 신규 패키지 포함</div></div>
+      <div class="statcard b"><div class="big">1 → N</div><div class="lab">호출자 직접 호출 → broadcast</div><div class="sub">새 발생원 = listener 등록 한 줄</div></div>
+      <div class="statcard a"><div class="big">3</div><div class="lab">같은 자동 취소가 필요한 발생원</div><div class="sub">hold 만료 · 결제 실패 · 항공편 취소</div></div>
+    </div>
+  </div>
+
+  <footer class="foot"><span>교수 피드백 반영 — 변경분 빨강 표기</span><span>총 19 파일 · Observer 1회 도입 → 3곳 재사용</span></footer>
+</section>
+</body>
+</html>

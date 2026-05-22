@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 16 · 디펜스 맵</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .qmap { width: 100%; border-collapse: collapse; font-size: 22px; margin-top: 26px; }
+  .qmap th { text-align: left; font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint); padding: 14px 18px; border-bottom: 2px solid var(--border-strong); }
+  .qmap td { padding: 17px 18px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.4; }
+  .qmap .q { font-weight: 700; color: var(--fg); width: 38%; }
+  .qmap .a { color: var(--fg-muted); }
+  .qmap .a b { color: var(--event); }
+  .qmap .loc { font-family: var(--mono); font-size: 18px; color: var(--subject); white-space: nowrap; }
+  .qmap tr:hover td { background: var(--bg-elevated); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="masthead"><span class="paper-cite">PART 4 · 디펜스 · <b>예상 질문 ↔ 근거</b></span><span class="slide-counter">20 / 22</span></header>
+  <div class="slide-head" style="margin-top:104px">
+    <span class="eyebrow new"><span class="dot"></span> 질문이 오면 이 위치로 점프</span>
+    <h1 class="slide-title" style="margin-bottom:0">질문마다 보여줄 코드·다이어그램을 미리 짝지었다.</h1>
+  </div>
+
+  <table class="qmap">
+    <thead><tr><th>예상 질문</th><th>답</th><th>근거 위치</th></tr></thead>
+    <tbody>
+      <tr><td class="q">왜 동기 broadcast인가?</td><td class="a">학습 범위 — listener를 publisher 스레드에서 직접 호출. 비동기 큐는 iter4 밖.</td><td class="loc">07 · EventPublisher.publish for-loop</td></tr>
+      <tr><td class="q">listener 하나가 죽으면?</td><td class="a"><b>try-catch로 격리</b> — 한 listener 예외가 다른 통지를 끊지 않음.</td><td class="loc">07 · publish catch 블록</td></tr>
+      <tr><td class="q">왜 push 모델인가?</td><td class="a"><b>DomainEvent 서브클래스가 payload 보유</b> → listener가 subject 재조회 불필요.</td><td class="loc">07 · PaymentFailedEvent 필드</td></tr>
+      <tr><td class="q">새 발생원을 추가하려면?</td><td class="a">Subject는 <code>EventPublisher</code> 상속, listener는 <code>subscribe</code> 한 줄. <b>호출자 불변(OCP)</b>.</td><td class="loc">06 · 패턴 선택 근거</td></tr>
+      <tr><td class="q">왜 새 상태를 안 만들었나?</td><td class="a">iter3는 통지를 부착한 반복 — 전이는 iter1 State 그대로.</td><td class="loc">10 · State 변화</td></tr>
+      <tr><td class="q">다이어그램 정합성은?</td><td class="a">하나의 요구사항이 UC→Seq→Class→State로 일관 추적됨.</td><td class="loc">11 · 정합성 매트릭스</td></tr>
+    </tbody>
+  </table>
+
+  <footer class="foot"><span>발표 중 교수 요구 수정은 다음 반복에 반영 — iterative</span><span>모든 답은 실제 소스로 시연 가능</span></footer>
+</section>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 14 · 라이브 데모</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .demo-grid { display: grid; grid-template-columns: 320px 1fr; gap: 30px; margin-top: 24px; flex: 1; min-height: 0; }
+  .demo-side { display: flex; flex-direction: column; gap: 16px; }
+  .demo-tabs { display: flex; flex-direction: column; gap: 10px; }
+  .demo-tabs button { text-align: left; }
+  .real-note { margin-top: auto; background: var(--subject-bg); border-radius: 12px; padding: 18px 20px; font-size: 18px; color: var(--fg-muted); line-height: 1.5; }
+  .real-note b { color: var(--subject); }
+  .real-note code { font-family: var(--mono); font-size: 0.85em; }
+  .console { height: 100%; }
+</style>
+</head>
+<body>
+<section class="slide" id="root">
+  <header class="masthead"><span class="paper-cite">PART 3 · <b>라이브 데모 — 실제 콘솔 캡처</b></span><span class="slide-counter">17 / 22</span></header>
+  <div class="slide-head" style="margin-top:104px">
+    <span class="eyebrow new"><span class="dot"></span> 인터랙티브 — mockup 아님</span>
+    <h1 class="slide-title" style="margin-bottom:0">Iter3DemoRunner를 실제로 돌린 출력.</h1>
+  </div>
+
+  <div class="demo-grid">
+    <div class="demo-side">
+      <div class="demo-tabs"></div>
+      <div class="real-note"><b>실행 명령</b><br><code>java -cp bin<br>com.koreanair.reservation.app.Iter3DemoRunner</code><br>같은 명령 = 같은 출력.</div>
+    </div>
+    <div class="console">
+      <div class="cbar"><span class="dots"><i></i><i></i><i></i></span><span>iter3-demo-output · stdout</span></div>
+      <div class="clog"></div>
+    </div>
+  </div>
+
+  <footer class="foot"><span>모든 출력은 listener가 처리하는 부수효과</span><span>탭으로 시나리오 선택 → 타이프라이터 재생</span></footer>
+</section>
+<script src="../assets/widgets.js"></script>
+<script>
+  const SCENARIOS = [
+    { id:'sc1', label:'SC-01 좌석 hold 만료', lines:[
+      '--- SC-01 Seat hold expiry (HoldMonitor.sweep) ---',
+      '[STATE] Initiated -> PendingPayment',
+      '[INIT] tracked seat 12A (PNR=PNR-DEMO01)',
+      '[HOLD-EXPIRY] seat 12A released',
+      '[STATE] PendingPayment -> Cancelled',
+      '[HOLD-EXPIRY] PNR=PNR-DEMO01 auto-cancelled',
+      '[SWEEP] fired=1 events',
+      '[RESULT] seat=12A state=AVAILABLE reservation=Cancelled' ] },
+    { id:'sc2', label:'SC-02 결제 실패 자동 취소', lines:[
+      '--- SC-02 Payment failure auto-cancel ---',
+      '[STATE] Initiated -> PendingPayment',
+      '[GATEWAY] authorize -> false (amount=320000)',
+      '[STATE] PendingPayment -> Cancelled',
+      '[AUTO-CANCEL] PNR=PNR-DEMO02 reason=gateway-declined',
+      '[RESULT] payment.status=FAILED reservation=Cancelled' ] },
+    { id:'sc3', label:'SC-03 항공편 변경 전파', lines:[
+      '--- SC-03 FlightSchedule status propagation ---',
+      '[ADMIN] changeFlightStatus(KE001, CANCELLED)',
+      '[FLIGHT-CANCEL] PNR=PNR-DEMO03A flight=KE001 SCHEDULED -> CANCELLED',
+      '[FLIGHT-CANCEL] PNR=PNR-DEMO03B flight=KE001 SCHEDULED -> CANCELLED',
+      '[RESULT] schedule.status=CANCELLED' ] },
+    { id:'sc4', label:'SC-04 버스티켓 연계', lines:[
+      '--- SC-04 Linked premium express bus ticket ---',
+      '[STATE] Initiated -> PendingPayment',
+      '[STATE] PendingPayment -> Confirmed',
+      '[TICKET] e-Ticket KE-260515-0001 issued for Kim Jaeho',
+      '[STATE] Confirmed -> Ticketed',
+      '[BUS] premium bus ticket KOBUS-260515-0001 issued: city=부산 fare=39,000',
+      '[RESULT] linkedBusTickets=1 reservation=Ticketed' ] },
+    { id:'sc5', label:'SC-05 환승 MCT 검증', lines:[
+      '--- SC-05 Connecting itinerary (MCT check) ---',
+      '[ICN->NRT->JFK 120m layover] valid=true',
+      '[ICN->NRT->JFK 20m layover ] valid=false' ] },
+    { id:'sc6', label:'SC-06 마일리지 결제', lines:[
+      '--- SC-06 Mileage payment ---',
+      '[STATE] Initiated -> PendingPayment',
+      '[MILEAGE] balance before = 50000',
+      '[MILEAGE] balance after  = 20000',
+      '[MILEAGE] external skypass.deduct = true',
+      '[STATE] PendingPayment -> Confirmed',
+      '[RESULT] payment=PAID reservation=Confirmed' ] },
+  ];
+  OODP.demoConsole(document.getElementById('root'), SCENARIOS);
+</script>
+</body>
+</html>

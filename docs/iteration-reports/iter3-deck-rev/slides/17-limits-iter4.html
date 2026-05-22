@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 17 · 한계 · Iter4</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-top: 30px; flex: 1; min-height: 0; }
+  .two h3 { font-size: 30px; margin-bottom: 16px; }
+  .two .lim h3 { color: var(--listener); }
+  .two .nxt h3 { color: var(--event); }
+  .deck-list li { font-size: 23px; padding: 13px 0 13px 52px; }
+  .deck-list li code { font-family: var(--mono); font-size: 0.86em; background: var(--paper-sink); padding: 0.05em 0.4em; border-radius: 5px; color: var(--ink); }
+</style>
+</head>
+<body>
+<section class="slide">
+  <header class="masthead"><span class="paper-cite">PART 4 · 디펜스 · <b>한계 · 다음 반복</b></span><span class="slide-counter">21 / 22</span></header>
+  <div class="slide-head" style="margin-top:104px">
+    <span class="eyebrow listener"><span class="dot"></span> 의도적으로 그은 선 · 그리고 iter4</span>
+    <h1 class="slide-title" style="margin-bottom:0">남긴 것을 안다는 것도 설계다.</h1>
+  </div>
+
+  <div class="two">
+    <div class="lim">
+      <h3>🚧 의도적 한계 (iter3)</h3>
+      <ul class="deck-list warn">
+        <li><code>sweep()</code>은 수동 호출 — 실서비스는 스케줄러</li>
+        <li>broadcast는 <b>동기</b> — 비동기 큐는 범위 밖</li>
+        <li><code>MockSkypassInterface</code>는 in-memory 맵</li>
+        <li>MCT는 <b>동일 공항</b> 환승만 (도시 단위 미지원)</li>
+        <li>마일리지 <b>차감만</b> 구현 — 적립 미구현</li>
+      </ul>
+    </div>
+    <div class="nxt">
+      <h3>🔮 Iteration 4 — Singleton + Factory Method</h3>
+      <ul class="deck-list next">
+        <li><code>AppConfig</code> <b>Singleton</b> — 폰트/언어/통화 전역 설정</li>
+        <li><code>ItineraryFactory.create(...)</code> <b>Factory Method</b></li>
+        <li>관리자 예외 환불 검토 경로</li>
+        <li>e-Ticket PDF 다운로드 · 마일리지 적립</li>
+        <li>예약 실시간 추적 — <b>iter3 Observer 위에 구축</b></li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="foot"><span>한계는 숨기지 않고 명시 — 평가 신뢰의 기반</span><span>iter4는 iter3 인프라를 재사용해 확장</span></footer>
+</section>
+</body>
+</html>

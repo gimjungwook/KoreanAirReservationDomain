@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 18 · 감사</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .thx { justify-content: center; align-items: center; text-align: center; }
+  .thx h1 { font-size: 128px; letter-spacing: -0.04em; font-weight: 800; }
+  .thx .one { margin-top: 28px; font-size: 30px; color: var(--fg-muted); font-weight: 600; max-width: 1300px; line-height: 1.45; }
+  .thx .one b { color: var(--event); }
+  .thx .pats { margin-top: 40px; display: flex; gap: 14px; justify-content: center; }
+  .thx .team { position: absolute; bottom: 90px; font-size: 22px; color: var(--fg-faint); font-weight: 600; }
+  #thxFx { position: absolute; inset: 0; z-index: 0; opacity: 0.5; }
+</style>
+</head>
+<body>
+<section class="slide thx no-aurora">
+  <canvas id="thxFx"></canvas>
+  <div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center;">
+    <h1>감사합니다.</h1>
+    <div class="one">State, Strategy, Observer — 세 패턴이 각자 다른 축을 담당하며 <b>누적된 하나의 시스템</b>을 만들었습니다. 질문 주시면 해당 코드와 다이어그램으로 바로 보여드리겠습니다.</div>
+    <div class="pats">
+      <span class="badge">State</span><span class="badge">Strategy</span><span class="badge accent">Observer</span><span class="badge">→ Singleton + Factory (iter4)</span>
+    </div>
+  </div>
+  <div class="team">A팀 · 김정욱 · 이재호 · 김경동 · ECE312 객체지향 설계패턴 · 2026년 1학기</div>
+</section>
+<script src="../vendor/three.min.js"></script>
+<script src="../assets/widgets.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    const c = document.getElementById('thxFx');
+    try { if (window.OODP && window.THREE) OODP.cover(c); } catch (e) { console.warn(e); }
+  });
+</script>
+</body>
+</html>

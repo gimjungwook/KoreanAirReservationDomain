@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>OODP Iter3 (rev) · 12 · Seq 결제 실패</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<style>
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+  .panel-area { margin-top: 22px; flex: 1; min-height: 0; }
+  .diagram-frame { height: 100%; }
+  .code-frame { height: 100%; }
+  .code-body { font-size: 20px; }
+</style>
+</head>
+<body>
+<section class="slide" id="root">
+  <header class="masthead"><span class="paper-cite">PART 3 · Sequence · <b>결제 실패 자동 취소</b></span><span class="slide-counter">15 / 22</span></header>
+  <div class="head-row" style="margin-top:104px">
+    <div>
+      <span class="eyebrow listener"><span class="dot"></span> 시퀀스 화살표 ↔ 코드 한 줄</span>
+      <h1 class="slide-title" style="margin-bottom:0">publish 화살표가 곧 publish() 한 줄.</h1>
+    </div>
+    <div class="seg">
+      <button class="on" data-show="diagram">Sequence</button>
+      <button data-show="code">PaymentProcessor</button>
+    </div>
+  </div>
+
+  <div class="panel-area">
+    <div data-panel="diagram" class="diagram-frame">
+      <img src="../assets/diagrams/paymentFailureAutoCancel-iter3.png" alt="Sequence — payment failure auto cancel">
+      <div class="diagram-cap">AmaterasUML · paymentFailureAutoCancel-iter3 · PP가 publish하면 호출자 개입 없이 listener가 취소</div>
+    </div>
+    <div data-panel="code" class="code-frame" style="display:none">
+      <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">control/<b>PaymentProcessor</b>.processPaymentCharge</span><span class="role subject">SUBJECT</span></div>
+<pre class="code-body"><span class="kw">public</span> <span class="ty">Payment</span> processPaymentCharge(<span class="kw">long</span> amount, <span class="ty">String</span> reservationPnr) {
+    <span class="ty">Payment</span> payment = <span class="kw">new</span> <span class="ty">Payment</span>();
+    payment.setAmount(<span class="ty">BigDecimal</span>.valueOf(amount));
+    payment.setPaymentMethod(PaymentMethod.<span class="ty">CREDIT_CARD</span>);
+
+    <span class="kw">boolean</span> authorized = gateway != <span class="kw">null</span> &amp;&amp; gateway.authorize(payment);
+    <span class="kw">if</span> (authorized) {
+        payment.pay();
+    } <span class="kw">else</span> {
+        payment.fail();
+        <span class="hot">publish(<span class="kw">new</span> <span class="ty">PaymentFailedEvent</span>(payment, reservationPnr, <span class="st">"gateway-declined"</span>));</span>
+    }                                  <span class="cm">// ↑ 호출자는 더 이상 handlePaymentFailure를 모른다</span>
+    <span class="kw">return</span> payment;
+}</pre>
+    </div>
+  </div>
+
+  <footer class="foot"><span>PP authorize=false → payment.fail() → publish</span><span>AutoCancelListener가 PendingPayment → Cancelled 수행</span></footer>
+</section>
+<script src="../assets/widgets.js"></script>
+<script>OODP.codeToggle(document.getElementById('root'));</script>
+</body>
+</html>
