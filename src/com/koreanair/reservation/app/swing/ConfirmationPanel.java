@@ -31,7 +31,8 @@ public class ConfirmationPanel extends JPanel {
     private final JLabel paymentStatusLabel = new JLabel(" ");
     private final JLabel busTicketStatusLabel = new JLabel("미발매");
     private final JComboBox<BusCity> busCityCombo;
-    private final JButton homeButton = new JButton("처음으로");
+    private final JButton lookupButton = new JButton("예약 조회로");
+    private final JButton homeButton = new JButton("다른 항공편 예약");
     private final JButton ticketButton = new JButton("e-Ticket + 우등고속 발매");
 
     private final MainFrame frame;
@@ -169,8 +170,12 @@ public class ConfirmationPanel extends JPanel {
         ticketButton.addActionListener(e -> issueLinkedTicket());
         rightBtns.add(ticketButton);
 
+        ModernUI.styleButtonSecondary(lookupButton);
+        lookupButton.addActionListener(e -> frame.showLookup());
+        rightBtns.add(lookupButton);
+
         ModernUI.styleButton(homeButton);
-        homeButton.addActionListener(e -> frame.reset());
+        homeButton.addActionListener(e -> frame.startNewBooking());
         rightBtns.add(homeButton);
 
         footer.add(rightBtns, BorderLayout.EAST);

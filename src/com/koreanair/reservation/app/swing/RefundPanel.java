@@ -29,7 +29,7 @@ public class RefundPanel extends JPanel {
     private final JLabel policyLabel = new JLabel(" ");
     private final JLabel progressLabel = new JLabel(" ");
 
-    private final JButton homeButton = new JButton("확인");
+    private final JButton homeButton = new JButton("다른 항공편 예약");
     private final JButton lookupButton = new JButton("예약 조회로");
 
     public RefundPanel(MainFrame parent) {
@@ -112,7 +112,7 @@ public class RefundPanel extends JPanel {
         lookupButton.addActionListener(e -> frame.showLookup());
         footer.add(lookupButton);
         ModernUI.styleButton(homeButton);
-        homeButton.addActionListener(e -> frame.reset());
+        homeButton.addActionListener(e -> frame.startNewBooking());
         footer.add(homeButton);
         footer.setPreferredSize(new Dimension(0, 60));
         add(footer, BorderLayout.SOUTH);

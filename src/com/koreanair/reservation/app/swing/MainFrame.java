@@ -315,6 +315,12 @@ public class MainFrame extends JFrame {
         loginPanel.focusFirst();
     }
 
+    public void startNewBooking() {
+        this.currentReservation = null;
+        stateBadge.reset();
+        showSearch();
+    }
+
     public SeedResult seed() { return seed; }
     public Reservation currentReservation() { return currentReservation; }
     public FlightSearchService flightSearch() { return flightSearch; }
