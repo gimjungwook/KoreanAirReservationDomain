@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -13,8 +12,12 @@ import javax.swing.SwingConstants;
 
 public class StateBadge extends JPanel {
 
-    private static final String[] STATES = { "Initiated", "PendingPayment", "Confirmed" };
-    private static final String[] LABELS_KR = { "예약 신청", "결제 대기", "확정" };
+    private static final String[] STATES = {
+            "Initiated", "PendingPayment", "Confirmed", "Ticketed", "Cancelled", "Refunded"
+    };
+    private static final String[] LABELS_KR = {
+            "예약 신청", "결제 대기", "확정", "발권", "취소", "환불"
+    };
 
     private final JLabel[] labels = new JLabel[STATES.length];
 
@@ -29,7 +32,7 @@ public class StateBadge extends JPanel {
             l.setOpaque(false);
             l.setFont(new Font("System", Font.PLAIN, 11));
             l.setForeground(new Color(0xCC, 0xE4, 0xFF));
-            l.setPreferredSize(new Dimension(72, 24));
+            l.setPreferredSize(new Dimension(64, 24));
             labels[i] = l;
             add(l);
         }

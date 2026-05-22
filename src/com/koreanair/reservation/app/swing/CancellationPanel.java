@@ -182,6 +182,8 @@ public class CancellationPanel extends JPanel {
         routeLabel.setText(routeText(r));
         previewLabel.setText(" ");
         reasonArea.setText("");
+        lastRefundAmount = BigDecimal.ZERO;
+        lastPolicyName = "-";
     }
 
     private static String routeText(Reservation r) {
@@ -230,6 +232,9 @@ public class CancellationPanel extends JPanel {
         }
         String pnr = reservation.getPnrNumber();
         try {
+            if ("-".equals(lastPolicyName)) {
+                previewRefund();
+            }
             booking.processCancellation(pnr);
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this,
@@ -246,6 +251,7 @@ public class CancellationPanel extends JPanel {
         }
         // BookingController.processCancellation 이 evaluate + processRefund 를 다시 수행하므로
         // 여기서 표시할 환불 금액은 미리보기 결과를 그대로 사용한다.
+        frame.syncReservationState(reservation);
         frame.showRefund(pnr, lastRefundAmount, lastPolicyName);
     }
 
@@ -256,6 +262,13 @@ public class CancellationPanel extends JPanel {
         if (first == null || first.getFlightSchedule() == null) return "Y";
         FareRule rule = first.getFlightSchedule().getFareRule();
         return (rule != null && rule.getFareClass() != null) ? rule.getFareClass() : "Y";
+    }
+
+    private void previewRefund() {
+        String pnr = reservation.getPnrNumber();
+        String fareClass = resolveFareClass(reservation);
+        lastRefundAmount = refundHandler.previewRefund(pnr, fareClass);
+        lastPolicyName = refundHandler.previewPolicyName(pnr, fareClass);
     }
 
 }

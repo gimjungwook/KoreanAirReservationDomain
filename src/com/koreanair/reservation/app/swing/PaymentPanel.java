@@ -26,8 +26,9 @@ public class PaymentPanel extends JPanel {
 
     private final JLabel pnrLabel = new JLabel(" ");
     private final JLabel amountLabel = new JLabel(" ");
+    private final JLabel methodHintLabel = new JLabel("데모 결제는 즉시 승인되는 신용카드 경로로 진행됩니다.");
     private final JComboBox<String> methodCombo = new JComboBox<>(new String[] {
-            "신용카드", "계좌이체 (Iteration 2 예정)", "마일리지 (Iteration 3 예정)"
+            "신용카드 (데모 승인)"
     });
     private final JButton payButton = new JButton("결제하기");
     private final JButton backButton = new JButton("← 뒤로");
@@ -123,6 +124,11 @@ public class PaymentPanel extends JPanel {
         formCard.add(methodCombo, c);
 
         c.gridy = 5; c.gridx = 0; c.gridwidth = 2;
+        methodHintLabel.setFont(ModernUI.FONT_SMALL);
+        methodHintLabel.setForeground(ModernUI.TEXT_SECONDARY);
+        formCard.add(methodHintLabel, c);
+
+        c.gridy = 6; c.gridx = 0; c.gridwidth = 2;
         c.anchor = GridBagConstraints.EAST;
         ModernUI.styleButtonSuccess(payButton);
         payButton.addActionListener(e -> doPay());

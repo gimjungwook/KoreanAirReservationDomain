@@ -30,6 +30,7 @@ public class RefundPanel extends JPanel {
     private final JLabel progressLabel = new JLabel(" ");
 
     private final JButton homeButton = new JButton("확인");
+    private final JButton lookupButton = new JButton("예약 조회로");
 
     public RefundPanel(MainFrame parent) {
         super(new BorderLayout());
@@ -107,6 +108,9 @@ public class RefundPanel extends JPanel {
         footer.setBackground(ModernUI.CARD_BG);
         footer.setOpaque(true);
         footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, ModernUI.BORDER));
+        ModernUI.styleButtonSecondary(lookupButton);
+        lookupButton.addActionListener(e -> frame.showLookup());
+        footer.add(lookupButton);
         ModernUI.styleButton(homeButton);
         homeButton.addActionListener(e -> frame.reset());
         footer.add(homeButton);
