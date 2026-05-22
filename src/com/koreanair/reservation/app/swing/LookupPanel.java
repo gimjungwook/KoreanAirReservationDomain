@@ -77,6 +77,7 @@ public class LookupPanel extends JPanel {
     private final JTable memberTable = new JTable(memberTableModel);
     private final JLabel memberStatusLabel = new JLabel(" ");
     private final JLabel selectedSummaryLabel = new JLabel("선택된 예약이 없습니다.");
+    private final JButton copySelectedPnrButton = new JButton("선택 PNR 복사");
 
     // 비회원 조회 — 폼 필드.
     private final JTextField pnrField = new JTextField(18);
@@ -84,6 +85,7 @@ public class LookupPanel extends JPanel {
     private final JTextField emailField = new JTextField(18);
     private final JLabel guestMessage = new JLabel(" ");
     private final JButton fillGuestButton = new JButton("현재/선택 예약 자동 입력");
+    private final JButton pastePnrButton = new JButton("PNR 붙여넣기");
 
     private final JButton searchButton = new JButton("조회");
     private final JButton cancelButton = new JButton("취소");
@@ -198,6 +200,9 @@ public class LookupPanel extends JPanel {
         memberStatusLabel.setForeground(ModernUI.TEXT_SECONDARY);
         bottom.add(memberStatusLabel, BorderLayout.NORTH);
 
+        JPanel summaryRow = new JPanel(new BorderLayout(10, 0));
+        summaryRow.setBackground(ModernUI.BACKGROUND);
+        summaryRow.setOpaque(true);
         selectedSummaryLabel.setFont(ModernUI.FONT_SMALL);
         selectedSummaryLabel.setForeground(ModernUI.TEXT_PRIMARY);
         selectedSummaryLabel.setOpaque(true);
@@ -205,7 +210,12 @@ public class LookupPanel extends JPanel {
         selectedSummaryLabel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(ModernUI.BORDER, 1),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
-        bottom.add(selectedSummaryLabel, BorderLayout.CENTER);
+        summaryRow.add(selectedSummaryLabel, BorderLayout.CENTER);
+        ModernUI.styleButtonSecondary(copySelectedPnrButton);
+        copySelectedPnrButton.setFont(ModernUI.FONT_SMALL);
+        copySelectedPnrButton.setEnabled(false);
+        summaryRow.add(copySelectedPnrButton, BorderLayout.EAST);
+        bottom.add(summaryRow, BorderLayout.CENTER);
 
         card.add(bottom, BorderLayout.SOUTH);
 
@@ -237,7 +247,14 @@ public class LookupPanel extends JPanel {
 
         c.gridx = 1;
         ModernUI.styleTextField(pnrField);
-        card.add(pnrField, c);
+        JPanel pnrInputPanel = new JPanel(new BorderLayout(8, 0));
+        pnrInputPanel.setBackground(ModernUI.CARD_BG);
+        pnrInputPanel.setOpaque(true);
+        pnrInputPanel.add(pnrField, BorderLayout.CENTER);
+        ModernUI.styleButtonSecondary(pastePnrButton);
+        pastePnrButton.setFont(ModernUI.FONT_SMALL);
+        pnrInputPanel.add(pastePnrButton, BorderLayout.EAST);
+        card.add(pnrInputPanel, c);
 
         JLabel nameLbl = new JLabel("이름");
         nameLbl.setFont(ModernUI.FONT_SMALL);
@@ -296,6 +313,8 @@ public class LookupPanel extends JPanel {
         searchButton.addActionListener(e -> doSearch());
         cancelButton.addActionListener(e -> frame.showSearch());
         fillGuestButton.addActionListener(e -> fillGuestFields());
+        copySelectedPnrButton.addActionListener(e -> copySelectedPnr());
+        pastePnrButton.addActionListener(e -> pastePnr());
         pnrField.addActionListener(e -> doGuestLookup());
         nameField.addActionListener(e -> doGuestLookup());
         emailField.addActionListener(e -> doGuestLookup());
@@ -313,6 +332,7 @@ public class LookupPanel extends JPanel {
         memberTableModel.setRowCount(0);
         memberResults.clear();
         selectedSummaryLabel.setText("선택된 예약이 없습니다.");
+        copySelectedPnrButton.setEnabled(false);
         Member current = authService != null ? authService.currentMember() : null;
         if (current == null) {
             memberStatusLabel.setText("로그인된 회원이 없습니다. 먼저 로그인하거나 비회원 조회를 선택하세요.");
@@ -407,6 +427,7 @@ public class LookupPanel extends JPanel {
         selectedSummaryLabel.setText(String.format(
                 "선택됨: PNR %s · %s → %s · %s · 상태 %s",
                 row[0], row[1], row[2], row[3], row[4]));
+        copySelectedPnrButton.setEnabled(r.getPnrNumber() != null);
     }
 
     private void updatePrimaryAction(Reservation r) {
@@ -530,6 +551,35 @@ public class LookupPanel extends JPanel {
         emailField.setText(email != null && !email.isBlank() ? email : "guest@example.com");
         guestMessage.setForeground(ModernUI.TEXT_SECONDARY);
         guestMessage.setText("현재/선택 예약 정보가 입력되었습니다. 조회를 누르면 같은 검증 흐름을 탑니다.");
+    }
+
+    private void copySelectedPnr() {
+        Reservation source = selectedReservation();
+        if (source == null || source.getPnrNumber() == null) {
+            return;
+        }
+        ModernUI.copyToClipboard(source.getPnrNumber());
+        memberStatusLabel.setText("PNR이 클립보드에 복사되었습니다: " + source.getPnrNumber());
+    }
+
+    private void pastePnr() {
+        String text = ModernUI.pasteFromClipboard().trim();
+        if (text.isEmpty()) {
+            guestMessage.setForeground(ModernUI.ERROR);
+            guestMessage.setText("클립보드에 붙여넣을 PNR이 없습니다.");
+            return;
+        }
+        pnrField.setText(text);
+        guestMessage.setForeground(ModernUI.TEXT_SECONDARY);
+        guestMessage.setText("클립보드에서 PNR을 붙여넣었습니다.");
+    }
+
+    private Reservation selectedReservation() {
+        int row = memberTable.getSelectedRow();
+        if (row >= 0 && row < memberResults.size()) {
+            return memberResults.get(row);
+        }
+        return null;
     }
 
 }

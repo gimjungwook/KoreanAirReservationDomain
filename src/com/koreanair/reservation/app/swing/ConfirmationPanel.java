@@ -31,6 +31,7 @@ public class ConfirmationPanel extends JPanel {
     private final JLabel paymentStatusLabel = new JLabel(" ");
     private final JLabel busTicketStatusLabel = new JLabel("미발매");
     private final JComboBox<BusCity> busCityCombo;
+    private final JButton copyPnrButton = new JButton("PNR 복사");
     private final JButton lookupButton = new JButton("예약 조회로");
     private final JButton homeButton = new JButton("다른 항공편 예약");
     private final JButton ticketButton = new JButton("e-Ticket + 우등고속 발매");
@@ -100,7 +101,15 @@ public class ConfirmationPanel extends JPanel {
         c.gridx = 1;
         pnrLabel.setFont(new Font("Monaco", Font.PLAIN, 16));
         pnrLabel.setForeground(ModernUI.PRIMARY);
-        card.add(pnrLabel, c);
+        JPanel pnrPanel = new JPanel(new BorderLayout(10, 0));
+        pnrPanel.setBackground(ModernUI.CARD_BG);
+        pnrPanel.setOpaque(true);
+        pnrPanel.add(pnrLabel, BorderLayout.CENTER);
+        ModernUI.styleButtonSecondary(copyPnrButton);
+        copyPnrButton.setFont(ModernUI.FONT_SMALL);
+        copyPnrButton.addActionListener(e -> copyCurrentPnr());
+        pnrPanel.add(copyPnrButton, BorderLayout.EAST);
+        card.add(pnrPanel, c);
 
         c.gridy = 4; c.gridx = 0;
         JLabel stateH = new JLabel("예약 상태");
@@ -190,6 +199,7 @@ public class ConfirmationPanel extends JPanel {
         busTicketStatusLabel.setText("미발매");
         ticketButton.setEnabled(reservation != null);
         busCityCombo.setEnabled(reservation != null);
+        copyPnrButton.setEnabled(reservation != null && reservation.getPnrNumber() != null);
         if (payment != null) {
             paymentStatusLabel.setText(String.valueOf(payment.getStatus()));
             amountLabel.setText(payment.getAmount() != null
@@ -225,5 +235,16 @@ public class ConfirmationPanel extends JPanel {
                     "오류",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void copyCurrentPnr() {
+        if (reservation == null || reservation.getPnrNumber() == null) {
+            return;
+        }
+        ModernUI.copyToClipboard(reservation.getPnrNumber());
+        JOptionPane.showMessageDialog(this,
+                "예약번호가 클립보드에 복사되었습니다.\n" + reservation.getPnrNumber(),
+                "PNR 복사",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 }

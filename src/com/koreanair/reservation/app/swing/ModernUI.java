@@ -3,6 +3,9 @@ package com.koreanair.reservation.app.swing;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -121,6 +124,26 @@ public final class ModernUI {
         component.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER, 1),
                 BorderFactory.createEmptyBorder(24, 32, 24, 32)));
+    }
+
+    public static void copyToClipboard(String text) {
+        if (text == null) {
+            return;
+        }
+        Toolkit.getDefaultToolkit()
+                .getSystemClipboard()
+                .setContents(new StringSelection(text), null);
+    }
+
+    public static String pasteFromClipboard() {
+        try {
+            Object data = Toolkit.getDefaultToolkit()
+                    .getSystemClipboard()
+                    .getData(DataFlavor.stringFlavor);
+            return data != null ? data.toString() : "";
+        } catch (Exception ex) {
+            return "";
+        }
     }
 
     private ModernUI() {}
