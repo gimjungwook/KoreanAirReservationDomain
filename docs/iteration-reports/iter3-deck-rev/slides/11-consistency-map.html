@@ -43,12 +43,12 @@
   <div class="req">하나의 <b>요구사항</b>이 UC → Sequence → Class → State를 거쳐 <b>같은 코드 한 줄</b>로 떨어진다.</div>
 
   <div class="axes">
-    <div class="axis"><h4><span class="ck">✓</span> State ↔ Class</h4><p>상태 전이 메서드(<code>handlePaymentFailure</code>)가 클래스의 listener 호출과 일치</p></div>
-    <div class="axis"><h4><span class="ck">✓</span> Sequence ↔ Class</h4><p>시퀀스 참여자가 모두 구체 ECB 클래스 — 추상 "System" 없음</p></div>
-    <div class="axis"><h4><span class="ck">✓</span> Sequence ↔ State</h4><p>시퀀스 마지막 Note의 전이가 State diagram 전이와 일치</p></div>
+    <div class="axis"><h4><span class="ck">✓</span> Sequence → 빠진 객체·메서드 검증</h4><p>시퀀스를 그리며 <b>missing class · missing behavior(method)</b>를 찾아낸다. 참여자는 모두 구체 ECB 객체 — 추상 "System" 금지</p></div>
+    <div class="axis"><h4><span class="ck">✓</span> State = 한 object의 상태</h4><p>한 object의 attribute 값 변화에 따른 전이만 표현. 전이 메서드(<code>handlePaymentFailure</code>)가 Class의 listener 호출과 일치</p></div>
+    <div class="axis"><h4><span class="ck">✓</span> Control이 use case를 realize</h4><p>UC 하나를 control object 하나가 실현. Functional → Analysis Object → Dynamic 모델로 일관 추적</p></div>
   </div>
 
-  <footer class="foot"><span>평가 핵심: 다이어그램 개수가 아니라 연결 논리</span><span>세 정합성 축 모두 점검 완료</span></footer>
+  <footer class="foot"><span>분석 모델 목표: Correct · Complete · Consistent · Unambiguous</span><span>같은 시나리오를 보고 두 사람이 다르게 해석하면 안 된다</span></footer>
 </section>
 </body>
 </html>

@@ -11,7 +11,7 @@
   .thx .one b { color: var(--event); }
   .thx .pats { margin-top: 40px; display: flex; gap: 14px; justify-content: center; }
   .thx .team { position: absolute; bottom: 90px; font-size: 22px; color: var(--fg-faint); font-weight: 600; }
-  #thxFx { position: absolute; inset: 0; z-index: 0; opacity: 0.5; }
+  #thxFx { position: absolute; inset: 0; z-index: 0; opacity: 0.4; }
 </style>
 </head>
 <body>
@@ -31,7 +31,7 @@
 <script>
   window.addEventListener('load', () => {
     const c = document.getElementById('thxFx');
-    try { if (window.OODP && window.THREE) OODP.cover(c); } catch (e) { console.warn(e); }
+    try { if (window.OODP && window.THREE) OODP.titleScene(c); } catch (e) { console.warn(e); }
   });
 </script>
 </body>

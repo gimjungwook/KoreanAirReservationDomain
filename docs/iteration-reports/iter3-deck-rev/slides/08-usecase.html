@@ -44,21 +44,21 @@
 
     <div data-panel="rel" class="uc-side">
       <div class="rel inc">
-        <h4>«include» — 항상 포함</h4>
+        <h4>«include» — 공통·중복(redundant)</h4>
         <ul>
           <li><code>Search Connecting</code> <span class="arrow">─▷</span> <code>Book Flight</code></li>
           <li><code>Book Multi-city</code> <span class="arrow">─▷</span> <code>Book Flight</code></li>
         </ul>
-        <div class="newlist">환승·다구간도 결국 항공편 예약을 포함</div>
+        <div class="newlist">둘 이상 시나리오가 공유하는 동작 → 따로 빼서 include</div>
       </div>
       <div class="rel ext">
-        <h4>«extend» — 선택적 확장</h4>
+        <h4>«extend» — 예외적·선택적</h4>
         <ul>
           <li><code>Pay with Mileage</code> <span class="arrow">┄▷</span> <code>Make Payment</code></li>
           <li><code>Auto-cancel on Hold</code> <span class="arrow">┄▷</span> <code>Make Payment</code></li>
           <li><code>Notify Schedule Change</code> <span class="arrow">┄▷</span> <code>Manage Flight</code></li>
         </ul>
-        <div class="newlist">기본 흐름의 조건부 확장 지점</div>
+        <div class="newlist">특정 조건 발생 시 추가 실행되는 시나리오</div>
       </div>
     </div>
 
@@ -84,7 +84,7 @@
     </div>
   </div>
 
-  <footer class="foot"><span>Actor: Skypass 회원 · 비회원 · 관리자 · Payment Gateway · Skypass System · GDS</span><span>UC ↔ Control 메서드 1:1 추적</span></footer>
+  <footer class="foot"><span>Use case 이름 = 동사구(Search / Book / Pay) · Actor = 명사</span><span>Control object가 use case를 realize — UC ↔ Control 메서드 추적</span></footer>
 </section>
 <script src="../assets/widgets.js"></script>
 <script>OODP.codeToggle(document.getElementById('root'));</script>
