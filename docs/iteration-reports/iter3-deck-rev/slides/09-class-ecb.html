@@ -9,28 +9,29 @@
   .ecb-toggle { display: inline-flex; gap: 10px; }
   .ecb-toggle button { font-family: var(--mono); font-size: 18px; font-weight: 700; padding: 11px 22px; border-radius: 999px; border: 2px solid var(--border); background: var(--bg-elevated); color: var(--fg-faint); cursor: pointer; transition: all 0.16s var(--ease); }
   .ecb-toggle button.on { background: var(--fg); color: #fff; border-color: var(--fg); }
-  .ecb-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 26px; flex: 1; min-height: 0; }
-  .ecol { border-radius: 18px; padding: 24px; border: 2px solid var(--border); display: flex; flex-direction: column; }
+  .ecb-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 22px; flex: 1; min-height: 0; }
+  .ecol { border-radius: 18px; padding: 22px; border: 2px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
   .ecol.entity   { background: var(--ecb-entity-bg); }
   .ecol.control  { background: var(--ecb-control-bg); }
   .ecol.boundary { background: var(--ecb-boundary-bg); }
-  .ecol h3 { font-size: 28px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
-  .ecol.entity h3   { color: var(--ecb-entity); }
-  .ecol.control h3  { color: var(--ecb-control); }
-  .ecol.boundary h3 { color: var(--ecb-boundary); }
-  .ecol .sub { font-size: 16px; color: var(--fg-faint); margin-bottom: 16px; font-family: var(--mono); }
-  .cls { background: #fff; border: 1.5px solid var(--border); border-radius: 11px; padding: 12px 16px; margin-bottom: 11px; font-family: var(--mono); font-size: 19px; color: var(--fg); transition: all 0.2s var(--ease); display: flex; align-items: center; gap: 9px; }
+  .ecol h3 { font-size: 26px; margin-bottom: 2px; display: flex; align-items: center; gap: 10px; }
+  .ecol.entity h3 { color: var(--ecb-entity); } .ecol.control h3 { color: var(--ecb-control); } .ecol.boundary h3 { color: var(--ecb-boundary); }
+  .ecol .sub { font-size: 15px; color: var(--fg-faint); margin-bottom: 12px; font-family: var(--mono); }
+  .cls { background: #fff; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 13px; margin-bottom: 8px; font-family: var(--mono); font-size: 17px; color: var(--fg); display: flex; align-items: center; gap: 8px; }
   .cls.is-new { border-color: var(--new); }
-  .cls.is-new::after { content: "NEW"; font-size: 11px; font-weight: 800; color: #fff; background: var(--new); padding: 2px 7px; border-radius: 999px; margin-left: auto; }
-  .cls .pub { font-size: 13px; color: var(--subject); background: var(--subject-bg); padding: 2px 8px; border-radius: 5px; font-weight: 700; }
+  .cls.is-new::after { content: "NEW"; font-size: 10px; font-weight: 800; color: #fff; background: var(--new); padding: 2px 6px; border-radius: 999px; margin-left: auto; }
+  .cls .pub { font-size: 12px; color: var(--subject); background: var(--subject-bg); padding: 2px 7px; border-radius: 5px; font-weight: 700; }
+  .ecode { margin-top: auto; background: var(--code-bg); border-radius: 10px; padding: 13px 15px; font-family: var(--mono); font-size: 14.5px; line-height: 1.5; color: var(--code-fg); white-space: pre; overflow: hidden; }
+  .ecode .kw { color: var(--code-kw); } .ecode .ty { color: var(--code-type); } .ecode .cm { color: var(--code-cmt); } .ecode .st { color: var(--code-str); } .ecode .nu { color: var(--code-num); } .ecode .an { color: var(--code-anno); }
+  .ecode .hot { background: rgba(255,0,128,0.16); border-radius: 3px; }
 </style>
 </head>
 <body>
 <section class="slide" id="root">
   <header class="masthead"><span class="paper-cite">PART 2 · 정합성 · <b>Class Diagram (ECB)</b></span><span class="slide-counter">11 / 22</span></header>
-  <div class="head-row" style="margin-top:104px">
+  <div class="head-row" style="margin-top:100px">
     <div>
-      <span class="eyebrow"><span class="dot"></span> Entity · Control · Boundary 분리</span>
+      <span class="eyebrow"><span class="dot"></span> Entity · Control · Boundary — 클래스별 실제 코드</span>
       <h1 class="slide-title" style="margin-bottom:0">계층별로 책임을 가른다.</h1>
     </div>
     <div class="ecb-toggle">
@@ -46,22 +47,40 @@
       <h3>🔵 Entity</h3><div class="sub">도메인 상태·규칙</div>
       <div class="cls">Reservation</div>
       <div class="cls">Seat <span class="pub">holdExpiresAt</span></div>
-      <div class="cls is-new">Itinerary</div>
       <div class="cls">FlightSchedule <span class="pub">Subject</span></div>
-      <div class="cls is-new">DomainEvent family</div>
+      <div class="cls is-new">Itinerary · DomainEvent family</div>
+      <div class="ecode"><span class="cm">// Seat — 도메인 규칙</span>
+<span class="kw">public boolean</span> isHoldExpiredAt(<span class="ty">LocalDateTime</span> now) {
+  <span class="kw">return</span> status == SeatStatus.<span class="ty">HELD</span>
+    &amp;&amp; holdExpiresAt != <span class="kw">null</span>
+    &amp;&amp; now.isAfter(holdExpiresAt);
+}</div>
     </div>
     <div class="ecol control" data-ecb="control">
       <h3>🟠 Control</h3><div class="sub">유스케이스 흐름 조율</div>
       <div class="cls">BookingController</div>
       <div class="cls">PaymentProcessor <span class="pub">Subject</span></div>
       <div class="cls is-new">SeatHoldMonitor <span class="pub">Subject</span></div>
-      <div class="cls is-new">3 Listener (Hold/AutoCancel/Affected)</div>
-      <div class="cls is-new">ReservationRegistry · ItinerarySearchService</div>
+      <div class="cls is-new">3 Listener · Registry · SearchService</div>
+      <div class="ecode"><span class="cm">// SeatHoldMonitor — Subject가 발행</span>
+<span class="kw">public int</span> sweep(<span class="ty">LocalDateTime</span> now) {
+  <span class="kw">for</span> (<span class="ty">HeldSeat</span> h : snapshot) {
+    <span class="kw">if</span> (h.seat.isHoldExpiredAt(now))
+      <span class="hot">publish(<span class="kw">new</span> <span class="ty">SeatHoldExpiredEvent</span>(...));</span>
+  } ...
+}</div>
     </div>
     <div class="ecol boundary" data-ecb="boundary">
       <h3>🟤 Boundary</h3><div class="sub">외부·UI 경계</div>
       <div class="cls">ReservationUI / SwingUI</div>
       <div class="cls is-new">MockSkypassInterface</div>
+      <div class="cls">«interface» SkypassInterface</div>
+      <div class="ecode"><span class="cm">// 외부 Skypass mock (interface 구현)</span>
+<span class="kw">public class</span> <span class="ty">MockSkypassInterface</span>
+    <span class="kw">implements</span> <span class="ty">SkypassInterface</span> {
+  <span class="kw">public int</span> getMileageBalance(<span class="ty">String</span> no) {...}
+  <span class="kw">public boolean</span> deductMileage(<span class="ty">String</span> no, <span class="kw">int</span> amt){...}
+}</div>
     </div>
   </div>
 

@@ -5,54 +5,61 @@
 <title>OODP Iter3 (rev) · 02 · Iter2 요약</title>
 <link rel="stylesheet" href="../shared/tokens.css">
 <style>
-  .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 30px; }
-  .rstep { border: 2px solid var(--border); border-radius: 20px; padding: 30px 28px; position: relative; background: var(--bg-card); }
+  .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 24px; }
+  .rstep { border: 2px solid var(--border); border-radius: 18px; padding: 22px 22px; position: relative; background: var(--bg-card); }
   .rstep.done { background: var(--bg-elevated); }
   .rstep.now { border-color: var(--new); box-shadow: 0 12px 36px -14px var(--new); }
-  .rstep .it { font-family: var(--mono); font-size: 17px; font-weight: 700; letter-spacing: 0.1em; color: var(--fg-quiet); }
-  .rstep .pat { font-size: 40px; font-weight: 800; letter-spacing: -0.02em; margin: 10px 0 6px; }
-  .rstep.s1 .pat { color: var(--subject); }
-  .rstep.s2 .pat { color: var(--listener); }
-  .rstep.s3 .pat { color: var(--event); }
-  .rstep.s4 .pat { color: var(--fg-quiet); }
-  .rstep .desc { font-size: 20px; color: var(--fg-muted); line-height: 1.4; font-weight: 500; }
-  .rstep .chk { position: absolute; top: 24px; right: 26px; font-size: 24px; }
-  .rstep .now-tag { position: absolute; top: 22px; right: 24px; }
-  .recap-note { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .recap-note .nc { border-left: 4px solid var(--listener); background: var(--paper-2); border-radius: 0 12px 12px 0; padding: 22px 28px; }
-  .recap-note .nc h4 { font-size: 24px; margin-bottom: 8px; color: var(--listener); }
-  .recap-note .nc p { font-size: 21px; color: var(--fg-muted); line-height: 1.5; }
-  .recap-note .nc code { font-family: var(--mono); font-size: 0.88em; background: var(--paper-sink); padding: 0.06em 0.4em; border-radius: 5px; }
+  .rstep .it { font-family: var(--mono); font-size: 15px; font-weight: 700; letter-spacing: 0.1em; color: var(--fg-quiet); }
+  .rstep .pat { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin: 8px 0 4px; }
+  .rstep.s1 .pat { color: var(--subject); } .rstep.s2 .pat { color: var(--listener); }
+  .rstep.s3 .pat { color: var(--event); } .rstep.s4 .pat { color: var(--fg-quiet); }
+  .rstep .desc { font-size: 17px; color: var(--fg-muted); line-height: 1.35; font-weight: 500; }
+  .rstep .chk { position: absolute; top: 20px; right: 22px; font-size: 20px; }
+  .codes { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 24px; flex: 1; min-height: 0; }
+  .code-frame { min-height: 0; } .code-body { font-size: 18px; line-height: 1.5; }
 </style>
 </head>
 <body>
 <section class="slide">
   <header class="masthead"><span class="paper-cite">Korean Air Reservation · <b>Iteration 1–2 recap</b></span><span class="slide-counter">02 / 22</span></header>
-  <div class="slide-head">
-    <span class="eyebrow"><span class="dot"></span> 지난 반복 요약</span>
-    <h1 class="slide-title">State → Strategy, 그리고 이제 Observer.</h1>
-    <p class="slide-sub">각 반복은 walking skeleton 위에 패턴을 하나씩 얹어 누적됩니다. iter3는 비어 있던 마지막 칸 — 부수효과의 통지 — 를 채웁니다.</p>
+  <div class="slide-head" style="margin-top:104px">
+    <span class="eyebrow"><span class="dot"></span> 지난 반복 — 코드로 요약</span>
+    <h1 class="slide-title" style="margin-bottom:0">State → Strategy, 그리고 이제 Observer.</h1>
   </div>
 
   <div class="roadmap">
-    <div class="rstep s1 done"><span class="chk">✅</span><div class="it">ITERATION 1</div><div class="pat">State</div><div class="desc">예약 생애주기 전이를 상태 객체로 분리. Walking skeleton.</div></div>
-    <div class="rstep s2 done"><span class="chk">✅</span><div class="it">ITERATION 2</div><div class="pat">Strategy</div><div class="desc"><code>RefundPolicy</code> family — Full / Partial / No refund 알고리즘 캡슐화.</div></div>
-    <div class="rstep s3 now"><span class="now-tag tag-new" style="margin:0">NOW</span><div class="it">ITERATION 3</div><div class="pat">Observer</div><div class="desc">상태 변화의 부수효과를 listener로 분리해 통지.</div></div>
-    <div class="rstep s4"><span class="chk">🔮</span><div class="it">ITERATION 4</div><div class="pat">Singleton + Factory</div><div class="desc"><code>AppConfig</code> · <code>ItineraryFactory</code> 예정.</div></div>
+    <div class="rstep s1 done"><span class="chk">✅</span><div class="it">ITERATION 1</div><div class="pat">State</div><div class="desc">예약 생애주기 전이를 상태 객체로.</div></div>
+    <div class="rstep s2 done"><span class="chk">✅</span><div class="it">ITERATION 2</div><div class="pat">Strategy</div><div class="desc">RefundPolicy family로 환불 산정 캡슐화.</div></div>
+    <div class="rstep s3 now"><span class="tag-new" style="position:absolute;top:18px;right:20px;margin:0">NOW</span><div class="it">ITERATION 3</div><div class="pat">Observer</div><div class="desc">부수효과를 listener로 분리해 통지.</div></div>
+    <div class="rstep s4"><span class="chk">🔮</span><div class="it">ITERATION 4</div><div class="pat">Singleton+Factory</div><div class="desc">AppConfig · ItineraryFactory 예정.</div></div>
   </div>
 
-  <div class="recap-note">
-    <div class="nc">
-      <h4>iter2까지 동작한 것</h4>
-      <p>happy path 예약·발권과 취소·환불 한 갈래가 끝까지 통과. State 전이 + Strategy 환불 산정이 결합.</p>
+  <div class="codes">
+    <div class="code-frame">
+      <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">iter1 · <b>State</b> — RefundRequestedState</span><span class="role subject">STATE</span></div>
+<pre class="code-body"><span class="kw">public class</span> <span class="ty">RefundRequestedState</span> <span class="kw">extends</span> <span class="ty">AbstractReservationState</span> {
+  <span class="an">@Override</span> <span class="kw">public void</span> processRefundDecision(<span class="ty">Reservation</span> ctx,
+                                          <span class="kw">boolean</span> approved) {
+    <span class="kw">if</span> (approved) ctx.setState(<span class="kw">new</span> <span class="ty">RefundedState</span>());
+    <span class="kw">else</span>         ctx.setState(<span class="kw">new</span> <span class="ty">ConfirmedState</span>());
+  }                       <span class="cm">// 상태가 자기 전이 규칙을 안다</span>
+}</pre>
     </div>
-    <div class="nc">
-      <h4>iter2에 남아 있던 문제</h4>
-      <p>부수효과 호출이 호출자(<code>BookingController</code>) 안에 박혀 있었음. 발생원이 늘면 호출자가 비대해진다 → iter3가 푸는 지점.</p>
+    <div class="code-frame">
+      <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">iter2 · <b>Strategy</b> — RefundPolicy family</span><span class="role listener">STRATEGY</span></div>
+<pre class="code-body"><span class="kw">public interface</span> <span class="ty">RefundPolicy</span> {
+  <span class="ty">BigDecimal</span> calculateRefundAmount(<span class="ty">BigDecimal</span> baseAmount);
+}
+<span class="kw">public class</span> <span class="ty">PartialRefundPolicy</span> <span class="kw">implements</span> <span class="ty">RefundPolicy</span> {
+  <span class="an">@Override</span> <span class="kw">public</span> <span class="ty">BigDecimal</span> calculateRefundAmount(<span class="ty">BigDecimal</span> base) {
+    <span class="kw">return</span> base.multiply(<span class="kw">new</span> <span class="ty">BigDecimal</span>(<span class="st">"0.5"</span>))   <span class="cm">// 50% 환불 정책</span>
+               .setScale(<span class="nu">0</span>, RoundingMode.<span class="ty">HALF_UP</span>);
+  }                       <span class="cm">// FULL / PARTIAL / NO — 알고리즘 교체</span>
+}</pre>
     </div>
   </div>
 
-  <footer class="foot"><span>A팀 · 김정욱 · 이재호 · 김경동</span><span>누적되는 반복 — 패턴은 교체가 아니라 적층</span></footer>
+  <footer class="foot"><span>iter2까지: happy path + 취소·환불 한 갈래 동작 (State + Strategy 결합)</span><span>남은 문제: 부수효과 호출이 호출자에 박힘 → iter3</span></footer>
 </section>
 </body>
 </html>

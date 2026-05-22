@@ -13,7 +13,7 @@
   .cover .badge-row { margin-top: 44px; }
   .cover .team { position: absolute; bottom: 90px; left: 96px; font-size: 22px; color: var(--fg-faint); font-weight: 600; }
   .cover .team b { color: var(--fg); }
-  #coverFx { position: absolute; top: -120px; right: -180px; width: 1200px; height: 1000px; z-index: 0; opacity: 0.95; }
+  #coverFx { position: absolute; top: 0; right: -60px; width: 980px; height: 1080px; z-index: 0; opacity: 0.96; }
 </style>
 </head>
 <body>
@@ -36,7 +36,7 @@
 <script>
   window.addEventListener('load', () => {
     const c = document.getElementById('coverFx');
-    try { if (window.OODP && window.THREE) OODP.cover(c); } catch (e) { console.warn(e); }
+    try { if (window.OODP && window.THREE) OODP.titleScene(c); } catch (e) { console.warn(e); }
   });
 </script>
 </body>

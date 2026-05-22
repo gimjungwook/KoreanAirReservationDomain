@@ -11,6 +11,8 @@
   .pax .pn { font-size: 44px; font-weight: 800; letter-spacing: -0.02em; margin: 8px 0 4px; }
   .pax .ax { font-size: 22px; font-weight: 700; }
   .pax .desc { font-size: 21px; color: var(--fg-muted); line-height: 1.5; margin-top: 14px; }
+  .pax .cl { margin-top: 16px; background: var(--code-bg); border-radius: 9px; padding: 12px 14px; font-family: var(--mono); font-size: 16px; line-height: 1.5; color: var(--code-fg); white-space: pre; overflow: hidden; }
+  .pax .cl .kw { color: var(--code-kw); } .pax .cl .ty { color: var(--code-type); } .pax .cl .cm { color: var(--code-cmt); }
   .pax.state    { border-color: var(--subject-lo); } .pax.state .pn, .pax.state .ax { color: var(--subject); }
   .pax.strategy { border-color: var(--listener-lo); } .pax.strategy .pn, .pax.strategy .ax { color: var(--listener); }
   .pax.observer { border-color: var(--event-lo); background: var(--event-bg); } .pax.observer .pn, .pax.observer .ax { color: var(--event); }
@@ -28,9 +30,12 @@
   </div>
 
   <div class="axes3">
-    <div class="pax state"><div class="it">ITERATION 1</div><div class="pn">State</div><div class="ax">상태 축</div><div class="desc">예약이 <b>어떤 전이를 할 수 있는가</b>. 생애주기 가드.</div></div>
-    <div class="pax strategy"><div class="it">ITERATION 2</div><div class="pn">Strategy</div><div class="ax">알고리즘 축</div><div class="desc">환불 금액을 <b>어떻게 계산하는가</b>. RefundPolicy family.</div></div>
-    <div class="pax observer"><div class="it">ITERATION 3</div><div class="pn">Observer</div><div class="ax">통지 축</div><div class="desc">상태 변화의 부수효과를 <b>누구에게 통지하는가</b>.</div></div>
+    <div class="pax state"><div class="it">ITERATION 1</div><div class="pn">State</div><div class="ax">상태 축</div><div class="desc">예약이 <b>어떤 전이를 할 수 있는가</b>. 생애주기 가드.</div><div class="cl"><span class="cm">// PendingPaymentState</span>
+ctx.setState(<span class="kw">new</span> <span class="ty">CancelledState</span>());</div></div>
+    <div class="pax strategy"><div class="it">ITERATION 2</div><div class="pn">Strategy</div><div class="ax">알고리즘 축</div><div class="desc">환불 금액을 <b>어떻게 계산하는가</b>. RefundPolicy family.</div><div class="cl"><span class="cm">// RefundHandler</span>
+policy.calculateRefundAmount(base);</div></div>
+    <div class="pax observer"><div class="it">ITERATION 3</div><div class="pn">Observer</div><div class="ax">통지 축</div><div class="desc">상태 변화의 부수효과를 <b>누구에게 통지하는가</b>.</div><div class="cl"><span class="cm">// PaymentProcessor</span>
+publish(<span class="kw">new</span> <span class="ty">PaymentFailedEvent</span>(...));</div></div>
   </div>
 
   <div class="collab-note">

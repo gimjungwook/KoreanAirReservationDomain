@@ -5,28 +5,35 @@
 <title>OODP Iter3 (rev) · 08 · Use Case</title>
 <link rel="stylesheet" href="../shared/tokens.css">
 <style>
-  .uc-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; margin-top: 24px; flex: 1; min-height: 0; }
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+  .uc-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 36px; margin-top: 20px; flex: 1; min-height: 0; }
   .diagram-frame { height: 100%; }
-  .uc-side { display: flex; flex-direction: column; gap: 20px; justify-content: center; }
-  .rel { border-radius: 14px; padding: 22px 26px; }
+  .uc-side { display: flex; flex-direction: column; gap: 18px; justify-content: center; min-height: 0; }
+  .rel { border-radius: 14px; padding: 20px 24px; }
   .rel.inc { background: var(--subject-bg); border-left: 4px solid var(--subject); }
   .rel.ext { background: var(--event-bg); border-left: 4px solid var(--event); }
-  .rel h4 { font-family: var(--mono); font-size: 24px; margin-bottom: 10px; }
-  .rel.inc h4 { color: var(--subject); }
-  .rel.ext h4 { color: var(--event); }
+  .rel h4 { font-family: var(--mono); font-size: 22px; margin-bottom: 8px; }
+  .rel.inc h4 { color: var(--subject); } .rel.ext h4 { color: var(--event); }
   .rel ul { list-style: none; }
-  .rel li { font-size: 21px; color: var(--fg-muted); line-height: 1.55; padding: 3px 0; }
+  .rel li { font-size: 20px; color: var(--fg-muted); line-height: 1.5; padding: 2px 0; }
   .rel li code { font-family: var(--mono); font-size: 0.9em; color: var(--fg); }
   .rel li .arrow { color: var(--fg-quiet); }
-  .newlist { margin-top: 4px; font-size: 19px; color: var(--new); font-weight: 700; }
+  .newlist { margin-top: 4px; font-size: 18px; color: var(--new); font-weight: 700; }
+  .code-frame { height: 100%; min-height: 0; } .code-body { font-size: 17px; line-height: 1.5; }
 </style>
 </head>
 <body>
-<section class="slide">
+<section class="slide" id="root">
   <header class="masthead"><span class="paper-cite">PART 2 · 정합성 · <b>Use Case Diagram</b></span><span class="slide-counter">10 / 22</span></header>
-  <div class="slide-head" style="margin-top:104px">
-    <span class="eyebrow event"><span class="dot"></span> UC — include / extend 구분 · 신규 빨강</span>
-    <h1 class="slide-title" style="margin-bottom:0">새 유스케이스가 기존 흐름에 어떻게 붙는가.</h1>
+  <div class="head-row" style="margin-top:104px">
+    <div>
+      <span class="eyebrow event"><span class="dot"></span> UC — include / extend · 신규 빨강</span>
+      <h1 class="slide-title" style="margin-bottom:0">새 유스케이스가 코드로 어떻게 실현되는가.</h1>
+    </div>
+    <div class="seg">
+      <button class="on" data-show="rel">관계</button>
+      <button data-show="code">실현 코드</button>
+    </div>
   </div>
 
   <div class="uc-grid">
@@ -34,7 +41,8 @@
       <img src="../assets/diagrams/reservationSystem-iter3.png" alt="Use Case Diagram — Iteration 3">
       <div class="diagram-cap">AmaterasUML · reservationSystem-iter3 · 빨강 = iter3 신규 UC</div>
     </div>
-    <div class="uc-side">
+
+    <div data-panel="rel" class="uc-side">
       <div class="rel inc">
         <h4>«include» — 항상 포함</h4>
         <ul>
@@ -53,9 +61,32 @@
         <div class="newlist">기본 흐름의 조건부 확장 지점</div>
       </div>
     </div>
+
+    <div data-panel="code" class="code-frame" style="display:none">
+      <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span class="path">control/<b>ItinerarySearchService</b>.searchConnecting</span><span class="role subject">CONTROL</span></div>
+<pre class="code-body"><span class="cm">// UC "Search Connecting Flights" 의 실현 — include Book Flight</span>
+<span class="kw">public</span> <span class="ty">List</span>&lt;<span class="ty">Itinerary</span>&gt; searchConnecting(<span class="ty">String</span> from, <span class="ty">String</span> to,
+                                       <span class="ty">LocalDate</span> date, <span class="ty">Duration</span> mct) {
+  <span class="ty">List</span>&lt;<span class="ty">Itinerary</span>&gt; result = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+  <span class="ty">Duration</span> min = mct != <span class="kw">null</span> ? mct : <span class="ty">Itinerary</span>.<span class="ty">INTERNATIONAL_MCT</span>;
+  <span class="kw">for</span> (<span class="ty">FlightSchedule</span> a : catalog) {           <span class="cm">// 1구간 후보</span>
+    <span class="kw">if</span> (!isFirstLegOf(a, from, date)) <span class="kw">continue</span>;
+    <span class="ty">String</span> hub = destinationCode(a);
+    <span class="kw">for</span> (<span class="ty">FlightSchedule</span> b : catalog) {         <span class="cm">// 2구간 후보</span>
+      <span class="kw">if</span> (!hub.equalsIgnoreCase(originCode(b))) <span class="kw">continue</span>;
+      <span class="kw">if</span> (!to.equalsIgnoreCase(destinationCode(b))) <span class="kw">continue</span>;
+      <span class="hot"><span class="ty">Itinerary</span> c = <span class="ty">Itinerary</span>.connecting(a, b);   <span class="cm">// 환승 일정 생성</span>
+      <span class="kw">if</span> (c.isConnectionTimeValid(min)) result.add(c);</span> <span class="cm">// MCT 통과만</span>
+    }
+  }
+  <span class="kw">return</span> result;
+}</pre>
+    </div>
   </div>
 
-  <footer class="foot"><span>Actor: Skypass 회원 · 비회원 · 관리자 · Payment Gateway · Skypass System · GDS</span><span>include = 필수 포함 / extend = 조건부 확장</span></footer>
+  <footer class="foot"><span>Actor: Skypass 회원 · 비회원 · 관리자 · Payment Gateway · Skypass System · GDS</span><span>UC ↔ Control 메서드 1:1 추적</span></footer>
 </section>
+<script src="../assets/widgets.js"></script>
+<script>OODP.codeToggle(document.getElementById('root'));</script>
 </body>
 </html>

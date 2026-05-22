@@ -278,6 +278,94 @@
   };
 
   /* ============================================================
+     TITLE SCENE — Subject 코어 + 궤도 listener + publish 펄스 링
+     (cover의 particle morph와 다른 비주얼)
+     ============================================================ */
+  OODP.titleScene = function (canvas) {
+    if (!window.THREE) return;
+    const THREE = window.THREE;
+    const W = canvas.clientWidth || 1200, H = canvas.clientHeight || 1000;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(46, W / H, 0.1, 100);
+    camera.position.set(0, 1.6, 13);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setSize(W, H);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+    const key = new THREE.PointLight(0xffffff, 0.7); key.position.set(5, 6, 10); scene.add(key);
+
+    const col = (h) => new THREE.Color(h);
+    // subject core
+    const core = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.5, 1),
+      new THREE.MeshStandardMaterial({ color: col(C.subject), emissive: col(C.subject), emissiveIntensity: 0.4, metalness: 0.35, roughness: 0.35, flatShading: true })
+    );
+    scene.add(core);
+    const halo = new THREE.Mesh(new THREE.IcosahedronGeometry(1.62, 1), new THREE.MeshBasicMaterial({ color: col(C.subject), wireframe: true, transparent: true, opacity: 0.25 }));
+    scene.add(halo);
+
+    // orbiting listeners
+    const ORB = 6, listeners = [];
+    const listColors = [C.listener, C.event, '#A47B2E', C.listener, C.event, '#A47B2E'];
+    for (let i = 0; i < ORB; i++) {
+      const m = new THREE.Mesh(
+        new THREE.BoxGeometry(0.72, 0.72, 0.72),
+        new THREE.MeshStandardMaterial({ color: col(listColors[i]), emissive: col(listColors[i]), emissiveIntensity: 0.18, metalness: 0.2, roughness: 0.5 })
+      );
+      scene.add(m);
+      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
+        new THREE.LineBasicMaterial({ color: col(listColors[i]), transparent: true, opacity: 0.28 }));
+      scene.add(line);
+      listeners.push({ m, line, ang: (i / ORB) * Math.PI * 2, rad: 5.4, tilt: (i % 2 ? 0.5 : -0.4), spd: 0.18 + i * 0.012 });
+    }
+
+    // publish pulse rings (expanding torus)
+    const rings = [];
+    function spawnRing() {
+      const r = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.05, 10, 80),
+        new THREE.MeshBasicMaterial({ color: col(C.event), transparent: true, opacity: 0.6 }));
+      r.rotation.x = Math.PI / 2.2;
+      scene.add(r); rings.push({ mesh: r, t: 0 });
+    }
+    let ringTimer = 0;
+
+    let t = 0, last = performance.now();
+    function loop(now) {
+      const dt = Math.min((now - last) / 1000, 0.05); last = now; t += dt;
+      core.rotation.y += dt * 0.5; core.rotation.x += dt * 0.16;
+      halo.rotation.y -= dt * 0.32; halo.rotation.z += dt * 0.1;
+      const cp = 1 + Math.sin(t * 2) * 0.04; core.scale.setScalar(cp);
+      listeners.forEach(L => {
+        L.ang += dt * L.spd;
+        const x = Math.cos(L.ang) * L.rad;
+        const z = Math.sin(L.ang) * L.rad;
+        const y = Math.sin(L.ang * 1.3) * L.rad * L.tilt * 0.4 + Math.sin(t + L.ang) * 0.2;
+        L.m.position.set(x, y, z);
+        L.m.rotation.x += dt * 0.6; L.m.rotation.y += dt * 0.4;
+        const p = L.line.geometry.attributes.position;
+        p.setXYZ(0, 0, 0, 0); p.setXYZ(1, x, y, z); p.needsUpdate = true;
+      });
+      ringTimer += dt;
+      if (ringTimer > 1.7) { ringTimer = 0; spawnRing(); }
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const R = rings[i]; R.t += dt;
+        const s = 1 + R.t * 3.2; R.mesh.scale.set(s, s, s);
+        R.mesh.material.opacity = Math.max(0, 0.6 - R.t * 0.32);
+        if (R.t > 2) { scene.remove(R.mesh); rings.splice(i, 1); }
+      }
+      camera.position.x = Math.sin(t * 0.25) * 1.2;
+      camera.position.y = 1.6 + Math.sin(t * 0.4) * 0.4;
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    window.addEventListener('resize', () => {
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
+    });
+  };
+
+  /* ============================================================
      CODE TOGGLE — 다이어그램 ↔ 실제 코드 세그먼트 스위치
      <div data-toggle> 안에 [data-panel="diagram"], [data-panel="code"]
      ============================================================ */
