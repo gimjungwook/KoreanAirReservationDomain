@@ -159,7 +159,7 @@ public class LookupPanel extends JPanel {
         card.setOpaque(true);
         card.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
 
-        JLabel hint = new JLabel("예약 상태에 맞는 동작을 제공합니다. 결제 대기는 즉시 취소, 확정/발권은 취소·환불 화면으로 이동합니다.");
+        JLabel hint = new JLabel("예약 상태에 맞는 동작을 제공합니다. 예약 신청은 계속 진행, 결제 대기는 즉시 취소, 확정/발권은 취소·환불 화면으로 이동합니다.");
         hint.setFont(ModernUI.FONT_SMALL);
         hint.setForeground(ModernUI.TEXT_SECONDARY);
         hint.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
@@ -437,7 +437,9 @@ public class LookupPanel extends JPanel {
             return;
         }
         String state = r != null ? r.getStateName() : "";
-        if ("PendingPayment".equals(state)) {
+        if ("Initiated".equals(state)) {
+            searchButton.setText("예약 계속 진행");
+        } else if ("PendingPayment".equals(state)) {
             searchButton.setText("결제 대기 예약 취소");
         } else if ("Confirmed".equals(state) || "Ticketed".equals(state)) {
             searchButton.setText("취소/환불 진행");
@@ -453,6 +455,10 @@ public class LookupPanel extends JPanel {
             return;
         }
         String state = r.getStateName();
+        if ("Initiated".equals(state)) {
+            frame.continueReservation(r);
+            return;
+        }
         if ("PendingPayment".equals(state)) {
             cancelPendingPayment(r);
             return;

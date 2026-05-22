@@ -252,6 +252,15 @@ public class MainFrame extends JFrame {
         showPassenger();
     }
 
+    public void continueReservation(Reservation reservation) {
+        this.currentReservation = reservation;
+        if (reservation != null) {
+            stateBadge.setCurrentState(reservation.getStateName());
+        }
+        passengerPanel.prepareExisting(reservation, loggedInMember);
+        showPassenger();
+    }
+
     public void onReservationCreated(Reservation reservation) {
         this.currentReservation = reservation;
         if (reservation != null) {

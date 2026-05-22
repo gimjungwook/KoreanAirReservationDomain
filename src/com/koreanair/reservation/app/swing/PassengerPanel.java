@@ -162,6 +162,9 @@ public class PassengerPanel extends JPanel {
     public void prepare(FlightSchedule selected, Member me) {
         this.selected = selected;
         this.member = me;
+        nameField.setText("");
+        passportField.setText("");
+        birthField.setText("");
         Object[] row = SwingReservationUI.toTableRow(1, selected);
         flightInfoLabel.setText(String.format("%s (%s → %s)", row[1], row[3], row[4]));
 
@@ -173,6 +176,44 @@ public class PassengerPanel extends JPanel {
             }
         }
         frame.onReservationCreated(reservation);
+    }
+
+    public void prepareExisting(Reservation reservation, Member me) {
+        this.reservation = reservation;
+        this.member = me;
+        this.selected = firstSchedule(reservation);
+        nameField.setText("");
+        passportField.setText("");
+        birthField.setText("");
+        if (selected != null) {
+            Object[] row = SwingReservationUI.toTableRow(1, selected);
+            flightInfoLabel.setText(String.format("%s (%s → %s)", row[1], row[3], row[4]));
+        } else {
+            flightInfoLabel.setText("기존 예약 " + (reservation != null ? reservation.getPnrNumber() : "-"));
+        }
+
+        Passenger passenger = reservation != null && !reservation.getPassengers().isEmpty()
+                ? reservation.getPassengers().get(0)
+                : null;
+        if (passenger != null) {
+            nameField.setText(passenger.getName() != null ? passenger.getName() : "");
+            passportField.setText(passenger.getPassportNumber() != null ? passenger.getPassportNumber() : "");
+            birthField.setText(passenger.getDateOfBirth() != null
+                    ? passenger.getDateOfBirth().toString()
+                    : "");
+        } else if (me != null && me.getName() != null) {
+            nameField.setText(me.getName());
+        }
+    }
+
+    private FlightSchedule firstSchedule(Reservation reservation) {
+        if (reservation == null
+                || reservation.getItinerary() == null
+                || reservation.getItinerary().getSegments() == null
+                || reservation.getItinerary().getSegments().isEmpty()) {
+            return null;
+        }
+        return reservation.getItinerary().getSegments().get(0).getFlightSchedule();
     }
 
     private void doNext() {

@@ -60,6 +60,14 @@ public class Passenger {
         return passengerType;
     }
 
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public String getPassportNumber() {
+        return passportNumber;
+    }
+
     public void updatePassportNumber(String passportNumber) {
         this.passportNumber = passportNumber;
     }
