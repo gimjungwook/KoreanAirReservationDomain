@@ -75,6 +75,7 @@ public class MainFrame extends JFrame {
     private final CancellationPanel cancellationPanel;
     private final RefundPanel refundPanel;
 
+    private final JButton homeNavButton = new JButton("홈");
     private final JButton lookupNavButton = new JButton("예약 조회");
 
     private Member loggedInMember;
@@ -185,12 +186,14 @@ public class MainFrame extends JFrame {
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 16, 0));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 20));
 
+        styleNavButton(homeNavButton);
+        homeNavButton.addActionListener(e -> startNewBooking());
+        rightPanel.add(homeNavButton);
+
         // Iteration 2: 헤더에 "예약 조회" 진입 버튼 추가.
         styleNavButton(lookupNavButton);
         lookupNavButton.addActionListener(e -> showLookup());
         rightPanel.add(lookupNavButton);
-
-        rightPanel.add(stateBadge);
 
         headerPanel.add(leftPanel, BorderLayout.WEST);
         headerPanel.add(rightPanel, BorderLayout.EAST);
