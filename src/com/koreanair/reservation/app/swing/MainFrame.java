@@ -309,6 +309,7 @@ public class MainFrame extends JFrame {
     }
 
     public SeedResult seed() { return seed; }
+    public Reservation currentReservation() { return currentReservation; }
     public FlightSearchService flightSearch() { return flightSearch; }
     public BookingController booking() { return booking; }
     public RefundHandler refundHandler() { return refundHandler; }

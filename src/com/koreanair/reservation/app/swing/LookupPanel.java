@@ -23,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -30,9 +31,11 @@ import com.koreanair.reservation.control.AuthService;
 import com.koreanair.reservation.control.BookingController;
 import com.koreanair.reservation.control.ReservationLookupService;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
+import com.koreanair.reservation.domain.passenger.Passenger;
 import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.Segment;
+import com.koreanair.reservation.domain.user.User;
 import com.koreanair.reservation.domain.user.Member;
 
 /**
@@ -72,12 +75,15 @@ public class LookupPanel extends JPanel {
                 }
             };
     private final JTable memberTable = new JTable(memberTableModel);
+    private final JLabel memberStatusLabel = new JLabel(" ");
+    private final JLabel selectedSummaryLabel = new JLabel("선택된 예약이 없습니다.");
 
     // 비회원 조회 — 폼 필드.
     private final JTextField pnrField = new JTextField(18);
     private final JTextField nameField = new JTextField(18);
     private final JTextField emailField = new JTextField(18);
     private final JLabel guestMessage = new JLabel(" ");
+    private final JButton fillGuestButton = new JButton("현재/선택 예약 자동 입력");
 
     private final JButton searchButton = new JButton("조회");
     private final JButton cancelButton = new JButton("취소");
@@ -151,7 +157,7 @@ public class LookupPanel extends JPanel {
         card.setOpaque(true);
         card.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
 
-        JLabel hint = new JLabel("로그인한 회원의 예약 목록입니다. 행을 클릭하면 취소 화면으로 이동합니다.");
+        JLabel hint = new JLabel("로그인한 회원의 예약 목록입니다. 행 선택 후 아래 버튼으로 취소/환불 흐름에 진입합니다.");
         hint.setFont(ModernUI.FONT_SMALL);
         hint.setForeground(ModernUI.TEXT_SECONDARY);
         hint.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
@@ -176,11 +182,32 @@ public class LookupPanel extends JPanel {
                 }
             }
         });
+        memberTable.getSelectionModel().addListSelectionListener(this::onMemberSelectionChanged);
 
         JScrollPane scroll = new JScrollPane(memberTable);
         scroll.setBorder(BorderFactory.createLineBorder(ModernUI.BORDER, 1));
         scroll.getViewport().setBackground(ModernUI.CARD_BG);
         card.add(scroll, BorderLayout.CENTER);
+
+        JPanel bottom = new JPanel(new BorderLayout(12, 0));
+        bottom.setBackground(ModernUI.BACKGROUND);
+        bottom.setOpaque(true);
+        bottom.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        memberStatusLabel.setFont(ModernUI.FONT_SMALL);
+        memberStatusLabel.setForeground(ModernUI.TEXT_SECONDARY);
+        bottom.add(memberStatusLabel, BorderLayout.NORTH);
+
+        selectedSummaryLabel.setFont(ModernUI.FONT_SMALL);
+        selectedSummaryLabel.setForeground(ModernUI.TEXT_PRIMARY);
+        selectedSummaryLabel.setOpaque(true);
+        selectedSummaryLabel.setBackground(ModernUI.PRIMARY_LIGHT);
+        selectedSummaryLabel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        bottom.add(selectedSummaryLabel, BorderLayout.CENTER);
+
+        card.add(bottom, BorderLayout.SOUTH);
 
         return card;
     }
@@ -233,6 +260,17 @@ public class LookupPanel extends JPanel {
         card.add(emailField, c);
 
         c.gridx = 0; c.gridy = 3; c.gridwidth = 2;
+        ModernUI.styleButtonSecondary(fillGuestButton);
+        fillGuestButton.setFont(ModernUI.FONT_SMALL);
+        card.add(fillGuestButton, c);
+
+        JLabel helper = new JLabel("데모 중에는 현재 결제 완료 예약 또는 회원 조회에서 선택한 예약을 자동 입력할 수 있습니다.");
+        helper.setFont(ModernUI.FONT_SMALL);
+        helper.setForeground(ModernUI.TEXT_SECONDARY);
+        c.gridy = 4;
+        card.add(helper, c);
+
+        c.gridy = 5;
         guestMessage.setFont(ModernUI.FONT_SMALL);
         guestMessage.setForeground(ModernUI.ERROR);
         card.add(guestMessage, c);
@@ -246,18 +284,26 @@ public class LookupPanel extends JPanel {
     private void wireEvents() {
         memberMode.addActionListener(e -> {
             modeLayout.show(modePanel, CARD_MEMBER);
+            searchButton.setText("선택 예약 열기");
             refreshMemberList();
         });
         guestMode.addActionListener(e -> {
             modeLayout.show(modePanel, CARD_GUEST);
+            searchButton.setText("PNR 조회");
+            guestMessage.setForeground(ModernUI.ERROR);
             guestMessage.setText(" ");
         });
         searchButton.addActionListener(e -> doSearch());
         cancelButton.addActionListener(e -> frame.showSearch());
+        fillGuestButton.addActionListener(e -> fillGuestFields());
+        pnrField.addActionListener(e -> doGuestLookup());
+        nameField.addActionListener(e -> doGuestLookup());
+        emailField.addActionListener(e -> doGuestLookup());
     }
 
     /** MainFrame 이 카드 전환 시 호출. 로그인 회원의 예약 목록을 새로고침한다. */
     public void refresh() {
+        searchButton.setText(memberMode.isSelected() ? "선택 예약 열기" : "PNR 조회");
         if (memberMode.isSelected()) {
             refreshMemberList();
         }
@@ -266,16 +312,25 @@ public class LookupPanel extends JPanel {
     private void refreshMemberList() {
         memberTableModel.setRowCount(0);
         memberResults.clear();
+        selectedSummaryLabel.setText("선택된 예약이 없습니다.");
         Member current = authService != null ? authService.currentMember() : null;
         if (current == null) {
+            memberStatusLabel.setText("로그인된 회원이 없습니다. 먼저 로그인하거나 비회원 조회를 선택하세요.");
             return;
         }
         List<Reservation> list = lookupService.findByMember(current);
-        if (list == null) return;
+        if (list == null || list.isEmpty()) {
+            memberStatusLabel.setText("아직 예약이 없습니다. Book Flight에서 예약을 완료하면 이곳에 바로 표시됩니다.");
+            return;
+        }
         for (Reservation r : list) {
             memberResults.add(r);
             memberTableModel.addRow(toRow(r));
         }
+        memberStatusLabel.setText(String.format("%s님의 예약 %d건이 조회되었습니다. 첫 번째 예약을 자동 선택했습니다.",
+                current.getName(), memberResults.size()));
+        memberTable.setRowSelectionInterval(0, 0);
+        updateSelectedSummary(memberResults.get(0));
     }
 
     private Object[] toRow(Reservation r) {
@@ -322,12 +377,38 @@ public class LookupPanel extends JPanel {
 
     private void openSelected() {
         int row = memberTable.getSelectedRow();
-        if (row < 0 || row >= memberResults.size()) return;
+        if (row < 0 || row >= memberResults.size()) {
+            JOptionPane.showMessageDialog(this,
+                    "예약 목록에서 열 예약을 선택하세요.",
+                    "안내",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         Reservation r = memberResults.get(row);
         frame.showCancellation(r);
     }
 
+    private void onMemberSelectionChanged(ListSelectionEvent e) {
+        if (e.getValueIsAdjusting()) return;
+        int row = memberTable.getSelectedRow();
+        if (row >= 0 && row < memberResults.size()) {
+            updateSelectedSummary(memberResults.get(row));
+        }
+    }
+
+    private void updateSelectedSummary(Reservation r) {
+        if (r == null) {
+            selectedSummaryLabel.setText("선택된 예약이 없습니다.");
+            return;
+        }
+        Object[] row = toRow(r);
+        selectedSummaryLabel.setText(String.format(
+                "선택됨: PNR %s · %s → %s · %s · 상태 %s",
+                row[0], row[1], row[2], row[3], row[4]));
+    }
+
     private void doGuestLookup() {
+        guestMessage.setForeground(ModernUI.ERROR);
         guestMessage.setText(" ");
         String pnr = pnrField.getText().trim();
         String name = nameField.getText().trim();
@@ -345,6 +426,38 @@ public class LookupPanel extends JPanel {
             return;
         }
         frame.showCancellation(r);
+    }
+
+    private void fillGuestFields() {
+        Reservation source = frame.currentReservation();
+        int selectedRow = memberTable.getSelectedRow();
+        if (source == null && selectedRow >= 0 && selectedRow < memberResults.size()) {
+            source = memberResults.get(selectedRow);
+        }
+        if (source == null && !memberResults.isEmpty()) {
+            source = memberResults.get(0);
+        }
+        if (source == null) {
+            guestMessage.setText("자동 입력할 예약이 없습니다. 먼저 예약을 생성하거나 회원 예약을 선택하세요.");
+            return;
+        }
+        pnrField.setText(source.getPnrNumber() != null ? source.getPnrNumber() : "");
+        Passenger passenger = !source.getPassengers().isEmpty() ? source.getPassengers().get(0) : null;
+        String name = passenger != null ? passenger.getName() : "";
+        String email = passenger != null ? passenger.getContactInfo() : null;
+        User requester = source.getRequester();
+        if ((name == null || name.isBlank()) && requester instanceof Member) {
+            name = ((Member) requester).getName();
+        }
+        if (email == null || email.isBlank()) {
+            if (requester instanceof Member) {
+                email = ((Member) requester).getEmail();
+            }
+        }
+        nameField.setText(name != null ? name : "");
+        emailField.setText(email != null && !email.isBlank() ? email : "guest@example.com");
+        guestMessage.setForeground(ModernUI.TEXT_SECONDARY);
+        guestMessage.setText("현재/선택 예약 정보가 입력되었습니다. 조회를 누르면 같은 검증 흐름을 탑니다.");
     }
 
 }
