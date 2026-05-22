@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.JTextField;
 
 import com.koreanair.reservation.control.BusTicketingService;
 import com.koreanair.reservation.domain.bus.BusCity;
@@ -25,7 +26,7 @@ import com.koreanair.reservation.domain.reservation.Reservation;
 
 public class ConfirmationPanel extends JPanel {
 
-    private final JLabel pnrLabel = new JLabel(" ");
+    private final JTextField pnrLabel = new JTextField(" ");
     private final JLabel stateLabel = new JLabel(" ");
     private final JLabel amountLabel = new JLabel(" ");
     private final JLabel paymentStatusLabel = new JLabel(" ");
@@ -99,8 +100,11 @@ public class ConfirmationPanel extends JPanel {
         pnrH.setForeground(ModernUI.TEXT_SECONDARY);
         card.add(pnrH, c);
         c.gridx = 1;
-        pnrLabel.setFont(new Font("Monaco", Font.PLAIN, 16));
-        pnrLabel.setForeground(ModernUI.PRIMARY);
+        ModernUI.styleSelectableValue(pnrLabel,
+                new Font("Monaco", Font.PLAIN, 16),
+                ModernUI.PRIMARY,
+                ModernUI.CARD_BG);
+        pnrLabel.setToolTipText("마우스로 드래그하거나 Cmd/Ctrl+C로 PNR을 복사할 수 있습니다.");
         JPanel pnrPanel = new JPanel(new BorderLayout(10, 0));
         pnrPanel.setBackground(ModernUI.CARD_BG);
         pnrPanel.setOpaque(true);

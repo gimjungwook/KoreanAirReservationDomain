@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.JTextField;
 
 /**
  * 환불 결과 화면 — 취소 + 자동 환불 완료 후 진입.
@@ -24,7 +25,7 @@ public class RefundPanel extends JPanel {
 
     private final MainFrame frame;
 
-    private final JLabel pnrLabel = new JLabel(" ");
+    private final JTextField pnrLabel = new JTextField(" ");
     private final JLabel amountLabel = new JLabel(" ");
     private final JLabel policyLabel = new JLabel(" ");
     private final JLabel progressLabel = new JLabel(" ");
@@ -81,8 +82,11 @@ public class RefundPanel extends JPanel {
         c.gridy = 3; c.gridx = 0;
         card.add(makeKey("PNR"), c);
         c.gridx = 1;
-        pnrLabel.setFont(new Font("Monaco", Font.PLAIN, 16));
-        pnrLabel.setForeground(ModernUI.PRIMARY);
+        ModernUI.styleSelectableValue(pnrLabel,
+                new Font("Monaco", Font.PLAIN, 16),
+                ModernUI.PRIMARY,
+                ModernUI.CARD_BG);
+        pnrLabel.setToolTipText("마우스로 드래그하거나 Cmd/Ctrl+C로 PNR을 복사할 수 있습니다.");
         card.add(pnrLabel, c);
 
         c.gridy = 4; c.gridx = 0;

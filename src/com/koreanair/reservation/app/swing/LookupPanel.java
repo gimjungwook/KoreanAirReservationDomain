@@ -76,7 +76,7 @@ public class LookupPanel extends JPanel {
             };
     private final JTable memberTable = new JTable(memberTableModel);
     private final JLabel memberStatusLabel = new JLabel(" ");
-    private final JLabel selectedSummaryLabel = new JLabel("선택된 예약이 없습니다.");
+    private final JTextField selectedSummaryLabel = new JTextField("선택된 예약이 없습니다.");
     private final JButton copySelectedPnrButton = new JButton("선택 PNR 복사");
 
     // 비회원 조회 — 폼 필드.
@@ -203,13 +203,14 @@ public class LookupPanel extends JPanel {
         JPanel summaryRow = new JPanel(new BorderLayout(10, 0));
         summaryRow.setBackground(ModernUI.BACKGROUND);
         summaryRow.setOpaque(true);
-        selectedSummaryLabel.setFont(ModernUI.FONT_SMALL);
-        selectedSummaryLabel.setForeground(ModernUI.TEXT_PRIMARY);
-        selectedSummaryLabel.setOpaque(true);
-        selectedSummaryLabel.setBackground(ModernUI.PRIMARY_LIGHT);
+        ModernUI.styleSelectableValue(selectedSummaryLabel,
+                ModernUI.FONT_SMALL,
+                ModernUI.TEXT_PRIMARY,
+                ModernUI.PRIMARY_LIGHT);
         selectedSummaryLabel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(ModernUI.BORDER, 1),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        selectedSummaryLabel.setToolTipText("마우스로 드래그하거나 Cmd/Ctrl+C로 선택 예약 정보를 복사할 수 있습니다.");
         summaryRow.add(selectedSummaryLabel, BorderLayout.CENTER);
         ModernUI.styleButtonSecondary(copySelectedPnrButton);
         copySelectedPnrButton.setFont(ModernUI.FONT_SMALL);

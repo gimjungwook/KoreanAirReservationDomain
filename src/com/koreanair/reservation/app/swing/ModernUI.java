@@ -1,6 +1,7 @@
 package com.koreanair.reservation.app.swing;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -117,6 +118,23 @@ public final class ModernUI {
         field.setBackground(Color.WHITE);
         field.setSelectionColor(PRIMARY);
         field.setCaretColor(PRIMARY);
+    }
+
+    public static void styleSelectableValue(JTextField field,
+                                            Font font,
+                                            Color foreground,
+                                            Color background) {
+        field.setEditable(false);
+        field.setFocusable(true);
+        field.setFont(font);
+        field.setForeground(foreground);
+        field.setBackground(background);
+        field.setOpaque(true);
+        field.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
+        field.setSelectionColor(PRIMARY_LIGHT);
+        field.setSelectedTextColor(TEXT_PRIMARY);
+        field.setCaretColor(foreground);
+        field.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
     }
 
     public static void styleCard(JComponent component) {

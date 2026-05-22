@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import com.koreanair.reservation.control.BookingController;
 import com.koreanair.reservation.domain.flight.FareRule;
@@ -24,7 +25,7 @@ public class PaymentPanel extends JPanel {
     private static final long DEFAULT_BASE_FARE = 450_000L;
     private static final long DEFAULT_TAX = 50_000L;
 
-    private final JLabel pnrLabel = new JLabel(" ");
+    private final JTextField pnrLabel = new JTextField(" ");
     private final JLabel amountLabel = new JLabel(" ");
     private final JLabel methodHintLabel = new JLabel("데모 결제는 즉시 승인되는 신용카드 경로로 진행됩니다.");
     private final JComboBox<String> methodCombo = new JComboBox<>(new String[] {
@@ -94,9 +95,11 @@ public class PaymentPanel extends JPanel {
         formCard.add(pnrH, c);
 
         c.gridx = 1;
-        pnrLabel.setFont(new java.awt.Font("Monaco", java.awt.Font.PLAIN, 15));
-        pnrLabel.setForeground(ModernUI.PRIMARY);
-        pnrLabel.setOpaque(false);
+        ModernUI.styleSelectableValue(pnrLabel,
+                new java.awt.Font("Monaco", java.awt.Font.PLAIN, 15),
+                ModernUI.PRIMARY,
+                ModernUI.CARD_BG);
+        pnrLabel.setToolTipText("마우스로 드래그하거나 Cmd/Ctrl+C로 PNR을 복사할 수 있습니다.");
         formCard.add(pnrLabel, c);
 
         c.gridy = 3; c.gridx = 0;

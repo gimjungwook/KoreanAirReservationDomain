@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import com.koreanair.reservation.control.BookingController;
 import com.koreanair.reservation.control.RefundHandler;
@@ -42,7 +43,7 @@ public class CancellationPanel extends JPanel {
     private final BookingController booking;
     private final RefundHandler refundHandler;
 
-    private final JLabel pnrLabel = new JLabel(" ");
+    private final JTextField pnrLabel = new JTextField(" ");
     private final JLabel routeLabel = new JLabel(" ");
     private final JLabel stateLabel = new JLabel(" ");
 
@@ -99,8 +100,11 @@ public class CancellationPanel extends JPanel {
         c.gridy = 1; c.gridx = 0;
         card.add(makeKey("PNR"), c);
         c.gridx = 1;
-        pnrLabel.setFont(new Font("Monaco", Font.PLAIN, 15));
-        pnrLabel.setForeground(ModernUI.PRIMARY);
+        ModernUI.styleSelectableValue(pnrLabel,
+                new Font("Monaco", Font.PLAIN, 15),
+                ModernUI.PRIMARY,
+                ModernUI.CARD_BG);
+        pnrLabel.setToolTipText("마우스로 드래그하거나 Cmd/Ctrl+C로 PNR을 복사할 수 있습니다.");
         card.add(pnrLabel, c);
 
         c.gridy = 2; c.gridx = 0;
