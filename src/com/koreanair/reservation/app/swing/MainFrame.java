@@ -23,9 +23,14 @@ import com.koreanair.reservation.control.FlightSearchService;
 import com.koreanair.reservation.control.PaymentProcessor;
 import com.koreanair.reservation.control.RefundHandler;
 import com.koreanair.reservation.control.ReservationLookupService;
+import com.koreanair.reservation.control.TicketPurchasePublisher;
+import com.koreanair.reservation.control.BusTicketingService;
+import com.koreanair.reservation.domain.bus.BusCity;
+import com.koreanair.reservation.domain.bus.BusTicket;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.reservation.Reservation;
+import com.koreanair.reservation.domain.reservation.Ticket;
 import com.koreanair.reservation.domain.user.Member;
 
 public class MainFrame extends JFrame {
@@ -55,6 +60,8 @@ public class MainFrame extends JFrame {
     private final BookingController booking;
     private final RefundHandler refundHandler;
     private final ReservationLookupService lookupService;
+    private final TicketPurchasePublisher ticketPublisher;
+    private final BusTicketingService busTicketingService;
     private final SwingReservationUI ui;
     private final SeedResult seed;
 
@@ -81,13 +88,17 @@ public class MainFrame extends JFrame {
                      RefundHandler refundHandler,
                      ReservationLookupService lookupService,
                      SwingReservationUI ui,
-                     SeedResult seed) {
+                     SeedResult seed,
+                     TicketPurchasePublisher ticketPublisher,
+                     BusTicketingService busTicketingService) {
         super("대한항공 예약 시스템");
         this.authService = authService;
         this.flightSearch = flightSearch;
         this.booking = booking;
         this.refundHandler = refundHandler;
         this.lookupService = lookupService;
+        this.ticketPublisher = ticketPublisher;
+        this.busTicketingService = busTicketingService;
         this.ui = ui;
         this.seed = seed;
 
@@ -101,7 +112,7 @@ public class MainFrame extends JFrame {
         searchPanel = new SearchPanel(this, booking, ui);
         passengerPanel = new PassengerPanel(this, booking, ui);
         paymentPanel = new PaymentPanel(this, booking, ui);
-        confirmationPanel = new ConfirmationPanel(this);
+        confirmationPanel = new ConfirmationPanel(this, busTicketingService);
         lookupPanel = new LookupPanel(this, booking, lookupService, authService);
         seatSelectionPanel = new SeatSelectionPanel(this, booking);
         cancellationPanel = new CancellationPanel(this, booking, refundHandler);
@@ -136,7 +147,9 @@ public class MainFrame extends JFrame {
         this(authService, flightSearch, paymentProcessor, booking,
                 new RefundHandler(),
                 new ReservationLookupService(authService),
-                ui, seed);
+                ui, seed,
+                new TicketPurchasePublisher(),
+                new BusTicketingService());
     }
 
     private void buildHeader() {
@@ -260,6 +273,30 @@ public class MainFrame extends JFrame {
         if (reservation != null) stateBadge.setCurrentState(reservation.getStateName());
         confirmationPanel.prepare(reservation, payment);
         showConfirmation();
+    }
+
+    public BusTicket issueLinkedBusTicket(Reservation reservation, BusCity city) {
+        if (reservation == null) {
+            throw new IllegalArgumentException("발권 대상 예약이 없습니다.");
+        }
+        if (city == null) {
+            throw new IllegalArgumentException("버스 목적 도시를 선택하세요.");
+        }
+        if (reservation.getTickets().isEmpty()) {
+            reservation.issueTicket();
+            stateBadge.setCurrentState(reservation.getStateName());
+        }
+        if (reservation.getTickets().isEmpty()) {
+            throw new IllegalStateException("e-Ticket 발급 결과가 없습니다.");
+        }
+        Ticket airTicket = reservation.getTickets().get(reservation.getTickets().size() - 1);
+        int before = busTicketingService.getIssuedTickets().size();
+        ticketPublisher.publishTicketIssued(reservation, airTicket, city);
+        if (busTicketingService.getIssuedTickets().size() <= before) {
+            throw new IllegalStateException("버스티켓 listener가 발매 결과를 만들지 못했습니다.");
+        }
+        return busTicketingService.getIssuedTickets()
+                .get(busTicketingService.getIssuedTickets().size() - 1);
     }
 
     public void reset() {

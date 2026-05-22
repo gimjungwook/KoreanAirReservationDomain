@@ -11,10 +11,15 @@ import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import com.koreanair.reservation.control.BusTicketingService;
+import com.koreanair.reservation.domain.bus.BusCity;
+import com.koreanair.reservation.domain.bus.BusTicket;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.reservation.Reservation;
 
@@ -24,14 +29,19 @@ public class ConfirmationPanel extends JPanel {
     private final JLabel stateLabel = new JLabel(" ");
     private final JLabel amountLabel = new JLabel(" ");
     private final JLabel paymentStatusLabel = new JLabel(" ");
+    private final JLabel busTicketStatusLabel = new JLabel("미발매");
+    private final JComboBox<BusCity> busCityCombo;
     private final JButton homeButton = new JButton("처음으로");
-    private final JButton ticketButton = new JButton("e-Ticket 발급 (Iteration 2 예정)");
+    private final JButton ticketButton = new JButton("e-Ticket + 우등고속 발매");
 
     private final MainFrame frame;
+    private Reservation reservation;
 
-    public ConfirmationPanel(MainFrame frame) {
+    public ConfirmationPanel(MainFrame frame, BusTicketingService busTicketingService) {
         super(new BorderLayout());
         this.frame = frame;
+        this.busCityCombo = new JComboBox<>(
+                busTicketingService.supportedCities().toArray(new BusCity[0]));
         setBackground(ModernUI.BACKGROUND);
         setOpaque(true);
         buildContent();
@@ -121,6 +131,25 @@ public class ConfirmationPanel extends JPanel {
         amountLabel.setForeground(ModernUI.TEXT_PRIMARY);
         card.add(amountLabel, c);
 
+        c.gridy = 7; c.gridx = 0;
+        JLabel busCityH = new JLabel("연계 버스 목적지");
+        busCityH.setFont(ModernUI.FONT_SMALL);
+        busCityH.setForeground(ModernUI.TEXT_SECONDARY);
+        card.add(busCityH, c);
+        c.gridx = 1;
+        busCityCombo.setFont(ModernUI.FONT_BODY);
+        card.add(busCityCombo, c);
+
+        c.gridy = 8; c.gridx = 0;
+        JLabel busStatusH = new JLabel("버스티켓 상태");
+        busStatusH.setFont(ModernUI.FONT_SMALL);
+        busStatusH.setForeground(ModernUI.TEXT_SECONDARY);
+        card.add(busStatusH, c);
+        c.gridx = 1;
+        busTicketStatusLabel.setFont(ModernUI.FONT_BODY);
+        busTicketStatusLabel.setForeground(ModernUI.TEXT_PRIMARY);
+        card.add(busTicketStatusLabel, c);
+
         c.gridy = 2; c.gridx = 0; c.gridwidth = 1; c.anchor = GridBagConstraints.NORTHWEST;
         centerPanel.add(card, c);
 
@@ -135,11 +164,9 @@ public class ConfirmationPanel extends JPanel {
         rightBtns.setBackground(ModernUI.CARD_BG);
         rightBtns.setOpaque(true);
 
-        ticketButton.setEnabled(false);
         ticketButton.setFont(ModernUI.FONT_SMALL);
-        ticketButton.setForeground(ModernUI.TEXT_SECONDARY);
-        ticketButton.setOpaque(true);
-        ticketButton.setContentAreaFilled(false);
+        ModernUI.styleButtonSuccess(ticketButton);
+        ticketButton.addActionListener(e -> issueLinkedTicket());
         rightBtns.add(ticketButton);
 
         ModernUI.styleButton(homeButton);
@@ -152,8 +179,12 @@ public class ConfirmationPanel extends JPanel {
     }
 
     public void prepare(Reservation reservation, Payment payment) {
+        this.reservation = reservation;
         pnrLabel.setText(reservation != null ? reservation.getPnrNumber() : "-");
         stateLabel.setText(reservation != null ? reservation.getStateName() : "-");
+        busTicketStatusLabel.setText("미발매");
+        ticketButton.setEnabled(reservation != null);
+        busCityCombo.setEnabled(reservation != null);
         if (payment != null) {
             paymentStatusLabel.setText(String.valueOf(payment.getStatus()));
             amountLabel.setText(payment.getAmount() != null
@@ -162,6 +193,32 @@ public class ConfirmationPanel extends JPanel {
         } else {
             paymentStatusLabel.setText("-");
             amountLabel.setText("-");
+        }
+    }
+
+    private void issueLinkedTicket() {
+        try {
+            BusCity city = (BusCity) busCityCombo.getSelectedItem();
+            BusTicket busTicket = frame.issueLinkedBusTicket(reservation, city);
+            stateLabel.setText(reservation != null ? reservation.getStateName() : "-");
+            busTicketStatusLabel.setText(String.format("%s · %s · %,d KRW",
+                    busTicket.getTicketNumber(),
+                    busTicket.getDestinationCity().getDisplayName(),
+                    busTicket.getFare()));
+            ticketButton.setEnabled(false);
+            busCityCombo.setEnabled(false);
+            JOptionPane.showMessageDialog(this,
+                    "e-Ticket 발급 후 우등고속 버스티켓이 연계 발매되었습니다.\n"
+                            + "버스티켓: " + busTicket.getTicketNumber() + "\n"
+                            + "도시: " + busTicket.getDestinationCity().getDisplayName()
+                            + " / 요금: " + String.format("%,d KRW", busTicket.getFare()),
+                    "연계 발매 완료",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "연계 발매 실패: " + ex.getMessage(),
+                    "오류",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

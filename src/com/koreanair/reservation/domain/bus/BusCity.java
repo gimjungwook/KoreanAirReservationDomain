@@ -33,4 +33,9 @@ public enum BusCity {
     public long getPremiumFare() {
         return premiumFare;
     }
+
+    @Override
+    public String toString() {
+        return displayName + " (" + cityCode + ")";
+    }
 }
