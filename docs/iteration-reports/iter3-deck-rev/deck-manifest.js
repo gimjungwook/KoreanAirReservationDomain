@@ -29,6 +29,9 @@ window.DECK_MANIFEST = [
   { file: "slides/07-observer-code.html", label: "Observer 코드 (구조↔코드)",
     notes: "실제 코드입니다. 디펜스를 위해 구조도와 실제 소스를 토글로 같이 봅니다.\n\nEventPublisher가 Subject 베이스로 subscribe와 publish를 공통 처리합니다. publish는 등록된 listener를 순회하며 onEvent를 호출하는데, 한 listener가 예외를 던져도 try-catch로 다른 listener 통지가 끊기지 않게 했습니다. EventListener는 onEvent 하나짜리 인터페이스고, DomainEvent는 occurredAt과 sourceId를 가진 추상 베이스입니다.\n\nReservationAutoCancelListener를 보면 onEvent 첫 줄에서 instanceof PaymentFailedEvent로 가른 뒤, 자기 이벤트일 때만 PNR로 예약을 찾아 handlePaymentFailure를 호출합니다." },
 
+  { file: "slides/07b-listeners.html", label: "Listener 구현 3종",
+    notes: "Observer 처리부를 어떻게 구현했는지 실제 onEvent 본문 세 개를 나란히 보겠습니다.\n\n세 listener 모두 패턴이 같습니다. 첫 줄에서 instanceof로 자기 이벤트인지 가르고, 아니면 즉시 return. 그 다음 이벤트에서 payload를 꺼내고, 도메인 메서드를 호출합니다.\n\nHoldListener는 좌석을 release하고 예약을 취소합니다. AutoCancelListener는 PNR로 예약을 찾아 handlePaymentFailure를 부릅니다. AffectedListener는 영향받는 예약 리스트를 순회하며 1대 N으로 전파합니다. 같은 인터페이스, 각자 다른 부수효과 — 이게 Observer 구현의 핵심입니다." },
+
   { file: "slides/div2-consistency.html", label: "PART 2 · 정합성",
     notes: "2부. UC, Class, State, Sequence 네 다이어그램의 정합성." },
 

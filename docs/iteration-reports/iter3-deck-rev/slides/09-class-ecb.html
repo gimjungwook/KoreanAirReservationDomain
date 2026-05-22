@@ -28,7 +28,7 @@
 </head>
 <body>
 <section class="slide" id="root">
-  <header class="masthead"><span class="paper-cite">PART 2 · 정합성 · <b>Class Diagram (ECB)</b></span><span class="slide-counter">11 / 22</span></header>
+  <header class="masthead"><span class="paper-cite">PART 2 · 정합성 · <b>Class Diagram (ECB)</b></span><span class="slide-counter">12 / 23</span></header>
   <div class="head-row" style="margin-top:100px">
     <div>
       <span class="eyebrow"><span class="dot"></span> Entity · Control · Boundary — 클래스별 실제 코드</span>
@@ -64,10 +64,15 @@
       <div class="cls is-new">3 Listener · Registry · SearchService</div>
       <div class="ecode"><span class="cm">// SeatHoldMonitor — Subject가 발행</span>
 <span class="kw">public int</span> sweep(<span class="ty">LocalDateTime</span> now) {
-  <span class="kw">for</span> (<span class="ty">HeldSeat</span> h : snapshot) {
-    <span class="kw">if</span> (h.seat.isHoldExpiredAt(now))
-      <span class="hot">publish(<span class="kw">new</span> <span class="ty">SeatHoldExpiredEvent</span>(...));</span>
-  } ...
+  <span class="kw">int</span> fired = <span class="nu">0</span>;
+  <span class="kw">for</span> (<span class="ty">HeldSeat</span> h : <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(tracked)) {
+    <span class="kw">if</span> (h.seat.isHoldExpiredAt(now)) {
+      <span class="hot">publish(<span class="kw">new</span> <span class="ty">SeatHoldExpiredEvent</span>(
+          h.seat, h.reservationPnr));</span>
+      tracked.remove(h); fired++;
+    }
+  }
+  <span class="kw">return</span> fired;
 }</div>
     </div>
     <div class="ecol boundary" data-ecb="boundary">
@@ -75,11 +80,13 @@
       <div class="cls">ReservationUI / SwingUI</div>
       <div class="cls is-new">MockSkypassInterface</div>
       <div class="cls">«interface» SkypassInterface</div>
-      <div class="ecode"><span class="cm">// 외부 Skypass mock (interface 구현)</span>
-<span class="kw">public class</span> <span class="ty">MockSkypassInterface</span>
-    <span class="kw">implements</span> <span class="ty">SkypassInterface</span> {
-  <span class="kw">public int</span> getMileageBalance(<span class="ty">String</span> no) {...}
-  <span class="kw">public boolean</span> deductMileage(<span class="ty">String</span> no, <span class="kw">int</span> amt){...}
+      <div class="ecode"><span class="cm">// MockSkypassInterface — 외부 mock</span>
+<span class="kw">public boolean</span> deductMileage(<span class="ty">String</span> no, <span class="kw">int</span> amt) {
+  <span class="kw">if</span> (amt &lt;= <span class="nu">0</span>) <span class="kw">return false</span>;
+  <span class="kw">int</span> cur = balances.getOrDefault(no, <span class="nu">0</span>);
+  <span class="kw">if</span> (cur &lt; amt) <span class="kw">return false</span>;     <span class="cm">// 잔액 부족</span>
+  balances.put(no, cur - amt);
+  <span class="kw">return true</span>;
 }</div>
     </div>
   </div>

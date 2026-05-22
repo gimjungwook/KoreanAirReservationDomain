@@ -287,7 +287,7 @@
     const W = canvas.clientWidth || 1200, H = canvas.clientHeight || 1000;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(46, W / H, 0.1, 100);
-    camera.position.set(0, 1.6, 13);
+    camera.position.set(0, 1.2, 16.5);
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setSize(W, H);
     scene.add(new THREE.AmbientLight(0xffffff, 0.85));
@@ -315,18 +315,8 @@
       const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
         new THREE.LineBasicMaterial({ color: col(listColors[i]), transparent: true, opacity: 0.28 }));
       scene.add(line);
-      listeners.push({ m, line, ang: (i / ORB) * Math.PI * 2, rad: 5.4, tilt: (i % 2 ? 0.5 : -0.4), spd: 0.18 + i * 0.012 });
+      listeners.push({ m, line, ang: (i / ORB) * Math.PI * 2, rad: 4.6, tilt: (i % 2 ? 0.5 : -0.4), spd: 0.18 + i * 0.012 });
     }
-
-    // publish pulse rings (expanding torus)
-    const rings = [];
-    function spawnRing() {
-      const r = new THREE.Mesh(new THREE.TorusGeometry(1.6, 0.05, 10, 80),
-        new THREE.MeshBasicMaterial({ color: col(C.event), transparent: true, opacity: 0.6 }));
-      r.rotation.x = Math.PI / 2.2;
-      scene.add(r); rings.push({ mesh: r, t: 0 });
-    }
-    let ringTimer = 0;
 
     let t = 0, last = performance.now();
     function loop(now) {
@@ -344,16 +334,8 @@
         const p = L.line.geometry.attributes.position;
         p.setXYZ(0, 0, 0, 0); p.setXYZ(1, x, y, z); p.needsUpdate = true;
       });
-      ringTimer += dt;
-      if (ringTimer > 1.7) { ringTimer = 0; spawnRing(); }
-      for (let i = rings.length - 1; i >= 0; i--) {
-        const R = rings[i]; R.t += dt;
-        const s = 1 + R.t * 3.2; R.mesh.scale.set(s, s, s);
-        R.mesh.material.opacity = Math.max(0, 0.6 - R.t * 0.32);
-        if (R.t > 2) { scene.remove(R.mesh); rings.splice(i, 1); }
-      }
-      camera.position.x = Math.sin(t * 0.25) * 1.2;
-      camera.position.y = 1.6 + Math.sin(t * 0.4) * 0.4;
+      camera.position.x = 0;
+      camera.position.y = 1.2 + Math.sin(t * 0.4) * 0.3;
       camera.lookAt(0, 0, 0);
       renderer.render(scene, camera);
       requestAnimationFrame(loop);
