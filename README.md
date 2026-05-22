@@ -8,7 +8,7 @@
 [![IDE](https://img.shields.io/badge/IDE-Eclipse-2C2255?style=flat-square&logo=eclipseide&logoColor=white)](https://www.eclipse.org/)
 [![UML](https://img.shields.io/badge/UML-AmaterasUML-1E90FF?style=flat-square)](http://amateras.sourceforge.jp/)
 [![Patterns](https://img.shields.io/badge/GoF-State%20%C2%B7%20Strategy%20%C2%B7%20Observer%20%C2%B7%20Singleton-6A5ACD?style=flat-square)](https://en.wikipedia.org/wiki/Design_Patterns)
-[![Iteration](https://img.shields.io/badge/Iteration-2%20%2F%204-FF8C00?style=flat-square)](#-진행-상태)
+[![Iteration](https://img.shields.io/badge/Iteration-3%20%2F%204-FF8C00?style=flat-square)](#-진행-상태)
 [![License](https://img.shields.io/badge/License-Academic%20Reference-708090?style=flat-square)](#%EF%B8%8F-라이선스-및-학술-무결성)
 
 </div>
@@ -18,7 +18,7 @@
 설계프로젝트 #1에서 만든 UML 모델을 자바 데스크톱 애플리케이션으로 구현하고, 4번의 iteration을 거치며 점진적으로 정제해 나가는 프로젝트. 각 iteration은 하나의 주축 디자인 패턴을 중심에 둔다.
 
 > [!NOTE]
-> 본 저장소는 진행 중인 산출물입니다. iteration 2 **Strategy 패턴 구현**까지 끝까지 동작하며, iteration 3부터는 계획 단계입니다 (각 iteration 보고서는 [`docs/iteration-reports/`](docs/iteration-reports/) 참조).
+> 본 저장소는 진행 중인 산출물입니다. iteration 3 **Observer 패턴 구현**까지 끝까지 동작하며, iteration 4부터는 계획 단계입니다 (각 iteration 보고서는 [`docs/iteration-reports/`](docs/iteration-reports/) 참조).
 
 ---
 
@@ -28,7 +28,7 @@
 | :---: | :--- | :---: | :--- |
 | **1** | **State** — 8개 구상 상태 클래스 | ✅ 동작 | 회원 가입 · 로그인 · 검색 · 직항 · 승객 · 결제 |
 | **2** | **Strategy** — `RefundPolicy` family | ✅ 동작 | 취소 · 환불 · e-Ticket · 예약 조회 · 좌석 선택 · salted-hash auth |
-| **3** | **Observer** — 비동기 이벤트 전파 | 📋 계획 | 환승 · multi-city · 마일리지 · 자동 취소 |
+| **3** | **Observer** — 비동기 이벤트 전파 | ✅ 동작 | 환승 · multi-city · 마일리지 · 자동 취소 |
 | **4** | **Singleton** + 옵션 **Factory Method** | 📋 계획 | 관리자 환불 · 전역 설정 · PDF · 실시간 추적 |
 
 ### 패턴 로드맵
@@ -112,7 +112,7 @@ src/com/koreanair/reservation/
 └── tools/                  # AmaterasUML 에미터 (Generate*Diagram.java)
 ```
 
-총 **69개 자바 파일**, **11개 패키지**.
+총 **114개 자바 파일**, **18개 패키지**.
 
 </details>
 
@@ -196,10 +196,13 @@ File → Import → Existing Projects into Workspace → clone한 디렉토리 �
 
 ```bash
 cd src
-find . -name "*.java" > sources.txt
+# tools/ 패키지는 AmaterasUML·Eclipse 플러그인 jar에 의존하므로 CLI 빌드에서 제외합니다.
+# (다이어그램 생성은 Eclipse에서 실행 — 아래 "다이어그램 자동 생성" 참조)
+find . -name "*.java" -not -path "./com/koreanair/reservation/tools/*" > sources.txt
 javac -d ../bin @sources.txt
 cd ..
-java -cp bin com.koreanair.reservation.app.App
+java -cp bin com.koreanair.reservation.app.App        # 콘솔
+java -cp bin com.koreanair.reservation.app.swing.SwingApp   # Swing UI
 ```
 
 ---
