@@ -88,7 +88,7 @@ public class LookupPanel extends JPanel {
     private final JButton pastePnrButton = new JButton("PNR 붙여넣기");
 
     private final JButton searchButton = new JButton("조회");
-    private final JButton cancelButton = new JButton("취소");
+    private final JButton cancelButton = new JButton("← 항공 예약 홈");
 
     // 회원 모드에서 row index → Reservation 매핑 보관.
     private List<Reservation> memberResults = new java.util.ArrayList<>();
@@ -311,7 +311,7 @@ public class LookupPanel extends JPanel {
             guestMessage.setText(" ");
         });
         searchButton.addActionListener(e -> doSearch());
-        cancelButton.addActionListener(e -> frame.showSearch());
+        cancelButton.addActionListener(e -> frame.startNewBooking());
         fillGuestButton.addActionListener(e -> fillGuestFields());
         copySelectedPnrButton.addActionListener(e -> copySelectedPnr());
         pastePnrButton.addActionListener(e -> pastePnr());
