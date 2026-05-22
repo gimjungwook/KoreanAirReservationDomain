@@ -275,6 +275,13 @@ public class MainFrame extends JFrame {
         showConfirmation();
     }
 
+    public void syncReservationState(Reservation reservation) {
+        this.currentReservation = reservation;
+        if (reservation != null) {
+            stateBadge.setCurrentState(reservation.getStateName());
+        }
+    }
+
     public BusTicket issueLinkedBusTicket(Reservation reservation, BusCity city) {
         if (reservation == null) {
             throw new IllegalArgumentException("발권 대상 예약이 없습니다.");

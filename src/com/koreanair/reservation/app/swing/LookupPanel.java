@@ -157,7 +157,7 @@ public class LookupPanel extends JPanel {
         card.setOpaque(true);
         card.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
 
-        JLabel hint = new JLabel("로그인한 회원의 예약 목록입니다. 행 선택 후 아래 버튼으로 취소/환불 흐름에 진입합니다.");
+        JLabel hint = new JLabel("예약 상태에 맞는 동작을 제공합니다. 결제 대기는 즉시 취소, 확정/발권은 취소·환불 화면으로 이동합니다.");
         hint.setFont(ModernUI.FONT_SMALL);
         hint.setForeground(ModernUI.TEXT_SECONDARY);
         hint.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
@@ -385,14 +385,16 @@ public class LookupPanel extends JPanel {
             return;
         }
         Reservation r = memberResults.get(row);
-        frame.showCancellation(r);
+        openReservationByState(r);
     }
 
     private void onMemberSelectionChanged(ListSelectionEvent e) {
         if (e.getValueIsAdjusting()) return;
         int row = memberTable.getSelectedRow();
         if (row >= 0 && row < memberResults.size()) {
-            updateSelectedSummary(memberResults.get(row));
+            Reservation selected = memberResults.get(row);
+            updateSelectedSummary(selected);
+            updatePrimaryAction(selected);
         }
     }
 
@@ -405,6 +407,76 @@ public class LookupPanel extends JPanel {
         selectedSummaryLabel.setText(String.format(
                 "선택됨: PNR %s · %s → %s · %s · 상태 %s",
                 row[0], row[1], row[2], row[3], row[4]));
+    }
+
+    private void updatePrimaryAction(Reservation r) {
+        if (!memberMode.isSelected()) {
+            searchButton.setText("PNR 조회");
+            return;
+        }
+        String state = r != null ? r.getStateName() : "";
+        if ("PendingPayment".equals(state)) {
+            searchButton.setText("결제 대기 예약 취소");
+        } else if ("Confirmed".equals(state) || "Ticketed".equals(state)) {
+            searchButton.setText("취소/환불 진행");
+        } else if ("Cancelled".equals(state) || "Refunded".equals(state)) {
+            searchButton.setText("처리 완료 예약 보기");
+        } else {
+            searchButton.setText("선택 예약 열기");
+        }
+    }
+
+    private void openReservationByState(Reservation r) {
+        if (r == null) {
+            return;
+        }
+        String state = r.getStateName();
+        if ("PendingPayment".equals(state)) {
+            cancelPendingPayment(r);
+            return;
+        }
+        if ("Confirmed".equals(state) || "Ticketed".equals(state)) {
+            frame.showCancellation(r);
+            return;
+        }
+        if ("Cancelled".equals(state) || "Refunded".equals(state)) {
+            JOptionPane.showMessageDialog(this,
+                    "이미 처리 완료된 예약입니다.\nPNR: " + r.getPnrNumber() + "\n상태: " + state,
+                    "예약 상태",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(this,
+                "현재 상태에서는 취소/환불을 진행할 수 없습니다.\nPNR: "
+                        + r.getPnrNumber() + "\n상태: " + state,
+                "상태 확인",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void cancelPendingPayment(Reservation r) {
+        int answer = JOptionPane.showConfirmDialog(this,
+                "이 예약은 아직 결제 대기 상태입니다.\n환불 없이 예약만 취소할까요?\n\nPNR: "
+                        + r.getPnrNumber(),
+                "결제 대기 예약 취소",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try {
+            r.handlePaymentFailure();
+            frame.syncReservationState(r);
+            refreshMemberList();
+            JOptionPane.showMessageDialog(this,
+                    "결제 대기 예약이 취소되었습니다.\nPNR: " + r.getPnrNumber(),
+                    "취소 완료",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "결제 대기 예약 취소 중 오류: " + ex.getMessage(),
+                    "취소 실패",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void doGuestLookup() {
@@ -425,7 +497,7 @@ public class LookupPanel extends JPanel {
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
-        frame.showCancellation(r);
+        openReservationByState(r);
     }
 
     private void fillGuestFields() {
