@@ -10,14 +10,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +28,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -38,9 +37,17 @@ import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
 import com.koreanair.reservation.control.BookingController;
+import com.koreanair.reservation.domain.flight.Fare;
+import com.koreanair.reservation.domain.flight.Flight;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
+import com.koreanair.reservation.domain.reservation.Itinerary;
+import com.koreanair.reservation.domain.reservation.Segment;
 
 public class SearchPanel extends JPanel {
+
+    private static final String MODE_DIRECT = "직항";
+    private static final String MODE_CONNECTING = "환승";
+    private static final String MODE_MULTI_CITY = "다도시 추천";
 
     private static final String[] AIRPORT_CODES = {
         "ICN", "NRT", "HND", "FUK", "GMP",
@@ -48,6 +55,7 @@ public class SearchPanel extends JPanel {
         "LAX", "JFK", "SYD", "CDG", "FRA"
     };
 
+    private final JComboBox<String> modeCombo;
     private final JComboBox<String> fromCombo;
     private final JComboBox<String> toCombo;
     private final JSpinner dateSpinner;
@@ -56,11 +64,13 @@ public class SearchPanel extends JPanel {
 
     private final JPanel cardListPanel = new JPanel();
     private final JScrollPane scrollPane = new JScrollPane();
+    private final JLabel hint = new JLabel("직항/환승/다도시 추천을 선택해 발표 흐름 그대로 예약할 수 있습니다.");
 
     private final MainFrame frame;
     private final BookingController booking;
     private final SwingReservationUI ui;
-    private List<FlightSchedule> currentResults = new ArrayList<>();
+    private List<Itinerary> currentResults = new ArrayList<>();
+    private int selectedIndex = -1;
 
     public SearchPanel(MainFrame frame, BookingController booking, SwingReservationUI ui) {
         super(new BorderLayout());
@@ -69,14 +79,15 @@ public class SearchPanel extends JPanel {
         this.ui = ui;
         setBackground(ModernUI.BACKGROUND);
 
+        modeCombo = new JComboBox<>(new String[] { MODE_DIRECT, MODE_CONNECTING, MODE_MULTI_CITY });
         fromCombo = new JComboBox<>(AIRPORT_CODES);
         toCombo = new JComboBox<>(AIRPORT_CODES);
+        toCombo.setSelectedItem("NRT");
 
         SpinnerDateModel dateModel = new SpinnerDateModel();
         dateModel.setValue(Date.from(LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
         dateSpinner = new JSpinner(dateModel);
-        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd");
-        dateSpinner.setEditor(dateEditor);
+        dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd"));
 
         buildSearchBar();
         buildCardList();
@@ -89,86 +100,72 @@ public class SearchPanel extends JPanel {
         searchBar.setBackground(ModernUI.CARD_BG);
         searchBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER));
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(8, 16, 8, 16);
+        c.insets = new Insets(8, 12, 8, 12);
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel logo = new JLabel("🔍", SwingConstants.CENTER);
-        logo.setFont(new Font("System", Font.PLAIN, 20));
+        JLabel logo = new JLabel("검색", SwingConstants.CENTER);
+        logo.setFont(ModernUI.FONT_SMALL);
+        logo.setForeground(ModernUI.PRIMARY);
         c.gridx = 0;
+        c.weightx = 0.05;
         searchBar.add(logo, c);
 
         c.gridx = 1;
-        c.weightx = 0.25;
-        fromCombo.setFont(ModernUI.FONT_BODY);
-        fromCombo.setBackground(Color.WHITE);
-        fromCombo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
-                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-        fromCombo.setFocusable(false);
-        JPanel fromWrap = wrapCombo(fromCombo, "출발 공항");
-        searchBar.add(fromWrap, c);
+        c.weightx = 0.14;
+        styleCombo(modeCombo);
+        searchBar.add(wrap(modeCombo, "검색 방식"), c);
+
+        c.gridx = 2;
+        c.weightx = 0.18;
+        styleCombo(fromCombo);
+        searchBar.add(wrap(fromCombo, "출발"), c);
 
         JLabel arrow = new JLabel("→", SwingConstants.CENTER);
         arrow.setFont(new Font("System", Font.BOLD, 16));
         arrow.setForeground(ModernUI.PRIMARY);
-        c.gridx = 2;
+        c.gridx = 3;
+        c.weightx = 0.03;
         searchBar.add(arrow, c);
 
-        c.gridx = 3;
-        c.weightx = 0.25;
-        toCombo.setFont(ModernUI.FONT_BODY);
-        toCombo.setBackground(Color.WHITE);
-        toCombo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
-                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-        toCombo.setFocusable(false);
-        toCombo.setSelectedItem("NRT");
-        JPanel toWrap = wrapCombo(toCombo, "도착 공항");
-        searchBar.add(toWrap, c);
-
-        JLabel divider = new JLabel("|", SwingConstants.CENTER);
-        divider.setFont(new Font("System", Font.PLAIN, 16));
-        divider.setForeground(ModernUI.BORDER);
         c.gridx = 4;
-        searchBar.add(divider, c);
+        c.weightx = 0.18;
+        styleCombo(toCombo);
+        searchBar.add(wrap(toCombo, "도착"), c);
 
         c.gridx = 5;
-        c.weightx = 0.2;
+        c.weightx = 0.16;
         dateSpinner.setFont(ModernUI.FONT_BODY);
         dateSpinner.setBackground(Color.WHITE);
         dateSpinner.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(ModernUI.BORDER, 1),
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-        JComponent dateEditorComponent = dateSpinner.getEditor();
-        dateEditorComponent.setBackground(Color.WHITE);
-        JPanel dateWrap = wrapSpinner(dateSpinner, "날짜");
-        searchBar.add(dateWrap, c);
+        searchBar.add(wrap(dateSpinner, "날짜"), c);
 
         c.gridx = 6;
-        c.weightx = 0.15;
+        c.weightx = 0.12;
         ModernUI.styleButton(searchButton);
         searchButton.setPreferredSize(new Dimension(90, 38));
         searchBar.add(searchButton, c);
 
+        modeCombo.addActionListener(e -> applyModeDefaults());
+        searchButton.addActionListener(e -> doSearch());
         add(searchBar, BorderLayout.NORTH);
     }
 
-    private JPanel wrapCombo(JComboBox<String> combo, String placeholder) {
-        JPanel wrap = new JPanel(new BorderLayout());
-        wrap.setBackground(ModernUI.CARD_BG);
-        wrap.add(combo, BorderLayout.CENTER);
-        JLabel ph = new JLabel(placeholder, SwingConstants.CENTER);
-        ph.setFont(ModernUI.FONT_SMALL);
-        ph.setForeground(ModernUI.TEXT_SECONDARY);
-        ph.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
-        return wrap;
+    private void styleCombo(JComboBox<String> combo) {
+        combo.setFont(ModernUI.FONT_BODY);
+        combo.setBackground(Color.WHITE);
+        combo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        combo.setFocusable(false);
     }
 
-    private JPanel wrapSpinner(JSpinner spinner, String placeholder) {
+    private JPanel wrap(JComponent component, String label) {
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(ModernUI.CARD_BG);
-        wrap.add(spinner, BorderLayout.CENTER);
-        JLabel ph = new JLabel(placeholder, SwingConstants.CENTER);
+        wrap.add(component, BorderLayout.CENTER);
+        JLabel ph = new JLabel(label, SwingConstants.CENTER);
         ph.setFont(ModernUI.FONT_SMALL);
         ph.setForeground(ModernUI.TEXT_SECONDARY);
         ph.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
@@ -184,8 +181,6 @@ public class SearchPanel extends JPanel {
         scrollPane.setBackground(ModernUI.BACKGROUND);
         scrollPane.setBorder(null);
         scrollPane.getViewport().setBackground(ModernUI.BACKGROUND);
-        scrollPane.getViewport().setOpaque(true);
-        scrollPane.setOpaque(true);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
             @Override
@@ -194,10 +189,7 @@ public class SearchPanel extends JPanel {
                 this.trackColor = ModernUI.BACKGROUND;
             }
         });
-
         add(scrollPane, BorderLayout.CENTER);
-
-        searchButton.addActionListener(e -> doSearch());
     }
 
     private void buildFooter() {
@@ -207,14 +199,12 @@ public class SearchPanel extends JPanel {
 
         JPanel leftHint = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
         leftHint.setBackground(ModernUI.CARD_BG);
-        JLabel hint = new JLabel("날짜를 비워두면 전체 항공편이 표시됩니다");
         hint.setFont(ModernUI.FONT_SMALL);
         hint.setForeground(ModernUI.TEXT_SECONDARY);
         leftHint.add(hint);
 
         JPanel rightBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         rightBtns.setBackground(ModernUI.CARD_BG);
-        rightBtns.setOpaque(true);
 
         JButton detailBtn = new JButton("상세 보기");
         styleSolidButton(detailBtn, ModernUI.CARD_BG, ModernUI.PRIMARY, ModernUI.PRIMARY);
@@ -228,12 +218,30 @@ public class SearchPanel extends JPanel {
         footer.add(leftHint, BorderLayout.WEST);
         footer.add(rightBtns, BorderLayout.EAST);
         footer.setPreferredSize(new Dimension(0, 52));
-        footer.setOpaque(true);
         add(footer, BorderLayout.SOUTH);
     }
 
+    private void applyModeDefaults() {
+        String mode = (String) modeCombo.getSelectedItem();
+        if (MODE_MULTI_CITY.equals(mode)) {
+            fromCombo.setSelectedItem("ICN");
+            toCombo.setSelectedItem("LAX");
+            hint.setText("다도시 추천: ICN → NRT → JFK → LAX, 3일 일정으로 버스 연계 데모까지 이어집니다.");
+        } else if (MODE_CONNECTING.equals(mode)) {
+            fromCombo.setSelectedItem("ICN");
+            toCombo.setSelectedItem("LAX");
+            hint.setText("환승: 1-stop 조합만 표시하고 MCT 90분 이상인 여정만 통과합니다.");
+        } else {
+            hint.setText("직항: 선택한 출발/도착/날짜의 단일 항공편을 예약합니다.");
+        }
+    }
+
     private void loadAllSchedules() {
-        currentResults = booking.getAllSchedules();
+        currentResults = new ArrayList<>();
+        for (FlightSchedule schedule : booking.getAllSchedules()) {
+            currentResults.add(Itinerary.direct(schedule));
+        }
+        selectedIndex = currentResults.isEmpty() ? -1 : 0;
         refreshCardList();
     }
 
@@ -242,279 +250,251 @@ public class SearchPanel extends JPanel {
         LocalDate date = selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         String from = (String) fromCombo.getSelectedItem();
         String to = (String) toCombo.getSelectedItem();
+        String mode = (String) modeCombo.getSelectedItem();
 
-        List<FlightSchedule> results = booking.processSearch(from, to, date);
+        List<Itinerary> results;
+        if (MODE_CONNECTING.equals(mode)) {
+            results = booking.searchConnectingItineraries(from, to, date);
+        } else if (MODE_MULTI_CITY.equals(mode)) {
+            results = booking.searchDemoMultiCityItineraries(date);
+        } else {
+            results = booking.searchDirectItineraries(from, to, date);
+        }
         currentResults = results != null ? results : new ArrayList<>();
+        selectedIndex = currentResults.isEmpty() ? -1 : 0;
         refreshCardList();
         if (currentResults.isEmpty()) {
-            ui.displayError("검색 결과가 없습니다.");
+            ui.displayError("검색 결과가 없습니다. 날짜 또는 검색 방식을 바꿔보세요.");
         }
     }
 
     private void refreshCardList() {
         cardListPanel.removeAll();
-
         for (int i = 0; i < currentResults.size(); i++) {
-            FlightSchedule s = currentResults.get(i);
-            FlightCard card = new FlightCard(s, i + 1);
+            ItineraryCard card = new ItineraryCard(currentResults.get(i), i);
+            card.setSelected(i == selectedIndex);
             cardListPanel.add(card);
             cardListPanel.add(Box.createVerticalStrut(10));
         }
-
         cardListPanel.revalidate();
         cardListPanel.repaint();
-        scrollPane.revalidate();
-        scrollPane.repaint();
     }
 
     private void proceedWithSelection() {
-        FlightSchedule selected = selectedSchedule();
-        if (selected == null) return;
-        ui.displayItineraryDetail(selected);
-        frame.onFlightSelected(selected);
+        Itinerary selected = selectedItinerary();
+        if (selected == null) {
+            return;
+        }
+        logSelection(selected);
+        frame.onItinerarySelected(selected);
     }
 
     private void showSelectedDetail() {
-        FlightSchedule selected = selectedSchedule();
-        if (selected != null) {
-            ui.displayItineraryDetail(selected);
+        Itinerary selected = selectedItinerary();
+        if (selected == null) {
+            return;
         }
+        JOptionPane.showMessageDialog(this, detailText(selected), "여정 상세", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private FlightSchedule selectedSchedule() {
-        if (currentResults.isEmpty()) {
-            ui.displayError("항공편을 선택하세요.");
+    private Itinerary selectedItinerary() {
+        if (currentResults.isEmpty() || selectedIndex < 0 || selectedIndex >= currentResults.size()) {
+            ui.displayError("여정을 선택하세요.");
             return null;
         }
-        return currentResults.get(0);
+        return currentResults.get(selectedIndex);
     }
 
-    private class FlightCard extends JPanel {
-        private final FlightSchedule schedule;
-        private boolean isSelected = false;
+    private void selectIndex(int index) {
+        selectedIndex = index;
+        refreshCardList();
+    }
 
-        FlightCard(FlightSchedule schedule, int index) {
+    private void logSelection(Itinerary itinerary) {
+        System.out.println("[SWING][SEARCH] " + summaryLine(itinerary)
+                + " / tripType=" + itinerary.getTripType()
+                + " / segments=" + itinerary.getSegments().size());
+    }
+
+    private String detailText(Itinerary itinerary) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TripType: ").append(itinerary.getTripType()).append("\n");
+        sb.append("총 구간: ").append(itinerary.getSegments().size()).append("개\n\n");
+        for (Segment segment : itinerary.getSegments()) {
+            FlightSchedule schedule = segment.getFlightSchedule();
+            Flight flight = schedule.getFlight();
+            sb.append(flight.getFlightNumber()).append("  ")
+                    .append(routeText(schedule)).append("  ")
+                    .append(timeRange(schedule)).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private String summaryLine(Itinerary itinerary) {
+        if (itinerary == null || itinerary.getSegments().isEmpty()) {
+            return "선택 여정 없음";
+        }
+        Segment first = itinerary.getSegments().get(0);
+        Segment last = itinerary.getSegments().get(itinerary.getSegments().size() - 1);
+        FlightSchedule firstSchedule = first.getFlightSchedule();
+        FlightSchedule lastSchedule = last.getFlightSchedule();
+        return routeOrigin(firstSchedule) + " → " + routeDestination(lastSchedule)
+                + " · " + tripLabel(itinerary)
+                + " · " + flightNumbers(itinerary);
+    }
+
+    private String tripLabel(Itinerary itinerary) {
+        int segments = itinerary.getSegments().size();
+        if ("MULTI_CITY".equals(itinerary.getTripType())) {
+            return "다도시 " + segments + "구간";
+        }
+        if (segments >= 2) {
+            return "환승 " + (segments - 1) + "회";
+        }
+        return "직항";
+    }
+
+    private String flightNumbers(Itinerary itinerary) {
+        List<String> numbers = new ArrayList<>();
+        for (Segment segment : itinerary.getSegments()) {
+            FlightSchedule schedule = segment.getFlightSchedule();
+            if (schedule != null && schedule.getFlight() != null) {
+                numbers.add(schedule.getFlight().getFlightNumber());
+            }
+        }
+        return String.join(" + ", numbers);
+    }
+
+    private String routeText(FlightSchedule schedule) {
+        return routeOrigin(schedule) + " → " + routeDestination(schedule);
+    }
+
+    private String routeOrigin(FlightSchedule schedule) {
+        if (schedule == null || schedule.getFlight() == null || schedule.getFlight().getRoute() == null
+                || schedule.getFlight().getRoute().getOrigin() == null) {
+            return "-";
+        }
+        return schedule.getFlight().getRoute().getOrigin().getAirportCode();
+    }
+
+    private String routeDestination(FlightSchedule schedule) {
+        if (schedule == null || schedule.getFlight() == null || schedule.getFlight().getRoute() == null
+                || schedule.getFlight().getRoute().getDestination() == null) {
+            return "-";
+        }
+        return schedule.getFlight().getRoute().getDestination().getAirportCode();
+    }
+
+    private String timeRange(FlightSchedule schedule) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+        if (schedule == null || schedule.getDepartureDateTime() == null || schedule.getArrivalDateTime() == null) {
+            return "-";
+        }
+        return schedule.getDepartureDateTime().format(fmt) + " ~ " + schedule.getArrivalDateTime().format(fmt);
+    }
+
+    private String durationText(Itinerary itinerary) {
+        Duration d = itinerary.getTotalDuration();
+        long minutes = Math.max(0, d.toMinutes());
+        return (minutes / 60) + "h " + (minutes % 60) + "m";
+    }
+
+    private String priceText(Itinerary itinerary) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (Segment segment : itinerary.getSegments()) {
+            BigDecimal p = lowestPrice(segment.getFlightSchedule());
+            if (p != null) {
+                total = total.add(p);
+            }
+        }
+        return NumberFormat.getNumberInstance(Locale.US).format(total.longValue());
+    }
+
+    private BigDecimal lowestPrice(FlightSchedule schedule) {
+        Flight flight = schedule != null ? schedule.getFlight() : null;
+        if (flight == null || flight.getFares() == null || flight.getFares().isEmpty()) {
+            return null;
+        }
+        BigDecimal lowest = null;
+        for (Fare fare : flight.getFares()) {
+            BigDecimal p = fare.getBasePrice();
+            if (p != null && (lowest == null || p.compareTo(lowest) < 0)) {
+                lowest = p;
+            }
+        }
+        return lowest;
+    }
+
+    private class ItineraryCard extends JPanel {
+        private final Itinerary itinerary;
+        private final int index;
+        private boolean selected;
+
+        ItineraryCard(Itinerary itinerary, int index) {
             super(new BorderLayout());
-            this.schedule = schedule;
-            setBackground(ModernUI.CARD_BG);
+            this.itinerary = itinerary;
+            this.index = index;
             setOpaque(true);
-            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER));
-            setPreferredSize(new Dimension(0, 88));
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 88));
-            setMinimumSize(new Dimension(0, 88));
+            setPreferredSize(new Dimension(0, 96));
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 96));
             setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
             addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseEntered(MouseEvent e) {
-                    if (!isSelected) {
-                        setBackground(new Color(0xF8, 0xFA, 0xFC));
-                        repaintCard();
-                    }
-                }
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    if (!isSelected) {
-                        setBackground(ModernUI.CARD_BG);
-                        repaintCard();
-                    }
-                }
-                @Override
                 public void mouseClicked(MouseEvent e) {
-                    selectCard();
+                    selectIndex(index);
                 }
             });
-
-            buildCard();
+            build();
         }
 
-        private void repaintCard() {
-            invalidate();
-            repaint();
-        }
-
-        private void buildCard() {
-            com.koreanair.reservation.domain.flight.Flight flight = schedule.getFlight();
-            String flightNum = flight != null ? flight.getFlightNumber() : "-";
-            String airline = "대한항공";
-
-            String fromCode = "-";
-            String toCode = "-";
-            String fromTime = "-";
-            String toTime = "-";
-            String duration = "-";
-
-            if (flight != null && flight.getRoute() != null) {
-                fromCode = flight.getRoute().getOrigin() != null
-                        ? flight.getRoute().getOrigin().getAirportCode() : fromCode;
-                toCode = flight.getRoute().getDestination() != null
-                        ? flight.getRoute().getDestination().getAirportCode() : toCode;
-            }
-
-            if (schedule.getDepartureDateTime() != null) {
-                fromTime = schedule.getDepartureDateTime().format(DateTimeFormatter.ofPattern("HH:mm"));
-            }
-            if (schedule.getArrivalDateTime() != null) {
-                toTime = schedule.getArrivalDateTime().format(DateTimeFormatter.ofPattern("HH:mm"));
-            }
-            if (schedule.getDepartureDateTime() != null && schedule.getArrivalDateTime() != null) {
-                long mins = ChronoUnit.MINUTES.between(
-                        schedule.getDepartureDateTime(), schedule.getArrivalDateTime());
-                long h = mins / 60;
-                long m = mins % 60;
-                duration = h > 0 ? h + "h " + m + "m" : m + "m";
-            }
-
-            setLayout(new BorderLayout());
-            setBackground(ModernUI.CARD_BG);
-
-            JPanel centerPanel = new JPanel();
-            centerPanel.setLayout(new GridBagLayout());
-            centerPanel.setBackground(ModernUI.CARD_BG);
-            centerPanel.setOpaque(true);
+        private void build() {
+            JPanel center = new JPanel(new GridBagLayout());
+            center.setOpaque(false);
             GridBagConstraints gc = new GridBagConstraints();
-            gc.insets = new Insets(0, 16, 0, 0);
+            gc.insets = new Insets(0, 18, 0, 0);
             gc.anchor = GridBagConstraints.WEST;
-            gc.fill = GridBagConstraints.VERTICAL;
 
             gc.gridx = 0;
-            gc.gridy = 0;
-            gc.gridheight = 2;
-            JPanel airlinePanel = new JPanel();
-            airlinePanel.setLayout(new BoxLayout(airlinePanel, BoxLayout.Y_AXIS));
-            airlinePanel.setBackground(ModernUI.CARD_BG);
-            airlinePanel.setOpaque(true);
-            JLabel airlineLbl = new JLabel(airline);
-            airlineLbl.setFont(ModernUI.FONT_SMALL);
-            airlineLbl.setForeground(ModernUI.TEXT_SECONDARY);
-            JLabel flightNumLbl = new JLabel(flightNum);
-            flightNumLbl.setFont(new Font("System", Font.BOLD, 13));
-            flightNumLbl.setForeground(ModernUI.TEXT_PRIMARY);
-            airlinePanel.add(airlineLbl);
-            airlinePanel.add(flightNumLbl);
-            centerPanel.add(airlinePanel, gc);
+            JLabel trip = new JLabel(tripLabel(itinerary));
+            trip.setFont(new Font("System", Font.BOLD, 13));
+            trip.setForeground(ModernUI.PRIMARY);
+            center.add(trip, gc);
 
             gc.gridx = 1;
-            gc.gridheight = 1;
-            gc.insets = new Insets(0, 24, 0, 0);
-            JPanel depPanel = new JPanel();
-            depPanel.setLayout(new BoxLayout(depPanel, BoxLayout.Y_AXIS));
-            depPanel.setBackground(ModernUI.CARD_BG);
-            depPanel.setOpaque(true);
-            JLabel depTime = new JLabel(fromTime);
-            depTime.setFont(new Font("System", Font.BOLD, 22));
-            depTime.setForeground(ModernUI.TEXT_PRIMARY);
-            JLabel depCode = new JLabel(fromCode);
-            depCode.setFont(ModernUI.FONT_SMALL);
-            depCode.setForeground(ModernUI.TEXT_SECONDARY);
-            depPanel.add(depTime);
-            depPanel.add(depCode);
-            centerPanel.add(depPanel, gc);
+            JLabel route = new JLabel(summaryLine(itinerary));
+            route.setFont(new Font("System", Font.BOLD, 18));
+            route.setForeground(ModernUI.TEXT_PRIMARY);
+            center.add(route, gc);
 
             gc.gridx = 2;
-            gc.gridheight = 2;
-            gc.insets = new Insets(0, 16, 0, 0);
-            JPanel durationPanel = new JPanel();
-            durationPanel.setLayout(new BoxLayout(durationPanel, BoxLayout.Y_AXIS));
-            durationPanel.setBackground(ModernUI.CARD_BG);
-            durationPanel.setOpaque(true);
-            JLabel durLabel = new JLabel(duration);
-            durLabel.setFont(ModernUI.FONT_SMALL);
-            durLabel.setForeground(ModernUI.TEXT_SECONDARY);
-            durLabel.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
-            JLabel stopsLabel = new JLabel("직항");
-            stopsLabel.setFont(ModernUI.FONT_SMALL);
-            stopsLabel.setForeground(ModernUI.SUCCESS);
-            stopsLabel.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
-            durationPanel.add(durLabel);
-            durationPanel.add(stopsLabel);
-            centerPanel.add(durationPanel, gc);
+            JLabel duration = new JLabel(durationText(itinerary));
+            duration.setFont(ModernUI.FONT_SMALL);
+            duration.setForeground(ModernUI.TEXT_SECONDARY);
+            center.add(duration, gc);
 
-            gc.gridx = 3;
-            gc.gridheight = 1;
-            gc.insets = new Insets(0, 16, 0, 0);
-            JPanel arrPanel = new JPanel();
-            arrPanel.setLayout(new BoxLayout(arrPanel, BoxLayout.Y_AXIS));
-            arrPanel.setBackground(ModernUI.CARD_BG);
-            arrPanel.setOpaque(true);
-            JLabel arrTime = new JLabel(toTime);
-            arrTime.setFont(new Font("System", Font.BOLD, 22));
-            arrTime.setForeground(ModernUI.TEXT_PRIMARY);
-            JLabel arrCode = new JLabel(toCode);
-            arrCode.setFont(ModernUI.FONT_SMALL);
-            arrCode.setForeground(ModernUI.TEXT_SECONDARY);
-            arrPanel.add(arrTime);
-            arrPanel.add(arrCode);
-            centerPanel.add(arrPanel, gc);
+            add(center, BorderLayout.CENTER);
 
-            add(centerPanel, BorderLayout.CENTER);
-
-            BigDecimal lowestPrice = null;
-            String cabinLabel = "이코노미";
-            NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
-
-            if (flight != null) {
-                List<com.koreanair.reservation.domain.flight.Fare> fares = flight.getFares();
-                if (fares != null && !fares.isEmpty()) {
-                    for (com.koreanair.reservation.domain.flight.Fare f : fares) {
-                        BigDecimal p = f.getBasePrice();
-                        if (p != null && (lowestPrice == null || p.compareTo(lowestPrice) < 0)) {
-                            lowestPrice = p;
-                        }
-                        if (f.getCabinClass() != null) {
-                            switch (f.getCabinClass()) {
-                                case ECONOMY: cabinLabel = "이코노미"; break;
-                                case PREMIUM_ECONOMY: cabinLabel = "프리미엄 이코노미"; break;
-                                case BUSINESS: cabinLabel = "비즈니스"; break;
-                                case FIRST: cabinLabel = "일등"; break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            String priceText = lowestPrice != null ? nf.format(lowestPrice.longValue()) : "---";
-
-            JPanel pricePanel = new JPanel();
-            pricePanel.setLayout(new BoxLayout(pricePanel, BoxLayout.Y_AXIS));
-            pricePanel.setBackground(ModernUI.CARD_BG);
-            pricePanel.setOpaque(true);
-            pricePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 16));
-            JLabel priceLbl = new JLabel(priceText);
-            priceLbl.setFont(new Font("System", Font.BOLD, 20));
-            priceLbl.setForeground(ModernUI.PRIMARY);
-            JLabel currencyLbl = new JLabel("KRW");
-            currencyLbl.setFont(ModernUI.FONT_SMALL);
-            currencyLbl.setForeground(ModernUI.PRIMARY);
-            JLabel cabinLbl = new JLabel(cabinLabel);
-            cabinLbl.setFont(ModernUI.FONT_SMALL);
-            cabinLbl.setForeground(ModernUI.TEXT_SECONDARY);
-            pricePanel.add(priceLbl);
-            pricePanel.add(currencyLbl);
-            pricePanel.add(cabinLbl);
-
-            add(pricePanel, BorderLayout.EAST);
+            JPanel right = new JPanel();
+            right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
+            right.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 22));
+            right.setOpaque(false);
+            JLabel price = new JLabel(priceText(itinerary));
+            price.setFont(new Font("System", Font.BOLD, 20));
+            price.setForeground(ModernUI.PRIMARY);
+            JLabel currency = new JLabel("KRW");
+            currency.setFont(ModernUI.FONT_SMALL);
+            currency.setForeground(ModernUI.PRIMARY);
+            right.add(price);
+            right.add(currency);
+            add(right, BorderLayout.EAST);
         }
 
-        private void selectCard() {
-            for (java.awt.Component c : cardListPanel.getComponents()) {
-                if (c instanceof FlightCard) {
-                    ((FlightCard) c).setSelected(false);
-                }
-            }
-            setSelected(true);
-        }
-
-        private void setSelected(boolean selected) {
-            isSelected = selected;
-            if (selected) {
-                setBackground(ModernUI.PRIMARY_LIGHT);
-                setBorder(BorderFactory.createMatteBorder(2, 0, 2, 0, ModernUI.PRIMARY));
-            } else {
-                setBackground(ModernUI.CARD_BG);
-                setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER));
-            }
-            repaintCard();
+        private void setSelected(boolean value) {
+            selected = value;
+            setBackground(selected ? ModernUI.PRIMARY_LIGHT : ModernUI.CARD_BG);
+            setBorder(selected
+                    ? BorderFactory.createMatteBorder(2, 0, 2, 0, ModernUI.PRIMARY)
+                    : BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER));
         }
     }
 

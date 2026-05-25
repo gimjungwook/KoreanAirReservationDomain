@@ -29,6 +29,7 @@ import com.koreanair.reservation.domain.bus.BusCity;
 import com.koreanair.reservation.domain.bus.BusTicket;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.payment.Payment;
+import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.Ticket;
 import com.koreanair.reservation.domain.user.Member;
@@ -275,6 +276,11 @@ public class MainFrame extends JFrame {
     }
 
     public void onFlightSelected(FlightSchedule selected) {
+        passengerPanel.prepare(selected, loggedInMember);
+        showPassenger();
+    }
+
+    public void onItinerarySelected(Itinerary selected) {
         passengerPanel.prepare(selected, loggedInMember);
         showPassenger();
     }

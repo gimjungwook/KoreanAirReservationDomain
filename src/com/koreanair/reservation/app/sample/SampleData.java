@@ -207,6 +207,12 @@ public final class SampleData {
         Flight k402 = flight("KE402", sin, bkk, ecoY, ecoB);
         Flight k501 = flight("KE501", hkg, nrt, ecoY, ecoB);
         Flight k502 = flight("KE502", nrt, hkg, ecoY, ecoB);
+        Flight k701 = flight("KE701", nrt, jfk, ecoY, busJ);
+        Flight k702 = flight("KE702", jfk, lax, ecoY, ecoB);
+        Flight k703 = flight("KE703", lax, cdg, ecoY, busJ);
+        Flight k704 = flight("KE704", cdg, icn, ecoY, busJ);
+        Flight k705 = flight("KE705", nrt, syd, ecoY, busJ);
+        Flight k706 = flight("KE706", syd, sin, ecoY, ecoB);
 
         LocalDate d = LocalDate.now();
         LocalDate d1 = d.plusDays(1);
@@ -319,6 +325,20 @@ public final class SampleData {
         search.addSchedule(schedule(k127, 86L, LocalDateTime.of(d7y, d7m, d7day, 16, 0), LocalDateTime.of(d7y, d7m, d7day, 13, 0), jRule));
         search.addSchedule(schedule(k137, 87L, LocalDateTime.of(d7y, d7m, d7day, 19, 0), LocalDateTime.of(d7y, d7m, d7day, 11, 30), fRule));
         search.addSchedule(schedule(k153, 88L, LocalDateTime.of(d7y, d7m, d7day, 12, 0), LocalDateTime.of(d7y, d7m, d7day, 22, 0), yRule));
+
+        // Iteration 3 발표 데모: 날짜별 환승/다도시 여행 코스.
+        // 검색 화면의 "다도시 추천"은 ICN → NRT → JFK → LAX를 이 데이터로 연결한다.
+        search.addSchedule(schedule(k001, 89L, LocalDateTime.of(d1y, d1m, d1day, 7, 10), LocalDateTime.of(d1y, d1m, d1day, 9, 35), yRule));
+        search.addSchedule(schedule(k701, 90L, LocalDateTime.of(d2y, d2m, d2day, 12, 20), LocalDateTime.of(d3y, d3m, d3day, 1, 10), yRule));
+        search.addSchedule(schedule(k702, 91L, LocalDateTime.of(d3y, d3m, d3day, 10, 30), LocalDateTime.of(d3y, d3m, d3day, 16, 20), yRule));
+        search.addSchedule(schedule(k703, 92L, LocalDateTime.of(d4y, d4m, d4day, 11, 0), LocalDateTime.of(d5y, d5m, d5day, 2, 30), jRule));
+        search.addSchedule(schedule(k704, 93L, LocalDateTime.of(d5y, d5m, d5day, 13, 10), LocalDateTime.of(d6y, d6m, d6day, 5, 50), yRule));
+        search.addSchedule(schedule(k071, 94L, LocalDateTime.of(d2y, d2m, d2day, 7, 40), LocalDateTime.of(d2y, d2m, d2day, 11, 20), yRule));
+        search.addSchedule(schedule(k501, 95L, LocalDateTime.of(d2y, d2m, d2day, 13, 10), LocalDateTime.of(d2y, d2m, d2day, 17, 0), yRule));
+        search.addSchedule(schedule(k051, 96L, LocalDateTime.of(d3y, d3m, d3day, 8, 0), LocalDateTime.of(d3y, d3m, d3day, 15, 20), yRule));
+        search.addSchedule(schedule(k301, 97L, LocalDateTime.of(d3y, d3m, d3day, 18, 30), LocalDateTime.of(d4y, d4m, d4day, 7, 30), yRule));
+        search.addSchedule(schedule(k705, 98L, LocalDateTime.of(d4y, d4m, d4day, 9, 30), LocalDateTime.of(d5y, d5m, d5day, 7, 10), jRule));
+        search.addSchedule(schedule(k706, 99L, LocalDateTime.of(d5y, d5m, d5day, 12, 10), LocalDateTime.of(d5y, d5m, d5day, 18, 40), yRule));
 
         Member me = member("김정욱", "venturers.team@gmail.com", "SKY-000-001");
         Member lee = member("이재호", "lee.jaeho@email.com", "SKY-000-002");

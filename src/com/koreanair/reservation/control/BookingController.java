@@ -1,5 +1,6 @@
 package com.koreanair.reservation.control;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -254,6 +255,36 @@ public class BookingController {
         return flightSearch.search(fromAirportCode, toAirportCode, date);
     }
 
+    /** 직항 검색 결과를 itinerary 형태로 조회. */
+    public List<Itinerary> searchDirectItineraries(String fromAirportCode,
+                                                   String toAirportCode,
+                                                   LocalDate date) {
+        return itinerarySearch().searchDirect(fromAirportCode, toAirportCode, date);
+    }
+
+    /** 1-stop 환승 검색. MCT는 국제선 기본 90분을 적용한다. */
+    public List<Itinerary> searchConnectingItineraries(String fromAirportCode,
+                                                       String toAirportCode,
+                                                       LocalDate date) {
+        return itinerarySearch().searchConnecting(fromAirportCode, toAirportCode, date,
+                Itinerary.INTERNATIONAL_MCT);
+    }
+
+    /** 다도시 검색. 각 leg는 하루 간격의 데모 일정으로 연결된다. */
+    public List<Itinerary> searchMultiCityItineraries(List<String> airportCodes,
+                                                      LocalDate startDate) {
+        return itinerarySearch().searchMultiCity(airportCodes, startDate, Duration.ofMinutes(90));
+    }
+
+    /** 발표 데모 기본 다도시 코스: ICN → NRT → JFK → LAX. */
+    public List<Itinerary> searchDemoMultiCityItineraries(LocalDate startDate) {
+        return itinerarySearch().searchDemoMultiCity(startDate);
+    }
+
+    private ItinerarySearchService itinerarySearch() {
+        return new ItinerarySearchService(flightSearch);
+    }
+
     /** 전체 항공편 목록 조회 (초기 표시용). */
     public List<FlightSchedule> getAllSchedules() {
         if (flightSearch == null) {
@@ -273,6 +304,24 @@ public class BookingController {
         Reservation r = new Reservation();
         r.setReservationNumber("PNR-" + System.currentTimeMillis());
         r.getItinerary().addSegment(new com.koreanair.reservation.domain.reservation.Segment(selected));
+        return r;
+    }
+
+    /** 선택된 itinerary로 Reservation 생성. 직항/환승/다도시를 같은 예약 흐름으로 처리한다. */
+    public Reservation initiateBooking(Itinerary itinerary) {
+        if (itinerary == null || itinerary.getSegments() == null || itinerary.getSegments().isEmpty()) {
+            throw new IllegalArgumentException("예약 가능한 여정을 선택해야 합니다.");
+        }
+        Reservation r = new Reservation();
+        r.setReservationNumber("PNR-" + System.currentTimeMillis());
+        r.getItinerary().setTripType(itinerary.getTripType());
+        for (Segment segment : itinerary.getSegments()) {
+            if (segment == null || segment.getFlightSchedule() == null
+                    || !segment.getFlightSchedule().isAvailableForBooking()) {
+                throw new IllegalArgumentException("예약 불가 항공편이 포함되어 있습니다.");
+            }
+            r.getItinerary().addSegment(new Segment(segment.getFlightSchedule()));
+        }
         return r;
     }
 

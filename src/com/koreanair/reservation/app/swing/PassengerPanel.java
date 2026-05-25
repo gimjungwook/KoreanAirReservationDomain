@@ -17,7 +17,9 @@ import com.koreanair.reservation.control.BookingController;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.passenger.Passenger;
 import com.koreanair.reservation.domain.passenger.PassengerType;
+import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.Reservation;
+import com.koreanair.reservation.domain.reservation.Segment;
 import com.koreanair.reservation.domain.user.Member;
 
 public class PassengerPanel extends JPanel {
@@ -178,6 +180,24 @@ public class PassengerPanel extends JPanel {
         frame.onReservationCreated(reservation);
     }
 
+    public void prepare(Itinerary itinerary, Member me) {
+        this.selected = firstSchedule(itinerary);
+        this.member = me;
+        nameField.setText("");
+        passportField.setText("");
+        birthField.setText("");
+        flightInfoLabel.setText(itinerarySummary(itinerary));
+
+        this.reservation = booking.initiateBooking(itinerary);
+        if (reservation != null && me != null) {
+            reservation.setRequester(me);
+            if (nameField.getText().trim().isEmpty() && me.getName() != null) {
+                nameField.setText(me.getName());
+            }
+        }
+        frame.onReservationCreated(reservation);
+    }
+
     public void prepareExisting(Reservation reservation, Member me) {
         this.reservation = reservation;
         this.member = me;
@@ -214,6 +234,38 @@ public class PassengerPanel extends JPanel {
             return null;
         }
         return reservation.getItinerary().getSegments().get(0).getFlightSchedule();
+    }
+
+    private FlightSchedule firstSchedule(Itinerary itinerary) {
+        if (itinerary == null || itinerary.getSegments() == null || itinerary.getSegments().isEmpty()) {
+            return null;
+        }
+        Segment first = itinerary.getSegments().get(0);
+        return first != null ? first.getFlightSchedule() : null;
+    }
+
+    private String itinerarySummary(Itinerary itinerary) {
+        if (itinerary == null || itinerary.getSegments() == null || itinerary.getSegments().isEmpty()) {
+            return "선택 여정 없음";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(itinerary.getTripType() != null ? itinerary.getTripType() : "ITINERARY");
+        sb.append(" · ");
+        for (int i = 0; i < itinerary.getSegments().size(); i++) {
+            FlightSchedule schedule = itinerary.getSegments().get(i).getFlightSchedule();
+            if (schedule == null || schedule.getFlight() == null || schedule.getFlight().getRoute() == null) {
+                continue;
+            }
+            if (i > 0) {
+                sb.append(" / ");
+            }
+            sb.append(schedule.getFlight().getFlightNumber())
+                    .append(" ")
+                    .append(schedule.getFlight().getRoute().getOrigin().getAirportCode())
+                    .append("→")
+                    .append(schedule.getFlight().getRoute().getDestination().getAirportCode());
+        }
+        return sb.toString();
     }
 
     private void doNext() {
