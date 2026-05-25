@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compile app sources",
+      "type": "shell",
+      "command": "javac -encoding UTF-8 -d out $(find src/com/koreanair/reservation -name '*.java' ! -path '*/tools/*')",
+      "group": "build",
+      "problemMatcher": "$javac"
+    },
+    {
+      "label": "Run Swing demo app",
+      "type": "shell",
+      "command": "javac -encoding UTF-8 -d out $(find src/com/koreanair/reservation -name '*.java' ! -path '*/tools/*') && java -cp out com.koreanair.reservation.app.swing.SwingApp",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Run Iter3 console scenarios",
+      "type": "shell",
+      "command": "javac -encoding UTF-8 -d out $(find src/com/koreanair/reservation -name '*.java' ! -path '*/tools/*') && java -cp out com.koreanair.reservation.app.Iter3DemoRunner",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}
