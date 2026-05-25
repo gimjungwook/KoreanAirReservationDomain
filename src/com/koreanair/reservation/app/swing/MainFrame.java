@@ -44,6 +44,7 @@ public class MainFrame extends JFrame {
     private static final String CARD_SEAT = "seatSelection";
     private static final String CARD_CANCELLATION = "cancellation";
     private static final String CARD_REFUND = "refund";
+    private static final String CARD_ITER3_DEMO = "iter3Demo";
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cards = new JPanel(cardLayout);
@@ -74,13 +75,17 @@ public class MainFrame extends JFrame {
     private final SeatSelectionPanel seatSelectionPanel;
     private final CancellationPanel cancellationPanel;
     private final RefundPanel refundPanel;
+    private final Iter3DemoPanel iter3DemoPanel;
 
     private final JButton homeNavButton = new JButton("홈");
     private final JButton lookupNavButton = new JButton("예약 조회");
+    private final JButton iter3DemoNavButton = new JButton("Iter3 데모");
 
     private Member loggedInMember;
     @SuppressWarnings("unused")
     private Reservation currentReservation;
+    private String currentCard = CARD_LOGIN;
+    private String lookupReturnCard = CARD_SEARCH;
 
     public MainFrame(AuthService authService,
                      FlightSearchService flightSearch,
@@ -118,6 +123,7 @@ public class MainFrame extends JFrame {
         seatSelectionPanel = new SeatSelectionPanel(this, booking);
         cancellationPanel = new CancellationPanel(this, booking, refundHandler);
         refundPanel = new RefundPanel(this);
+        iter3DemoPanel = new Iter3DemoPanel(this);
 
         cards.add(loginPanel, CARD_LOGIN);
         cards.add(searchPanel, CARD_SEARCH);
@@ -128,6 +134,7 @@ public class MainFrame extends JFrame {
         cards.add(seatSelectionPanel, CARD_SEAT);
         cards.add(cancellationPanel, CARD_CANCELLATION);
         cards.add(refundPanel, CARD_REFUND);
+        cards.add(iter3DemoPanel, CARD_ITER3_DEMO);
 
         stateBadge.reset();
         ui.setParent(this);
@@ -195,6 +202,10 @@ public class MainFrame extends JFrame {
         lookupNavButton.addActionListener(e -> showLookup());
         rightPanel.add(lookupNavButton);
 
+        styleNavButton(iter3DemoNavButton);
+        iter3DemoNavButton.addActionListener(e -> showIter3Demo());
+        rightPanel.add(iter3DemoNavButton);
+
         headerPanel.add(leftPanel, BorderLayout.WEST);
         headerPanel.add(rightPanel, BorderLayout.EAST);
     }
@@ -213,32 +224,48 @@ public class MainFrame extends JFrame {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
-    public void showLogin() { cardLayout.show(cards, CARD_LOGIN); }
-    public void showSearch() { cardLayout.show(cards, CARD_SEARCH); }
-    public void showPassenger() { cardLayout.show(cards, CARD_PASSENGER); }
-    public void showPayment() { cardLayout.show(cards, CARD_PAYMENT); }
-    public void showConfirmation() { cardLayout.show(cards, CARD_CONFIRMATION); }
+    private void showCard(String cardName) {
+        currentCard = cardName;
+        cardLayout.show(cards, cardName);
+    }
+
+    public void showLogin() { showCard(CARD_LOGIN); }
+    public void showSearch() { showCard(CARD_SEARCH); }
+    public void showPassenger() { showCard(CARD_PASSENGER); }
+    public void showPayment() { showCard(CARD_PAYMENT); }
+    public void showConfirmation() { showCard(CARD_CONFIRMATION); }
+    public void showIter3Demo() { showCard(CARD_ITER3_DEMO); }
 
     public void showLookup() {
+        if (!CARD_LOOKUP.equals(currentCard)) {
+            lookupReturnCard = currentCard;
+        }
         lookupPanel.refresh();
-        cardLayout.show(cards, CARD_LOOKUP);
+        showCard(CARD_LOOKUP);
+    }
+
+    public void returnFromLookup() {
+        if (lookupReturnCard == null || CARD_LOOKUP.equals(lookupReturnCard)) {
+            lookupReturnCard = CARD_SEARCH;
+        }
+        showCard(lookupReturnCard);
     }
 
     public void showSeatSelection(Reservation reservation) {
         seatSelectionPanel.setReservation(reservation);
-        cardLayout.show(cards, CARD_SEAT);
+        showCard(CARD_SEAT);
     }
 
     public void showCancellation(Reservation reservation) {
         this.currentReservation = reservation;
         if (reservation != null) stateBadge.setCurrentState(reservation.getStateName());
         cancellationPanel.setReservation(reservation);
-        cardLayout.show(cards, CARD_CANCELLATION);
+        showCard(CARD_CANCELLATION);
     }
 
     public void showRefund(String pnr, BigDecimal amount, String policyName) {
         refundPanel.setRefundInfo(pnr, amount, policyName);
-        cardLayout.show(cards, CARD_REFUND);
+        showCard(CARD_REFUND);
     }
 
     public void onLoginSuccess(Member m) {
