@@ -59,9 +59,6 @@ window.DECK_MANIFEST = [
   { file: "slides/14-demo-console.html", label: "라이브 데모 콘솔",
     notes: "실제 데모입니다. 이 출력은 목업이 아니라 Iter3DemoRunner를 실행한 실제 콘솔 캡처입니다. 같은 명령을 돌리면 같은 출력이 나옵니다.\n\n탭으로 시나리오를 고르겠습니다. 좌석 hold 만료에서는 sweep이 한 건 발화해 좌석이 Available, 예약이 Cancelled가 됩니다. 결제 실패에서는 gateway 거절 후 자동 취소됩니다. 항공편 전파에서는 한 번의 관리자 명령이 두 예약에 통지됩니다. 버스 연계에서는 e-Ticket 발급이 부산행 우등고속 버스티켓을 자동 발매합니다.\n\n모두 listener가 처리하는 부수효과입니다.\n\n[용어] stdout — 프로그램의 표준 출력 · sweep — 만료된 좌석을 훑어 이벤트를 발행하는 호출 · e-Ticket — 전자 항공권 · 발화(fire) — 이벤트가 실제로 발행되는 것" },
 
-  { file: "slides/div4-defense.html", label: "PART 4 · 디펜스",
-    notes: "4부입니다. 패턴 협업, 예상 질문, 한계와 다음 반복입니다.\n\n[용어] 디펜스(defense) — 발표 후 질의응답에 대비해 근거를 준비하는 것" },
-
   { file: "slides/15-collab.html", label: "세 패턴 협업",
     notes: "세 패턴이 어떻게 협업하는지입니다. 서로 다른 축을 담당하기에 단일 책임이 유지됩니다.\n\nState는 예약이 어떤 전이를 할 수 있는가, 즉 상태 축입니다. Strategy는 환불 금액을 어떻게 계산하는가, 알고리즘 축입니다. Observer는 상태 변화의 부수효과를 누구에게 통지하는가, 통지 축입니다.\n\n실제로 iter3 listener가 부르는 handlePaymentFailure는 iter1 State 전이이고, 그 시점에 iter2 Strategy인 RefundPolicy가 잠재적으로 함께 동작합니다. 세 반복이 누적된 하나의 시스템이라는 증거입니다.\n\n[용어] SRP(단일 책임 원칙) — 한 클래스는 한 가지 책임만 가져야 한다는 원칙 · 직교(orthogonal) — 서로 독립적이라 한쪽을 바꿔도 다른 쪽에 영향이 없는 관계 · 축(axis) — 각 패턴이 담당하는 관심사의 방향" },
 

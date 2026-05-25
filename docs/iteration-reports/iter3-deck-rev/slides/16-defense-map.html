@@ -5,25 +5,21 @@
 <title>OODP Iter3 (rev) · 16 · 디펜스 맵</title>
 <link rel="stylesheet" href="../shared/tokens.css">
 <style>
-  .qmap { width: 100%; border-collapse: collapse; font-size: 22px; margin-top: 26px; }
-  .qmap th { text-align: left; font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint); padding: 14px 18px; border-bottom: 2px solid var(--border-strong); }
-  .qmap td { padding: 17px 18px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.4; }
-  .qmap .q { font-weight: 700; color: var(--fg); width: 38%; }
+  .qmap { width: 100%; border-collapse: collapse; font-size: 30px; margin-top: 60px; }
+  .qmap th { text-align: left; font-size: 22px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint); padding: 22px 24px; border-bottom: 2px solid var(--border-strong); }
+  .qmap td { padding: 26px 24px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.45; }
+  .qmap .q { font-weight: 700; color: var(--fg); width: 36%; }
   .qmap .a { color: var(--fg-muted); }
   .qmap .a b { color: var(--event); }
-  .qmap .loc { font-family: var(--mono); font-size: 18px; color: var(--subject); white-space: nowrap; }
+  .qmap .loc { font-family: var(--mono); font-size: 24px; color: var(--subject); white-space: nowrap; }
   .qmap tr:hover td { background: var(--bg-elevated); }
 </style>
 </head>
 <body>
 <section class="slide">
-  <header class="masthead"><span class="paper-cite">PART 4 · 디펜스 · <b>예상 질문 ↔ 근거</b></span><span class="slide-counter">21 / 23</span></header>
-  <div class="slide-head" style="margin-top:104px">
-    <span class="eyebrow new"><span class="dot"></span> 질문이 오면 이 위치로 점프</span>
-    <h1 class="slide-title" style="margin-bottom:0">질문마다 보여줄 코드·다이어그램을 미리 짝지었다.</h1>
-  </div>
+  <header class="masthead"><span class="paper-cite">PART 4 · 디펜스 · <b>예상 질문 ↔ 근거</b></span><span class="slide-counter">20 / 22</span></header>
 
-  <table class="qmap">
+  <table class="qmap" style="margin-top:140px">
     <thead><tr><th>예상 질문</th><th>답</th><th>근거 위치</th></tr></thead>
     <tbody>
       <tr><td class="q">왜 동기 broadcast인가?</td><td class="a">학습 범위 — listener를 publisher 스레드에서 직접 호출. 비동기 큐는 iter4 밖.</td><td class="loc">07 · EventPublisher.publish for-loop</td></tr>
