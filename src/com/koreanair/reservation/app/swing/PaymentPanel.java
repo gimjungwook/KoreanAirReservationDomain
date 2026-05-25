@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.math.BigDecimal;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,7 +17,9 @@ import javax.swing.JTextField;
 
 import com.koreanair.reservation.control.BookingController;
 import com.koreanair.reservation.domain.flight.FareRule;
+import com.koreanair.reservation.domain.passenger.MileageAccount;
 import com.koreanair.reservation.domain.payment.Payment;
+import com.koreanair.reservation.domain.payment.PaymentMethod;
 import com.koreanair.reservation.domain.payment.PaymentStatus;
 import com.koreanair.reservation.domain.reservation.Reservation;
 
@@ -24,12 +27,15 @@ public class PaymentPanel extends JPanel {
 
     private static final long DEFAULT_BASE_FARE = 450_000L;
     private static final long DEFAULT_TAX = 50_000L;
+    private static final long DEMO_MILEAGE_BALANCE = 800_000L;
 
     private final JTextField pnrLabel = new JTextField(" ");
     private final JLabel amountLabel = new JLabel(" ");
-    private final JLabel methodHintLabel = new JLabel("데모 결제는 즉시 승인되는 신용카드 경로로 진행됩니다.");
+    private final JLabel mileageBalanceLabel = new JLabel(" ");
+    private final JLabel methodHintLabel = new JLabel("신용카드는 PG 승인, 마일리지는 MileageAccount 차감 흐름으로 진행됩니다.");
     private final JComboBox<String> methodCombo = new JComboBox<>(new String[] {
-            "신용카드 (데모 승인)"
+            "신용카드 (PG 데모 승인)",
+            "마일리지 전액 결제 (500,000 차감)"
     });
     private final JButton payButton = new JButton("결제하기");
     private final JButton backButton = new JButton("← 뒤로");
@@ -40,6 +46,7 @@ public class PaymentPanel extends JPanel {
 
     private Reservation reservation;
     private FareRule fareRule;
+    private MileageAccount mileageAccount;
 
     public PaymentPanel(MainFrame frame, BookingController booking, SwingReservationUI ui) {
         super(new BorderLayout());
@@ -116,6 +123,19 @@ public class PaymentPanel extends JPanel {
         formCard.add(amountLabel, c);
 
         c.gridy = 4; c.gridx = 0;
+        JLabel mileageH = new JLabel("마일리지 잔액");
+        mileageH.setFont(ModernUI.FONT_SMALL);
+        mileageH.setForeground(ModernUI.TEXT_SECONDARY);
+        mileageH.setOpaque(false);
+        formCard.add(mileageH, c);
+
+        c.gridx = 1;
+        mileageBalanceLabel.setFont(ModernUI.FONT_BODY);
+        mileageBalanceLabel.setForeground(ModernUI.PRIMARY);
+        mileageBalanceLabel.setOpaque(false);
+        formCard.add(mileageBalanceLabel, c);
+
+        c.gridy = 5; c.gridx = 0;
         JLabel methodH = new JLabel("결제 수단");
         methodH.setFont(ModernUI.FONT_SMALL);
         methodH.setForeground(ModernUI.TEXT_SECONDARY);
@@ -124,14 +144,15 @@ public class PaymentPanel extends JPanel {
 
         c.gridx = 1;
         methodCombo.setFont(ModernUI.FONT_BODY);
+        methodCombo.addActionListener(e -> updateMileageBalance());
         formCard.add(methodCombo, c);
 
-        c.gridy = 5; c.gridx = 0; c.gridwidth = 2;
+        c.gridy = 6; c.gridx = 0; c.gridwidth = 2;
         methodHintLabel.setFont(ModernUI.FONT_SMALL);
         methodHintLabel.setForeground(ModernUI.TEXT_SECONDARY);
         formCard.add(methodHintLabel, c);
 
-        c.gridy = 6; c.gridx = 0; c.gridwidth = 2;
+        c.gridy = 7; c.gridx = 0; c.gridwidth = 2;
         c.anchor = GridBagConstraints.EAST;
         ModernUI.styleButtonSuccess(payButton);
         payButton.addActionListener(e -> doPay());
@@ -167,6 +188,10 @@ public class PaymentPanel extends JPanel {
         pnrLabel.setText(reservation != null ? reservation.getPnrNumber() : "-");
         long total = DEFAULT_BASE_FARE + DEFAULT_TAX;
         amountLabel.setText(String.format("%,d KRW", total));
+        mileageAccount = new MileageAccount();
+        mileageAccount.deposit(BigDecimal.valueOf(DEMO_MILEAGE_BALANCE));
+        methodCombo.setSelectedIndex(0);
+        updateMileageBalance();
     }
 
     private void doPay() {
@@ -175,8 +200,21 @@ public class PaymentPanel extends JPanel {
             return;
         }
         try {
-            Payment payment = booking.confirmPayment(
-                    reservation, fareRule, DEFAULT_BASE_FARE, DEFAULT_TAX);
+            Payment payment;
+            long total = DEFAULT_BASE_FARE + DEFAULT_TAX;
+            if (isMileageSelected()) {
+                System.out.printf("[SWING][MILEAGE] before=%,d cost=%,d pnr=%s%n",
+                        mileageAccount.getBalance().longValue(), total, reservation.getPnrNumber());
+                payment = booking.confirmMileagePayment(reservation, mileageAccount, total);
+                System.out.printf("[SWING][MILEAGE] after=%,d status=%s method=%s%n",
+                        mileageAccount.getBalance().longValue(),
+                        payment.getStatus(),
+                        payment.getPaymentMethod());
+                updateMileageBalance();
+            } else {
+                payment = booking.confirmPayment(
+                        reservation, fareRule, DEFAULT_BASE_FARE, DEFAULT_TAX);
+            }
             if (payment != null && payment.getStatus() == PaymentStatus.PAID) {
                 frame.onPaymentConfirmed(reservation, payment);
             } else {
@@ -185,5 +223,22 @@ public class PaymentPanel extends JPanel {
         } catch (Exception ex) {
             ui.displayError("결제 처리 중 오류: " + ex.getMessage());
         }
+    }
+
+    private boolean isMileageSelected() {
+        Object selected = methodCombo.getSelectedItem();
+        return selected != null && selected.toString().contains("마일리지");
+    }
+
+    private void updateMileageBalance() {
+        if (mileageAccount == null) {
+            mileageBalanceLabel.setText("-");
+            return;
+        }
+        mileageBalanceLabel.setText(String.format("%,d miles", mileageAccount.getBalance().longValue()));
+        PaymentMethod method = isMileageSelected() ? PaymentMethod.MILEAGE : PaymentMethod.CREDIT_CARD;
+        methodHintLabel.setText(method == PaymentMethod.MILEAGE
+                ? "마일리지 결제 선택: 잔액에서 500,000 miles가 차감되고 콘솔에 before/after 로그가 출력됩니다."
+                : "신용카드 선택: PG 승인 후 PendingPayment → Confirmed 상태로 전이됩니다.");
     }
 }

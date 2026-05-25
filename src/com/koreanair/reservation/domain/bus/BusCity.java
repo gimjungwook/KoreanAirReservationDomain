@@ -5,20 +5,28 @@ package com.koreanair.reservation.domain.bus;
  * 6개 대도시 우등고속 버스 티켓 목적지.
  */
 public enum BusCity {
-    SEOUL("서울", "SEL", 18000L),
-    BUSAN("부산", "PUS", 39000L),
-    DAEGU("대구", "TAE", 31000L),
-    GWANGJU("광주", "KWJ", 34000L),
-    DAEJEON("대전", "DJE", 22000L),
-    INCHEON("인천", "ICN", 17000L);
+    SEOUL("서울", "SEL", "Korea", 18000L),
+    BUSAN("부산", "PUS", "Korea", 39000L),
+    DAEGU("대구", "TAE", "Korea", 31000L),
+    GWANGJU("광주", "KWJ", "Korea", 34000L),
+    DAEJEON("대전", "DJE", "Korea", 22000L),
+    INCHEON("인천", "ICN", "Korea", 17000L),
+    TOKYO("도쿄", "NRT", "Japan", 24000L),
+    LOS_ANGELES("로스앤젤레스", "LAX", "USA", 36000L),
+    NEW_YORK("뉴욕", "JFK", "USA", 42000L),
+    SINGAPORE("싱가포르", "SIN", "Singapore", 28000L),
+    SYDNEY("시드니", "SYD", "Australia", 38000L),
+    PARIS("파리", "CDG", "France", 33000L);
 
     private final String displayName;
     private final String cityCode;
+    private final String country;
     private final long premiumFare;
 
-    BusCity(String displayName, String cityCode, long premiumFare) {
+    BusCity(String displayName, String cityCode, String country, long premiumFare) {
         this.displayName = displayName;
         this.cityCode = cityCode;
+        this.country = country;
         this.premiumFare = premiumFare;
     }
 
@@ -30,12 +38,16 @@ public enum BusCity {
         return cityCode;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
     public long getPremiumFare() {
         return premiumFare;
     }
 
     @Override
     public String toString() {
-        return displayName + " (" + cityCode + ")";
+        return displayName + " (" + country + " · " + cityCode + ")";
     }
 }

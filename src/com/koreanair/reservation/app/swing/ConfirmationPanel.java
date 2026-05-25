@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
+import javax.swing.DefaultComboBoxModel;
 
 import com.koreanair.reservation.control.BusTicketingService;
 import com.koreanair.reservation.domain.bus.BusCity;
@@ -38,11 +39,13 @@ public class ConfirmationPanel extends JPanel {
     private final JButton ticketButton = new JButton("e-Ticket + 우등고속 발매");
 
     private final MainFrame frame;
+    private final BusTicketingService busTicketingService;
     private Reservation reservation;
 
     public ConfirmationPanel(MainFrame frame, BusTicketingService busTicketingService) {
         super(new BorderLayout());
         this.frame = frame;
+        this.busTicketingService = busTicketingService;
         this.busCityCombo = new JComboBox<>(
                 busTicketingService.supportedCities().toArray(new BusCity[0]));
         setBackground(ModernUI.BACKGROUND);
@@ -152,6 +155,7 @@ public class ConfirmationPanel extends JPanel {
         card.add(busCityH, c);
         c.gridx = 1;
         busCityCombo.setFont(ModernUI.FONT_BODY);
+        busCityCombo.setToolTipText("예약 itinerary의 도착지 국가/공항을 기준으로 추천됩니다.");
         card.add(busCityCombo, c);
 
         c.gridy = 8; c.gridx = 0;
@@ -203,9 +207,10 @@ public class ConfirmationPanel extends JPanel {
         busTicketStatusLabel.setText("미발매");
         ticketButton.setEnabled(reservation != null);
         busCityCombo.setEnabled(reservation != null);
+        refreshRecommendedBusCities(reservation);
         copyPnrButton.setEnabled(reservation != null && reservation.getPnrNumber() != null);
         if (payment != null) {
-            paymentStatusLabel.setText(String.valueOf(payment.getStatus()));
+            paymentStatusLabel.setText(payment.getPaymentMethod() + " / " + payment.getStatus());
             amountLabel.setText(payment.getAmount() != null
                     ? String.format("%,d KRW", payment.getAmount().longValueExact())
                     : "-");
@@ -230,6 +235,7 @@ public class ConfirmationPanel extends JPanel {
                     "e-Ticket 발급 후 우등고속 버스티켓이 연계 발매되었습니다.\n"
                             + "버스티켓: " + busTicket.getTicketNumber() + "\n"
                             + "도시: " + busTicket.getDestinationCity().getDisplayName()
+                            + " (" + busTicket.getDestinationCity().getCountry() + ")"
                             + " / 요금: " + String.format("%,d KRW", busTicket.getFare()),
                     "연계 발매 완료",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -239,6 +245,15 @@ public class ConfirmationPanel extends JPanel {
                     "오류",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void refreshRecommendedBusCities(Reservation reservation) {
+        java.util.List<BusCity> recommended = busTicketingService.recommendedCities(reservation);
+        busCityCombo.setModel(new DefaultComboBoxModel<>(recommended.toArray(new BusCity[0])));
+        if (!recommended.isEmpty()) {
+            busCityCombo.setSelectedIndex(recommended.size() - 1);
+        }
+        System.out.println("[SWING][BUS] recommended destinations = " + recommended);
     }
 
     private void copyCurrentPnr() {

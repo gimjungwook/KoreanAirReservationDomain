@@ -14,4 +14,12 @@ public class Airport {
     public String getAirportName() {
         return airportName;
     }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
 }
