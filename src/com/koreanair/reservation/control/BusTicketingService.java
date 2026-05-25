@@ -33,13 +33,16 @@ public class BusTicketingService {
         Set<BusCity> recommended = new LinkedHashSet<>();
         Itinerary itinerary = reservation != null ? reservation.getItinerary() : null;
         if (itinerary != null && itinerary.getSegments() != null) {
+            Airport finalDestination = finalDestinationAirport(itinerary);
+            addAirportAndCountryCities(recommended, finalDestination);
+
+            Airport firstOrigin = firstOriginAirport(itinerary);
+            addAirportAndCountryCities(recommended, firstOrigin);
+
             for (Segment segment : itinerary.getSegments()) {
                 FlightSchedule schedule = segment != null ? segment.getFlightSchedule() : null;
-                Airport destination = destinationAirport(schedule);
-                BusCity matched = matchCity(destination);
-                if (matched != null) {
-                    recommended.add(matched);
-                }
+                addAirportAndCountryCities(recommended, originAirport(schedule));
+                addAirportAndCountryCities(recommended, destinationAirport(schedule));
             }
         }
         if (recommended.isEmpty()) {
@@ -80,6 +83,46 @@ public class BusTicketingService {
             }
         }
         return null;
+    }
+
+    private void addAirportAndCountryCities(Set<BusCity> target, Airport airport) {
+        if (airport == null) {
+            return;
+        }
+        BusCity matched = matchCity(airport);
+        if (matched != null) {
+            target.add(matched);
+        }
+        if (airport.getCountry() != null) {
+            for (BusCity city : BusCity.values()) {
+                if (city.getCountry().equalsIgnoreCase(airport.getCountry())) {
+                    target.add(city);
+                }
+            }
+        }
+    }
+
+    private Airport firstOriginAirport(Itinerary itinerary) {
+        if (itinerary == null || itinerary.getSegments() == null || itinerary.getSegments().isEmpty()) {
+            return null;
+        }
+        Segment first = itinerary.getSegments().get(0);
+        return first != null ? originAirport(first.getFlightSchedule()) : null;
+    }
+
+    private Airport finalDestinationAirport(Itinerary itinerary) {
+        if (itinerary == null || itinerary.getSegments() == null || itinerary.getSegments().isEmpty()) {
+            return null;
+        }
+        Segment last = itinerary.getSegments().get(itinerary.getSegments().size() - 1);
+        return last != null ? destinationAirport(last.getFlightSchedule()) : null;
+    }
+
+    private Airport originAirport(FlightSchedule schedule) {
+        if (schedule == null || schedule.getFlight() == null || schedule.getFlight().getRoute() == null) {
+            return null;
+        }
+        return schedule.getFlight().getRoute().getOrigin();
     }
 
     private Airport destinationAirport(FlightSchedule schedule) {

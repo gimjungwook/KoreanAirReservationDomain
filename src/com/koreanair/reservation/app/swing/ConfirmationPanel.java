@@ -251,7 +251,7 @@ public class ConfirmationPanel extends JPanel {
         java.util.List<BusCity> recommended = busTicketingService.recommendedCities(reservation);
         busCityCombo.setModel(new DefaultComboBoxModel<>(recommended.toArray(new BusCity[0])));
         if (!recommended.isEmpty()) {
-            busCityCombo.setSelectedIndex(recommended.size() - 1);
+            busCityCombo.setSelectedIndex(0);
         }
         System.out.println("[SWING][BUS] recommended destinations = " + recommended);
     }
