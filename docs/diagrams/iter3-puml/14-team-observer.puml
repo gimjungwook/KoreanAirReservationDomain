@@ -1,0 +1,60 @@
+@startuml team-observer
+title Team Implementation - Observer Pattern (Iteration 3)
+top to bottom direction
+skinparam classFontSize 11
+skinparam classBorderThickness 1.2
+skinparam shadowing false
+skinparam dpi 130
+skinparam ranksep 50
+skinparam nodesep 30
+hide empty members
+hide circle
+
+abstract class EventPublisher <<Subject>> #FFD0D0 {
+  -listeners: List<EventListener>
+  +subscribe(l)
+  +unsubscribe(l)
+  #publish(event)
+}
+
+interface EventListener <<Observer>> {
+  +onEvent(DomainEvent)
+}
+
+abstract class DomainEvent {
+  +occurredAt
+  +sourceId
+}
+
+together {
+  class SeatHoldMonitor
+  class PaymentProcessor
+}
+together {
+  class FlightSchedule
+  class TicketPurchasePublisher
+}
+
+together {
+  class ReservationHoldListener
+  class ReservationAutoCancelListener
+}
+together {
+  class AffectedReservationListener
+  class BusTicketPurchaseListener
+}
+
+EventPublisher <|-- SeatHoldMonitor
+EventPublisher <|-- PaymentProcessor
+EventPublisher <|-- FlightSchedule
+EventPublisher <|-- TicketPurchasePublisher
+
+EventListener <|.. ReservationHoldListener
+EventListener <|.. ReservationAutoCancelListener
+EventListener <|.. AffectedReservationListener
+EventListener <|.. BusTicketPurchaseListener
+
+EventPublisher o--> "*" EventListener : listeners
+EventPublisher ..> DomainEvent : publishes
+EventListener ..> DomainEvent : receives
+@enduml

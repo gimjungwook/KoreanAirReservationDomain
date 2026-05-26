@@ -1,0 +1,35 @@
+@startuml team-strategy
+title Team Implementation - Strategy Pattern (Iteration 2)
+top to bottom direction
+skinparam classFontSize 12
+skinparam classBorderThickness 1.2
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+class RefundHandler <<Context>> #FFD0D0 {
+  +processRefund(r, fareRule): Refund
+}
+
+interface RefundPolicy <<Strategy>> {
+  +calculateRefund(base, days): BigDecimal
+}
+
+class FareRule {
+  -fareClass: String
+  +checkRefundPolicy(): RefundPolicy
+}
+
+together {
+  class FullRefundPolicy
+  class PartialRefundPolicy
+  class NoRefundPolicy
+}
+
+RefundHandler --> RefundPolicy : uses
+FareRule ..> RefundPolicy : selects
+RefundPolicy <|.. FullRefundPolicy
+RefundPolicy <|.. PartialRefundPolicy
+RefundPolicy <|.. NoRefundPolicy
+@enduml

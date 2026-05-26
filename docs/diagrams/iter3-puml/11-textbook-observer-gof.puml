@@ -1,0 +1,37 @@
+@startuml textbook-observer-gof
+title Observer Pattern - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+top to bottom direction
+skinparam classFontSize 12
+skinparam classBorderThickness 1.2
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+abstract class Subject <<Subject>> #FFD0D0 {
+  +attach(Observer)
+  +detach(Observer)
+  +notify()
+}
+interface Observer <<Observer>> {
+  +update()
+}
+class ConcreteSubject {
+  -state
+  +getState()
+}
+class ConcreteObserver {
+  +update()
+}
+
+Subject <|-- ConcreteSubject
+Observer <|.. ConcreteObserver
+Subject o--> "*" Observer : observers
+ConcreteObserver --> ConcreteSubject : subject
+
+note right of Subject
+  Maintains observer list.
+  Subject is unaware of
+  concrete Observer classes.
+end note
+@enduml

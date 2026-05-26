@@ -10,9 +10,13 @@ skinparam shadowing false
 skinparam usecaseBorderColor #555555
 skinparam dpi 130
 
+actor "Passenger" as Passenger <<abstract>>
 actor "Skypass\nMember" as Member
 actor "Guest" as Guest
 actor "Payment\nGateway" as Pay <<external>>
+
+Member --|> Passenger
+Guest --|> Passenger
 
 rectangle "Korean Air Reservation System" {
 
@@ -37,14 +41,10 @@ rectangle "Korean Air Reservation System" {
 
 Member --> UC_Login
 Guest --> UC_Reg
-Member --> UC_Search
-Guest --> UC_Search
-Member --> UC_Book
-Guest --> UC_Book
-Member --> UC_Lookup
-Guest --> UC_Lookup
-Member --> UC_Cancel
-Guest --> UC_Cancel
+Passenger --> UC_Search
+Passenger --> UC_Book
+Passenger --> UC_Lookup
+Passenger --> UC_Cancel
 
 UC_Pay --> Pay
 UC_Refund --> Pay

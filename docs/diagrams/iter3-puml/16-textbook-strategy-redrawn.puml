@@ -1,0 +1,52 @@
+@startuml textbook-strategy
+title Strategy Pattern - Textbook Reference Structure\n(Reproduced from Java OO Design Patterns, HanbitDP chapter 5, figure 5-5)
+top to bottom direction
+skinparam classFontSize 12
+skinparam classBorderThickness 1.2
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+class Robot <<Context>> #FFD0D0 {
+  -name: String
+  +move()
+  +attack()
+  +setMovingStrategy(s)
+  +setAttackStrategy(s)
+}
+
+interface MovingStrategy <<Strategy>> {
+  +move()
+}
+interface AttackStrategy <<Strategy>> {
+  +attack()
+}
+
+together {
+  class WalkingStrategy
+  class FlyingStrategy
+}
+together {
+  class PunchStrategy
+  class MissileStrategy
+}
+
+class Atom
+class TaekwonV
+
+Robot --> "1" MovingStrategy : uses
+Robot --> "1" AttackStrategy : uses
+Robot <|-- Atom
+Robot <|-- TaekwonV
+MovingStrategy <|.. WalkingStrategy
+MovingStrategy <|.. FlyingStrategy
+AttackStrategy <|.. PunchStrategy
+AttackStrategy <|.. MissileStrategy
+
+note right of Robot
+  Maps to GoF "Context" role.
+  Injects the chosen strategy at runtime
+  via setMovingStrategy / setAttackStrategy.
+end note
+@enduml

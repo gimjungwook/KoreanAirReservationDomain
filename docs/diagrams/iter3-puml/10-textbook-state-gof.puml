@@ -1,0 +1,28 @@
+@startuml textbook-state-gof
+title State Pattern - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+top to bottom direction
+skinparam classFontSize 12
+skinparam classBorderThickness 1.2
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+class Context <<Context>> #FFD0D0 {
+  +request()
+}
+interface State <<State>> {
+  +handle()
+}
+class ConcreteStateA
+class ConcreteStateB
+
+Context --> "current" State
+State <|.. ConcreteStateA
+State <|.. ConcreteStateB
+
+note right of Context
+  Delegates request to current State.
+  Behavior changes when State changes.
+end note
+@enduml

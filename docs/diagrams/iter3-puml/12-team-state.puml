@@ -1,0 +1,59 @@
+@startuml team-state
+title Team Implementation - State Pattern (Iteration 1)
+top to bottom direction
+skinparam classFontSize 11
+skinparam classBorderThickness 1.2
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+class Reservation <<Context>> #FFD0D0 {
+  -pnr: String
+  -state: ReservationState
+  +enterPassengerInfo()
+  +processPayment()
+  +handlePaymentFailure()
+  +issueTicket()
+  +requestCancellation()
+  +confirmCancellation()
+  +requestRefund()
+  +processRefundDecision()
+}
+
+interface ReservationState <<State>> {
+  +enterPassengerInfo(r)
+  +processPayment(r)
+  +handlePaymentFailure(r)
+  +issueTicket(r)
+  +requestCancellation(r)
+  +confirmCancellation(r)
+  +requestRefund(r)
+  +processRefundDecision(r)
+}
+
+together {
+  class "Initiated\nState" as S1
+  class "PassengerInfo\nEnteredState" as S2
+  class "PendingPayment\nState" as S3
+  class "Confirmed\nState" as S4
+}
+together {
+  class "Ticketed\nState" as S5
+  class "Cancellation\nRequestedState" as S6
+  class "Cancelled\nState" as S7
+  class "RefundRequested\nState" as S8
+  class "Refunded\nState" as S9
+}
+
+Reservation --> "current" ReservationState
+ReservationState <|.. S1
+ReservationState <|.. S2
+ReservationState <|.. S3
+ReservationState <|.. S4
+ReservationState <|.. S5
+ReservationState <|.. S6
+ReservationState <|.. S7
+ReservationState <|.. S8
+ReservationState <|.. S9
+@enduml

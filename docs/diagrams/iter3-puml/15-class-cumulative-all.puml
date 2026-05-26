@@ -1,0 +1,163 @@
+@startuml class-cumulative-all
+title Cumulative Class Diagram - Full System through Iteration 3\nKorean Air Skypass Ticketing Reservation System (every class, every package)
+
+top to bottom direction
+skinparam linetype polyline
+skinparam ranksep 50
+skinparam nodesep 35
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam packageFontSize 13
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 110
+hide empty members
+hide circle
+
+package "Boundary" #FAFAFA {
+  interface ReservationUI
+  class SwingApp
+  interface PaymentGatewayInterface
+  interface SkypassInterface
+  interface GDSInterface
+  class MockSkypassInterface #FFE0E0
+  ReservationUI <|.. SwingApp
+  SkypassInterface <|.. MockSkypassInterface
+}
+
+package "Control" #FAFAFA {
+  class BookingController
+  class AuthService
+  class PaymentProcessor #FFD0D0
+  class RefundHandler
+  class FlightSearchService
+  class ReservationLookupService
+  class ItinerarySearchService #FFE0E0
+  class SeatHoldMonitor #FFE0E0
+  class TicketPurchasePublisher #FFE0E0
+  class ReservationRegistry #FFE0E0
+
+  package "Listeners (iter3)" #FFF6F6 {
+    class ReservationHoldListener #FFE0E0
+    class ReservationAutoCancelListener #FFE0E0
+    class AffectedReservationListener #FFE0E0
+    class BusTicketPurchaseListener #FFE0E0
+  }
+}
+
+package "Domain :: Reservation (State, iter1)" #FAFAFA {
+  class Reservation #FFD0D0
+  interface ReservationState
+  class Ticket
+  class Itinerary #FFD0D0
+  package "8 ConcreteStates" {
+    class InitiatedState
+    class PassengerInfoEnteredState
+    class PendingPaymentState
+    class ConfirmedState
+    class TicketedState
+    class CancellationRequestedState
+    class CancelledState
+    class RefundRequestedState
+    class RefundedState
+  }
+  Reservation --> ReservationState
+  ReservationState <|.. InitiatedState
+  ReservationState <|.. PassengerInfoEnteredState
+  ReservationState <|.. PendingPaymentState
+  ReservationState <|.. ConfirmedState
+  ReservationState <|.. TicketedState
+  ReservationState <|.. CancellationRequestedState
+  ReservationState <|.. CancelledState
+  ReservationState <|.. RefundRequestedState
+  ReservationState <|.. RefundedState
+  Reservation --> "1" Itinerary
+  Reservation --> "*" Ticket
+}
+
+package "Domain :: Flight" #FAFAFA {
+  class FlightSchedule #FFD0D0
+  class SeatInventory
+  class Seat #FFD0D0
+  class FareRule
+
+  FlightSchedule --> "1" SeatInventory
+  SeatInventory --> "*" Seat
+  FlightSchedule --> "1" FareRule
+}
+
+package "Domain :: Payment (Strategy, iter2)" #FAFAFA {
+  class Payment
+  enum PaymentMethod
+  interface RefundPolicy
+  class FullRefundPolicy
+  class PartialRefundPolicy
+  class NoRefundPolicy
+
+  RefundPolicy <|.. FullRefundPolicy
+  RefundPolicy <|.. PartialRefundPolicy
+  RefundPolicy <|.. NoRefundPolicy
+}
+
+package "Domain :: Passenger" #FAFAFA {
+  abstract class Passenger
+  class SkypassMember
+  class Guest
+  class MileageAccount
+
+  Passenger <|-- SkypassMember
+  Passenger <|-- Guest
+  SkypassMember --> "1" MileageAccount
+}
+
+package "Domain :: Event (Observer, iter3)" #FFF6F6 {
+  abstract class DomainEvent
+  interface EventListener
+  abstract class EventPublisher
+  class SeatHoldExpiredEvent #FFE0E0
+  class PaymentFailedEvent #FFE0E0
+  class FlightStatusChangedEvent #FFE0E0
+  class TicketIssuedEvent #FFE0E0
+
+  DomainEvent <|-- SeatHoldExpiredEvent
+  DomainEvent <|-- PaymentFailedEvent
+  DomainEvent <|-- FlightStatusChangedEvent
+  DomainEvent <|-- TicketIssuedEvent
+}
+
+Itinerary --> "1..*" FlightSchedule
+FareRule --> RefundPolicy
+Reservation --> "*" Payment
+
+EventPublisher <|-- SeatHoldMonitor
+EventPublisher <|-- PaymentProcessor
+EventPublisher <|-- FlightSchedule
+EventPublisher <|-- TicketPurchasePublisher
+
+EventListener <|.. ReservationHoldListener
+EventListener <|.. ReservationAutoCancelListener
+EventListener <|.. AffectedReservationListener
+EventListener <|.. BusTicketPurchaseListener
+
+SwingApp --> BookingController
+SwingApp --> AuthService
+SwingApp --> ReservationLookupService
+
+BookingController --> Reservation
+BookingController --> PaymentProcessor
+BookingController --> SeatHoldMonitor
+BookingController --> ItinerarySearchService
+RefundHandler --> RefundPolicy
+PaymentProcessor --> PaymentGatewayInterface
+PaymentProcessor --> MockSkypassInterface
+ItinerarySearchService --> FlightSearchService
+ReservationRegistry o-- "*" Reservation
+AffectedReservationListener --> ReservationRegistry
+
+legend right
+  Red border:  Modified or extended in iter1 / iter2
+  Pink fill:   Added in iter3 (Observer infrastructure)
+  ECB layers:  Boundary -> Control -> Domain
+  See split views (diagrams 2 to 4 in Section 7) for clearer subviews.
+end legend
+@enduml
