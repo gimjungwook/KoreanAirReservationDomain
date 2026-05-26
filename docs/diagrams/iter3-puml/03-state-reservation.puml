@@ -1,0 +1,27 @@
+@startuml state-reservation
+title Reservation Lifecycle (State Pattern - cumulative, iter1 + iter2)\nIter3 adds no new states; only side-effect publishing on existing transitions
+hide empty description
+skinparam stateFontSize 12
+
+[*] --> Initiated : create()
+Initiated --> PassengerInfoEntered : enterPassengerInfo()
+PassengerInfoEntered --> PendingPayment : processPayment()
+PendingPayment --> Confirmed : payment authorized
+PendingPayment --> Cancelled : handlePaymentFailure()\n(iter1 wired; iter3 listener fires)
+Confirmed --> Ticketed : issueTicket() [iter2]
+Confirmed --> CancellationRequested : requestCancellation() [iter2]
+Ticketed --> CancellationRequested : requestCancellation() [iter2]
+CancellationRequested --> Cancelled : confirmCancellation() [iter2]
+Cancelled --> RefundRequested : requestRefund() [iter2]
+RefundRequested --> Refunded : processRefundDecision() [iter2]
+Refunded --> [*]
+
+note right of Cancelled
+  Entry from PendingPayment is
+  triggered in iter3 by:
+   - ReservationAutoCancelListener
+     (on PaymentFailedEvent)
+   - ReservationHoldListener
+     (on SeatHoldExpiredEvent)
+end note
+@enduml

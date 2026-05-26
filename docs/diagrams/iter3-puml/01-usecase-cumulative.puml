@@ -1,0 +1,77 @@
+@startuml usecase-cumulative
+title Use Case Diagram (Cumulative through Iteration 3)\nKorean Air Skypass Ticketing Reservation System
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecaseBorderColor #555555
+skinparam noteFontSize 11
+
+actor "Skypass Member" as Member
+actor "Guest" as Guest
+actor "Administrator" as Admin
+actor "Payment Gateway" as Pay <<external>>
+actor "Skypass System" as Skypass <<external>>
+actor "GDS" as Gds <<external>>
+
+rectangle "Korean Air Reservation System" {
+
+  ' iter1 base
+  usecase "Register Member" as UC_Reg
+  usecase "Login / Logout" as UC_Login
+  usecase "Search Flight" as UC_Search
+  usecase "Book Flight" as UC_Book
+  usecase "Make Payment" as UC_Pay
+
+  ' iter2 base
+  usecase "Look Up Reservation" as UC_Lookup
+  usecase "Cancel Booking" as UC_Cancel
+  usecase "Process Refund" as UC_Refund
+  usecase "Issue e-Ticket" as UC_Ticket
+
+  ' iter3 NEW
+  usecase "Search Connecting Flights" as UC_Conn #FFE0E0
+  usecase "Book Multi-city Trip" as UC_Multi #FFE0E0
+  usecase "Pay with Mileage" as UC_Mile #FFE0E0
+  usecase "Manage Flight Schedule" as UC_Manage #FFE0E0
+  usecase "Notify Flight Schedule Change" as UC_Notify #FFE0E0
+  usecase "Auto-cancel on Hold Expiry" as UC_Auto #FFE0E0
+}
+
+' iter1 associations
+Guest --> UC_Reg
+Member --> UC_Login
+Member --> UC_Search
+Guest --> UC_Search
+Member --> UC_Book
+Guest --> UC_Book
+UC_Pay --> Pay
+
+' iter2 associations
+Member --> UC_Lookup
+Guest --> UC_Lookup
+Member --> UC_Cancel
+Guest --> UC_Cancel
+UC_Refund --> Pay
+UC_Ticket ..> UC_Pay : <<extend>>
+
+' iter3 associations
+Member --> UC_Conn
+Member --> UC_Multi
+Member --> UC_Mile
+Admin --> UC_Manage
+Admin --> UC_Notify
+UC_Conn .> Gds
+UC_Mile .> Skypass
+
+UC_Conn .> UC_Book : <<include>>
+UC_Multi .> UC_Book : <<include>>
+UC_Mile .> UC_Pay : <<extend>>
+UC_Notify .> UC_Manage : <<extend>>
+UC_Auto .> UC_Pay : <<extend>>
+
+legend right
+| Iteration | Color |
+| iter1 base | default |
+| iter2 base | default |
+| iter3 NEW | pink |
+endlegend
+@enduml

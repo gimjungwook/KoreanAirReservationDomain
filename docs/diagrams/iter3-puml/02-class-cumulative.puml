@@ -1,0 +1,144 @@
+@startuml class-cumulative
+title Class Diagram (Cumulative through Iteration 3)\nKorean Air Skypass Ticketing Reservation System
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam noteFontSize 10
+skinparam packageStyle rectangle
+hide empty members
+
+package "Boundary" {
+  interface ReservationUI
+  class SwingApp
+  interface PaymentGatewayInterface
+  interface GDSInterface
+  interface SkypassInterface
+  class MockSkypassInterface #FFE0E0
+  ReservationUI <|.. SwingApp
+  SkypassInterface <|.. MockSkypassInterface
+}
+
+package "Control" {
+  class BookingController
+  class AuthService
+  class PaymentProcessor #FFD0D0
+  class RefundHandler
+  class FlightSearchService
+  class ReservationLookupService
+  class ItinerarySearchService #FFE0E0
+  class SeatHoldMonitor #FFE0E0
+  class TicketPurchasePublisher #FFE0E0
+  class ReservationRegistry #FFE0E0
+  class ReservationHoldListener #FFE0E0
+  class ReservationAutoCancelListener #FFE0E0
+  class AffectedReservationListener #FFE0E0
+  class BusTicketPurchaseListener #FFE0E0
+}
+
+package "Domain :: Reservation (State pattern, iter1)" {
+  class Reservation #FFD0D0
+  interface ReservationState
+  class InitiatedState
+  class PassengerInfoEnteredState
+  class PendingPaymentState
+  class ConfirmedState
+  class TicketedState
+  class CancellationRequestedState
+  class CancelledState
+  class RefundRequestedState
+  class RefundedState
+  class Ticket
+  class Itinerary #FFD0D0
+  Reservation --> ReservationState
+  ReservationState <|.. InitiatedState
+  ReservationState <|.. PassengerInfoEnteredState
+  ReservationState <|.. PendingPaymentState
+  ReservationState <|.. ConfirmedState
+  ReservationState <|.. TicketedState
+  ReservationState <|.. CancellationRequestedState
+  ReservationState <|.. CancelledState
+  ReservationState <|.. RefundRequestedState
+  ReservationState <|.. RefundedState
+  Reservation --> "1" Itinerary
+  Reservation --> "*" Ticket
+}
+
+package "Domain :: Flight" {
+  class FlightSchedule #FFD0D0
+  class Seat #FFD0D0
+  class SeatInventory
+  class FareRule
+  Itinerary --> "1..*" FlightSchedule
+  FlightSchedule --> "1" SeatInventory
+  SeatInventory --> "*" Seat
+  FlightSchedule --> "1" FareRule
+}
+
+package "Domain :: Payment (Strategy pattern, iter2)" {
+  class Payment
+  enum PaymentMethod
+  interface RefundPolicy
+  class FullRefundPolicy
+  class PartialRefundPolicy
+  class NoRefundPolicy
+  RefundPolicy <|.. FullRefundPolicy
+  RefundPolicy <|.. PartialRefundPolicy
+  RefundPolicy <|.. NoRefundPolicy
+  FareRule --> RefundPolicy
+  Reservation --> "*" Payment
+}
+
+package "Domain :: Passenger" {
+  abstract class Passenger
+  class SkypassMember
+  class Guest
+  class MileageAccount
+  Passenger <|-- SkypassMember
+  Passenger <|-- Guest
+  SkypassMember --> "1" MileageAccount
+}
+
+package "Domain :: Event (Observer pattern, iter3)" #FFE0E0 {
+  abstract class DomainEvent
+  interface EventListener
+  abstract class EventPublisher
+  class SeatHoldExpiredEvent
+  class PaymentFailedEvent
+  class FlightStatusChangedEvent
+  class ReservationStateChangedEvent
+  class TicketIssuedEvent
+  DomainEvent <|-- SeatHoldExpiredEvent
+  DomainEvent <|-- PaymentFailedEvent
+  DomainEvent <|-- FlightStatusChangedEvent
+  DomainEvent <|-- ReservationStateChangedEvent
+  DomainEvent <|-- TicketIssuedEvent
+}
+
+' Observer Subject relationships (iter3)
+EventPublisher <|-- SeatHoldMonitor
+EventPublisher <|-- PaymentProcessor
+EventPublisher <|-- FlightSchedule
+EventPublisher <|-- TicketPurchasePublisher
+
+EventListener <|.. ReservationHoldListener
+EventListener <|.. ReservationAutoCancelListener
+EventListener <|.. AffectedReservationListener
+EventListener <|.. BusTicketPurchaseListener
+
+' Control wiring
+BookingController --> Reservation
+BookingController --> PaymentProcessor
+BookingController --> SeatHoldMonitor
+BookingController --> ItinerarySearchService
+RefundHandler --> RefundPolicy
+PaymentProcessor --> PaymentGatewayInterface
+PaymentProcessor --> MockSkypassInterface
+ItinerarySearchService --> FlightSearchService
+ReservationRegistry o-- "*" Reservation
+AffectedReservationListener --> ReservationRegistry
+
+legend right
+  iter1 (red)   : Reservation, ReservationState family, Ticket, Itinerary (base), FlightSchedule, Seat
+  iter2 (red)   : Reservation extended, Itinerary extended, RefundPolicy family, RefundHandler logic
+  iter3 (pink)  : Domain::Event package, 4 Subjects, 4 Listeners, Itinerary extensions, MockSkypassInterface
+end legend
+@enduml

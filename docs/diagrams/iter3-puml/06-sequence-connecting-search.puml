@@ -1,0 +1,31 @@
+@startuml sequence-connecting-search
+title Sequence: Connecting Flight Search with MCT Validation (Iteration 3)
+skinparam sequenceMessageAlign center
+skinparam sequenceFontSize 12
+
+actor User
+participant "ReservationUI" as UI
+participant "ItinerarySearch\nService" as ISS
+participant "FlightSearch\nService" as FSS
+participant "Itinerary" as It
+
+User -> UI : searchConnecting(ICN, JFK, date)
+UI -> ISS : searchConnecting(from, to, date, MCT=90m)
+ISS -> FSS : getCatalog()
+FSS --> ISS : List<FlightSchedule>
+
+loop for each (a, b) where a.dest == b.origin AND b.dest == JFK
+  ISS -> It : Itinerary.connecting(a, b)
+  ISS -> It : isConnectionTimeValid(MCT)
+  It -> It : layover = b.departure - a.arrival
+  alt layover >= MCT
+    It --> ISS : true
+    ISS -> ISS : add to result list
+  else layover < MCT
+    It --> ISS : false (reject)
+  end
+end
+
+ISS --> UI : returns List<Itinerary>
+UI --> User : render passing itineraries
+@enduml

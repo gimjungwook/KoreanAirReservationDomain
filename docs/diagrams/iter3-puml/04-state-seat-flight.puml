@@ -1,0 +1,36 @@
+@startuml state-seat-flight
+title Seat Hold + FlightSchedule Lifecycles (Iteration 3 additions)\nObserver pattern adds event-publishing side effects on transitions
+hide empty description
+skinparam stateFontSize 12
+
+state "Seat lifecycle" as SeatSL {
+  [*] --> Available
+  Available --> Held : hold(timeout, pnr) [iter3]
+  Held --> Reserved : reserve() [iter2]
+  Held --> Available : release() [iter2]\n[iter3 also triggered by SeatHoldMonitor.sweep]
+  Reserved --> Available : release()
+}
+
+state "FlightSchedule lifecycle" as FsSL {
+  [*] --> Scheduled
+  Scheduled --> Delayed : changeStatus(DELAYED) [iter3]
+  Scheduled --> Cancelled : changeStatus(CANCELLED) [iter3]
+  Delayed --> Scheduled : changeStatus(SCHEDULED)
+  Delayed --> Cancelled : changeStatus(CANCELLED)
+  Cancelled --> [*]
+}
+
+note right of Held
+  Iter3: when sweep() finds
+  Seat.isHoldExpired()
+  the system publishes
+  SeatHoldExpiredEvent
+end note
+
+note right of Cancelled
+  Every changeStatus() call
+  publishes FlightStatusChangedEvent
+  -> AffectedReservationListener
+  -> ReservationRegistry walk
+end note
+@enduml
