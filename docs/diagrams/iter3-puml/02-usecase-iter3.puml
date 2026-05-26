@@ -1,0 +1,55 @@
+@startuml usecase-iter3
+title Use Case Diagram - Iteration 3 Additions\nNew use cases on top of the cumulative core
+
+left to right direction
+skinparam linetype polyline
+skinparam ranksep 60
+skinparam nodesep 45
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 130
+
+actor "Skypass\nMember" as Member
+actor "Administrator" as Admin
+actor "Skypass\nSystem" as Skypass <<external>>
+actor "GDS" as Gds <<external>>
+actor "Payment\nGateway" as Pay <<external>>
+
+rectangle "Korean Air Reservation System" {
+
+  package "Itinerary search (iter3)" #FFF6F6 {
+    usecase "Search\nConnecting\nFlights" as UC_Conn #FFE0E0
+    usecase "Book\nMulti-city\nTrip" as UC_Multi #FFE0E0
+  }
+
+  package "Payment (iter3)" #FFF6F6 {
+    usecase "Pay with\nMileage" as UC_Mile #FFE0E0
+    usecase "Auto-cancel\non Hold\nExpiry" as UC_Auto #FFE0E0
+  }
+
+  package "Schedule admin (iter3)" #FFF6F6 {
+    usecase "Manage\nFlight\nSchedule" as UC_Manage #FFE0E0
+    usecase "Notify\nSchedule\nChange" as UC_Notify #FFE0E0
+  }
+
+  ' Reference use cases from the core diagram, shown ghosted for context
+  usecase "Book\nFlight\n(core)" as UC_Book
+  usecase "Make\nPayment\n(core)" as UC_Pay
+}
+
+Member --> UC_Conn
+Member --> UC_Multi
+Member --> UC_Mile
+Admin --> UC_Manage
+Admin --> UC_Notify
+
+UC_Conn ..down.> UC_Book : <<include>>
+UC_Multi ..down.> UC_Book : <<include>>
+UC_Mile ..down.> UC_Pay : <<extend>>
+UC_Auto ..down.> UC_Pay : <<extend>>
+UC_Notify ..left.> UC_Manage : <<extend>>
+
+UC_Conn ..> Gds
+UC_Mile ..> Skypass
+UC_Pay --> Pay
+@enduml

@@ -1,0 +1,32 @@
+@startuml state-reservation
+title Reservation Lifecycle (cumulative through Iteration 3) - State Pattern
+hide empty description
+skinparam stateFontSize 12
+skinparam ranksep 50
+skinparam nodesep 35
+skinparam shadowing false
+skinparam dpi 130
+
+[*] -down-> Initiated
+Initiated -right-> PassengerInfoEntered : enterPassengerInfo()
+PassengerInfoEntered -right-> PendingPayment : processPayment()
+PendingPayment -right-> Confirmed : payment authorized
+PendingPayment -down-> Cancelled : handlePaymentFailure()
+Confirmed -right-> Ticketed : issueTicket()
+Confirmed -down-> CancellationRequested : requestCancellation()
+Ticketed -down-> CancellationRequested : requestCancellation()
+CancellationRequested -left-> Cancelled : confirmCancellation()
+Cancelled -down-> RefundRequested : requestRefund()
+RefundRequested -right-> Refunded : processRefundDecision()
+Refunded -right-> [*]
+
+note right of Cancelled
+  Iter3 entry sources (Observer):
+   - PendingPayment -> Cancelled is
+     triggered by ReservationAutoCancelListener
+     on PaymentFailedEvent
+   - PendingPayment -> Cancelled is also
+     triggered by ReservationHoldListener
+     on SeatHoldExpiredEvent
+end note
+@enduml

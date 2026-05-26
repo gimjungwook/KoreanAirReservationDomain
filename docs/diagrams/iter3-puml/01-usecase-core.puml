@@ -1,0 +1,59 @@
+@startuml usecase-core
+title Use Case Diagram - Core Booking Flow (cumulative through Iteration 2)\nKorean Air Skypass Ticketing Reservation System
+
+left to right direction
+skinparam linetype polyline
+skinparam ranksep 60
+skinparam nodesep 40
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam usecaseBorderColor #555555
+skinparam dpi 130
+
+actor "Skypass\nMember" as Member
+actor "Guest" as Guest
+actor "Payment\nGateway" as Pay <<external>>
+
+rectangle "Korean Air Reservation System" {
+
+  package "Authentication" {
+    usecase "Register\nMember" as UC_Reg
+    usecase "Login /\nLogout" as UC_Login
+  }
+
+  package "Booking" {
+    usecase "Search\nFlight" as UC_Search
+    usecase "Book\nFlight" as UC_Book
+    usecase "Make\nPayment" as UC_Pay
+    usecase "Issue\ne-Ticket" as UC_Ticket
+  }
+
+  package "Post-booking" {
+    usecase "Look Up\nReservation" as UC_Lookup
+    usecase "Cancel\nBooking" as UC_Cancel
+    usecase "Process\nRefund" as UC_Refund
+  }
+}
+
+Member --> UC_Login
+Guest --> UC_Reg
+Member --> UC_Search
+Guest --> UC_Search
+Member --> UC_Book
+Guest --> UC_Book
+Member --> UC_Lookup
+Guest --> UC_Lookup
+Member --> UC_Cancel
+Guest --> UC_Cancel
+
+UC_Pay --> Pay
+UC_Refund --> Pay
+
+UC_Ticket ..down.> UC_Pay : <<extend>>
+
+note bottom of Pay
+  External actor.
+  Iteration 3 additions appear
+  in the separate diagram.
+end note
+@enduml

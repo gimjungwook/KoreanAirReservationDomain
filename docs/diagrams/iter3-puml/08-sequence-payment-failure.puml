@@ -1,0 +1,55 @@
+@startuml sequence-payment-failure
+title Sequence: Payment Failure Auto-Cancel (Iteration 3 - Observer demo)
+skinparam sequenceMessageAlign center
+skinparam sequenceFontSize 11
+skinparam shadowing false
+skinparam dpi 130
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceLifeLineBorderColor #888
+hide footbox
+autonumber
+
+actor Member
+participant "ReservationUI" as UI
+participant "BookingController" as BC
+participant "PaymentProcessor\n(Subject)" as PP
+participant "PaymentGateway\n(mock)" as PG
+participant "AutoCancelListener" as L
+participant "Reservation" as R
+database "Reservation\nRegistry" as Reg
+
+Member -> UI : submitPayment(info)
+activate UI
+UI -> BC : confirmPayment(reservation, fareRule)
+activate BC
+BC -> PP : processPaymentCharge(amount, pnr)
+activate PP
+
+alt authorization fails
+  PP -> PG : authorize(payment)
+  activate PG
+  PG --> PP : false
+  deactivate PG
+  PP -> PP : payment.fail()
+  PP -> PP : publish(PaymentFailedEvent)
+  PP ->> L : onEvent(event)
+  activate L
+  L -> Reg : findByPnr(pnr)
+  Reg --> L : Reservation
+  L -> R : handlePaymentFailure()
+  activate R
+  R -> R : transition()\nPendingPayment -> Cancelled
+  R --> L : ok
+  deactivate R
+  deactivate L
+end
+
+deactivate PP
+deactivate BC
+deactivate UI
+
+note right of PP #FFF6F6
+  Publisher unaware of concrete Listener class
+  (registration-time binding only).
+end note
+@enduml

@@ -1,0 +1,40 @@
+@startuml state-seat-flight
+title Seat Hold + FlightSchedule Lifecycles (Iteration 3 additions)
+hide empty description
+skinparam stateFontSize 12
+skinparam ranksep 55
+skinparam nodesep 40
+skinparam shadowing false
+skinparam dpi 130
+
+state "Seat lifecycle" as SeatSL {
+  [*] -down-> Available
+  Available -right-> Held : hold()
+  Held -down-> Reserved : reserve()
+  Held -left-> Available : release / sweep
+  Reserved -up-> Available : release()
+}
+
+state "FlightSchedule lifecycle" as FsSL {
+  [*] -down-> Scheduled
+  Scheduled -up-> Delayed : DELAYED
+  Delayed -down-> Scheduled : SCHEDULED
+  Scheduled -right-> Cancelled : CANCELLED
+  Delayed -right-> Cancelled : CANCELLED
+  Cancelled -down-> [*]
+}
+
+note bottom of SeatSL
+  Iter3 additions:
+   - hold(timeout, pnr) starts the 15-minute timer
+   - sweep() detects Seat.isHoldExpired() and publishes
+     SeatHoldExpiredEvent (ReservationHoldListener cascades)
+end note
+
+note bottom of FsSL
+  Iter3 additions:
+   - Transition method = changeStatus(newStatus)
+   - Every changeStatus() publishes FlightStatusChangedEvent
+   - AffectedReservationListener walks ReservationRegistry
+end note
+@enduml

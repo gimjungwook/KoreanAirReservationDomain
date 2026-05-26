@@ -1,0 +1,92 @@
+@startuml class-observer-arch
+title Class Diagram (2/3) - Observer Architecture (Iteration 3)\nEventPublisher / EventListener / DomainEvent + 4 Subjects + 4 Listeners
+
+top to bottom direction
+skinparam linetype polyline
+skinparam ranksep 55
+skinparam nodesep 40
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 13
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+package "Pattern infrastructure" #FFF6F6 {
+  abstract class EventPublisher {
+    -listeners: List<EventListener>
+    +subscribe(l)
+    +unsubscribe(l)
+    #publish(event)
+  }
+  interface EventListener {
+    +onEvent(DomainEvent)
+  }
+  abstract class DomainEvent {
+    +occurredAt: LocalDateTime
+    +sourceId: String
+    +getEventType()
+  }
+}
+
+package "Domain :: Event (iter3)" #FFF6F6 {
+  class SeatHoldExpiredEvent #FFE0E0
+  class PaymentFailedEvent #FFE0E0
+  class FlightStatusChangedEvent #FFE0E0
+  class TicketIssuedEvent #FFE0E0
+}
+
+together {
+  package "Subjects (iter3)" #FFF6F6 {
+    class SeatHoldMonitor #FFE0E0
+    class PaymentProcessor #FFD0D0
+    class FlightSchedule #FFD0D0
+    class TicketPurchasePublisher #FFE0E0
+  }
+}
+
+together {
+  package "Listeners (iter3)" #FFF6F6 {
+    class ReservationHoldListener #FFE0E0
+    class ReservationAutoCancelListener #FFE0E0
+    class AffectedReservationListener #FFE0E0
+    class BusTicketPurchaseListener #FFE0E0
+  }
+}
+
+DomainEvent <|-- SeatHoldExpiredEvent
+DomainEvent <|-- PaymentFailedEvent
+DomainEvent <|-- FlightStatusChangedEvent
+DomainEvent <|-- TicketIssuedEvent
+
+EventPublisher <|-- SeatHoldMonitor
+EventPublisher <|-- PaymentProcessor
+EventPublisher <|-- FlightSchedule
+EventPublisher <|-- TicketPurchasePublisher
+
+EventListener <|.. ReservationHoldListener
+EventListener <|.. ReservationAutoCancelListener
+EventListener <|.. AffectedReservationListener
+EventListener <|.. BusTicketPurchaseListener
+
+' Subject -> Event mapping (publishes)
+SeatHoldMonitor ..> SeatHoldExpiredEvent : publishes
+PaymentProcessor ..> PaymentFailedEvent : publishes
+FlightSchedule ..> FlightStatusChangedEvent : publishes
+TicketPurchasePublisher ..> TicketIssuedEvent : publishes
+
+' Listener -> Event mapping (consumes)
+ReservationHoldListener ..> SeatHoldExpiredEvent : consumes
+ReservationAutoCancelListener ..> PaymentFailedEvent : consumes
+AffectedReservationListener ..> FlightStatusChangedEvent : consumes
+BusTicketPurchaseListener ..> TicketIssuedEvent : consumes
+
+note bottom of EventPublisher
+  Subject base class. Concrete Subjects extend it
+  and call protected publish(event). Listeners are
+  registered at startup; the Subject never knows
+  the concrete Listener class.
+end note
+@enduml

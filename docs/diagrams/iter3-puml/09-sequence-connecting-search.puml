@@ -1,7 +1,13 @@
 @startuml sequence-connecting-search
 title Sequence: Connecting Flight Search with MCT Validation (Iteration 3)
 skinparam sequenceMessageAlign center
-skinparam sequenceFontSize 12
+skinparam sequenceFontSize 11
+skinparam shadowing false
+skinparam dpi 130
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceLifeLineBorderColor #888
+hide footbox
+autonumber
 
 actor User
 participant "ReservationUI" as UI
@@ -10,22 +16,36 @@ participant "FlightSearch\nService" as FSS
 participant "Itinerary" as It
 
 User -> UI : searchConnecting(ICN, JFK, date)
+activate UI
 UI -> ISS : searchConnecting(from, to, date, MCT=90m)
+activate ISS
 ISS -> FSS : getCatalog()
+activate FSS
 FSS --> ISS : List<FlightSchedule>
+deactivate FSS
 
-loop for each (a, b) where a.dest == b.origin AND b.dest == JFK
+note over ISS
+  Iterate candidate flight pairs (a, b)
+  where a.dest == b.origin and b.dest == JFK
+end note
+
+loop candidate flight pairs
   ISS -> It : Itinerary.connecting(a, b)
+  activate It
   ISS -> It : isConnectionTimeValid(MCT)
-  It -> It : layover = b.departure - a.arrival
+  note right of It
+    layover = b.departure - a.arrival
+  end note
   alt layover >= MCT
-    It --> ISS : true
-    ISS -> ISS : add to result list
+    It --> ISS : pass
   else layover < MCT
-    It --> ISS : false (reject)
+    It --> ISS : reject
   end
+  deactivate It
 end
 
-ISS --> UI : returns List<Itinerary>
+ISS --> UI : List<Itinerary>
+deactivate ISS
 UI --> User : render passing itineraries
+deactivate UI
 @enduml

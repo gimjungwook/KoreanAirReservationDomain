@@ -1,0 +1,73 @@
+@startuml class-boundary-control
+title Class Diagram (3/3) - Boundary and Control Integration\nHow the UI, controllers, services, and external interfaces connect to the domain
+
+top to bottom direction
+skinparam linetype polyline
+skinparam ranksep 55
+skinparam nodesep 40
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 13
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+package "Boundary" #FAFAFA {
+  interface ReservationUI
+  class SwingApp
+  interface PaymentGatewayInterface
+  interface SkypassInterface
+  interface GDSInterface
+  class MockSkypassInterface #FFE0E0
+
+  ReservationUI <|.. SwingApp
+  SkypassInterface <|.. MockSkypassInterface
+}
+
+package "Control - Services and orchestration" #FAFAFA {
+  class BookingController
+  class AuthService
+  class PaymentProcessor #FFD0D0
+  class RefundHandler
+  class FlightSearchService
+  class ReservationLookupService
+  class ItinerarySearchService #FFE0E0
+  class SeatHoldMonitor #FFE0E0
+  class TicketPurchasePublisher #FFE0E0
+  class ReservationRegistry #FFE0E0
+}
+
+class "Reservation" as Reservation #FFD0D0
+class "Itinerary" as Itinerary #FFD0D0
+class "RefundPolicy" as RefundPolicy <<interface>>
+
+SwingApp --> BookingController
+SwingApp --> AuthService
+SwingApp --> ReservationLookupService
+
+BookingController --> Reservation
+BookingController --> PaymentProcessor
+BookingController --> SeatHoldMonitor
+BookingController --> ItinerarySearchService
+
+PaymentProcessor --> PaymentGatewayInterface
+PaymentProcessor --> MockSkypassInterface
+ItinerarySearchService --> FlightSearchService
+RefundHandler --> RefundPolicy
+ReservationRegistry o-- "*" Reservation
+
+note bottom of MockSkypassInterface
+  Iter3 boundary class.
+  Real Skypass HTTP API
+  integration is post-course.
+end note
+
+note right of ItinerarySearchService
+  Iter3 service. Walks the
+  flight catalog and validates
+  connecting itineraries
+  against the MCT.
+end note
+@enduml

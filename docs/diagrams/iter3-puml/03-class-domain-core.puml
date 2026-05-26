@@ -1,0 +1,85 @@
+@startuml class-domain-core
+title Class Diagram (1/3) - Domain Core\nReservation lifecycle (State), itinerary, flight, payment, passenger
+
+top to bottom direction
+skinparam linetype polyline
+skinparam ranksep 50
+skinparam nodesep 35
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 13
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 130
+hide empty members
+hide circle
+
+together {
+  package "Domain :: Reservation (State, iter1)" #FAFAFA {
+    class Reservation #FFD0D0
+    interface ReservationState
+    class Ticket
+    class Itinerary #FFD0D0
+
+    Reservation --> ReservationState
+    Reservation --> "1" Itinerary
+    Reservation --> "*" Ticket
+
+    note right of ReservationState
+      Implemented by 8 ConcreteState
+      classes (see Reservation lifecycle
+      state diagram). The Reservation
+      entity delegates every transition
+      to its current state object.
+    end note
+  }
+}
+
+together {
+  package "Domain :: Flight" #FAFAFA {
+    class FlightSchedule #FFD0D0
+    class SeatInventory
+    class Seat #FFD0D0
+    class FareRule
+
+    FlightSchedule --> "1" SeatInventory
+    SeatInventory --> "*" Seat
+    FlightSchedule --> "1" FareRule
+  }
+}
+
+package "Domain :: Payment (Strategy, iter2)" #FAFAFA {
+  class Payment
+  enum PaymentMethod
+  interface RefundPolicy
+  class FullRefundPolicy
+  class PartialRefundPolicy
+  class NoRefundPolicy
+
+  RefundPolicy <|.. FullRefundPolicy
+  RefundPolicy <|.. PartialRefundPolicy
+  RefundPolicy <|.. NoRefundPolicy
+}
+
+package "Domain :: Passenger" #FAFAFA {
+  abstract class Passenger
+  class SkypassMember
+  class Guest
+  class MileageAccount
+
+  Passenger <|-- SkypassMember
+  Passenger <|-- Guest
+  SkypassMember --> "1" MileageAccount
+}
+
+Itinerary --> "1..*" FlightSchedule
+FareRule --> RefundPolicy
+Reservation --> "*" Payment
+
+legend right
+  Iter1 (red border): Reservation, Itinerary, FlightSchedule, Seat
+  Iter2: RefundPolicy family (Strategy pattern)
+  Observer infrastructure and listeners: see diagram 2/3
+  Boundary and control integration: see diagram 3/3
+end legend
+@enduml
