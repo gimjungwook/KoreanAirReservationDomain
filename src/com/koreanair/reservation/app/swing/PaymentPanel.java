@@ -1,8 +1,10 @@
 package com.koreanair.reservation.app.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -59,10 +61,23 @@ public class PaymentPanel extends JPanel {
     }
 
     private void buildContent() {
+        JPanel hero = new JPanel(new BorderLayout());
+        hero.setBackground(ModernUI.NAVY);
+        hero.setBorder(BorderFactory.createEmptyBorder(18, 28, 18, 28));
+        JLabel heroTitle = new JLabel("결제");
+        heroTitle.setFont(ModernUI.FONT_TITLE);
+        heroTitle.setForeground(Color.WHITE);
+        JLabel heroSubtitle = new JLabel("운임 결제 후 예약 상태가 PendingPayment에서 Confirmed로 전이됩니다");
+        heroSubtitle.setFont(ModernUI.FONT_BODY);
+        heroSubtitle.setForeground(new Color(0xC8, 0xE6, 0xFF));
+        hero.add(heroTitle, BorderLayout.WEST);
+        hero.add(heroSubtitle, BorderLayout.SOUTH);
+        add(hero, BorderLayout.NORTH);
+
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setBackground(ModernUI.BACKGROUND);
         centerPanel.setOpaque(true);
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(28, 36, 28, 36));
 
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6, 6, 6, 6);
@@ -70,15 +85,12 @@ public class PaymentPanel extends JPanel {
         c.anchor = GridBagConstraints.NORTHWEST;
         c.weightx = 1.0;
 
-        JLabel stepLabel = new JLabel("STEP 3");
-        stepLabel.setFont(ModernUI.FONT_SMALL);
-        stepLabel.setForeground(ModernUI.PRIMARY);
+        JLabel stepLabel = ModernUI.pill("STEP 3 · PAYMENT", ModernUI.SKY, ModernUI.PRIMARY_LIGHT);
         stepLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-        stepLabel.setOpaque(false);
         c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
         centerPanel.add(stepLabel, c);
 
-        JLabel title = new JLabel("결제");
+        JLabel title = new JLabel("예약 결제 정보");
         title.setFont(ModernUI.FONT_HEADING);
         title.setForeground(ModernUI.TEXT_PRIMARY);
         title.setOpaque(false);
@@ -90,7 +102,7 @@ public class PaymentPanel extends JPanel {
         formCard.setOpaque(true);
         formCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(ModernUI.BORDER, 1),
-                BorderFactory.createEmptyBorder(20, 24, 20, 24)));
+                BorderFactory.createEmptyBorder(26, 32, 26, 32)));
 
         c.gridwidth = 1;
         c.gridy = 2; c.gridx = 0;
@@ -118,7 +130,7 @@ public class PaymentPanel extends JPanel {
 
         c.gridx = 1;
         amountLabel.setFont(ModernUI.FONT_HEADING);
-        amountLabel.setForeground(ModernUI.TEXT_PRIMARY);
+        amountLabel.setForeground(ModernUI.SKY);
         amountLabel.setOpaque(false);
         formCard.add(amountLabel, c);
 
@@ -131,7 +143,7 @@ public class PaymentPanel extends JPanel {
 
         c.gridx = 1;
         mileageBalanceLabel.setFont(ModernUI.FONT_BODY);
-        mileageBalanceLabel.setForeground(ModernUI.PRIMARY);
+        mileageBalanceLabel.setForeground(ModernUI.SUCCESS);
         mileageBalanceLabel.setOpaque(false);
         formCard.add(mileageBalanceLabel, c);
 
@@ -144,21 +156,27 @@ public class PaymentPanel extends JPanel {
 
         c.gridx = 1;
         methodCombo.setFont(ModernUI.FONT_BODY);
+        methodCombo.setBackground(Color.WHITE);
         methodCombo.addActionListener(e -> updateMileageBalance());
         formCard.add(methodCombo, c);
 
         c.gridy = 6; c.gridx = 0; c.gridwidth = 2;
         methodHintLabel.setFont(ModernUI.FONT_SMALL);
         methodHintLabel.setForeground(ModernUI.TEXT_SECONDARY);
+        methodHintLabel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, ModernUI.BORDER),
+                BorderFactory.createEmptyBorder(14, 0, 0, 0)));
         formCard.add(methodHintLabel, c);
 
         c.gridy = 7; c.gridx = 0; c.gridwidth = 2;
         c.anchor = GridBagConstraints.EAST;
+        payButton.setText("결제 완료 →");
         ModernUI.styleButtonSuccess(payButton);
         payButton.addActionListener(e -> doPay());
         formCard.add(payButton, c);
 
-        c.gridy = 2; c.gridx = 0; c.gridwidth = 1; c.anchor = GridBagConstraints.NORTHWEST;
+        c.gridy = 2; c.gridx = 0; c.gridwidth = 2; c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1.0;
         centerPanel.add(formCard, c);
 
         add(centerPanel, BorderLayout.CENTER);

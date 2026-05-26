@@ -58,10 +58,23 @@ public class ConfirmationPanel extends JPanel {
     private void buildContent() {
         setBackground(ModernUI.BACKGROUND);
 
+        JPanel hero = new JPanel(new BorderLayout());
+        hero.setBackground(ModernUI.NAVY);
+        hero.setBorder(BorderFactory.createEmptyBorder(18, 28, 18, 28));
+        JLabel heroTitle = new JLabel("예약 완료");
+        heroTitle.setFont(ModernUI.FONT_TITLE);
+        heroTitle.setForeground(Color.WHITE);
+        JLabel heroSubtitle = new JLabel("항공 e-Ticket 발급과 6개 대도시 우등고속 연계를 이어서 시연합니다");
+        heroSubtitle.setFont(ModernUI.FONT_BODY);
+        heroSubtitle.setForeground(new Color(0xC8, 0xE6, 0xFF));
+        hero.add(heroTitle, BorderLayout.WEST);
+        hero.add(heroSubtitle, BorderLayout.SOUTH);
+        add(hero, BorderLayout.NORTH);
+
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setBackground(ModernUI.BACKGROUND);
         centerPanel.setOpaque(true);
-        centerPanel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(28, 36, 28, 36));
 
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6, 6, 6, 6);
@@ -73,16 +86,18 @@ public class ConfirmationPanel extends JPanel {
         card.setBackground(ModernUI.CARD_BG);
         card.setOpaque(true);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ModernUI.SUCCESS, 2),
-                BorderFactory.createEmptyBorder(24, 32, 24, 32)));
+                BorderFactory.createLineBorder(new Color(0xB7, 0xE4, 0xD5), 2),
+                BorderFactory.createEmptyBorder(28, 36, 28, 36)));
         c.insets = new Insets(10, 10, 10, 10);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
 
         JLabel checkmark = new JLabel("✓", SwingConstants.CENTER);
-        checkmark.setFont(new Font("System", Font.BOLD, 48));
+        checkmark.setFont(new Font("System", Font.BOLD, 52));
         checkmark.setForeground(ModernUI.SUCCESS);
-        checkmark.setPreferredSize(new Dimension(80, 80));
+        checkmark.setOpaque(true);
+        checkmark.setBackground(ModernUI.SUCCESS_BG);
+        checkmark.setPreferredSize(new Dimension(88, 72));
         c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
         card.add(checkmark, c);
 
@@ -98,8 +113,12 @@ public class ConfirmationPanel extends JPanel {
         c.gridy = 2;
         card.add(subtitle, c);
 
+        JLabel flowBadge = ModernUI.pill("다음 시연: Observer → BusTicketingService → 좌석 선택", ModernUI.SKY, ModernUI.PRIMARY_LIGHT);
+        c.gridy = 3;
+        card.add(flowBadge, c);
+
         c.gridwidth = 1;
-        c.gridy = 3; c.gridx = 0;
+        c.gridy = 4; c.gridx = 0;
         JLabel pnrH = new JLabel("예약 번호 (PNR)");
         pnrH.setFont(ModernUI.FONT_SMALL);
         pnrH.setForeground(ModernUI.TEXT_SECONDARY);
@@ -120,7 +139,7 @@ public class ConfirmationPanel extends JPanel {
         pnrPanel.add(copyPnrButton, BorderLayout.EAST);
         card.add(pnrPanel, c);
 
-        c.gridy = 4; c.gridx = 0;
+        c.gridy = 5; c.gridx = 0;
         JLabel stateH = new JLabel("예약 상태");
         stateH.setFont(ModernUI.FONT_SMALL);
         stateH.setForeground(ModernUI.TEXT_SECONDARY);
@@ -130,7 +149,7 @@ public class ConfirmationPanel extends JPanel {
         stateLabel.setForeground(ModernUI.SUCCESS);
         card.add(stateLabel, c);
 
-        c.gridy = 5; c.gridx = 0;
+        c.gridy = 6; c.gridx = 0;
         JLabel payH = new JLabel("결제 상태");
         payH.setFont(ModernUI.FONT_SMALL);
         payH.setForeground(ModernUI.TEXT_SECONDARY);
@@ -140,17 +159,17 @@ public class ConfirmationPanel extends JPanel {
         paymentStatusLabel.setForeground(ModernUI.TEXT_PRIMARY);
         card.add(paymentStatusLabel, c);
 
-        c.gridy = 6; c.gridx = 0;
+        c.gridy = 7; c.gridx = 0;
         JLabel amtH = new JLabel("결제 금액");
         amtH.setFont(ModernUI.FONT_SMALL);
         amtH.setForeground(ModernUI.TEXT_SECONDARY);
         card.add(amtH, c);
         c.gridx = 1;
         amountLabel.setFont(ModernUI.FONT_HEADING);
-        amountLabel.setForeground(ModernUI.TEXT_PRIMARY);
+        amountLabel.setForeground(ModernUI.SKY);
         card.add(amountLabel, c);
 
-        c.gridy = 7; c.gridx = 0;
+        c.gridy = 8; c.gridx = 0;
         JLabel busCityH = new JLabel("연계 버스 목적지");
         busCityH.setFont(ModernUI.FONT_SMALL);
         busCityH.setForeground(ModernUI.TEXT_SECONDARY);
@@ -160,7 +179,7 @@ public class ConfirmationPanel extends JPanel {
         busCityCombo.setToolTipText("예약 itinerary의 도착지 국가/공항을 기준으로 추천됩니다.");
         card.add(busCityCombo, c);
 
-        c.gridy = 8; c.gridx = 0;
+        c.gridy = 9; c.gridx = 0;
         JLabel busStatusH = new JLabel("버스티켓 상태");
         busStatusH.setFont(ModernUI.FONT_SMALL);
         busStatusH.setForeground(ModernUI.TEXT_SECONDARY);
@@ -171,6 +190,7 @@ public class ConfirmationPanel extends JPanel {
         card.add(busTicketStatusLabel, c);
 
         c.gridy = 2; c.gridx = 0; c.gridwidth = 1; c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1.0;
         centerPanel.add(card, c);
 
         add(centerPanel, BorderLayout.CENTER);
@@ -208,7 +228,7 @@ public class ConfirmationPanel extends JPanel {
         rightBtns.add(homeButton);
 
         footer.add(rightBtns, BorderLayout.EAST);
-        footer.setPreferredSize(new Dimension(0, 52));
+        footer.setPreferredSize(new Dimension(0, 62));
         add(footer, BorderLayout.SOUTH);
     }
 

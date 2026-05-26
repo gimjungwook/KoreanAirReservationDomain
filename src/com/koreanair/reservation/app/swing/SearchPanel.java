@@ -96,16 +96,33 @@ public class SearchPanel extends JPanel {
     }
 
     private void buildSearchBar() {
+        JPanel top = new JPanel(new BorderLayout());
+        top.setBackground(ModernUI.BACKGROUND);
+
+        JPanel headline = new JPanel(new BorderLayout());
+        headline.setBackground(ModernUI.NAVY);
+        headline.setBorder(BorderFactory.createEmptyBorder(18, 28, 18, 28));
+        JLabel title = new JLabel("항공편 검색");
+        title.setFont(ModernUI.FONT_TITLE);
+        title.setForeground(Color.WHITE);
+        headline.add(title, BorderLayout.WEST);
+        JLabel subtitle = new JLabel("직항 · 환승 · 다도시 여정을 한 흐름으로 예약합니다");
+        subtitle.setFont(ModernUI.FONT_BODY);
+        subtitle.setForeground(new Color(0xC8, 0xE6, 0xFF));
+        headline.add(subtitle, BorderLayout.SOUTH);
+        top.add(headline, BorderLayout.NORTH);
+
         JPanel searchBar = new JPanel(new GridBagLayout());
         searchBar.setBackground(ModernUI.CARD_BG);
-        searchBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER));
+        searchBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER),
+                BorderFactory.createEmptyBorder(8, 16, 8, 16)));
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(8, 12, 8, 12);
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel logo = new JLabel("검색", SwingConstants.CENTER);
-        logo.setFont(ModernUI.FONT_SMALL);
-        logo.setForeground(ModernUI.PRIMARY);
+        JLabel logo = ModernUI.pill("Search", ModernUI.SKY, ModernUI.PRIMARY_LIGHT);
+        logo.setHorizontalAlignment(SwingConstants.CENTER);
         c.gridx = 0;
         c.weightx = 0.05;
         searchBar.add(logo, c);
@@ -149,7 +166,8 @@ public class SearchPanel extends JPanel {
 
         modeCombo.addActionListener(e -> applyModeDefaults());
         searchButton.addActionListener(e -> doSearch());
-        add(searchBar, BorderLayout.NORTH);
+        top.add(searchBar, BorderLayout.CENTER);
+        add(top, BorderLayout.NORTH);
     }
 
     private void styleCombo(JComboBox<String> combo) {
@@ -164,11 +182,12 @@ public class SearchPanel extends JPanel {
     private JPanel wrap(JComponent component, String label) {
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(ModernUI.CARD_BG);
-        wrap.add(component, BorderLayout.CENTER);
         JLabel ph = new JLabel(label, SwingConstants.CENTER);
         ph.setFont(ModernUI.FONT_SMALL);
         ph.setForeground(ModernUI.TEXT_SECONDARY);
         ph.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+        wrap.add(ph, BorderLayout.NORTH);
+        wrap.add(component, BorderLayout.CENTER);
         return wrap;
     }
 
@@ -176,6 +195,7 @@ public class SearchPanel extends JPanel {
         cardListPanel.setLayout(new BoxLayout(cardListPanel, BoxLayout.Y_AXIS));
         cardListPanel.setBackground(ModernUI.BACKGROUND);
         cardListPanel.setOpaque(true);
+        cardListPanel.setBorder(BorderFactory.createEmptyBorder(16, 24, 16, 24));
 
         scrollPane.setViewportView(cardListPanel);
         scrollPane.setBackground(ModernUI.BACKGROUND);
@@ -435,8 +455,8 @@ public class SearchPanel extends JPanel {
             this.itinerary = itinerary;
             this.index = index;
             setOpaque(true);
-            setPreferredSize(new Dimension(0, 96));
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 96));
+            setPreferredSize(new Dimension(0, 118));
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 118));
             setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
             addMouseListener(new MouseAdapter() {
                 @Override
@@ -455,14 +475,12 @@ public class SearchPanel extends JPanel {
             gc.anchor = GridBagConstraints.WEST;
 
             gc.gridx = 0;
-            JLabel trip = new JLabel(tripLabel(itinerary));
-            trip.setFont(new Font("System", Font.BOLD, 13));
-            trip.setForeground(ModernUI.PRIMARY);
+            JLabel trip = ModernUI.pill(tripLabel(itinerary), ModernUI.SKY, ModernUI.PRIMARY_LIGHT);
             center.add(trip, gc);
 
             gc.gridx = 1;
             JLabel route = new JLabel(summaryLine(itinerary));
-            route.setFont(new Font("System", Font.BOLD, 18));
+            route.setFont(new Font("System", Font.BOLD, 20));
             route.setForeground(ModernUI.TEXT_PRIMARY);
             center.add(route, gc);
 
@@ -476,11 +494,11 @@ public class SearchPanel extends JPanel {
 
             JPanel right = new JPanel();
             right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
-            right.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 22));
+            right.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 26));
             right.setOpaque(false);
             JLabel price = new JLabel(priceText(itinerary));
-            price.setFont(new Font("System", Font.BOLD, 20));
-            price.setForeground(ModernUI.PRIMARY);
+            price.setFont(new Font("System", Font.BOLD, 24));
+            price.setForeground(ModernUI.SKY);
             JLabel currency = new JLabel("KRW");
             currency.setFont(ModernUI.FONT_SMALL);
             currency.setForeground(ModernUI.PRIMARY);
@@ -493,8 +511,10 @@ public class SearchPanel extends JPanel {
             selected = value;
             setBackground(selected ? ModernUI.PRIMARY_LIGHT : ModernUI.CARD_BG);
             setBorder(selected
-                    ? BorderFactory.createMatteBorder(2, 0, 2, 0, ModernUI.PRIMARY)
-                    : BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER));
+                    ? BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(ModernUI.SKY, 2),
+                            BorderFactory.createEmptyBorder(0, 0, 0, 0))
+                    : BorderFactory.createLineBorder(ModernUI.BORDER, 1));
         }
     }
 

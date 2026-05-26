@@ -154,7 +154,7 @@ public class MainFrame extends JFrame {
         ui.setParent(this);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(900, 640));
+        setPreferredSize(new Dimension(1180, 760));
         pack();
         setLocationRelativeTo(null);
     }
@@ -175,22 +175,22 @@ public class MainFrame extends JFrame {
     }
 
     private void buildHeader() {
-        headerPanel.setBackground(ModernUI.PRIMARY);
+        headerPanel.setBackground(ModernUI.NAVY);
         headerPanel.setOpaque(true);
         headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(ModernUI.PRIMARY);
+        leftPanel.setBackground(ModernUI.NAVY);
         leftPanel.setOpaque(true);
         leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(14, 24, 14, 0));
 
         JLabel logo = new JLabel("✈", SwingConstants.CENTER);
-        logo.setFont(new Font("System", Font.PLAIN, 26));
+        logo.setFont(new Font("System", Font.PLAIN, 28));
         logo.setForeground(Color.WHITE);
 
         JLabel title = new JLabel("대한항공");
-        title.setFont(new Font("System", Font.BOLD, 18));
+        title.setFont(new Font("System", Font.BOLD, 22));
         title.setForeground(Color.WHITE);
 
         JLabel subtitle = new JLabel("항공 예약");
@@ -202,7 +202,7 @@ public class MainFrame extends JFrame {
         leftPanel.add(subtitle);
 
         JPanel rightPanel = new JPanel();
-        rightPanel.setBackground(ModernUI.PRIMARY);
+        rightPanel.setBackground(ModernUI.NAVY);
         rightPanel.setOpaque(true);
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 16, 0));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 20));
@@ -231,10 +231,10 @@ public class MainFrame extends JFrame {
     private void styleNavButton(JButton btn) {
         btn.setFont(ModernUI.FONT_SMALL);
         btn.setForeground(Color.WHITE);
-        btn.setBackground(ModernUI.PRIMARY_HOVER);
+        btn.setBackground(ModernUI.NAVY);
         btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0xCC, 0xE4, 0xFF), 1),
-                BorderFactory.createEmptyBorder(6, 14, 6, 14)));
+                BorderFactory.createLineBorder(new Color(0x47, 0x8E, 0xC9), 1),
+                BorderFactory.createEmptyBorder(8, 16, 8, 16)));
         btn.setFocusPainted(false);
         btn.setFocusable(false);
         btn.setOpaque(true);

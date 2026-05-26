@@ -52,29 +52,54 @@ public class LoginPanel extends JPanel {
     }
 
     private void buildLayout() {
+        JPanel shell = new JPanel(new BorderLayout());
+        shell.setBackground(ModernUI.CARD_BG);
+        shell.setBorder(BorderFactory.createLineBorder(ModernUI.BORDER, 1));
+        shell.setPreferredSize(new Dimension(760, 430));
+
+        JPanel brand = new JPanel(new GridBagLayout());
+        brand.setBackground(ModernUI.NAVY);
+        brand.setPreferredSize(new Dimension(280, 0));
+        GridBagConstraints bc = new GridBagConstraints();
+        bc.gridx = 0;
+        bc.gridy = 0;
+        bc.insets = new Insets(0, 24, 8, 24);
+        JLabel plane = new JLabel("✈");
+        plane.setFont(new Font("System", Font.PLAIN, 54));
+        plane.setForeground(Color.WHITE);
+        brand.add(plane, bc);
+        bc.gridy = 1;
+        JLabel brandTitle = new JLabel("Korean Air");
+        brandTitle.setFont(new Font("System", Font.BOLD, 24));
+        brandTitle.setForeground(Color.WHITE);
+        brand.add(brandTitle, bc);
+        bc.gridy = 2;
+        JLabel brandSub = new JLabel("Reservation Domain Demo");
+        brandSub.setFont(ModernUI.FONT_SMALL);
+        brandSub.setForeground(new Color(0xC8, 0xE6, 0xFF));
+        brand.add(brandSub, bc);
+        shell.add(brand, BorderLayout.WEST);
+
         JPanel card = new JPanel(new GridBagLayout());
         card.setBackground(ModernUI.CARD_BG);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ModernUI.BORDER, 1),
-                BorderFactory.createEmptyBorder(48, 56, 48, 56)));
+        card.setBorder(BorderFactory.createEmptyBorder(48, 56, 48, 56));
 
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(8, 8, 8, 8);
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel logoLabel = new JLabel("✈", SwingConstants.CENTER);
-        logoLabel.setFont(new Font("System", Font.PLAIN, 40));
-        logoLabel.setForeground(ModernUI.PRIMARY);
+        JLabel logoLabel = ModernUI.pill("SKYPASS DEMO", ModernUI.SKY, ModernUI.PRIMARY_LIGHT);
+        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
         c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
         card.add(logoLabel, c);
 
-        JLabel title = new JLabel("대한항공 Skypass", SwingConstants.CENTER);
+        JLabel title = new JLabel("대한항공 예약 시스템", SwingConstants.CENTER);
         title.setFont(ModernUI.FONT_TITLE);
         title.setForeground(ModernUI.TEXT_PRIMARY);
         c.gridy = 1;
         card.add(title, c);
 
-        JLabel subtitle = new JLabel("예약 시스템에 오신 것을 환영합니다", SwingConstants.CENTER);
+        JLabel subtitle = new JLabel("예약 · 결제 · 발권 · 연계교통 데모", SwingConstants.CENTER);
         subtitle.setFont(ModernUI.FONT_SMALL);
         subtitle.setForeground(ModernUI.TEXT_SECONDARY);
         c.gridy = 2;
@@ -121,7 +146,8 @@ public class LoginPanel extends JPanel {
         JPanel centerWrapper = new JPanel(new GridBagLayout());
         centerWrapper.setBackground(ModernUI.BACKGROUND);
         c.gridy = 0;
-        centerWrapper.add(card, c);
+        shell.add(card, BorderLayout.CENTER);
+        centerWrapper.add(shell, c);
 
         JLabel hint = new JLabel("샘플 이름: 김정욱 / 비밀번호: pw1234", SwingConstants.CENTER);
         hint.setFont(ModernUI.FONT_SMALL);

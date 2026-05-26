@@ -16,23 +16,26 @@ import javax.swing.JTextField;
 
 public final class ModernUI {
 
-    public static final Color PRIMARY = new Color(0x00, 0x5F, 0xC7);
-    public static final Color PRIMARY_HOVER = new Color(0x00, 0x4A, 0xA5);
-    public static final Color PRIMARY_LIGHT = new Color(0xE8, 0xF1, 0xFE);
+    public static final Color PRIMARY = new Color(0x00, 0x2F, 0x6C);
+    public static final Color PRIMARY_HOVER = new Color(0x00, 0x4B, 0x9B);
+    public static final Color PRIMARY_LIGHT = new Color(0xEA, 0xF4, 0xFF);
+    public static final Color SKY = new Color(0x00, 0x79, 0xD6);
+    public static final Color NAVY = new Color(0x00, 0x20, 0x56);
+    public static final Color ACCENT = new Color(0xE5, 0x19, 0x37);
     public static final Color SECONDARY = new Color(0x6C, 0x75, 0x80);
-    public static final Color BACKGROUND = new Color(0xF0, 0xF4, 0xF8);
+    public static final Color BACKGROUND = new Color(0xF5, 0xF8, 0xFC);
     public static final Color CARD_BG = Color.WHITE;
-    public static final Color TEXT_PRIMARY = new Color(0x1A, 0x1A, 0x2E);
+    public static final Color TEXT_PRIMARY = new Color(0x12, 0x1A, 0x2B);
     public static final Color TEXT_SECONDARY = new Color(0x6C, 0x75, 0x80);
-    public static final Color BORDER = new Color(0xD6, 0xDF, 0xE8);
+    public static final Color BORDER = new Color(0xD9, 0xE3, 0xEF);
     public static final Color BORDER_FOCUS = new Color(0x00, 0x5F, 0xC7);
     public static final Color SUCCESS = new Color(0x00, 0xB8, 0x7A);
     public static final Color SUCCESS_BG = new Color(0xE8, 0xF5, 0xF1);
     public static final Color ERROR = new Color(0xE5, 0x3E, 0x3E);
     public static final Color WARNING = new Color(0xF5, 0xA6, 0x23);
 
-    public static final Font FONT_TITLE = new Font("System", Font.BOLD, 24);
-    public static final Font FONT_HEADING = new Font("System", Font.BOLD, 18);
+    public static final Font FONT_TITLE = new Font("System", Font.BOLD, 28);
+    public static final Font FONT_HEADING = new Font("System", Font.BOLD, 21);
     public static final Font FONT_SUBHEADING = new Font("System", Font.BOLD, 15);
     public static final Font FONT_BODY = new Font("System", Font.PLAIN, 14);
     public static final Font FONT_SMALL = new Font("System", Font.PLAIN, 12);
@@ -53,8 +56,8 @@ public final class ModernUI {
     public static void styleButton(JButton btn) {
         btn.setFont(FONT_BODY);
         btn.setForeground(Color.WHITE);
-        btn.setBackground(PRIMARY);
-        btn.setBorder(BorderFactory.createEmptyBorder(14, 28, 14, 28));
+        btn.setBackground(SKY);
+        btn.setBorder(BorderFactory.createEmptyBorder(13, 26, 13, 26));
         btn.setFocusPainted(false);
         btn.setFocusable(false);
         btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -64,11 +67,11 @@ public final class ModernUI {
 
     public static void styleButtonSecondary(JButton btn) {
         btn.setFont(FONT_BODY);
-        btn.setForeground(PRIMARY);
+        btn.setForeground(SKY);
         btn.setBackground(Color.WHITE);
         btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(PRIMARY, 1),
-                BorderFactory.createEmptyBorder(12, 28, 12, 28)));
+                BorderFactory.createLineBorder(new Color(0xB8, 0xD8, 0xF3), 1),
+                BorderFactory.createEmptyBorder(12, 24, 12, 24)));
         btn.setFocusPainted(false);
         btn.setFocusable(false);
         btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -142,6 +145,16 @@ public final class ModernUI {
         component.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(BORDER, 1),
                 BorderFactory.createEmptyBorder(24, 32, 24, 32)));
+    }
+
+    public static JLabel pill(String text, Color foreground, Color background) {
+        JLabel label = new JLabel(text);
+        label.setFont(FONT_SMALL);
+        label.setForeground(foreground);
+        label.setOpaque(true);
+        label.setBackground(background);
+        label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        return label;
     }
 
     public static void copyToClipboard(String text) {
