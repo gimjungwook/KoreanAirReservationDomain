@@ -37,10 +37,12 @@ public class ConfirmationPanel extends JPanel {
     private final JButton lookupButton = new JButton("예약 조회로");
     private final JButton homeButton = new JButton("다른 항공편 예약");
     private final JButton ticketButton = new JButton("e-Ticket + 우등고속 발매");
+    private final JButton busSeatButton = new JButton("버스 좌석 선택");
 
     private final MainFrame frame;
     private final BusTicketingService busTicketingService;
     private Reservation reservation;
+    private BusTicket lastBusTicket;
 
     public ConfirmationPanel(MainFrame frame, BusTicketingService busTicketingService) {
         super(new BorderLayout());
@@ -187,6 +189,16 @@ public class ConfirmationPanel extends JPanel {
         ticketButton.addActionListener(e -> issueLinkedTicket());
         rightBtns.add(ticketButton);
 
+        ModernUI.styleButtonSecondary(busSeatButton);
+        busSeatButton.setFont(ModernUI.FONT_SMALL);
+        busSeatButton.setEnabled(false);
+        busSeatButton.addActionListener(e -> {
+            if (lastBusTicket != null) {
+                frame.showBusSeatSelection(lastBusTicket);
+            }
+        });
+        rightBtns.add(busSeatButton);
+
         ModernUI.styleButtonSecondary(lookupButton);
         lookupButton.addActionListener(e -> frame.showLookup());
         rightBtns.add(lookupButton);
@@ -202,10 +214,12 @@ public class ConfirmationPanel extends JPanel {
 
     public void prepare(Reservation reservation, Payment payment) {
         this.reservation = reservation;
+        this.lastBusTicket = null;
         pnrLabel.setText(reservation != null ? reservation.getPnrNumber() : "-");
         stateLabel.setText(reservation != null ? reservation.getStateName() : "-");
         busTicketStatusLabel.setText("미발매");
         ticketButton.setEnabled(reservation != null);
+        busSeatButton.setEnabled(false);
         busCityCombo.setEnabled(reservation != null);
         refreshRecommendedBusCities(reservation);
         copyPnrButton.setEnabled(reservation != null && reservation.getPnrNumber() != null);
@@ -224,6 +238,7 @@ public class ConfirmationPanel extends JPanel {
         try {
             BusCity city = (BusCity) busCityCombo.getSelectedItem();
             BusTicket busTicket = frame.issueLinkedBusTicket(reservation, city);
+            lastBusTicket = busTicket;
             stateLabel.setText(reservation != null ? reservation.getStateName() : "-");
             busTicketStatusLabel.setText(String.format("%s · %s · %,d KRW",
                     busTicket.getTicketNumber(),
@@ -231,6 +246,7 @@ public class ConfirmationPanel extends JPanel {
                     busTicket.getFare()));
             ticketButton.setEnabled(false);
             busCityCombo.setEnabled(false);
+            busSeatButton.setEnabled(true);
             JOptionPane.showMessageDialog(this,
                     "e-Ticket 발급 후 우등고속 버스티켓이 연계 발매되었습니다.\n"
                             + "버스티켓: " + busTicket.getTicketNumber() + "\n"

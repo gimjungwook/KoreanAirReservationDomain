@@ -8,6 +8,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -46,6 +48,8 @@ public class MainFrame extends JFrame {
     private static final String CARD_CANCELLATION = "cancellation";
     private static final String CARD_REFUND = "refund";
     private static final String CARD_ITER3_DEMO = "iter3Demo";
+    private static final String CARD_MY_PAGE = "myPage";
+    private static final String CARD_BUS_SEAT = "busSeatSelection";
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel cards = new JPanel(cardLayout);
@@ -77,9 +81,12 @@ public class MainFrame extends JFrame {
     private final CancellationPanel cancellationPanel;
     private final RefundPanel refundPanel;
     private final Iter3DemoPanel iter3DemoPanel;
+    private final MyPagePanel myPagePanel;
+    private final BusSeatSelectionPanel busSeatSelectionPanel;
 
     private final JButton homeNavButton = new JButton("홈");
     private final JButton lookupNavButton = new JButton("예약 조회");
+    private final JButton myPageNavButton = new JButton("마이페이지");
     private final JButton iter3DemoNavButton = new JButton("Iter3 데모");
 
     private Member loggedInMember;
@@ -87,6 +94,8 @@ public class MainFrame extends JFrame {
     private Reservation currentReservation;
     private String currentCard = CARD_LOGIN;
     private String lookupReturnCard = CARD_SEARCH;
+    private final Map<String, String> airSeatsByPnr = new HashMap<>();
+    private final Map<String, String> busSeatsByTicket = new HashMap<>();
 
     public MainFrame(AuthService authService,
                      FlightSearchService flightSearch,
@@ -125,6 +134,8 @@ public class MainFrame extends JFrame {
         cancellationPanel = new CancellationPanel(this, booking, refundHandler);
         refundPanel = new RefundPanel(this);
         iter3DemoPanel = new Iter3DemoPanel(this);
+        myPagePanel = new MyPagePanel(this, busTicketingService);
+        busSeatSelectionPanel = new BusSeatSelectionPanel(this);
 
         cards.add(loginPanel, CARD_LOGIN);
         cards.add(searchPanel, CARD_SEARCH);
@@ -136,6 +147,8 @@ public class MainFrame extends JFrame {
         cards.add(cancellationPanel, CARD_CANCELLATION);
         cards.add(refundPanel, CARD_REFUND);
         cards.add(iter3DemoPanel, CARD_ITER3_DEMO);
+        cards.add(myPagePanel, CARD_MY_PAGE);
+        cards.add(busSeatSelectionPanel, CARD_BUS_SEAT);
 
         stateBadge.reset();
         ui.setParent(this);
@@ -203,6 +216,10 @@ public class MainFrame extends JFrame {
         lookupNavButton.addActionListener(e -> showLookup());
         rightPanel.add(lookupNavButton);
 
+        styleNavButton(myPageNavButton);
+        myPageNavButton.addActionListener(e -> showMyPage());
+        rightPanel.add(myPageNavButton);
+
         styleNavButton(iter3DemoNavButton);
         iter3DemoNavButton.addActionListener(e -> showIter3Demo());
         rightPanel.add(iter3DemoNavButton);
@@ -236,6 +253,10 @@ public class MainFrame extends JFrame {
     public void showPayment() { showCard(CARD_PAYMENT); }
     public void showConfirmation() { showCard(CARD_CONFIRMATION); }
     public void showIter3Demo() { showCard(CARD_ITER3_DEMO); }
+    public void showMyPage() {
+        myPagePanel.refresh();
+        showCard(CARD_MY_PAGE);
+    }
 
     public void showLookup() {
         if (!CARD_LOOKUP.equals(currentCard)) {
@@ -253,8 +274,18 @@ public class MainFrame extends JFrame {
     }
 
     public void showSeatSelection(Reservation reservation) {
-        seatSelectionPanel.setReservation(reservation);
+        seatSelectionPanel.setReservation(reservation, false);
         showCard(CARD_SEAT);
+    }
+
+    public void showSeatManagement(Reservation reservation) {
+        seatSelectionPanel.setReservation(reservation, true);
+        showCard(CARD_SEAT);
+    }
+
+    public void showBusSeatSelection(BusTicket busTicket) {
+        busSeatSelectionPanel.setBusTicket(busTicket);
+        showCard(CARD_BUS_SEAT);
     }
 
     public void showCancellation(Reservation reservation) {
@@ -327,6 +358,34 @@ public class MainFrame extends JFrame {
         }
     }
 
+    public void recordAirSeat(Reservation reservation, String seatNumber) {
+        if (reservation != null && reservation.getPnrNumber() != null && seatNumber != null) {
+            airSeatsByPnr.put(reservation.getPnrNumber(), seatNumber);
+            System.out.printf("[SWING][AIR-SEAT] pnr=%s seat=%s%n",
+                    reservation.getPnrNumber(), seatNumber);
+        }
+    }
+
+    public String airSeatFor(Reservation reservation) {
+        if (reservation == null || reservation.getPnrNumber() == null) {
+            return "-";
+        }
+        return airSeatsByPnr.getOrDefault(reservation.getPnrNumber(), "미선택");
+    }
+
+    public void recordBusSeat(BusTicket busTicket, String seatNumber) {
+        if (busTicket != null && busTicket.getTicketNumber() != null && seatNumber != null) {
+            busSeatsByTicket.put(busTicket.getTicketNumber(), seatNumber);
+        }
+    }
+
+    public String busSeatFor(BusTicket busTicket) {
+        if (busTicket == null || busTicket.getTicketNumber() == null) {
+            return "-";
+        }
+        return busSeatsByTicket.getOrDefault(busTicket.getTicketNumber(), "미선택");
+    }
+
     public BusTicket issueLinkedBusTicket(Reservation reservation, BusCity city) {
         if (reservation == null) {
             throw new IllegalArgumentException("발권 대상 예약이 없습니다.");
@@ -368,6 +427,7 @@ public class MainFrame extends JFrame {
 
     public SeedResult seed() { return seed; }
     public Reservation currentReservation() { return currentReservation; }
+    public Member currentMember() { return loggedInMember; }
     public FlightSearchService flightSearch() { return flightSearch; }
     public BookingController booking() { return booking; }
     public RefundHandler refundHandler() { return refundHandler; }

@@ -40,6 +40,7 @@ public class SeatSelectionPanel extends JPanel {
     private Reservation reservation;
     private String selectedSeat;
     private JButton selectedButton;
+    private boolean managementMode;
 
     public SeatSelectionPanel(MainFrame parent, BookingController bookingController) {
         super(new BorderLayout());
@@ -80,7 +81,13 @@ public class SeatSelectionPanel extends JPanel {
         footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, ModernUI.BORDER));
         ModernUI.styleButtonSecondary(backButton);
         ModernUI.styleButton(confirmButton);
-        backButton.addActionListener(e -> frame.showPassenger());
+        backButton.addActionListener(e -> {
+            if (managementMode) {
+                frame.showMyPage();
+            } else {
+                frame.showPassenger();
+            }
+        });
         confirmButton.addActionListener(e -> doConfirm());
         footer.add(backButton);
         footer.add(confirmButton);
@@ -164,14 +171,22 @@ public class SeatSelectionPanel extends JPanel {
 
     /** 호출자(MainFrame)가 어떤 예약에 좌석을 부여할지 지정. */
     public void setReservation(Reservation r) {
+        setReservation(r, false);
+    }
+
+    /** 호출자(MainFrame)가 어떤 예약에 좌석을 부여할지 지정. */
+    public void setReservation(Reservation r, boolean managementMode) {
         this.reservation = r;
+        this.managementMode = managementMode;
         this.selectedSeat = null;
         if (selectedButton != null) {
             selectedButton.setBackground(Color.WHITE);
             selectedButton.setForeground(ModernUI.TEXT_PRIMARY);
             selectedButton = null;
         }
-        infoLabel.setText("좌석을 선택해 주세요. (PNR: "
+        confirmButton.setText(managementMode ? "좌석 변경 저장" : "확인");
+        backButton.setText(managementMode ? "← 마이페이지" : "← 뒤로");
+        infoLabel.setText((managementMode ? "변경할 항공 좌석을 선택해 주세요. (PNR: " : "좌석을 선택해 주세요. (PNR: ")
                 + (r != null && r.getPnrNumber() != null ? r.getPnrNumber() : "-") + ")");
     }
 
@@ -185,8 +200,18 @@ public class SeatSelectionPanel extends JPanel {
         }
         if (reservation != null) {
             booking.assignSeat(reservation, selectedSeat);
+            frame.recordAirSeat(reservation, selectedSeat);
         }
-        // iter 2: 좌석 배정 후 결제 단계로 복귀.
-        frame.showPayment();
+        if (managementMode) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "항공 좌석이 변경되었습니다.\nPNR: "
+                            + (reservation != null ? reservation.getPnrNumber() : "-")
+                            + "\n좌석: " + selectedSeat,
+                    "좌석 변경 완료",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            frame.showMyPage();
+        } else {
+            frame.showPayment();
+        }
     }
 }
