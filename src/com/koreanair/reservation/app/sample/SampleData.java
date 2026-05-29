@@ -10,6 +10,8 @@ import java.util.List;
 import com.koreanair.reservation.control.AuthService;
 import com.koreanair.reservation.control.FlightSearchService;
 import com.koreanair.reservation.domain.flight.Airport;
+import com.koreanair.reservation.domain.flight.AirportCatalog;
+import com.koreanair.reservation.domain.flight.AirportCity;
 import com.koreanair.reservation.domain.flight.BookingClass;
 import com.koreanair.reservation.domain.flight.Fare;
 import com.koreanair.reservation.domain.flight.FareRule;
@@ -97,9 +99,28 @@ public final class SampleData {
         Airport cdg = airport("CDG", "Charles de Gaulle", "Paris", "France", "🇫🇷");
         Airport fra = airport("FRA", "Frankfurt Airport", "Frankfurt", "Germany", "🇩🇪");
         Airport jfk = airport("JFK", "John F. Kennedy International", "New York", "USA", "🇺🇸");
+        Airport lga = airport("LGA", "LaGuardia Airport", "New York", "USA", "🇺🇸");
+        Airport ewr = airport("EWR", "Newark Liberty International", "New York", "USA", "🇺🇸");
         Airport fco = airport("FCO", "Leonardo da Vinci", "Rome", "Italy", "🇮🇹");
         Airport lhr = airport("LHR", "Heathrow Airport", "London", "UK", "🇬🇧");
+        Airport lgw = airport("LGW", "Gatwick Airport", "London", "UK", "🇬🇧");
+        Airport stn = airport("STN", "Stansted Airport", "London", "UK", "🇬🇧");
         Airport yyz = airport("YYZ", "Pearson International", "Toronto", "Canada", "🇨🇦");
+
+        // DP#4 Composite — multi-airport metropolitan groups
+        AirportCity nyc = new AirportCity("NYC", "New York", "USA").add(jfk).add(lga).add(ewr);
+        AirportCity tyo = new AirportCity("TYO", "Tokyo", "Japan").add(nrt).add(hnd);
+        AirportCity lon = new AirportCity("LON", "London", "UK").add(lhr).add(lgw).add(stn);
+        AirportCity sel = new AirportCity("SEL", "Seoul", "Korea").add(icn).add(gmp);
+
+        AirportCatalog cat = search.getAirportCatalog();
+        cat.registerAirport(icn).registerAirport(nrt).registerAirport(lax).registerAirport(gmp)
+                .registerAirport(sin).registerAirport(hnd).registerAirport(fuk).registerAirport(bkk)
+                .registerAirport(pvg).registerAirport(hkg).registerAirport(del).registerAirport(syd)
+                .registerAirport(cdg).registerAirport(fra).registerAirport(jfk).registerAirport(lga)
+                .registerAirport(ewr).registerAirport(fco).registerAirport(lhr).registerAirport(lgw)
+                .registerAirport(stn).registerAirport(yyz);
+        cat.registerCity(nyc).registerCity(tyo).registerCity(lon).registerCity(sel);
 
         Fare ecoY = fare(BookingClass.Y, 320_000L, true);
         Fare ecoB = fare(BookingClass.B, 290_000L, false);

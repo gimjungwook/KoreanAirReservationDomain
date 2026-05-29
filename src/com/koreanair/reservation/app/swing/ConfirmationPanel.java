@@ -75,7 +75,7 @@ public class ConfirmationPanel extends JPanel {
         c.anchor = GridBagConstraints.WEST;
 
         JLabel checkmark = new JLabel("✓", SwingConstants.CENTER);
-        checkmark.setFont(new Font("System", Font.BOLD, 48));
+        checkmark.setFont(new Font(ModernUI.FONT_TITLE.getFamily(), Font.BOLD, 36));
         checkmark.setForeground(ModernUI.SUCCESS);
         checkmark.setPreferredSize(new Dimension(80, 80));
         c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
@@ -197,12 +197,14 @@ public class ConfirmationPanel extends JPanel {
     }
 
     public void prepare(Reservation reservation, Payment payment) {
+        prepare(reservation, payment, null);
+    }
+
+    /** iter4 overload: 셔틀 자동 발권 결과 동시 반영. */
+    public void prepare(Reservation reservation, Payment payment, BusTicket bus) {
         this.reservation = reservation;
         pnrLabel.setText(reservation != null ? reservation.getPnrNumber() : "-");
         stateLabel.setText(reservation != null ? reservation.getStateName() : "-");
-        busTicketStatusLabel.setText("미발매");
-        ticketButton.setEnabled(reservation != null);
-        busCityCombo.setEnabled(reservation != null);
         copyPnrButton.setEnabled(reservation != null && reservation.getPnrNumber() != null);
         if (payment != null) {
             paymentStatusLabel.setText(String.valueOf(payment.getStatus()));
@@ -213,23 +215,64 @@ public class ConfirmationPanel extends JPanel {
             paymentStatusLabel.setText("-");
             amountLabel.setText("-");
         }
+        // 셔틀 결과 표시 + 도시 콤보/티켓 버튼은 결제 단계에서 처리하므로 숨김.
+        busCityCombo.setVisible(false);
+        ticketButton.setVisible(false);
+        if (bus != null) {
+            busTicketStatusLabel.setText(String.format("%s · %s · 좌석 %s · %,d KRW",
+                    bus.getTicketNumber(),
+                    bus.getOriginCity().getDisplayName(),
+                    bus.getSeat() != null ? bus.getSeat().getSeatNumber() : "-",
+                    bus.getFare()));
+            busTicketStatusLabel.setForeground(ModernUI.SUCCESS);
+        } else {
+            busTicketStatusLabel.setText("선택하지 않음");
+            busTicketStatusLabel.setForeground(ModernUI.TEXT_SECONDARY);
+        }
     }
 
     private void issueLinkedTicket() {
         try {
             BusCity city = (BusCity) busCityCombo.getSelectedItem();
-            BusTicket busTicket = frame.issueLinkedBusTicket(reservation, city);
+            if (city == null) {
+                throw new IllegalArgumentException("출발 도시를 선택하세요.");
+            }
+            // Iteration 4: BusSeatSelectionPanel 다이얼로그 — 운행 스케줄 + 좌석 선택.
+            javax.swing.JDialog dlg = new javax.swing.JDialog(
+                    javax.swing.SwingUtilities.getWindowAncestor(this),
+                    city.getDisplayName() + " → 인천공항 셔틀",
+                    java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+            BusSeatSelectionPanel selector = new BusSeatSelectionPanel(
+                    frame.getBusTicketingService(), city);
+            dlg.setContentPane(selector);
+            dlg.setSize(560, 640);
+            dlg.setLocationRelativeTo(this);
+            final boolean[] confirmed = {false};
+            selector.setOnConfirm(() -> {
+                confirmed[0] = true;
+                dlg.dispose();
+            });
+            dlg.setVisible(true);
+            if (!confirmed[0]) {
+                return;
+            }
+            com.koreanair.reservation.domain.bus.BusTicketRequest req =
+                    new com.koreanair.reservation.domain.bus.BusTicketRequest(
+                            city, selector.getSelectedSchedule(), selector.getSelectedSeat());
+            BusTicket busTicket = frame.issueLinkedBusTicket(reservation, req);
             stateLabel.setText(reservation != null ? reservation.getStateName() : "-");
-            busTicketStatusLabel.setText(String.format("%s · %s · %,d KRW",
+            busTicketStatusLabel.setText(String.format("%s · %s · 좌석 %s · %,d KRW",
                     busTicket.getTicketNumber(),
-                    busTicket.getDestinationCity().getDisplayName(),
+                    busTicket.getOriginCity().getDisplayName(),
+                    busTicket.getSeat() != null ? busTicket.getSeat().getSeatNumber() : "-",
                     busTicket.getFare()));
             ticketButton.setEnabled(false);
             busCityCombo.setEnabled(false);
             JOptionPane.showMessageDialog(this,
-                    "e-Ticket 발급 후 우등고속 버스티켓이 연계 발매되었습니다.\n"
+                    "e-Ticket 발급 후 우등고속 프리미엄 셔틀이 연계 발매되었습니다.\n"
                             + "버스티켓: " + busTicket.getTicketNumber() + "\n"
-                            + "도시: " + busTicket.getDestinationCity().getDisplayName()
+                            + "출발지: " + busTicket.getOriginCity().getDisplayName() + " → 인천공항\n"
+                            + "좌석: " + (busTicket.getSeat() != null ? busTicket.getSeat().getSeatNumber() : "-")
                             + " / 요금: " + String.format("%,d KRW", busTicket.getFare()),
                     "연계 발매 완료",
                     JOptionPane.INFORMATION_MESSAGE);

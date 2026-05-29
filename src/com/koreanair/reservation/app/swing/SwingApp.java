@@ -79,7 +79,7 @@ public final class SwingApp {
                     ui, seed,
                     ticketPublisher, busTicketingService);
             frame.setVisible(true);
-            frame.showLogin();
+            frame.showSearch();
         });
     }
 }

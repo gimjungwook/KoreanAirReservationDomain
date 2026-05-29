@@ -59,20 +59,14 @@ public class PassengerPanel extends JPanel {
         c.anchor = GridBagConstraints.NORTHWEST;
         c.weightx = 1.0;
 
-        JLabel stepLabel = new JLabel("STEP 2");
-        stepLabel.setFont(ModernUI.FONT_SMALL);
-        stepLabel.setForeground(ModernUI.PRIMARY);
-        stepLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-        stepLabel.setOpaque(false);
-        c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
-        centerPanel.add(stepLabel, c);
-
         JLabel title = new JLabel("승객 정보 입력");
-        title.setFont(ModernUI.FONT_HEADING);
+        title.setFont(ModernUI.FONT_TITLE);
         title.setForeground(ModernUI.TEXT_PRIMARY);
         title.setOpaque(false);
-        c.gridy = 1; c.gridwidth = 2;
+        c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
+        c.insets = new Insets(0, 6, 16, 6);
         centerPanel.add(title, c);
+        c.insets = new Insets(6, 6, 6, 6);
 
         JPanel formCard = new JPanel(new GridBagLayout());
         formCard.setBackground(ModernUI.CARD_BG);
@@ -169,6 +163,50 @@ public class PassengerPanel extends JPanel {
         flightInfoLabel.setText(String.format("%s (%s → %s)", row[1], row[3], row[4]));
 
         this.reservation = booking.initiateBooking(selected);
+        if (reservation != null && me != null) {
+            reservation.setRequester(me);
+            if (nameField.getText().trim().isEmpty() && me.getName() != null) {
+                nameField.setText(me.getName());
+            }
+        }
+        frame.onReservationCreated(reservation);
+    }
+
+    /** iter4: 왕복 reservation. */
+    public void prepareRoundTrip(FlightSchedule outbound, FlightSchedule inbound, Member me) {
+        this.selected = outbound;
+        this.member = me;
+        nameField.setText("");
+        passportField.setText("");
+        birthField.setText("");
+        Object[] go = SwingReservationUI.toTableRow(1, outbound);
+        Object[] back = SwingReservationUI.toTableRow(2, inbound);
+        flightInfoLabel.setText(String.format("[왕복] 가는편 %s (%s → %s) · 오는편 %s (%s → %s)",
+                go[1], go[3], go[4], back[1], back[3], back[4]));
+        this.reservation = booking.initiateRoundTripBooking(outbound, inbound);
+        if (reservation != null && me != null) {
+            reservation.setRequester(me);
+            if (nameField.getText().trim().isEmpty() && me.getName() != null) {
+                nameField.setText(me.getName());
+            }
+        }
+        frame.onReservationCreated(reservation);
+    }
+
+    /** iter4: 다도시 reservation. */
+    public void prepareMultiCity(java.util.List<FlightSchedule> segments, Member me) {
+        this.selected = segments.get(0);
+        this.member = me;
+        nameField.setText("");
+        passportField.setText("");
+        birthField.setText("");
+        StringBuilder sb = new StringBuilder("[다도시] ");
+        for (int i = 0; i < segments.size(); i++) {
+            Object[] r = SwingReservationUI.toTableRow(i + 1, segments.get(i));
+            sb.append(i + 1).append(". ").append(r[1]).append(" (").append(r[3]).append("→").append(r[4]).append(")  ");
+        }
+        flightInfoLabel.setText(sb.toString());
+        this.reservation = booking.initiateMultiCityBooking(segments);
         if (reservation != null && me != null) {
             reservation.setRequester(me);
             if (nameField.getText().trim().isEmpty() && me.getName() != null) {

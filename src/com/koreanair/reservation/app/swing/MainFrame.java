@@ -49,6 +49,8 @@ public class MainFrame extends JFrame {
     private final JPanel cards = new JPanel(cardLayout);
     private final StateBadge stateBadge = new StateBadge();
     private final JPanel headerPanel = new JPanel(new BorderLayout());
+    private final StepIndicator stepIndicator = new StepIndicator();
+    private final JPanel stepBar = new JPanel(new BorderLayout());
 
     {
         cards.setOpaque(true);
@@ -77,10 +79,13 @@ public class MainFrame extends JFrame {
 
     private final JButton homeNavButton = new JButton("홈");
     private final JButton lookupNavButton = new JButton("예약 조회");
+    private final JButton logoutNavButton = new JButton("로그아웃");
+    private final JButton loginNavButton = new JButton("로그인");
 
     private Member loggedInMember;
     @SuppressWarnings("unused")
     private Reservation currentReservation;
+    private com.koreanair.reservation.domain.flight.FlightSchedule pendingSchedule;
 
     public MainFrame(AuthService authService,
                      FlightSearchService flightSearch,
@@ -106,7 +111,11 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         buildHeader();
-        add(headerPanel, BorderLayout.NORTH);
+        buildStepBar();
+        JPanel topStack = new JPanel(new BorderLayout());
+        topStack.add(headerPanel, BorderLayout.NORTH);
+        topStack.add(stepBar, BorderLayout.CENTER);
+        add(topStack, BorderLayout.NORTH);
         add(cards, BorderLayout.CENTER);
 
         loginPanel = new LoginPanel(this, authService, ui);
@@ -133,9 +142,16 @@ public class MainFrame extends JFrame {
         ui.setParent(this);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(900, 640));
+        setPreferredSize(new Dimension(1080, 760));
         pack();
         setLocationRelativeTo(null);
+    }
+
+    private void buildStepBar() {
+        stepBar.setBackground(Color.WHITE);
+        stepBar.setOpaque(true);
+        stepBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, ModernUI.BORDER));
+        stepBar.add(stepIndicator, BorderLayout.CENTER);
     }
 
     /** Iteration 1 backward-compat 생성자. RefundHandler / ReservationLookupService 미주입 시 사용. */
@@ -164,17 +180,20 @@ public class MainFrame extends JFrame {
         leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(14, 24, 14, 0));
 
-        JLabel logo = new JLabel("✈", SwingConstants.CENTER);
-        logo.setFont(new Font("System", Font.PLAIN, 26));
+        JLabel logo = new JLabel("KOREAN AIR", SwingConstants.CENTER);
+        logo.setFont(ModernUI.FONT_HEADING);
         logo.setForeground(Color.WHITE);
+        logo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 0, 0, Color.WHITE),
+                BorderFactory.createEmptyBorder(0, 0, 0, 12)));
 
-        JLabel title = new JLabel("대한항공");
-        title.setFont(new Font("System", Font.BOLD, 18));
+        JLabel title = new JLabel("예약");
+        title.setFont(ModernUI.FONT_BODY_BOLD);
         title.setForeground(Color.WHITE);
 
-        JLabel subtitle = new JLabel("항공 예약");
-        subtitle.setFont(new Font("System", Font.PLAIN, 13));
-        subtitle.setForeground(new Color(0xCC, 0xE4, 0xFF));
+        JLabel subtitle = new JLabel("Reservation");
+        subtitle.setFont(ModernUI.FONT_SMALL);
+        subtitle.setForeground(new Color(0xDF, 0xE8, 0xF7));
 
         leftPanel.add(logo);
         leftPanel.add(title);
@@ -190,13 +209,40 @@ public class MainFrame extends JFrame {
         homeNavButton.addActionListener(e -> startNewBooking());
         rightPanel.add(homeNavButton);
 
-        // Iteration 2: 헤더에 "예약 조회" 진입 버튼 추가.
         styleNavButton(lookupNavButton);
+        lookupNavButton.setText("내 예약");
         lookupNavButton.addActionListener(e -> showLookup());
         rightPanel.add(lookupNavButton);
 
+        styleNavButton(logoutNavButton);
+        logoutNavButton.addActionListener(e -> doLogout());
+        rightPanel.add(logoutNavButton);
+
+        styleNavButton(loginNavButton);
+        loginNavButton.addActionListener(e -> showLogin());
+        rightPanel.add(loginNavButton);
+
         headerPanel.add(leftPanel, BorderLayout.WEST);
         headerPanel.add(rightPanel, BorderLayout.EAST);
+
+        // 비로그인 상태: 내 예약·로그아웃 숨김
+        refreshHeaderForAuth();
+    }
+
+    private void refreshHeaderForAuth() {
+        boolean signedIn = loggedInMember != null;
+        lookupNavButton.setVisible(signedIn);
+        logoutNavButton.setVisible(signedIn);
+        loginNavButton.setVisible(!signedIn);
+    }
+
+    private void doLogout() {
+        this.loggedInMember = null;
+        this.currentReservation = null;
+        authService.logout();
+        stateBadge.reset();
+        refreshHeaderForAuth();
+        showSearch();
     }
 
     private void styleNavButton(JButton btn) {
@@ -213,11 +259,30 @@ public class MainFrame extends JFrame {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
-    public void showLogin() { cardLayout.show(cards, CARD_LOGIN); }
-    public void showSearch() { cardLayout.show(cards, CARD_SEARCH); }
-    public void showPassenger() { cardLayout.show(cards, CARD_PASSENGER); }
-    public void showPayment() { cardLayout.show(cards, CARD_PAYMENT); }
-    public void showConfirmation() { cardLayout.show(cards, CARD_CONFIRMATION); }
+    public void showLogin() {
+        stepBar.setVisible(false);
+        cardLayout.show(cards, CARD_LOGIN);
+    }
+    public void showSearch() {
+        stepBar.setVisible(true);
+        stepIndicator.setCurrentStep(StepIndicator.STEP_SEARCH);
+        cardLayout.show(cards, CARD_SEARCH);
+    }
+    public void showPassenger() {
+        stepBar.setVisible(true);
+        stepIndicator.setCurrentStep(StepIndicator.STEP_PASSENGER);
+        cardLayout.show(cards, CARD_PASSENGER);
+    }
+    public void showPayment() {
+        stepBar.setVisible(true);
+        stepIndicator.setCurrentStep(StepIndicator.STEP_PAYMENT);
+        cardLayout.show(cards, CARD_PAYMENT);
+    }
+    public void showConfirmation() {
+        stepBar.setVisible(true);
+        stepIndicator.setCurrentStep(StepIndicator.STEP_DONE);
+        cardLayout.show(cards, CARD_CONFIRMATION);
+    }
 
     public void showLookup() {
         lookupPanel.refresh();
@@ -226,6 +291,8 @@ public class MainFrame extends JFrame {
 
     public void showSeatSelection(Reservation reservation) {
         seatSelectionPanel.setReservation(reservation);
+        stepBar.setVisible(true);
+        stepIndicator.setCurrentStep(StepIndicator.STEP_SEAT);
         cardLayout.show(cards, CARD_SEAT);
     }
 
@@ -244,11 +311,38 @@ public class MainFrame extends JFrame {
     public void onLoginSuccess(Member m) {
         this.loggedInMember = m;
         stateBadge.reset();
-        showSearch();
+        refreshHeaderForAuth();
+        if (pendingSchedule != null) {
+            com.koreanair.reservation.domain.flight.FlightSchedule resume = pendingSchedule;
+            pendingSchedule = null;
+            onFlightSelected(resume);
+        } else {
+            showSearch();
+        }
+    }
+
+    public boolean isSignedIn() {
+        return loggedInMember != null;
+    }
+
+    public void requireSignIn(com.koreanair.reservation.domain.flight.FlightSchedule rememberSchedule) {
+        this.pendingSchedule = rememberSchedule;
+        showLogin();
     }
 
     public void onFlightSelected(FlightSchedule selected) {
         passengerPanel.prepare(selected, loggedInMember);
+        showPassenger();
+    }
+
+    public void onRoundTripSelected(FlightSchedule outbound, FlightSchedule inbound) {
+        // 왕복: 가는편 기준으로 passenger 준비. 두 segment는 reservation 만들 때 합쳐 사용.
+        passengerPanel.prepareRoundTrip(outbound, inbound, loggedInMember);
+        showPassenger();
+    }
+
+    public void onMultiCitySelected(java.util.List<FlightSchedule> segments) {
+        passengerPanel.prepareMultiCity(segments, loggedInMember);
         showPassenger();
     }
 
@@ -276,6 +370,14 @@ public class MainFrame extends JFrame {
     public void onPassengerInfoEntered(Reservation reservation) {
         this.currentReservation = reservation;
         if (reservation != null) stateBadge.setCurrentState(reservation.getStateName());
+        // Iteration 4: 결제 전 좌석 선택 단계 삽입.
+        showSeatSelection(reservation);
+    }
+
+    /** Iteration 4: SeatSelectionPanel 에서 좌석 확정 후 호출. */
+    public void onSeatAssigned(Reservation reservation) {
+        this.currentReservation = reservation;
+        if (reservation != null) stateBadge.setCurrentState(reservation.getStateName());
         paymentPanel.prepare(reservation, seed.defaultFareRule);
         showPayment();
     }
@@ -283,7 +385,17 @@ public class MainFrame extends JFrame {
     public void onPaymentConfirmed(Reservation reservation, Payment payment) {
         this.currentReservation = reservation;
         if (reservation != null) stateBadge.setCurrentState(reservation.getStateName());
-        confirmationPanel.prepare(reservation, payment);
+        // iter4: PaymentPanel에서 셔틀 add-on 선택했다면 발권 자동 트리거.
+        com.koreanair.reservation.domain.bus.BusTicketRequest req = paymentPanel.getBusTicketRequest();
+        com.koreanair.reservation.domain.bus.BusTicket bus = null;
+        if (req != null && req.getOriginCity() != null) {
+            try {
+                bus = issueLinkedBusTicket(reservation, req);
+            } catch (Exception ex) {
+                System.out.println("[BUS] issue failed at payment confirm: " + ex.getMessage());
+            }
+        }
+        confirmationPanel.prepare(reservation, payment, bus);
         showConfirmation();
     }
 
@@ -295,11 +407,18 @@ public class MainFrame extends JFrame {
     }
 
     public BusTicket issueLinkedBusTicket(Reservation reservation, BusCity city) {
+        return issueLinkedBusTicket(reservation,
+                new com.koreanair.reservation.domain.bus.BusTicketRequest(city, null, null));
+    }
+
+    /** Iteration 4: 좌석·스케줄 포함 BusTicketRequest 발권. */
+    public BusTicket issueLinkedBusTicket(Reservation reservation,
+                                          com.koreanair.reservation.domain.bus.BusTicketRequest req) {
         if (reservation == null) {
             throw new IllegalArgumentException("발권 대상 예약이 없습니다.");
         }
-        if (city == null) {
-            throw new IllegalArgumentException("버스 목적 도시를 선택하세요.");
+        if (req == null || req.getOriginCity() == null) {
+            throw new IllegalArgumentException("출발 도시를 선택하세요.");
         }
         if (reservation.getTickets().isEmpty()) {
             reservation.issueTicket();
@@ -310,12 +429,16 @@ public class MainFrame extends JFrame {
         }
         Ticket airTicket = reservation.getTickets().get(reservation.getTickets().size() - 1);
         int before = busTicketingService.getIssuedTickets().size();
-        ticketPublisher.publishTicketIssued(reservation, airTicket, city);
+        ticketPublisher.publishTicketIssued(reservation, airTicket, req);
         if (busTicketingService.getIssuedTickets().size() <= before) {
             throw new IllegalStateException("버스티켓 listener가 발매 결과를 만들지 못했습니다.");
         }
         return busTicketingService.getIssuedTickets()
                 .get(busTicketingService.getIssuedTickets().size() - 1);
+    }
+
+    public BusTicketingService getBusTicketingService() {
+        return busTicketingService;
     }
 
     public void reset() {

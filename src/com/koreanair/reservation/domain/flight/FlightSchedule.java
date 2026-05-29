@@ -119,6 +119,25 @@ public class FlightSchedule extends EventPublisher {
                 && isAvailableForBooking();
     }
 
+    /**
+     * Composite 패턴 활용 매칭: AirportLocation(Airport leaf 또는 AirportCity composite) 기반.
+     * <p>도시 코드(NYC, TYO, SEL, LON)가 들어오면 해당 도시의 모든 공항 중 하나라도 매칭되면 true.
+     */
+    public boolean matchesDirect(AirportLocation from, AirportLocation to, LocalDate date) {
+        if (from == null || to == null
+                || flight == null || flight.getRoute() == null || departureDateTime == null) {
+            return false;
+        }
+        Airport origin = flight.getRoute().getOrigin();
+        Airport destination = flight.getRoute().getDestination();
+        return origin != null
+                && destination != null
+                && from.matches(origin.getAirportCode())
+                && to.matches(destination.getAirportCode())
+                && departureDateTime.toLocalDate().equals(date)
+                && isAvailableForBooking();
+    }
+
     public void updateStatus(FlightStatus newStatus) {
         changeStatus(newStatus);
     }

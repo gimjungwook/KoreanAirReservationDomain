@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * 항공권 구매와 연계 발매되는 우등고속 버스 티켓.
+ * 항공권 구매와 연계 발매되는 우등고속 프리미엄 셔틀 티켓.
  *
- * <p>Iteration 3 발표용 범위에서는 in-memory 발권 객체로 둔다.
+ * <p>방향: 출발 도시(집) → 인천공항(ICN). Iteration 4 에서 의미 정정.
+ * 좌석 선택과 운행 스케줄 정보를 함께 보관.
  */
 public class BusTicket {
 
@@ -17,7 +18,9 @@ public class BusTicket {
     private final String reservationPnr;
     private final String airTicketNumber;
     private final String passengerName;
-    private final BusCity destinationCity;
+    private final BusCity originCity;
+    private final BusSchedule schedule;
+    private final BusSeat seat;
     private final long fare;
     private final LocalDateTime issuedAt;
 
@@ -25,13 +28,17 @@ public class BusTicket {
                       String reservationPnr,
                       String airTicketNumber,
                       String passengerName,
-                      BusCity destinationCity,
+                      BusCity originCity,
+                      BusSchedule schedule,
+                      BusSeat seat,
                       long fare) {
         this.ticketNumber = ticketNumber;
         this.reservationPnr = reservationPnr;
         this.airTicketNumber = airTicketNumber;
         this.passengerName = passengerName;
-        this.destinationCity = destinationCity;
+        this.originCity = originCity;
+        this.schedule = schedule;
+        this.seat = seat;
         this.fare = fare;
         this.issuedAt = LocalDateTime.now();
     }
@@ -39,14 +46,16 @@ public class BusTicket {
     public static BusTicket issue(String reservationPnr,
                                   String airTicketNumber,
                                   String passengerName,
-                                  BusCity destinationCity) {
-        if (destinationCity == null) {
-            throw new IllegalArgumentException("버스 목적 도시는 필수입니다.");
+                                  BusCity originCity,
+                                  BusSchedule schedule,
+                                  BusSeat seat) {
+        if (originCity == null) {
+            throw new IllegalArgumentException("출발 도시는 필수입니다.");
         }
         String ticketNumber = String.format("KOBUS-%s-%04d",
                 LocalDateTime.now().format(BUS_DATE_FMT), busTicketSequence++);
         return new BusTicket(ticketNumber, reservationPnr, airTicketNumber,
-                passengerName, destinationCity, destinationCity.getPremiumFare());
+                passengerName, originCity, schedule, seat, originCity.getPremiumFare());
     }
 
     public String getTicketNumber() {
@@ -65,8 +74,16 @@ public class BusTicket {
         return passengerName;
     }
 
-    public BusCity getDestinationCity() {
-        return destinationCity;
+    public BusCity getOriginCity() {
+        return originCity;
+    }
+
+    public BusSchedule getSchedule() {
+        return schedule;
+    }
+
+    public BusSeat getSeat() {
+        return seat;
     }
 
     public long getFare() {

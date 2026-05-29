@@ -99,4 +99,31 @@ public class ItinerarySearchService {
         }
         return fs.getFlight().getRoute().getOrigin().getAirportCode();
     }
+
+    /**
+     * iter4: 다도시 검색 — 각 segment 별 가능한 schedule 후보 리스트 반환.
+     * 사용자는 각 segment 별 1개씩 골라 multiCity Itinerary 를 만든다.
+     */
+    public List<List<FlightSchedule>> searchMultiCity(List<String[]> legs) {
+        List<List<FlightSchedule>> out = new ArrayList<>();
+        if (flightSearch == null) return out;
+        for (String[] leg : legs) {
+            if (leg == null || leg.length < 3) {
+                out.add(new ArrayList<>());
+                continue;
+            }
+            LocalDate d;
+            try {
+                d = LocalDate.parse(leg[2]);
+            } catch (Exception ex) {
+                d = null;
+            }
+            if (d == null) {
+                out.add(new ArrayList<>());
+                continue;
+            }
+            out.add(flightSearch.search(leg[0], leg[1], d));
+        }
+        return out;
+    }
 }

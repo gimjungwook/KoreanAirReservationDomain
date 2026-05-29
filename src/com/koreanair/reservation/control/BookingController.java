@@ -276,6 +276,37 @@ public class BookingController {
         return r;
     }
 
+    /** iter4: 다도시 여정 예약 — MultiCityItineraryFactory 사용. */
+    public Reservation initiateMultiCityBooking(java.util.List<FlightSchedule> segments) {
+        if (segments == null || segments.size() < 2) {
+            throw new IllegalArgumentException("다도시는 2개 이상 segment 필요");
+        }
+        com.koreanair.reservation.control.itinerary.MultiCityItineraryFactory factory =
+                new com.koreanair.reservation.control.itinerary.MultiCityItineraryFactory();
+        com.koreanair.reservation.domain.reservation.Itinerary it = factory.build(segments);
+        Reservation r = new Reservation();
+        r.setReservationNumber("PNR-MC-" + System.currentTimeMillis());
+        // factory가 만든 itinerary 의 segments를 reservation itinerary로 교체
+        for (com.koreanair.reservation.domain.reservation.Segment s : it.getSegments()) {
+            r.getItinerary().addSegment(s);
+        }
+        r.getItinerary().setTripType("MULTI_CITY");
+        return r;
+    }
+
+    /** iter4: 왕복 여정 예약 — 가는편 + 오는편 두 segment. */
+    public Reservation initiateRoundTripBooking(FlightSchedule outbound, FlightSchedule inbound) {
+        if (outbound == null || inbound == null) {
+            throw new IllegalArgumentException("왕복은 가는편·오는편 둘 다 필요");
+        }
+        Reservation r = new Reservation();
+        r.setReservationNumber("PNR-RT-" + System.currentTimeMillis());
+        r.getItinerary().addSegment(new com.koreanair.reservation.domain.reservation.Segment(outbound));
+        r.getItinerary().addSegment(new com.koreanair.reservation.domain.reservation.Segment(inbound));
+        r.getItinerary().setTripType("MULTI_CITY");
+        return r;
+    }
+
     /** 3) 승객 정보 입력 — State: Initiated → PendingPayment. */
     public void setPassengerInfo(Reservation reservation, Passenger passenger) {
         reservation.enterPassengerInfo(passenger);

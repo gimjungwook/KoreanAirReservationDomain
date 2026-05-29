@@ -62,9 +62,9 @@ public class LoginPanel extends JPanel {
         c.insets = new Insets(8, 8, 8, 8);
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel logoLabel = new JLabel("✈", SwingConstants.CENTER);
-        logoLabel.setFont(new Font("System", Font.PLAIN, 40));
-        logoLabel.setForeground(ModernUI.PRIMARY);
+        JLabel logoLabel = new JLabel("KOREAN AIR", SwingConstants.CENTER);
+        logoLabel.setFont(new Font(ModernUI.FONT_DISPLAY.getFamily(), Font.BOLD, 26));
+        logoLabel.setForeground(ModernUI.KE_NAVY);
         c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
         card.add(logoLabel, c);
 

@@ -50,6 +50,27 @@ public class AffectedReservationListener implements EventListener {
     }
 
     private List<Reservation> findAffected(FlightSchedule schedule) {
+        // Refactoring#5: 보조 인덱스 O(1) 조회 (이전 iter3 의 O(n) 전수 스캔 대체).
+        String flightId = schedule.getFlightNumber();
+        if (flightId != null) {
+            List<Reservation> indexed = registry.findByFlightId(flightId);
+            if (!indexed.isEmpty()) {
+                List<Reservation> result = new ArrayList<>();
+                for (Reservation r : indexed) {
+                    if (r.getItinerary() == null) {
+                        continue;
+                    }
+                    for (Segment s : r.getItinerary().getSegments()) {
+                        if (s != null && s.getFlightSchedule() == schedule) {
+                            result.add(r);
+                            break;
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+        // Fallback (인덱스 누락 시 안전망).
         List<Reservation> result = new ArrayList<>();
         for (Reservation r : registry.all()) {
             if (r.getItinerary() == null) {
