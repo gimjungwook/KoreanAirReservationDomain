@@ -1,0 +1,15 @@
+@startuml ref-template-method
+!include _style.puml
+title Template Method - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+abstract class AbstractClass {
+  +templateMethod() <<final>>
+  #{abstract} primitiveOperation1()
+  #{abstract} primitiveOperation2()
+}
+class ConcreteClass {
+  #primitiveOperation1()
+  #primitiveOperation2()
+}
+AbstractClass <|-- ConcreteClass
+note bottom of AbstractClass : templateMethod() fixes the skeleton;\nsubclasses fill primitive steps
+@enduml

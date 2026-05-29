@@ -1,0 +1,18 @@
+@startuml ref-strategy
+!include _style.puml
+title Strategy - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+class Context {
+  +contextInterface()
+}
+interface Strategy {
+  +algorithmInterface()
+}
+class ConcreteStrategyA
+class ConcreteStrategyB
+class ConcreteStrategyC
+Context o--> Strategy
+Strategy <|.. ConcreteStrategyA
+Strategy <|.. ConcreteStrategyB
+Strategy <|.. ConcreteStrategyC
+note bottom of Context : Delegates algorithm to a\ninterchangeable Strategy
+@enduml

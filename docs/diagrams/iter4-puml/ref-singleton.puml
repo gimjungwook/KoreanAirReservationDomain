@@ -1,0 +1,12 @@
+@startuml ref-singleton
+!include _style.puml
+title Singleton - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+class Singleton {
+  -{static} instance: Singleton
+  -Singleton()
+  +{static} getInstance(): Singleton
+  +operation()
+}
+Singleton ..> Singleton : returns sole instance
+note bottom of Singleton : Private ctor.\nOne instance, global access point.
+@enduml

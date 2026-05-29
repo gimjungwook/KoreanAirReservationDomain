@@ -1,0 +1,22 @@
+@startuml ref-composite
+!include _style.puml
+title Composite - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+interface Component {
+  +operation()
+  +add(Component)
+  +remove(Component)
+  +getChild(int)
+}
+class Leaf {
+  +operation()
+}
+class Composite {
+  +operation()
+  +add(Component)
+  +remove(Component)
+}
+Component <|.. Leaf
+Component <|.. Composite
+Composite o--> "children *" Component
+note bottom of Composite : Leaf and Composite treated\nuniformly through Component
+@enduml

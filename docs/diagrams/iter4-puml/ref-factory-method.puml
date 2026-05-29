@@ -1,0 +1,18 @@
+@startuml ref-factory-method
+!include _style.puml
+title Factory Method - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+interface Product
+class ConcreteProduct
+abstract class Creator {
+  +{abstract} factoryMethod(): Product
+  +anOperation()
+}
+class ConcreteCreator {
+  +factoryMethod(): Product
+}
+Product <|.. ConcreteProduct
+Creator <|-- ConcreteCreator
+Creator ..> Product : creates
+ConcreteCreator ..> ConcreteProduct
+note bottom of Creator : Subclass decides which\nConcreteProduct to create
+@enduml

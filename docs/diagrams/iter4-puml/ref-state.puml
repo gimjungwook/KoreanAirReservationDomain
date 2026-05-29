@@ -1,0 +1,20 @@
+@startuml ref-state
+!include _style.puml
+title State - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+class Context {
+  +request()
+}
+interface State {
+  +handle()
+}
+class ConcreteStateA {
+  +handle()
+}
+class ConcreteStateB {
+  +handle()
+}
+Context o--> "state" State
+State <|.. ConcreteStateA
+State <|.. ConcreteStateB
+note bottom of Context : Delegates to current State;\nbehavior changes with state
+@enduml

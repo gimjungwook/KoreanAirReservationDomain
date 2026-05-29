@@ -1,0 +1,23 @@
+@startuml ref-decorator
+!include _style.puml
+title Decorator - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+interface Component {
+  +operation()
+}
+class ConcreteComponent {
+  +operation()
+}
+abstract class Decorator {
+  #component: Component
+  +operation()
+}
+class ConcreteDecorator {
+  +operation()
+  +addedBehavior()
+}
+Component <|.. ConcreteComponent
+Component <|.. Decorator
+Decorator o--> Component
+Decorator <|-- ConcreteDecorator
+note bottom of Decorator : Wraps a Component; adds behavior\nbefore/after delegating
+@enduml

@@ -1,0 +1,23 @@
+@startuml ref-observer
+!include _style.puml
+title Observer - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+interface Subject {
+  +attach(Observer)
+  +detach(Observer)
+  +notify()
+}
+interface Observer {
+  +update()
+}
+class ConcreteSubject {
+  -subjectState
+}
+class ConcreteObserver {
+  -observerState
+}
+Subject <|.. ConcreteSubject
+Observer <|.. ConcreteObserver
+Subject o--> "observers *" Observer
+ConcreteObserver --> ConcreteSubject
+note bottom : Subject notifies all Observers on change (1-to-N)
+@enduml

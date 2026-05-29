@@ -1,0 +1,18 @@
+@startuml ref-adapter
+!include _style.puml
+title Adapter (object) - GoF Reference Structure\n(Source: Gamma, Helm, Johnson, Vlissides. Design Patterns. Addison-Wesley, 1995)
+class Client
+interface Target {
+  +request()
+}
+class Adapter {
+  +request()
+}
+class Adaptee {
+  +specificRequest()
+}
+Target <|.. Adapter
+Adapter o--> Adaptee
+Client --> Target
+note bottom of Adapter : request() delegates to\nadaptee.specificRequest()
+@enduml
