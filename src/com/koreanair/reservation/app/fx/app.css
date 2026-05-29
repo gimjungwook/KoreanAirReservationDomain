@@ -134,6 +134,7 @@
     -fx-cursor: hand;
 }
 .flight-row:hover { -fx-border-color: -kal-sky; -fx-background-color: #f8fbff; }
+.flight-row-selected { -fx-border-color: -kal-blue; -fx-border-width: 2; -fx-background-color: #eef4fb; }
 .flight-route { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-ink; }
 .flight-meta  { -fx-font-size: 12px; -fx-text-fill: -kal-soft; }
 .flight-fare  { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; }
@@ -157,3 +158,89 @@
 .kv-key     { -fx-text-fill: -kal-soft; -fx-font-size: 12px; }
 .kv-val     { -fx-text-fill: -kal-ink; -fx-font-size: 13px; -fx-font-weight: bold; }
 .total-amt  { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; }
+
+/* ============ 랜딩 페이지 (Trip.com / Skyscanner 스타일) ============ */
+.landing-scroll { -fx-background-color: -kal-bg; }
+.landing-scroll > .viewport { -fx-background-color: -kal-bg; }
+.landing { -fx-background-color: -kal-bg; -fx-alignment: TOP_CENTER; }
+
+/* 검색 카드 — 히어로 위로 떠 있음 */
+.search-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18;
+    -fx-border-color: -kal-line;
+    -fx-border-radius: 18;
+    -fx-padding: 22 24 24 24;
+    -fx-effect: dropshadow(gaussian, rgba(23,58,94,0.22), 30, 0, 0, 10);
+}
+
+/* trip 탭 */
+.trip-tab {
+    -fx-background-color: transparent; -fx-text-fill: -kal-soft;
+    -fx-font-size: 13px; -fx-padding: 6 16 6 16; -fx-background-radius: 999; -fx-cursor: hand;
+}
+.trip-tab-active { -fx-background-color: #eaf2fb; -fx-text-fill: -kal-blue; -fx-font-weight: bold; }
+
+/* 필드 위 라벨 */
+.search-field-label { -fx-text-fill: -kal-soft; -fx-font-size: 11px; -fx-font-weight: bold; -fx-letter-spacing: 1; }
+
+/* swap 버튼 (원형) */
+.swap-btn {
+    -fx-background-color: #eef4fb; -fx-text-fill: -kal-blue;
+    -fx-min-width: 38; -fx-min-height: 38; -fx-background-radius: 999;
+    -fx-font-size: 16px; -fx-cursor: hand; -fx-border-color: -kal-line; -fx-border-radius: 999;
+}
+.swap-btn:hover { -fx-background-color: -kal-sky; -fx-text-fill: white; }
+
+/* 큰 검색 CTA */
+.search-go {
+    -fx-background-color: linear-gradient(to right, #2b5a8e, #5b9bd5);
+    -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;
+    -fx-padding: 12 30 12 30; -fx-background-radius: 12; -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(43,90,142,0.35), 12, 0, 0, 4);
+}
+.search-go:hover { -fx-background-color: linear-gradient(to right, #173a5e, #2b5a8e); }
+
+/* 인기 노선 칩 */
+.section-title { -fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: -kal-blue-dark; }
+.route-chip {
+    -fx-background-color: white; -fx-text-fill: -kal-ink; -fx-font-size: 13px;
+    -fx-padding: 9 16 9 16; -fx-background-radius: 999; -fx-border-color: -kal-line;
+    -fx-border-radius: 999; -fx-cursor: hand;
+}
+.route-chip:hover { -fx-background-color: #eef4fb; -fx-border-color: -kal-sky; -fx-text-fill: -kal-blue; }
+
+/* 히어로 (배경 사진 + 오버레이) */
+.hero-wrap { -fx-min-height: 360; -fx-max-height: 360; }
+.hero-overlay {
+    -fx-background-color: linear-gradient(to bottom, rgba(12,30,55,0.58), rgba(12,30,55,0.32) 55%, rgba(12,30,55,0.62));
+}
+.hero-text { -fx-padding: 0 0 40 0; }
+.hero-brand { -fx-text-fill: #d6e6fb; -fx-font-size: 13px; -fx-font-weight: bold; -fx-letter-spacing: 3; }
+.hero-title {
+    -fx-text-fill: white; -fx-font-size: 38px; -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 12, 0, 0, 2);
+}
+.hero-sub {
+    -fx-text-fill: #eaf2fb; -fx-font-size: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 8, 0, 0, 1);
+}
+
+/* 인기 여행지 카드 */
+.dest-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: -kal-line;
+    -fx-border-radius: 12;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(30,40,60,0.10), 12, 0, 0, 4);
+    -fx-max-width: 228;
+}
+.dest-card:hover {
+    -fx-border-color: -kal-sky;
+    -fx-effect: dropshadow(gaussian, rgba(43,90,142,0.28), 20, 0, 0, 8);
+}
+.dest-body { -fx-padding: 12 14 14 14; }
+.dest-city  { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: -kal-ink; }
+.dest-route { -fx-font-size: 12px; -fx-text-fill: -kal-soft; }
+.dest-price { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; -fx-padding: 2 0 0 0; }

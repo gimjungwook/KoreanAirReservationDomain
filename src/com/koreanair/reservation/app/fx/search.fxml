@@ -1,42 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.koreanair.reservation.app.fx.screen.SearchController"
-      styleClass="screen">
+<ScrollPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.koreanair.reservation.app.fx.screen.SearchController"
+            fitToWidth="true" styleClass="landing-scroll" hbarPolicy="NEVER">
+    <VBox styleClass="landing">
 
-    <Label text="항공편 검색" styleClass="screen-title"/>
-    <Label text="출발지·도착지 공항 코드(예: ICN, JFK)와 날짜로 직항편을 검색합니다." styleClass="screen-sub"/>
+        <!-- ===== HERO ===== -->
+        <StackPane styleClass="hero-wrap">
+            <ImageView fx:id="heroImage" fitWidth="1280" fitHeight="360" preserveRatio="false">
+                <image><Image url="@img/hero.jpg"/></image>
+            </ImageView>
+            <Region styleClass="hero-overlay"/>
+            <VBox alignment="CENTER" spacing="8" styleClass="hero-text">
+                <Label text="KOREAN AIR · SKYPASS" styleClass="hero-brand"/>
+                <Label text="세상의 모든 여행을 한 번에" styleClass="hero-title"/>
+                <Label text="전 세계 120개 도시, 지금 떠나세요 ✈️" styleClass="hero-sub"/>
+            </VBox>
+        </StackPane>
 
-    <HBox styleClass="card" spacing="12" alignment="BOTTOM_LEFT">
-        <VBox spacing="4">
-            <Label text="출발 (From)" styleClass="field-label"/>
-            <TextField fx:id="fromField" text="ICN" promptText="ICN" prefWidth="120"/>
+        <!-- ===== 검색 카드 (히어로 위로 겹침) ===== -->
+        <VBox styleClass="search-card" spacing="14" maxWidth="980">
+            <VBox.margin><Insets top="-52.0"/></VBox.margin>
+
+            <HBox fx:id="tripTabs" spacing="6">
+                <Label text="편도" styleClass="trip-tab, trip-tab-active" userData="oneway" onMouseClicked="#onTripTab"/>
+                <Label text="왕복" styleClass="trip-tab" userData="round" onMouseClicked="#onTripTab"/>
+                <Label text="다구간" styleClass="trip-tab" userData="multi" onMouseClicked="#onTripTab"/>
+            </HBox>
+
+            <!-- 단일 / 왕복 입력 -->
+            <HBox fx:id="simpleFields" spacing="12" alignment="BOTTOM_LEFT">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="출발" styleClass="search-field-label"/>
+                    <TextField fx:id="fromField" text="ICN" promptText="ICN" maxWidth="Infinity"/>
+                </VBox>
+                <Button text="⇄" styleClass="swap-btn" onAction="#onSwap">
+                    <HBox.margin><Insets bottom="1.0"/></HBox.margin>
+                </Button>
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="도착" styleClass="search-field-label"/>
+                    <TextField fx:id="toField" text="JFK" promptText="JFK" maxWidth="Infinity"/>
+                </VBox>
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="가는 날" styleClass="search-field-label"/>
+                    <DatePicker fx:id="datePicker" maxWidth="Infinity"/>
+                </VBox>
+                <VBox fx:id="returnDateBox" spacing="4" HBox.hgrow="ALWAYS" visible="false" managed="false">
+                    <Label text="오는 날" styleClass="search-field-label"/>
+                    <DatePicker fx:id="returnDate" maxWidth="Infinity"/>
+                </VBox>
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="승객 / 좌석" styleClass="search-field-label"/>
+                    <ComboBox fx:id="passengersCombo" maxWidth="Infinity"/>
+                </VBox>
+            </HBox>
+
+            <!-- 다구간 입력 -->
+            <VBox fx:id="multiBox" spacing="10" visible="false" managed="false">
+                <VBox fx:id="legsBox" spacing="8"/>
+                <Button fx:id="addLegBtn" text="+ 구간 추가" styleClass="btn-ghost" onAction="#onAddLeg"/>
+            </VBox>
+
+            <!-- 액션 바 -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="message" styleClass="error-text" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Button text="항공권 검색" styleClass="search-go" onAction="#onSearch"/>
+                <Button fx:id="proceedBtn" text="다음 단계 →" styleClass="search-go" onAction="#onProceed"
+                        visible="false" managed="false"/>
+            </HBox>
         </VBox>
-        <VBox spacing="4">
-            <Label text="도착 (To)" styleClass="field-label"/>
-            <TextField fx:id="toField" text="JFK" promptText="JFK" prefWidth="120"/>
-        </VBox>
-        <VBox spacing="4">
-            <Label text="날짜" styleClass="field-label"/>
-            <DatePicker fx:id="datePicker" prefWidth="170"/>
-        </VBox>
-        <Button text="검색" styleClass="btn-primary" onAction="#onSearch"/>
-        <Button text="전체 항공편" styleClass="btn-ghost" onAction="#onShowAll"/>
-        <Region HBox.hgrow="ALWAYS"/>
-    </HBox>
 
-    <Label fx:id="message" styleClass="error-text"/>
+        <!-- ===== 인기 여행지 ===== -->
+        <VBox fx:id="popularBox" styleClass="screen" spacing="14" maxWidth="980">
+            <Label text="인기 여행지" styleClass="section-title"/>
+            <FlowPane hgap="16" vgap="16">
+                <VBox styleClass="dest-card" userData="ICN&gt;JFK" onMouseClicked="#onDestClick">
+                    <ImageView fitWidth="228" fitHeight="132" preserveRatio="false">
+                        <image><Image url="@img/nyc.jpg"/></image>
+                    </ImageView>
+                    <VBox styleClass="dest-body" spacing="2">
+                        <Label text="뉴욕 New York" styleClass="dest-city"/>
+                        <Label text="ICN → JFK · 직항 14h" styleClass="dest-route"/>
+                        <Label text="₩1,280,000~" styleClass="dest-price"/>
+                    </VBox>
+                </VBox>
+                <VBox styleClass="dest-card" userData="ICN&gt;NRT" onMouseClicked="#onDestClick">
+                    <ImageView fitWidth="228" fitHeight="132" preserveRatio="false">
+                        <image><Image url="@img/tokyo.jpg"/></image>
+                    </ImageView>
+                    <VBox styleClass="dest-body" spacing="2">
+                        <Label text="도쿄 Tokyo" styleClass="dest-city"/>
+                        <Label text="ICN → NRT · 직항 2h 20m" styleClass="dest-route"/>
+                        <Label text="₩390,000~" styleClass="dest-price"/>
+                    </VBox>
+                </VBox>
+                <VBox styleClass="dest-card" userData="ICN&gt;CDG" onMouseClicked="#onDestClick">
+                    <ImageView fitWidth="228" fitHeight="132" preserveRatio="false">
+                        <image><Image url="@img/paris.jpg"/></image>
+                    </ImageView>
+                    <VBox styleClass="dest-body" spacing="2">
+                        <Label text="파리 Paris" styleClass="dest-city"/>
+                        <Label text="ICN → CDG · 직항 12h" styleClass="dest-route"/>
+                        <Label text="₩1,150,000~" styleClass="dest-price"/>
+                    </VBox>
+                </VBox>
+                <VBox styleClass="dest-card" userData="ICN&gt;LHR" onMouseClicked="#onDestClick">
+                    <ImageView fitWidth="228" fitHeight="132" preserveRatio="false">
+                        <image><Image url="@img/london.jpg"/></image>
+                    </ImageView>
+                    <VBox styleClass="dest-body" spacing="2">
+                        <Label text="런던 London" styleClass="dest-city"/>
+                        <Label text="ICN → LHR · 직항 13h" styleClass="dest-route"/>
+                        <Label text="₩1,320,000~" styleClass="dest-price"/>
+                    </VBox>
+                </VBox>
+                <VBox styleClass="dest-card" userData="ICN&gt;SIN" onMouseClicked="#onDestClick">
+                    <ImageView fitWidth="228" fitHeight="132" preserveRatio="false">
+                        <image><Image url="@img/singapore.jpg"/></image>
+                    </ImageView>
+                    <VBox styleClass="dest-body" spacing="2">
+                        <Label text="싱가포르 Singapore" styleClass="dest-city"/>
+                        <Label text="ICN → SIN · 직항 6h 30m" styleClass="dest-route"/>
+                        <Label text="₩620,000~" styleClass="dest-price"/>
+                    </VBox>
+                </VBox>
+            </FlowPane>
+        </VBox>
 
-    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content">
-        <VBox fx:id="results" spacing="10"/>
-    </ScrollPane>
-</VBox>
+        <!-- ===== 검색 결과 ===== -->
+        <VBox styleClass="screen" spacing="10" maxWidth="980">
+            <Label fx:id="resultsTitle" text="검색된 항공편" styleClass="section-title"/>
+            <VBox fx:id="results" spacing="10"/>
+        </VBox>
+    </VBox>
+</ScrollPane>

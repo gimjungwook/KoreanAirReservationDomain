@@ -90,6 +90,24 @@ public final class Navigator {
         shell.setContent(l.node());
     }
 
+    public void showPassengerRoundTrip(FlightSchedule outbound, FlightSchedule inbound) {
+        Loaded<PassengerController> l = load("passenger.fxml");
+        l.controller().bind(this, ctx);
+        l.controller().prepareRoundTrip(outbound, inbound);
+        shell.showStep(true);
+        shell.setStep(STEP_PASSENGER);
+        shell.setContent(l.node());
+    }
+
+    public void showPassengerMultiCity(java.util.List<FlightSchedule> segments) {
+        Loaded<PassengerController> l = load("passenger.fxml");
+        l.controller().bind(this, ctx);
+        l.controller().prepareMultiCity(segments);
+        shell.showStep(true);
+        shell.setStep(STEP_PASSENGER);
+        shell.setContent(l.node());
+    }
+
     public void showPassengerExisting(Reservation reservation) {
         Loaded<PassengerController> l = load("passenger.fxml");
         l.controller().bind(this, ctx);
