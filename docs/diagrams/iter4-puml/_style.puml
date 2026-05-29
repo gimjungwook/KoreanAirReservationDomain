@@ -1,4 +1,4 @@
-' AmaterasUML 스타일 (.cld ground truth: 흰 박스, 검정 테두리, 아이콘 표시)
+' AmaterasUML 스타일 (.cld ground truth: ClassModel bg=255,255,206 pale yellow / canvas 255,255,255 / fg 0,0,0 / showIcon=true / 시스템폰트)
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 0
@@ -6,7 +6,7 @@ skinparam linetype polyline
 skinparam defaultFontName "Lucida Grande"
 skinparam dpi 150
 skinparam class {
-  BackgroundColor #FFFFFF
+  BackgroundColor #FFFFCE
   BorderColor #000000
   BorderThickness 1
   ArrowColor #000000
@@ -14,5 +14,5 @@ skinparam class {
   FontName "Lucida Grande"
   AttributeFontColor #000000
   StereotypeFontColor #000000
-  HeaderBackgroundColor #FFFFFF
+  HeaderBackgroundColor #FFFFCE
 }
