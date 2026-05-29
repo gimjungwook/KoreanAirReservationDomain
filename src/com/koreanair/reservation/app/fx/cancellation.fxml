@@ -31,8 +31,9 @@
         <HBox spacing="10">
             <Button text="이전" styleClass="btn-ghost" onAction="#onBack"/>
             <Button text="환불 미리보기" styleClass="btn-ghost" onAction="#onPreview"/>
+            <Button text="담당자 검토 요청" styleClass="btn-ghost" onAction="#onRequestReview"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="취소 확정" styleClass="btn-primary" onAction="#onCancel"/>
+            <Button text="취소 확정 (즉시 환불)" styleClass="btn-primary" onAction="#onCancel"/>
         </HBox>
     </VBox>
 </VBox>

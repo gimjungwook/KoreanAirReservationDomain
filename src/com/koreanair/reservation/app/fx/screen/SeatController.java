@@ -2,10 +2,19 @@ package com.koreanair.reservation.app.fx.screen;
 
 import com.koreanair.reservation.app.fx.AppContext;
 import com.koreanair.reservation.app.fx.Navigator;
+import com.koreanair.reservation.domain.flight.CabinClass;
+import com.koreanair.reservation.domain.flight.Seat;
+import com.koreanair.reservation.domain.flight.seatview.AisleSeatDecorator;
+import com.koreanair.reservation.domain.flight.seatview.ExtraLegroomDecorator;
+import com.koreanair.reservation.domain.flight.seatview.LoungeAccessDecorator;
+import com.koreanair.reservation.domain.flight.seatview.SeatView;
+import com.koreanair.reservation.domain.flight.seatview.SeatViewAdapter;
+import com.koreanair.reservation.domain.flight.seatview.WindowSeatDecorator;
 import com.koreanair.reservation.domain.reservation.Reservation;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
@@ -14,6 +23,11 @@ public final class SeatController {
 
     @FXML private GridPane seatGrid;
     @FXML private Label selectedLabel;
+    @FXML private Label seatDescLabel;     // Decorator 체인 설명
+    @FXML private Label seatMetaLabel;     // 메타 라벨
+    @FXML private Label surchargeLabel;    // 누적 부가요금
+    @FXML private CheckBox legroomCheck;
+    @FXML private CheckBox loungeCheck;
     @FXML private Label message;
 
     private Navigator nav;
@@ -29,6 +43,8 @@ public final class SeatController {
     public void bind(Navigator nav, AppContext ctx) {
         this.nav = nav;
         this.ctx = ctx;
+        legroomCheck.selectedProperty().addListener((o, a, b) -> refreshSeatView());
+        loungeCheck.selectedProperty().addListener((o, a, b) -> refreshSeatView());
     }
 
     public void prepare(Reservation reservation) {
@@ -36,7 +52,13 @@ public final class SeatController {
         buildGrid();
         selectedSeat = null;
         selectedBtn = null;
+        legroomCheck.setSelected(false);
+        loungeCheck.setSelected(false);
         selectedLabel.setText("선택된 좌석 — 없음");
+        seatDescLabel.setText("");
+        seatMetaLabel.setText("");
+        surchargeLabel.setText("부가요금 ₩0");
+        ctx.setSeatSurcharge(0);
     }
 
     private void buildGrid() {
@@ -59,14 +81,6 @@ public final class SeatController {
                 seatGrid.add(seat, gridCol++, row);
             }
         }
-        // 컬럼 헤더
-        int gc = 1;
-        for (char c : COLS) {
-            if (c == 'D') gc++;
-            Label h = new Label(String.valueOf(c));
-            h.getStyleClass().add("flight-meta");
-            seatGrid.add(h, gc++, 0);
-        }
     }
 
     private void choose(String label, Button btn) {
@@ -76,6 +90,26 @@ public final class SeatController {
         btn.getStyleClass().add("seat-selected");
         selectedLabel.setText("선택된 좌석 — " + label);
         message.setText("");
+        refreshSeatView();
+    }
+
+    /** DP#9 Decorator — 좌석 위치 + 선택한 부가옵션으로 SeatView 데코레이터 체인을 조립. */
+    private void refreshSeatView() {
+        if (selectedSeat == null) return;
+        Seat seat = new Seat(selectedSeat, CabinClass.ECONOMY);
+        SeatView view = new SeatViewAdapter(seat);                       // ConcreteComponent
+        char col = selectedSeat.charAt(selectedSeat.length() - 1);
+        if (col == 'A' || col == 'F') view = new WindowSeatDecorator(view);   // 창측
+        else if (col == 'C' || col == 'D') view = new AisleSeatDecorator(view); // 통로
+        if (legroomCheck.isSelected()) view = new ExtraLegroomDecorator(view);  // +레그룸
+        if (loungeCheck.isSelected()) view = new LoungeAccessDecorator(view);   // +라운지
+        seatDescLabel.setText(view.getDescription());
+        boolean showMeta = com.koreanair.reservation.app.AppConfig.getInstance().isShowSeatMetadata();
+        seatMetaLabel.setVisible(showMeta);
+        seatMetaLabel.setText(showMeta ? String.join(" · ", view.getMetadataLabels()) : "");
+        long surcharge = view.getSurcharge().longValue();
+        surchargeLabel.setText("부가요금 ₩" + String.format("%,d", surcharge));
+        ctx.setSeatSurcharge(surcharge);
     }
 
     @FXML
@@ -83,7 +117,11 @@ public final class SeatController {
         if (reservation == null) { message.setText("예약 정보가 없습니다."); return; }
         if (selectedSeat == null) { message.setText("좌석을 선택하세요."); return; }
         try {
-            ctx.booking.assignSeat(reservation, selectedSeat);
+            Object assignment = ctx.booking.assignSeat(reservation, selectedSeat);
+            if (assignment == null) {
+                message.setText("좌석 배정에 실패했습니다. 다른 좌석을 선택하세요.");
+                return;
+            }
             nav.showPayment(reservation);
         } catch (Exception ex) {
             message.setText("좌석 배정 오류: " + ex.getMessage());

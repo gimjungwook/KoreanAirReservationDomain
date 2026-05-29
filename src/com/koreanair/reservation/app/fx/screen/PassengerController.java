@@ -61,6 +61,19 @@ public final class PassengerController {
         afterCreate("왕복 · " + code(outbound) + "  /  " + code(inbound));
     }
 
+    /** 환승(경유) — N개 segment (ConnectingItineraryFactory). */
+    public void prepareConnecting(List<FlightSchedule> segments) {
+        reservation = ctx.booking.initiateConnectingBooking(segments);
+        StringBuilder sb = new StringBuilder("환승 · " + (segments.size() - 1) + "회 경유  ");
+        for (int i = 0; i < segments.size(); i++) {
+            sb.append(i == 0 ? "" : " → ")
+              .append(segments.get(i).getFlight().getRoute().getOrigin().getCode());
+        }
+        sb.append(" → ").append(segments.get(segments.size() - 1)
+                .getFlight().getRoute().getDestination().getCode());
+        afterCreate(sb.toString());
+    }
+
     /** 다구간 — N개 segment (MultiCityItineraryFactory). */
     public void prepareMultiCity(List<FlightSchedule> segments) {
         reservation = ctx.booking.initiateMultiCityBooking(segments);
@@ -103,7 +116,11 @@ public final class PassengerController {
                     passportField.getText().trim(),
                     birth,
                     PassengerType.ADULT);
-            ctx.booking.setPassengerInfo(reservation, passenger);  // State: Initiated → PendingPayment
+            try {
+                ctx.booking.setPassengerInfo(reservation, passenger);  // State: Initiated → PendingPayment
+            } catch (com.koreanair.reservation.domain.reservation.state.InvalidStateTransitionException ex) {
+                // 이미 승객정보가 입력된 예약(PendingPayment 등) — 재입력 없이 좌석 단계로 진행.
+            }
             nav.showSeat(reservation);
         } catch (DateTimeParseException ex) {
             message.setText("생년월일 형식이 올바르지 않습니다. 예: 1999-01-31");

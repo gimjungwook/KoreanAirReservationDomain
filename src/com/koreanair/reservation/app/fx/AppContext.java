@@ -36,10 +36,18 @@ public final class AppContext {
     public final BusTicketingService busTicketingService;
     public final SeedResult seed;
 
+    // 결제 게이트웨이 + 세션 마일리지(마일리지 결제용) + Skypass 외부 API 어댑터(DP#8)
+    public final com.koreanair.reservation.boundary.PaymentGatewayInterface gateway;
+    public final com.koreanair.reservation.domain.passenger.MileageAccount sessionMileage;
+    public final com.koreanair.reservation.boundary.SkypassInterface skypass;
+
     // --- 세션 상태 ---
     private Member loggedInMember;
     private Reservation currentReservation;
     private FlightSchedule pendingSchedule;
+    private long seatSurcharge;   // 좌석 Decorator 누적 부가요금 → 결제 합산
+    // 수동 환불 검토: 요청ID → 예약 (승인/거절 시 예약 상태 전이용)
+    public final java.util.Map<String, Reservation> refundReview = new java.util.HashMap<>();
 
     public AppContext(AuthService auth,
                       FlightSearchService search,
@@ -49,7 +57,10 @@ public final class AppContext {
                       BookingController booking,
                       TicketPurchasePublisher ticketPublisher,
                       BusTicketingService busTicketingService,
-                      SeedResult seed) {
+                      SeedResult seed,
+                      com.koreanair.reservation.boundary.PaymentGatewayInterface gateway,
+                      com.koreanair.reservation.domain.passenger.MileageAccount sessionMileage,
+                      com.koreanair.reservation.boundary.SkypassInterface skypass) {
         this.auth = auth;
         this.search = search;
         this.paymentProcessor = paymentProcessor;
@@ -59,6 +70,9 @@ public final class AppContext {
         this.ticketPublisher = ticketPublisher;
         this.busTicketingService = busTicketingService;
         this.seed = seed;
+        this.gateway = gateway;
+        this.sessionMileage = sessionMileage;
+        this.skypass = skypass;
     }
 
     public Member loggedInMember() { return loggedInMember; }
@@ -70,6 +84,9 @@ public final class AppContext {
 
     public FlightSchedule pendingSchedule() { return pendingSchedule; }
     public void setPendingSchedule(FlightSchedule s) { this.pendingSchedule = s; }
+
+    public long seatSurcharge() { return seatSurcharge; }
+    public void setSeatSurcharge(long s) { this.seatSurcharge = s; }
 
     public void logout() {
         loggedInMember = null;

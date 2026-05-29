@@ -108,6 +108,15 @@ public final class Navigator {
         shell.setContent(l.node());
     }
 
+    public void showPassengerConnecting(java.util.List<FlightSchedule> segments) {
+        Loaded<PassengerController> l = load("passenger.fxml");
+        l.controller().bind(this, ctx);
+        l.controller().prepareConnecting(segments);
+        shell.showStep(true);
+        shell.setStep(STEP_PASSENGER);
+        shell.setContent(l.node());
+    }
+
     public void showPassengerExisting(Reservation reservation) {
         Loaded<PassengerController> l = load("passenger.fxml");
         l.controller().bind(this, ctx);
@@ -170,6 +179,28 @@ public final class Navigator {
         Loaded<com.koreanair.reservation.app.fx.screen.RefundController> l = load("refund.fxml");
         l.controller().bind(this, ctx);
         l.controller().prepare(pnr, amount, policyName);
+        shell.showStep(false);
+        shell.setContent(l.node());
+    }
+
+    public void showRefundReview() {
+        Loaded<com.koreanair.reservation.app.fx.screen.RefundReviewController> l = load("refund-review.fxml");
+        l.controller().bind(this, ctx);
+        l.controller().refresh();
+        shell.showStep(false);
+        shell.setContent(l.node());
+    }
+
+    public void showRegistration() {
+        Loaded<com.koreanair.reservation.app.fx.screen.RegistrationController> l = load("registration.fxml");
+        l.controller().bind(this, ctx);
+        shell.showStep(false);
+        shell.setContent(l.node());
+    }
+
+    public void showSettings() {
+        Loaded<com.koreanair.reservation.app.fx.screen.SettingsController> l = load("settings.fxml");
+        l.controller().bind(this, ctx);
         shell.showStep(false);
         shell.setContent(l.node());
     }

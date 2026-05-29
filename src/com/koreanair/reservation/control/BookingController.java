@@ -294,6 +294,23 @@ public class BookingController {
         return r;
     }
 
+    /** 환승(경유) 여정 예약 — DP#6 Factory Method(ConnectingItineraryFactory). */
+    public Reservation initiateConnectingBooking(java.util.List<FlightSchedule> segments) {
+        if (segments == null || segments.size() < 2) {
+            throw new IllegalArgumentException("환승은 2개 이상 segment 필요");
+        }
+        com.koreanair.reservation.control.itinerary.ConnectingItineraryFactory factory =
+                new com.koreanair.reservation.control.itinerary.ConnectingItineraryFactory();
+        com.koreanair.reservation.domain.reservation.Itinerary it = factory.build(segments);
+        Reservation r = new Reservation();
+        r.setReservationNumber("PNR-CX-" + System.currentTimeMillis());
+        for (com.koreanair.reservation.domain.reservation.Segment s : it.getSegments()) {
+            r.getItinerary().addSegment(s);
+        }
+        r.getItinerary().setTripType("CONNECTING");
+        return r;
+    }
+
     /** iter4: 왕복 여정 예약 — 가는편 + 오는편 두 segment. */
     public Reservation initiateRoundTripBooking(FlightSchedule outbound, FlightSchedule inbound) {
         if (outbound == null || inbound == null) {
@@ -335,6 +352,33 @@ public class BookingController {
             reservation.processPayment();      // State 전이
         }
         // 실패 시 handlePaymentFailure 전이는 ReservationAutoCancelListener가 자동 호출 (iter3).
+        return payment;
+    }
+
+    /**
+     * 결제 수단별 결제 — DP#6 Factory Method.
+     * PaymentProcessorFactory.forMethod 로 선택된 결제 수단의 ConcreteCreator(PaymentMethodProcessor)를
+     * 생성하고 그 프로세서로 결제한다. 성공 시 State: PendingPayment → Confirmed.
+     */
+    public Payment confirmPaymentWith(
+            Reservation reservation,
+            com.koreanair.reservation.domain.flight.FareRule fareRule,
+            long baseFare, long tax,
+            com.koreanair.reservation.domain.payment.PaymentMethod method,
+            com.koreanair.reservation.boundary.PaymentGatewayInterface gateway,
+            MileageAccount mileageAccount) {
+        if (!paymentProcessor.validateFareRule(fareRule)) {
+            throw new IllegalArgumentException("운임 규칙 검증 실패: " + fareRule);
+        }
+        long total = paymentProcessor.calculateTotalAmount(baseFare, tax);
+        com.koreanair.reservation.control.payment.PaymentMethodProcessor processor =
+                com.koreanair.reservation.control.payment.PaymentProcessorFactory
+                        .forMethod(method, gateway, mileageAccount);   // Factory Method
+        Payment payment = processor.processCharge(total, reservation.getPnrNumber());
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            reservation.addPayment(payment);
+            reservation.processPayment();
+        }
         return payment;
     }
 

@@ -58,7 +58,8 @@ public class AuthService {
     }
 
     public String generateSkypassNumber() {
-        return String.format("SKY-%03d-%03d", memberSequence / 1000, memberSequence % 1000);
+        int seq = memberSequence++;   // 발급마다 증가 — 신규 가입자가 같은 번호를 받지 않도록
+        return String.format("SKY-%03d-%03d", seq / 1000, seq % 1000);
     }
 
     public Member loginByName(String name, String password) {

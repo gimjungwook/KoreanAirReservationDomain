@@ -59,15 +59,27 @@ public final class LookupController {
         Region sp = new Region();
         HBox.setHgrow(sp, Priority.ALWAYS);
 
-        Button cont = new Button("계속 진행");
-        cont.getStyleClass().add("btn-ghost");
-        cont.setOnAction(e -> nav.showPassengerExisting(r));
-
-        Button cancel = new Button("취소/환불");
-        cancel.getStyleClass().add("btn-ghost");
-        cancel.setOnAction(e -> nav.showCancellation(r));
-
-        HBox row = new HBox(10, left, sp, cont, cancel);
+        String stateName = r.getStateName();
+        HBox row = new HBox(10, left, sp);
+        // 미완료(Initiated/PendingPayment)만 이어서 진행 — 완료 상태는 잘못된 전이 방지.
+        if ("Initiated".equals(stateName)) {
+            Button cont = new Button("계속 진행");
+            cont.getStyleClass().add("btn-ghost");
+            cont.setOnAction(e -> nav.showPassengerExisting(r));   // 승객정보부터
+            row.getChildren().add(cont);
+        } else if ("PendingPayment".equals(stateName)) {
+            Button cont = new Button("계속 진행");
+            cont.getStyleClass().add("btn-ghost");
+            cont.setOnAction(e -> nav.showSeat(r));   // 승객정보 입력 완료 → 좌석/결제부터
+            row.getChildren().add(cont);
+        }
+        // 확정/발권 상태만 취소·환불 가능.
+        if ("Confirmed".equals(stateName) || "Ticketed".equals(stateName)) {
+            Button cancel = new Button("취소/환불");
+            cancel.getStyleClass().add("btn-ghost");
+            cancel.setOnAction(e -> nav.showCancellation(r));
+            row.getChildren().add(cancel);
+        }
         row.setAlignment(Pos.CENTER_LEFT);
         row.getStyleClass().add("flight-row");
         return row;

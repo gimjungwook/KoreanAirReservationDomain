@@ -38,6 +38,7 @@ public final class SearchController {
     @FXML private ComboBox<String> passengersCombo;
     @FXML private VBox multiBox;
     @FXML private VBox legsBox;
+    @FXML private javafx.scene.control.CheckBox connectingCheck;
     @FXML private Button proceedBtn;
     @FXML private Label resultsTitle;
     @FXML private VBox results;
@@ -67,9 +68,10 @@ public final class SearchController {
         if (datePicker.getValue() == null) datePicker.setValue(LocalDate.now().plusDays(1));
         if (returnDate.getValue() == null) returnDate.setValue(LocalDate.now().plusDays(5));
         if (passengersCombo.getItems().isEmpty()) {
-            passengersCombo.getItems().setAll(
-                    "성인 1명, 일반석", "성인 2명, 일반석", "성인 1명, 비즈니스", "성인 2명, 비즈니스");
+            // 현재 예약 흐름은 성인 1명/일반석 기준 — 미지원 옵션을 노출하지 않는다.
+            passengersCombo.getItems().setAll("성인 1명, 일반석");
             passengersCombo.getSelectionModel().selectFirst();
+            passengersCombo.setDisable(true);
         }
         if (heroImage != null && heroImage.getParent() instanceof Region hero) {
             heroImage.fitWidthProperty().bind(hero.widthProperty());
@@ -162,10 +164,58 @@ public final class SearchController {
 
     private void searchOneWay() {
         String from = safe(fromField.getText()), to = safe(toField.getText());
+        if (connectingCheck.isSelected()) { searchConnecting(from, to); return; }
         List<FlightSchedule> list = datedOrRoute(from, to, datePicker.getValue());
         resultsTitle.setText("검색된 항공편");
         renderCards(list, nav::showPassenger);
         message.setText(list.isEmpty() ? from + " → " + to + " 직항편이 없습니다." : from + " → " + to + " · " + list.size() + "편");
+    }
+
+    /** 환승 포함 검색 — DP#6 Factory Method(ConnectingItineraryFactory) + Itinerary 추상화. */
+    private void searchConnecting(String from, String to) {
+        com.koreanair.reservation.control.ItinerarySearchService its =
+                new com.koreanair.reservation.control.ItinerarySearchService(ctx.search);
+        java.util.List<com.koreanair.reservation.domain.reservation.Itinerary> list =
+                its.searchConnecting(from, to, datePicker.getValue(),
+                        com.koreanair.reservation.domain.reservation.Itinerary.INTERNATIONAL_MCT);
+        results.getChildren().clear();
+        resultsTitle.setText("환승 포함 — " + from + " → " + to);
+        for (com.koreanair.reservation.domain.reservation.Itinerary it : list) {
+            results.getChildren().add(itineraryCard(it));
+        }
+        message.setText(list.isEmpty()
+                ? from + " → " + to + " 경유편을 찾지 못했습니다."
+                : "경유 여정 " + list.size() + "건 — 선택하면 예약을 진행합니다.");
+    }
+
+    private HBox itineraryCard(com.koreanair.reservation.domain.reservation.Itinerary it) {
+        java.util.List<com.koreanair.reservation.domain.reservation.Segment> segs = it.getSegments();
+        List<FlightSchedule> schedules = new ArrayList<>();
+        StringBuilder path = new StringBuilder();
+        for (int i = 0; i < segs.size(); i++) {
+            FlightSchedule fs = segs.get(i).getFlightSchedule();
+            schedules.add(fs);
+            if (i == 0) path.append(fs.getFlight().getRoute().getOrigin().getCode());
+            path.append(" → ").append(fs.getFlight().getRoute().getDestination().getCode());
+        }
+        VBox left = new VBox(2);
+        Label route = new Label(path.toString());
+        route.getStyleClass().add("flight-route");
+        Label meta = new Label((segs.size() - 1) + "회 경유 · 총 " + it.getTotalDuration().toHours() + "시간");
+        meta.getStyleClass().add("flight-meta");
+        left.getChildren().addAll(route, meta);
+        Region sp = new Region();
+        HBox.setHgrow(sp, Priority.ALWAYS);
+        Label fare = new Label("₩290,000~");
+        fare.getStyleClass().add("flight-fare");
+        HBox r = new HBox(14, left, sp, fare);
+        r.setAlignment(Pos.CENTER_LEFT);
+        r.getStyleClass().add("flight-row");
+        r.setOnMouseClicked(e -> {
+            if (schedules.size() >= 2) nav.showPassengerConnecting(schedules);   // ConnectingItineraryFactory
+            else if (schedules.size() == 1) nav.showPassenger(schedules.get(0));
+        });
+        return r;
     }
 
     private void searchRoundOutbound() {
@@ -322,11 +372,30 @@ public final class SearchController {
     private List<FlightSchedule> routeOnly(String from, String to) {
         List<FlightSchedule> out = new ArrayList<>();
         if (from.isEmpty() || to.isEmpty()) return out;
+        // DP#4 Composite — 도시 코드(SEL/TYO/NYC/LON)면 소속 공항 전체로 확장.
+        java.util.Set<String> fromCodes = expand(from);
+        java.util.Set<String> toCodes = expand(to);
         for (FlightSchedule s : ctx.search.getCatalog()) {
             String o = s.getFlight().getRoute().getOrigin().getCode();
             String d = s.getFlight().getRoute().getDestination().getCode();
-            if (o.equalsIgnoreCase(from) && d.equalsIgnoreCase(to)) out.add(s);
+            if (fromCodes.contains(o) && toCodes.contains(d)) out.add(s);
         }
+        return out;
+    }
+
+    /** 공항/도시 코드를 실제 공항 코드 집합으로 확장 (도시=Composite → 소속 공항 전부). */
+    private java.util.Set<String> expand(String code) {
+        java.util.Set<String> out = new java.util.HashSet<>();
+        try {
+            com.koreanair.reservation.domain.flight.AirportLocation loc =
+                    ctx.search.getAirportCatalog().lookup(code);
+            if (loc != null) {
+                for (com.koreanair.reservation.domain.flight.Airport a : loc.getAirports()) {
+                    out.add(a.getCode());
+                }
+            }
+        } catch (Exception ignore) { /* fall through */ }
+        if (out.isEmpty()) out.add(code.toUpperCase());
         return out;
     }
 

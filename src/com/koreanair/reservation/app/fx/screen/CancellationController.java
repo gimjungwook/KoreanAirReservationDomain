@@ -65,11 +65,32 @@ public final class CancellationController {
         try {
             BigDecimal amount = ctx.refundHandler.previewRefund(pnr, fc);
             String policy = ctx.refundHandler.previewPolicyName(pnr, fc);
-            ctx.booking.processCancellation(pnr);   // State 전이
+            ctx.booking.processCancellation(pnr);   // 즉시 취소 + 자동 환불(State 전이)
             nav.updateState(reservation);
             nav.showRefund(pnr, amount, policy);
         } catch (Exception ex) {
             message.setText("취소 오류: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * 담당자 검토 경로 — 즉시 환불하지 않고 예약을 RefundRequested 상태로만 전이한 뒤
+     * 환불 요청(REQUESTED)을 생성해 검토 대기열로 보낸다. 승인/거절은 검토 화면에서 결정.
+     */
+    /**
+     * 담당자 검토 경로 — 예약 상태는 그대로 두고 환불 요청(REQUESTED)만 생성해 검토 대기열로 보낸다.
+     * 승인 시 검토 화면에서 실제 취소+환불이 일어나고, 거절 시 예약은 그대로 유지된다.
+     */
+    @FXML
+    private void onRequestReview() {
+        if (reservation == null) return;
+        try {
+            com.koreanair.reservation.domain.payment.RefundRequest req =
+                    ctx.refundHandler.evaluateRefund(reservation.getPnrNumber(), fareClass());  // Strategy → 대기 요청
+            if (req != null) ctx.refundReview.put(req.getRequestId(), reservation);
+            nav.showRefundReview();
+        } catch (Exception ex) {
+            message.setText("검토 요청 오류: " + ex.getMessage());
         }
     }
 

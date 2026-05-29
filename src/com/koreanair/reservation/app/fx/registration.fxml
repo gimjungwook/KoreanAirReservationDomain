@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.koreanair.reservation.app.fx.screen.RegistrationController">
+    <VBox styleClass="card" spacing="14" maxWidth="440">
+        <Label text="회원 가입" styleClass="screen-title"/>
+        <Label text="Skypass 회원으로 가입하면 마일리지 적립과 예약 관리가 가능합니다." styleClass="screen-sub"/>
+        <VBox spacing="4">
+            <Label text="이름" styleClass="field-label"/>
+            <TextField fx:id="nameField" promptText="홍길동"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="이메일" styleClass="field-label"/>
+            <TextField fx:id="emailField" promptText="you@example.com"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="비밀번호 (4자 이상)" styleClass="field-label"/>
+            <PasswordField fx:id="passwordField"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="비밀번호 확인" styleClass="field-label"/>
+            <PasswordField fx:id="confirmField"/>
+        </VBox>
+        <Label fx:id="message" styleClass="error-text" wrapText="true"/>
+        <HBox spacing="10">
+            <Button text="로그인으로" styleClass="btn-ghost" onAction="#onBackToLogin"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="가입하기" styleClass="btn-primary" onAction="#onRegister"/>
+        </HBox>
+    </VBox>
+</StackPane>

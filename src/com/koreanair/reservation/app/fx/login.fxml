@@ -28,6 +28,7 @@
         <HBox spacing="10">
             <Button text="로그인" styleClass="btn-primary" onAction="#onLogin"/>
             <Button text="비회원으로 둘러보기" styleClass="btn-ghost" onAction="#onGuest"/>
+            <Button text="회원가입" styleClass="btn-ghost" onAction="#onSignup"/>
             <Region HBox.hgrow="ALWAYS"/>
         </HBox>
         <Label fx:id="message" styleClass="error-text"/>

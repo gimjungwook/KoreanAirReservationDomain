@@ -28,6 +28,7 @@
 
         <HBox spacing="10">
             <Button text="내 예약 보기" styleClass="btn-ghost" onAction="#onLookup"/>
+            <Button text="환불 검토 (담당자)" styleClass="btn-ghost" onAction="#onReview"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button text="새 예약 시작" styleClass="btn-primary" onAction="#onNew"/>
         </HBox>

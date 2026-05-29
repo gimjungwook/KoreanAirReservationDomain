@@ -20,6 +20,7 @@
                 <Label fx:id="stateBadge" styleClass="state-badge"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="homeBtn" text="홈" styleClass="nav-btn" onAction="#onHome"/>
+                <Button fx:id="settingsBtn" text="설정" styleClass="nav-btn" onAction="#onSettings"/>
                 <Button fx:id="lookupBtn" text="내 예약" styleClass="nav-btn" onAction="#onLookup"/>
                 <Button fx:id="loginBtn" text="로그인" styleClass="nav-btn" onAction="#onLogin"/>
                 <Button fx:id="logoutBtn" text="로그아웃" styleClass="nav-btn" onAction="#onLogout"/>

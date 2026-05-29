@@ -24,6 +24,7 @@
         <VBox spacing="4">
             <Label text="결제 수단 (Factory Method)" styleClass="field-label"/>
             <ComboBox fx:id="methodCombo" prefWidth="200"/>
+            <Label fx:id="mileageLabel" styleClass="screen-sub"/>
         </VBox>
 
         <VBox styleClass="card" spacing="8">

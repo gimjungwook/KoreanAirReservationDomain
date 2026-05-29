@@ -8,10 +8,17 @@ import com.koreanair.reservation.domain.bus.BusTicketRequest;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.reservation.Reservation;
 
+import com.koreanair.reservation.control.render.BoardingPassRenderer;
+import com.koreanair.reservation.control.render.HtmlTicketRenderer;
+import com.koreanair.reservation.control.render.PlainTextTicketRenderer;
+import com.koreanair.reservation.control.render.TicketRenderer;
+import com.koreanair.reservation.domain.reservation.Ticket;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 
 public final class ConfirmationController {
 
@@ -20,6 +27,8 @@ public final class ConfirmationController {
     @FXML private Label amountLabel;
     @FXML private Label busLabel;
     @FXML private ComboBox<BusCity> busCityCombo;
+    @FXML private ComboBox<String> ticketFormatCombo;
+    @FXML private TextArea ticketArea;
     @FXML private Button lookupBtn;
     @FXML private Label message;
 
@@ -42,6 +51,13 @@ public final class ConfirmationController {
         if (bus != null) showBus(bus);
         else busLabel.setText("셔틀버스 미발권");
 
+        if (ticketFormatCombo.getItems().isEmpty()) {
+            ticketFormatCombo.getItems().setAll("일반 텍스트", "HTML", "보딩패스");
+            ticketFormatCombo.getSelectionModel().selectFirst();
+            ticketFormatCombo.valueProperty().addListener((o, a, b) -> renderTicket());
+        }
+        ticketArea.setText("");
+
         boolean signedIn = ctx.isSignedIn();
         lookupBtn.setVisible(signedIn);
         lookupBtn.setManaged(signedIn);
@@ -56,13 +72,29 @@ public final class ConfirmationController {
     private void onIssueTicket() {
         if (reservation == null) return;
         try {
-            reservation.issueTicket();                 // State: Confirmed → Ticketed
+            if (reservation.getTickets().isEmpty()) {
+                reservation.issueTicket();             // State: Confirmed → Ticketed
+            }
             stateLabel.setText(reservation.getStateName());
             nav.updateState(reservation);
+            renderTicket();
             message.setText("e-Ticket 발급 완료");
         } catch (Exception ex) {
             message.setText("발권 오류: " + ex.getMessage());
         }
+    }
+
+    /** DP#7 Template Method — 선택한 포맷의 TicketRenderer 로 동일 데이터를 다른 매체로 렌더. */
+    private void renderTicket() {
+        if (reservation == null || reservation.getTickets().isEmpty()) return;
+        Ticket ticket = reservation.getTickets().get(reservation.getTickets().size() - 1);
+        String fmt = ticketFormatCombo.getValue();
+        TicketRenderer renderer = switch (fmt == null ? "" : fmt) {
+            case "HTML" -> new HtmlTicketRenderer();
+            case "보딩패스" -> new BoardingPassRenderer();
+            default -> new PlainTextTicketRenderer();
+        };
+        ticketArea.setText(renderer.render(reservation, ticket));
     }
 
     @FXML

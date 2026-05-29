@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.koreanair.reservation.app.fx.screen.SettingsController"
+      styleClass="screen">
+
+    <Label text="환경 설정" styleClass="screen-title"/>
+    <Label text="전역 설정은 단일 AppConfig 인스턴스(Singleton)에 저장되고 즉시 적용됩니다." styleClass="screen-sub"/>
+
+    <VBox styleClass="card" spacing="16" maxWidth="460">
+        <VBox spacing="4">
+            <Label text="글꼴 크기" styleClass="field-label"/>
+            <ComboBox fx:id="fontSizeCombo" prefWidth="120"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="표시 통화" styleClass="field-label"/>
+            <ComboBox fx:id="currencyCombo" prefWidth="120"/>
+        </VBox>
+        <CheckBox fx:id="modernThemeCheck" text="모던 테마"/>
+        <CheckBox fx:id="seatMetaCheck" text="좌석 메타데이터 표시"/>
+        <Label fx:id="message" styleClass="ok-text"/>
+        <HBox spacing="10">
+            <Button text="닫기" styleClass="btn-ghost" onAction="#onClose"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="적용" styleClass="btn-primary" onAction="#onApply"/>
+        </HBox>
+    </VBox>
+</VBox>

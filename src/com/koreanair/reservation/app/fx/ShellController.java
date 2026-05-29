@@ -23,6 +23,7 @@ public final class ShellController {
     @FXML private Button lookupBtn;
     @FXML private Button loginBtn;
     @FXML private Button logoutBtn;
+    @FXML private Button settingsBtn;
 
     private Navigator nav;
 
@@ -54,6 +55,7 @@ public final class ShellController {
     @FXML private void onLookup() { if (nav != null) nav.showLookup(); }
     @FXML private void onLogin()  { if (nav != null) nav.showLogin(); }
     @FXML private void onLogout() { if (nav != null) nav.doLogout(); }
+    @FXML private void onSettings() { if (nav != null) nav.showSettings(); }
 
     // ---- Navigator 가 호출 ----
     public void setContent(Node node) {

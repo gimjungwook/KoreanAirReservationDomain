@@ -32,5 +32,8 @@ public final class RefundController {
     private void onLookup() { nav.showLookup(); }
 
     @FXML
+    private void onReview() { nav.showRefundReview(); }
+
+    @FXML
     private void onNew() { nav.startNewBooking(); }
 }

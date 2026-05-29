@@ -44,4 +44,9 @@ public final class LoginController {
     private void onGuest() {
         nav.showSearch();
     }
+
+    @FXML
+    private void onSignup() {
+        nav.showRegistration();
+    }
 }

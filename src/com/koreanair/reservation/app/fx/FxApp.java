@@ -48,8 +48,22 @@ public final class FxApp extends Application {
         // --- 2) Sample seed (회원 + 항공편 카탈로그) ---
         SeedResult seed = SampleData.seedAll(auth, search);
 
+        // 세션 마일리지(마일리지 결제용) + Skypass 외부 API 어댑터(DP#8 Adapter)
+        com.koreanair.reservation.domain.passenger.MileageAccount sessionMileage =
+                new com.koreanair.reservation.domain.passenger.MileageAccount();
+        sessionMileage.deposit(new java.math.BigDecimal("2000000"));
+        com.koreanair.reservation.boundary.RemoteSkypassApi remoteApi =
+                new com.koreanair.reservation.boundary.RemoteSkypassApi();
+        if (seed.member != null) {
+            remoteApi.registerAccount(seed.member.getMemberNumber(),
+                    "tok-" + seed.member.getMemberNumber(), 2_000_000);
+        }
+        com.koreanair.reservation.boundary.SkypassInterface skypass =
+                new com.koreanair.reservation.boundary.SkypassAdapter(remoteApi);
+
         AppContext ctx = new AppContext(auth, search, paymentProcessor, refundHandler,
-                lookupService, booking, ticketPublisher, busTicketingService, seed);
+                lookupService, booking, ticketPublisher, busTicketingService, seed,
+                gateway, sessionMileage, skypass);
 
         // --- 3) Shell 로드 + Navigator ---
         FXMLLoader loader = new FXMLLoader(getClass().getResource("shell.fxml"));
@@ -59,6 +73,14 @@ public final class FxApp extends Application {
 
         Scene scene = new Scene(shellRoot, 1080, 760);
         scene.getStylesheets().add(getClass().getResource("app.css").toExternalForm());
+
+        // DP#5 Singleton — AppConfig 변경 시 전역 글꼴/테마를 즉시 재적용.
+        com.koreanair.reservation.app.AppConfig cfg = com.koreanair.reservation.app.AppConfig.getInstance();
+        Runnable applyCfg = () -> shellRoot.setStyle(
+                "-fx-font-size: " + cfg.getFontSize() + "px;"
+                + " -fx-font-family: '" + cfg.getFontFamily() + "';");
+        applyCfg.run();
+        cfg.addChangeListener(c -> javafx.application.Platform.runLater(applyCfg));
         stage.setTitle("대한항공 예약 시스템 — JavaFX");
         stage.setScene(scene);
         stage.setMinWidth(960);
