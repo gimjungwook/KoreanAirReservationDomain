@@ -23,6 +23,8 @@ abstract class AbstractSeatDecorator <<Decorator>> {
   +getSurcharge(): BigDecimal
   +getMetadataLabels(): List<String>
   #appendLabel(): String
+  #extraSurcharge(): BigDecimal
+  #ownLabel(): String
 }
 class WindowSeatDecorator {
   #appendLabel(): String

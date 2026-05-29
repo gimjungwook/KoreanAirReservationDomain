@@ -19,6 +19,10 @@ class Airport <<Leaf>> {
   +getCity(): String
   +getCountry(): String
   +getCode(): String
+  +getDisplayName(): String
+  +getAirports(): List<Airport>
+  +matches(): boolean
+  +isComposite(): boolean
 }
 class AirportCity <<Composite>> {
   -cityCode: String
@@ -31,6 +35,9 @@ class AirportCity <<Composite>> {
   +getCountry(): String
   +getCode(): String
   +getDisplayName(): String
+  +getAirports(): List<Airport>
+  +matches(): boolean
+  +isComposite(): boolean
 }
 class AirportCatalog {
   +registerAirport(): AirportCatalog

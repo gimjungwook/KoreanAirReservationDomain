@@ -17,9 +17,9 @@ class SkypassAdapter <<Adapter>> {
 }
 class RemoteSkypassApi <<Adaptee>> {
   +registerAccount(): void
-  +postAuth(): Object>
-  +getMileage(): Object>
-  +postDeduct(): Object>
+  +postAuth(): Map<String,Object>
+  +getMileage(): Map<String,Object>
+  +postDeduct(): Map<String,Object>
 }
 SkypassInterface <|.. SkypassAdapter
 SkypassAdapter o--> RemoteSkypassApi : adaptee

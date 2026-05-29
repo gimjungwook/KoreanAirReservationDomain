@@ -10,6 +10,8 @@ abstract class PaymentMethodProcessor <<Product>> {
   +processCharge(): Payment
   #authorize(): boolean
   #declineReason(): String
+  #nextPaymentId(): long
+  #basePayment(): Payment
 }
 class PaymentProcessorFactory <<Creator>> {
   +forMethod(): PaymentMethodProcessor
@@ -52,8 +54,11 @@ class DirectItineraryFactory {
   #validate(): void
 }
 class ConnectingItineraryFactory {
+  -mct: Duration
+  --
   #createItinerary(): Itinerary
   #validate(): void
+  #postCheck(): void
 }
 class MultiCityItineraryFactory {
   #createItinerary(): Itinerary

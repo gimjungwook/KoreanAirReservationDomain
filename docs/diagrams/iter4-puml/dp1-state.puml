@@ -28,6 +28,9 @@ class Reservation <<Context>> {
   -requester: User
   -status: ReservationStatus
   -createdAt: LocalDateTime
+  -reservationDate: LocalDateTime
+  -itinerary: Itinerary
+  -currentState: ReservationState
   --
   +getReservationId(): Long
   +getReservationNumber(): String
@@ -36,6 +39,40 @@ class Reservation <<Context>> {
   +getPassengers(): List<Passenger>
   +getReservationItems(): List<ReservationItem>
   +getPayments(): List<Payment>
+  +getTickets(): List<Ticket>
+  +getItinerary(): Itinerary
+  +addPassenger(): void
+  +addReservationItem(): void
+  +addPayment(): void
+  +addTicket(): void
+  +confirmReservation(): void
+  +issueTickets(): void
+  +cancelReservation(): void
+  +canBeCancelled(): boolean
+  +requestRefund(): Refund
+  +evaluateImpactOfFlightStatusChange(): void
+  +create(): Reservation
+  +updatePassengerInfo(): void
+  +updateStatus(): void
+  +findByPnr(): Reservation
+  +getContactEmail(): String
+  +getReservationDetail(): Reservation
+  +setState(): void
+  +getCurrentState(): ReservationState
+  +getStateName(): String
+  +enterPassengerInfo(): void
+  +processPayment(): void
+  +handlePaymentFailure(): void
+  +issueTicket(): void
+  +requestCancellation(): void
+  +confirmCancellation(): void
+  +requestRefund(): void
+  +processRefundDecision(): void
+  +setReservationNumber(): void
+  +setRequester(): void
+  +getPnrNumber(): String
+  +getCreatedAt(): LocalDateTime
+  +getReservationDate(): LocalDateTime
 }
 class InitiatedState {
   +name(): String

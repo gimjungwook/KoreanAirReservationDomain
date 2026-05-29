@@ -13,18 +13,21 @@ class PlainTextTicketRenderer {
   #body(): String
   #footer(): String
   #separator(): String
+  -safe(): String
 }
 class HtmlTicketRenderer {
   #header(): String
   #body(): String
   #footer(): String
   #separator(): String
+  -safe(): String
 }
 class BoardingPassRenderer {
   #header(): String
   #body(): String
   #footer(): String
   #separator(): String
+  -safe(): String
 }
 TicketRenderer <|-- PlainTextTicketRenderer
 TicketRenderer <|-- HtmlTicketRenderer

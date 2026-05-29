@@ -10,15 +10,42 @@ package "Boundary (JavaFX)" {
   class Navigator {
     +STEP_SEARCH: int
     +STEP_PASSENGER: int
+    +STEP_SEAT: int
+    +STEP_PAYMENT: int
+    +STEP_DONE: int
+    -ctx: AppContext
+    -shell: ShellController
     --
     -load(): Loaded<T>
     +updateState(): void
     +showLogin(): void
+    +showSearch(): void
+    +showPassenger(): void
+    +showPassengerRoundTrip(): void
+    +showPassengerMultiCity(): void
+    +showPassengerConnecting(): void
+    +showPassengerExisting(): void
+    +showSeat(): void
+    +showPayment(): void
+    +showConfirmation(): void
+    +showLookup(): void
+    +showCancellation(): void
+    +showRefund(): void
+    +showRefundReview(): void
+    +showRegistration(): void
+    +showSettings(): void
+    +onLoginSuccess(): void
+    +requireSignIn(): void
+    +doLogout(): void
+    +startNewBooking(): void
+    +registerReservationToMember(): void
+    +noop(): List<FlightSchedule>
   }
   interface SkypassInterface <<Target>> {
     +verifyMembership(): Object
     +getMileageBalance(): int
     +deductMileage(): boolean
+    +verifyAndDeduct(): Object
   }
   class SkypassAdapter <<Adapter>> {
     -remoteApi: RemoteSkypassApi
@@ -26,21 +53,50 @@ package "Boundary (JavaFX)" {
     +verifyMembership(): Object
     +getMileageBalance(): int
     +deductMileage(): boolean
+    +verifyAndDeduct(): Object
   }
   class RemoteSkypassApi <<Adaptee>> {
     +registerAccount(): void
-    +postAuth(): Object>
-    +getMileage(): Object>
+    +postAuth(): Map<String,Object>
+    +getMileage(): Map<String,Object>
+    +postDeduct(): Map<String,Object>
   }
 }
 package "Control" {
   class BookingController {
     -authService: AuthService
     -flightSearch: FlightSearchService
+    -paymentProcessor: PaymentProcessor
+    -refundHandler: RefundHandler
+    -lookupService: ReservationLookupService
     --
     +processSearch(): Object
     +initiateBooking(): Reservation
     +setPassengerInfo(): void
+    +confirmInfo(): void
+    +assignSeat(): void
+    +assignSeat(): com.koreanair.reservation.domain.reservation.SeatAssignment
+    -resolveBookingClass(): com.koreanair.reservation.domain.flight.BookingClass
+    +processCancellation(): void
+    -resolveFareClass(): String
+    +changeFlightStatus(): void
+    +createSchedule(): FlightSchedule
+    +authenticateAdmin(): boolean
+    +authenticateMember(): Object
+    +getBookingHistory(): Object
+    +getTicketDetail(): Object
+    +verifyGuestIdentity(): boolean
+    +reconfirmGuestIdentity(): boolean
+    +processSearch(): List<FlightSchedule>
+    +getAllSchedules(): List<FlightSchedule>
+    +initiateMultiCityBooking(): Reservation
+    +initiateConnectingBooking(): Reservation
+    +initiateRoundTripBooking(): Reservation
+    +confirmPayment(): Payment
+    +confirmPaymentWith(): Payment
+    +confirmMileagePayment(): Payment
+    +currentMember(): Member
+    +airport(): Airport
   }
   class AuthService {
     -memberSequence: int
@@ -49,6 +105,14 @@ package "Control" {
     +registerSample(): void
     +registerMember(): Member
     +generateSkypassNumber(): String
+    +loginByName(): Member
+    +login(): Member
+    +loginWithHash(): Member
+    +verifyGuest(): boolean
+    +logout(): void
+    +currentMember(): Member
+    -hashPassword(): String
+    -generateSalt(): String
   }
   class FlightSearchService {
     -airportCatalog: AirportCatalog
@@ -56,14 +120,25 @@ package "Control" {
     +getAirportCatalog(): AirportCatalog
     +addSchedule(): void
     +search(): List<FlightSchedule>
+    +searchByLocation(): List<FlightSchedule>
+    +getCatalog(): List<FlightSchedule>
   }
   class RefundHandler {
     -gateway: PaymentGatewayInterface
     -requestSeq: int
+    -refundSeq: int
+    -REFUND_YYMM: java.time.format.DateTimeFormatter
     --
     +evaluateRefund(): RefundRequest
     +processRefund(): void
     +denyRefund(): void
+    +getRefundDetail(): RefundRequest
+    +getPendingRequests(): List<RefundRequest>
+    +previewRefund(): BigDecimal
+    +previewPolicyName(): String
+    -resolvePolicy(): RefundPolicy
+    -resolveFareRuleFrom(): FareRule
+    -synthesize(): FareRule
   }
   class PaymentProcessorFactory <<Factory>> {
     +forMethod(): PaymentMethodProcessor
@@ -76,16 +151,23 @@ package "Control" {
     #createPayment(): Payment
     +method(): PaymentMethod
     +processCharge(): Payment
+    #authorize(): boolean
+    #declineReason(): String
+    #nextPaymentId(): long
+    #basePayment(): Payment
   }
   abstract class ItineraryFactory <<Factory>> {
     +build(): Itinerary
     #createItinerary(): Itinerary
     #validate(): void
+    #postCheck(): void
   }
   abstract class TicketRenderer <<Template>> {
     +render(): String
     #header(): String
     #body(): String
+    #footer(): String
+    #separator(): String
   }
   class TicketPurchasePublisher <<Subject>> {
     +publishTicketIssued(): void
@@ -95,23 +177,86 @@ package "Domain :: reservation" {
   class Reservation <<Context>> {
     -reservationId: Long
     -reservationNumber: String
+    -requester: User
+    -status: ReservationStatus
+    -createdAt: LocalDateTime
+    -reservationDate: LocalDateTime
+    -itinerary: Itinerary
+    -currentState: ReservationState
     --
     +getReservationId(): Long
     +getReservationNumber(): String
     +getRequester(): User
+    +getStatus(): ReservationStatus
+    +getPassengers(): List<Passenger>
+    +getReservationItems(): List<ReservationItem>
+    +getPayments(): List<Payment>
+    +getTickets(): List<Ticket>
+    +getItinerary(): Itinerary
+    +addPassenger(): void
+    +addReservationItem(): void
+    +addPayment(): void
+    +addTicket(): void
+    +confirmReservation(): void
+    +issueTickets(): void
+    +cancelReservation(): void
+    +canBeCancelled(): boolean
+    +requestRefund(): Refund
+    +evaluateImpactOfFlightStatusChange(): void
+    +create(): Reservation
+    +updatePassengerInfo(): void
+    +updateStatus(): void
+    +findByPnr(): Reservation
+    +getContactEmail(): String
+    +getReservationDetail(): Reservation
+    +setState(): void
+    +getCurrentState(): ReservationState
+    +getStateName(): String
+    +enterPassengerInfo(): void
+    +processPayment(): void
+    +handlePaymentFailure(): void
+    +issueTicket(): void
+    +requestCancellation(): void
+    +confirmCancellation(): void
+    +requestRefund(): void
+    +processRefundDecision(): void
+    +setReservationNumber(): void
+    +setRequester(): void
+    +getPnrNumber(): String
+    +getCreatedAt(): LocalDateTime
+    +getReservationDate(): LocalDateTime
   }
   interface ReservationState <<State>> {
     +name(): String
     +enterPassengerInfo(): void
     +processPayment(): void
+    +handlePaymentFailure(): void
+    +issueTicket(): void
+    +requestCancellation(): void
+    +confirmCancellation(): void
+    +requestRefund(): void
+    +processRefundDecision(): void
   }
   class Itinerary {
     +DOMESTIC_MCT: Duration
     +INTERNATIONAL_MCT: Duration
+    -tripType: String
     --
     +getTripType(): String
     +setTripType(): void
     +getSegments(): List<Segment>
+    +addSegment(): void
+    -inferTripType(): String
+    -isPureConnecting(): boolean
+    -firstOriginCode(): String
+    -lastDestinationCode(): String
+    -originCode(): String
+    -destinationCode(): String
+    +isConnectionTimeValid(): boolean
+    +getTotalDuration(): Duration
+    +direct(): Itinerary
+    +connecting(): Itinerary
+    +multiCity(): Itinerary
   }
 }
 package "Domain :: payment" {
@@ -122,10 +267,22 @@ package "Domain :: payment" {
   class Payment {
     -paymentId: Long
     -amount: BigDecimal
+    -paymentMethod: PaymentMethod
+    -status: PaymentStatus
+    -paidAt: LocalDateTime
     --
     +getAmount(): BigDecimal
     +setAmount(): void
     +getPaymentMethod(): PaymentMethod
+    +setPaymentMethod(): void
+    +getPaymentId(): Long
+    +setPaymentId(): void
+    +getStatus(): PaymentStatus
+    +getRefunds(): List<Refund>
+    +pay(): void
+    +fail(): void
+    +addRefund(): void
+    +isRefundable(): boolean
   }
 }
 package "Domain :: flight" {
@@ -133,27 +290,45 @@ package "Domain :: flight" {
     +getCode(): String
     +getDisplayName(): String
     +getAirports(): List<Airport>
+    +matches(): boolean
+    +isComposite(): boolean
   }
   class AirportCity {
     -cityCode: String
     -cityName: String
+    -country: String
     --
     +add(): AirportCity
     +getCityCode(): String
     +getCityName(): String
+    +getCountry(): String
+    +getCode(): String
+    +getDisplayName(): String
+    +getAirports(): List<Airport>
+    +matches(): boolean
+    +isComposite(): boolean
   }
   class Airport {
     -airportCode: String
     -airportName: String
+    -city: String
+    -country: String
     --
     +getAirportCode(): String
     +getAirportName(): String
     +getCity(): String
+    +getCountry(): String
+    +getCode(): String
+    +getDisplayName(): String
+    +getAirports(): List<Airport>
+    +matches(): boolean
+    +isComposite(): boolean
   }
   interface SeatView <<Decorator>> {
     +getSeat(): Seat
     +getDescription(): String
     +getSurcharge(): BigDecimal
+    +getMetadataLabels(): List<String>
   }
 }
 package "Domain :: event" {
@@ -173,10 +348,28 @@ package "app" {
   class AppConfig <<Singleton>> {
     -instance: AppConfig
     -fontFamily: String
+    -fontSize: int
+    -displayLocale: Locale
+    -currency: Currency
+    -modernTheme: boolean
+    -showSeatMetadata: boolean
     --
     +getInstance(): AppConfig
     +getFontFamily(): String
     +setFontFamily(): void
+    +getFontSize(): int
+    +setFontSize(): void
+    +getDisplayLocale(): Locale
+    +setDisplayLocale(): void
+    +getCurrency(): Currency
+    +setCurrency(): void
+    +isModernTheme(): boolean
+    +setModernTheme(): void
+    +isShowSeatMetadata(): boolean
+    +setShowSeatMetadata(): void
+    +addChangeListener(): void
+    +removeChangeListener(): void
+    -notifyListeners(): void
   }
 }
 FxApp --> Navigator

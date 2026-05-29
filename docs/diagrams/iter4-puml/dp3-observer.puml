@@ -37,6 +37,7 @@ class TicketIssuedEvent {
   +getReservation(): Reservation
   +getTicket(): Ticket
   +getBusTicketRequest(): BusTicketRequest
+  +getRequestedBusCity(): BusCity
 }
 class PaymentFailedEvent {
   -payment: Payment

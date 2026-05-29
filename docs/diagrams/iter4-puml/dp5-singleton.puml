@@ -22,6 +22,10 @@ class AppConfig <<Singleton>> {
   +isModernTheme(): boolean
   +setModernTheme(): void
   +isShowSeatMetadata(): boolean
+  +setShowSeatMetadata(): void
+  +addChangeListener(): void
+  +removeChangeListener(): void
+  -notifyListeners(): void
 }
 AppConfig ..> AppConfig : getInstance() (DCL)
 note bottom of AppConfig : private 생성자, 단일 인스턴스

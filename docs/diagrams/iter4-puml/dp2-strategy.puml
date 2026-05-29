@@ -21,6 +21,7 @@ class RefundHandler <<Context>> {
   -gateway: PaymentGatewayInterface
   -requestSeq: int
   -refundSeq: int
+  -REFUND_YYMM: java.time.format.DateTimeFormatter
   --
   +evaluateRefund(): RefundRequest
   +processRefund(): void
@@ -29,6 +30,9 @@ class RefundHandler <<Context>> {
   +getPendingRequests(): List<RefundRequest>
   +previewRefund(): BigDecimal
   +previewPolicyName(): String
+  -resolvePolicy(): RefundPolicy
+  -resolveFareRuleFrom(): FareRule
+  -synthesize(): FareRule
 }
 class FareRule {
   -fareRuleId: Long
@@ -41,6 +45,7 @@ class FareRule {
   +isRefundable(): boolean
   +getChangeFee(): BigDecimal
   +getCancellationPenalty(): BigDecimal
+  +checkRefundPolicy(): RefundPolicy
 }
 RefundPolicy <|.. FullRefundPolicy
 RefundPolicy <|.. PartialRefundPolicy
