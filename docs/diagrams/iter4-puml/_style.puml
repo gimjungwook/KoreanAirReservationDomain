@@ -3,7 +3,7 @@ skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 0
 skinparam linetype polyline
-skinparam defaultFontName SansSerif
+skinparam defaultFontName "Lucida Grande"
 skinparam dpi 150
 skinparam class {
   BackgroundColor #FFFFFF
@@ -11,7 +11,7 @@ skinparam class {
   BorderThickness 1
   ArrowColor #000000
   FontColor #000000
-  FontName SansSerif
+  FontName "Lucida Grande"
   AttributeFontColor #000000
   StereotypeFontColor #000000
   HeaderBackgroundColor #FFFFFF
