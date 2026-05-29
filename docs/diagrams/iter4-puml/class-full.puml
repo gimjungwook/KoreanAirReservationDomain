@@ -1,51 +1,184 @@
 @startuml class-full
 !include _style.puml
-title 대한항공 예약 시스템 — 전체 클래스 다이어그램 (ECB + 9 GoF 패턴)
+title 대한항공 예약 시스템 - 전체 클래스 다이어그램 (ECB + 9 GoF 패턴)
 left to right direction
-
-package "Boundary (JavaFX)" #EEF4FB {
-  class FxApp
-  class Navigator
-  interface SkypassInterface <<Target>>
-  class SkypassAdapter <<Adapter>>
-  class RemoteSkypassApi <<Adaptee>>
+package "Boundary (JavaFX)" {
+  class FxApp {
+    +start(): void
+    +main(): void
+  }
+  class Navigator {
+    +STEP_SEARCH: int
+    +STEP_PASSENGER: int
+    --
+    -load(): Loaded<T>
+    +updateState(): void
+    +showLogin(): void
+  }
+  interface SkypassInterface <<Target>> {
+    +verifyMembership(): Object
+    +getMileageBalance(): int
+    +deductMileage(): boolean
+  }
+  class SkypassAdapter <<Adapter>> {
+    -remoteApi: RemoteSkypassApi
+    --
+    +verifyMembership(): Object
+    +getMileageBalance(): int
+    +deductMileage(): boolean
+  }
+  class RemoteSkypassApi <<Adaptee>> {
+    +registerAccount(): void
+    +postAuth(): Object>
+    +getMileage(): Object>
+  }
 }
-
-package "Control" #FDF4E6 {
-  class BookingController
-  class AuthService
-  class FlightSearchService
-  class RefundHandler
-  class PaymentProcessorFactory <<Factory>>
-  abstract class PaymentMethodProcessor
-  class ItineraryFactory <<Factory>>
-  abstract class TicketRenderer <<Template>>
-  class TicketPurchasePublisher <<Subject>>
+package "Control" {
+  class BookingController {
+    -authService: AuthService
+    -flightSearch: FlightSearchService
+    --
+    +processSearch(): Object
+    +initiateBooking(): Reservation
+    +setPassengerInfo(): void
+  }
+  class AuthService {
+    -memberSequence: int
+    -current: Member
+    --
+    +registerSample(): void
+    +registerMember(): Member
+    +generateSkypassNumber(): String
+  }
+  class FlightSearchService {
+    -airportCatalog: AirportCatalog
+    --
+    +getAirportCatalog(): AirportCatalog
+    +addSchedule(): void
+    +search(): List<FlightSchedule>
+  }
+  class RefundHandler {
+    -gateway: PaymentGatewayInterface
+    -requestSeq: int
+    --
+    +evaluateRefund(): RefundRequest
+    +processRefund(): void
+    +denyRefund(): void
+  }
+  class PaymentProcessorFactory <<Factory>> {
+    +forMethod(): PaymentMethodProcessor
+    +method(): PaymentMethod
+  }
+  abstract class PaymentMethodProcessor {
+    -paymentSequence: long
+    -gateway: PaymentGatewayInterface
+    --
+    #createPayment(): Payment
+    +method(): PaymentMethod
+    +processCharge(): Payment
+  }
+  abstract class ItineraryFactory <<Factory>> {
+    +build(): Itinerary
+    #createItinerary(): Itinerary
+    #validate(): void
+  }
+  abstract class TicketRenderer <<Template>> {
+    +render(): String
+    #header(): String
+    #body(): String
+  }
+  class TicketPurchasePublisher <<Subject>> {
+    +publishTicketIssued(): void
+  }
 }
-
-package "Domain :: reservation" #EEF7F1 {
-  class Reservation <<Context>>
-  interface ReservationState <<State>>
-  class Itinerary
+package "Domain :: reservation" {
+  class Reservation <<Context>> {
+    -reservationId: Long
+    -reservationNumber: String
+    --
+    +getReservationId(): Long
+    +getReservationNumber(): String
+    +getRequester(): User
+  }
+  interface ReservationState <<State>> {
+    +name(): String
+    +enterPassengerInfo(): void
+    +processPayment(): void
+  }
+  class Itinerary {
+    +DOMESTIC_MCT: Duration
+    +INTERNATIONAL_MCT: Duration
+    --
+    +getTripType(): String
+    +setTripType(): void
+    +getSegments(): List<Segment>
+  }
 }
-package "Domain :: payment" #EEF7F1 {
-  interface RefundPolicy <<Strategy>>
-  class Payment
+package "Domain :: payment" {
+  interface RefundPolicy <<Strategy>> {
+    +calculateRefundAmount(): BigDecimal
+    +getRefundType(): String
+  }
+  class Payment {
+    -paymentId: Long
+    -amount: BigDecimal
+    --
+    +getAmount(): BigDecimal
+    +setAmount(): void
+    +getPaymentMethod(): PaymentMethod
+  }
 }
-package "Domain :: flight" #EEF7F1 {
-  interface AirportLocation <<Composite>>
-  class AirportCity
-  class Airport
-  interface SeatView <<Decorator>>
+package "Domain :: flight" {
+  interface AirportLocation <<Composite>> {
+    +getCode(): String
+    +getDisplayName(): String
+    +getAirports(): List<Airport>
+  }
+  class AirportCity {
+    -cityCode: String
+    -cityName: String
+    --
+    +add(): AirportCity
+    +getCityCode(): String
+    +getCityName(): String
+  }
+  class Airport {
+    -airportCode: String
+    -airportName: String
+    --
+    +getAirportCode(): String
+    +getAirportName(): String
+    +getCity(): String
+  }
+  interface SeatView <<Decorator>> {
+    +getSeat(): Seat
+    +getDescription(): String
+    +getSurcharge(): BigDecimal
+  }
 }
-package "Domain :: event" #EEF7F1 {
-  interface EventListener
-  abstract class DomainEvent
+package "Domain :: event" {
+  interface EventListener {
+    +onEvent(): void
+  }
+  abstract class DomainEvent {
+    -occurredAt: LocalDateTime
+    -sourceId: String
+    --
+    +getOccurredAt(): LocalDateTime
+    +getSourceId(): String
+    +getEventType(): String
+  }
 }
-package "app" #F3F0E8 {
-  class AppConfig <<Singleton>>
+package "app" {
+  class AppConfig <<Singleton>> {
+    -instance: AppConfig
+    -fontFamily: String
+    --
+    +getInstance(): AppConfig
+    +getFontFamily(): String
+    +setFontFamily(): void
+  }
 }
-
 FxApp --> Navigator
 Navigator ..> BookingController
 BookingController --> Reservation
@@ -62,6 +195,4 @@ SkypassAdapter --> RemoteSkypassApi
 TicketPurchasePublisher o--> EventListener
 TicketRenderer ..> Reservation
 FxApp ..> AppConfig
-
-note bottom of AppConfig : 9개 GoF 패턴이\nControl/Domain 전반에 배치
 @enduml

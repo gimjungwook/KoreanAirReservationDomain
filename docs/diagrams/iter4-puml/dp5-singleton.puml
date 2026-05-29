@@ -1,26 +1,28 @@
 @startuml dp5-singleton
 !include _style.puml
-title DP#5 Singleton — 전역 설정 단일 인스턴스
-
+title DP#5 Singleton - 전역 설정 단일 인스턴스
 class AppConfig <<Singleton>> {
-  -{static} volatile instance: AppConfig
-  -fontFamily
-  -fontSize
-  -displayLocale
-  -currency
-  -modernTheme
-  -showSeatMetadata
-  -listeners: List<Consumer<AppConfig>>
-  -AppConfig()
-  +{static} getInstance(): AppConfig
-  +setFontSize(n)
-  +addChangeListener(c)
+  -instance: AppConfig
+  -fontFamily: String
+  -fontSize: int
+  -displayLocale: Locale
+  -currency: Currency
+  -modernTheme: boolean
+  -showSeatMetadata: boolean
+  --
+  +getInstance(): AppConfig
+  +getFontFamily(): String
+  +setFontFamily(): void
+  +getFontSize(): int
+  +setFontSize(): void
+  +getDisplayLocale(): Locale
+  +setDisplayLocale(): void
+  +getCurrency(): Currency
+  +setCurrency(): void
+  +isModernTheme(): boolean
+  +setModernTheme(): void
+  +isShowSeatMetadata(): boolean
 }
-class FxApp
-class SettingsController
-
-AppConfig ..> AppConfig : getInstance()\n(double-checked locking)
-SettingsController ..> AppConfig : 설정 변경
-FxApp ..> AppConfig : addChangeListener\n(즉시 재렌더)
-note bottom of AppConfig : private 생성자\n시스템 전체 단 하나의 인스턴스
+AppConfig ..> AppConfig : getInstance() (DCL)
+note bottom of AppConfig : private 생성자, 단일 인스턴스
 @enduml

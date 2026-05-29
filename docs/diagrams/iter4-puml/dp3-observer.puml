@@ -1,46 +1,57 @@
 @startuml dp3-observer
 !include _style.puml
-title DP#3 Observer — 이벤트 1대N 전파
-
+title DP#3 Observer - 이벤트 1대N 전파
 abstract class EventPublisher <<Subject>> {
-  -listeners: List<EventListener>
-  +subscribe(l)
-  +unsubscribe(l)
-  #publish(event)
+  +subscribe(): void
+  +unsubscribe(): void
+  +subscriberCount(): int
+  #publish(): void
 }
-interface EventListener <<interface>> {
-  +onEvent(DomainEvent)
+interface EventListener <<Observer>> {
+  +onEvent(): void
 }
 abstract class DomainEvent {
-  +occurredAt
-  +sourceId
+  -occurredAt: LocalDateTime
+  -sourceId: String
+  --
+  +getOccurredAt(): LocalDateTime
+  +getSourceId(): String
+  +getEventType(): String
 }
-
-class TicketPurchasePublisher
-class SeatHoldMonitor
-class FlightSchedule
-
-class BusTicketPurchaseListener
-class ReservationAutoCancelListener
-class ReservationHoldListener
-class AffectedReservationListener
-
-class TicketIssuedEvent
-class PaymentFailedEvent
-class SeatHoldExpiredEvent
-class FlightStatusChangedEvent
-
+class TicketPurchasePublisher {
+  +publishTicketIssued(): void
+}
+class BusTicketPurchaseListener {
+  -busTicketingService: BusTicketingService
+  --
+  +onEvent(): void
+}
+class ReservationAutoCancelListener {
+  +onEvent(): void
+}
+class TicketIssuedEvent {
+  -reservation: Reservation
+  -ticket: Ticket
+  -busTicketRequest: BusTicketRequest
+  --
+  +getReservation(): Reservation
+  +getTicket(): Ticket
+  +getBusTicketRequest(): BusTicketRequest
+}
+class PaymentFailedEvent {
+  -payment: Payment
+  -reservationPnr: String
+  -reason: String
+  --
+  +getPayment(): Payment
+  +getReservationPnr(): String
+  +getReason(): String
+}
 EventPublisher <|-- TicketPurchasePublisher
-EventPublisher <|-- SeatHoldMonitor
-EventPublisher <|-- FlightSchedule
 EventListener <|.. BusTicketPurchaseListener
 EventListener <|.. ReservationAutoCancelListener
-EventListener <|.. ReservationHoldListener
-EventListener <|.. AffectedReservationListener
 DomainEvent <|-- TicketIssuedEvent
 DomainEvent <|-- PaymentFailedEvent
-DomainEvent <|-- SeatHoldExpiredEvent
-DomainEvent <|-- FlightStatusChangedEvent
 EventPublisher o--> EventListener : notifies
-note bottom : e-Ticket 발권 → BusTicket 자동 발매
+note bottom : e-Ticket 발권 to 버스티켓 자동 발매
 @enduml

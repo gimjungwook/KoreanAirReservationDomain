@@ -1,28 +1,51 @@
 @startuml dp2-strategy
 !include _style.puml
-title DP#2 Strategy — 환불 정책 알고리즘 교체
-
-interface RefundPolicy <<interface>> {
-  +calculateRefund(payment, fareRule): amount
-  +isApplicable(): boolean
+title DP#2 Strategy - 환불 정책 알고리즘 교체
+interface RefundPolicy <<Strategy>> {
+  +calculateRefundAmount(): BigDecimal
+  +getRefundType(): String
 }
-class FullRefundPolicy
-class PartialRefundPolicy
-class NoRefundPolicy
+class FullRefundPolicy {
+  +calculateRefundAmount(): BigDecimal
+  +getRefundType(): String
+}
+class PartialRefundPolicy {
+  +calculateRefundAmount(): BigDecimal
+  +getRefundType(): String
+}
+class NoRefundPolicy {
+  +calculateRefundAmount(): BigDecimal
+  +getRefundType(): String
+}
 class RefundHandler <<Context>> {
-  +evaluateRefund(pnr, fareClass): RefundRequest
-  +previewRefund(pnr, fareClass): amount
-  -resolvePolicy(fareRule): RefundPolicy
+  -gateway: PaymentGatewayInterface
+  -requestSeq: int
+  -refundSeq: int
+  --
+  +evaluateRefund(): RefundRequest
+  +processRefund(): void
+  +denyRefund(): void
+  +getRefundDetail(): RefundRequest
+  +getPendingRequests(): List<RefundRequest>
+  +previewRefund(): BigDecimal
+  +previewPolicyName(): String
 }
 class FareRule {
-  -fareClass
-  -cancellationPenalty
+  -fareRuleId: Long
+  -fareClass: String
+  -refundable: boolean
+  -changeFee: BigDecimal
+  -cancellationPenalty: BigDecimal
+  --
+  +getFareClass(): String
+  +isRefundable(): boolean
+  +getChangeFee(): BigDecimal
+  +getCancellationPenalty(): BigDecimal
 }
-
 RefundPolicy <|.. FullRefundPolicy
 RefundPolicy <|.. PartialRefundPolicy
 RefundPolicy <|.. NoRefundPolicy
-RefundHandler ..> RefundPolicy : 선택된 정책에 위임
-FareRule ..> RefundPolicy : 운임 등급이 정책 결정
-note bottom of RefundHandler : 운임 추가 시\nRefundHandler 수정 없이 확장
+RefundHandler ..> RefundPolicy : 위임
+FareRule ..> RefundPolicy : 등급이 정책 결정
+note bottom of RefundHandler : 운임 추가시 핸들러 수정 불필요
 @enduml

@@ -1,31 +1,47 @@
 @startuml dp4-composite
 !include _style.puml
-title DP#4 Composite — 공항(Leaf)과 도시(Composite) 동일 취급
-
+title DP#4 Composite - 공항(Leaf)과 도시(Composite) 동일 취급
 interface AirportLocation <<Component>> {
   +getCode(): String
   +getDisplayName(): String
   +getAirports(): List<Airport>
-  +matches(code): boolean
+  +matches(): boolean
   +isComposite(): boolean
 }
 class Airport <<Leaf>> {
-  -code
-  -city
+  -airportCode: String
+  -airportName: String
+  -city: String
+  -country: String
+  --
+  +getAirportCode(): String
+  +getAirportName(): String
+  +getCity(): String
+  +getCountry(): String
+  +getCode(): String
 }
 class AirportCity <<Composite>> {
-  -cityCode
-  -airports: List<Airport>
-  +add(Airport): AirportCity
+  -cityCode: String
+  -cityName: String
+  -country: String
+  --
+  +add(): AirportCity
+  +getCityCode(): String
+  +getCityName(): String
+  +getCountry(): String
+  +getCode(): String
+  +getDisplayName(): String
 }
 class AirportCatalog {
-  +lookup(code): AirportLocation
-  +registerCity(AirportCity)
+  +registerAirport(): AirportCatalog
+  +registerCity(): AirportCatalog
+  +lookup(): AirportLocation
+  +getMultiAirportCities(): List<AirportCity>
+  +getAllAirports(): List<Airport>
 }
-
 AirportLocation <|.. Airport
 AirportLocation <|.. AirportCity
-AirportCity o--> "0..*" Airport : contains
+AirportCity o--> "0..*" Airport
 AirportCatalog ..> AirportLocation : lookup
-note bottom of AirportCity : NYC = JFK + LGA + EWR\n도시 검색이 소속 공항 전체로 확장
+note bottom of AirportCity : NYC = JFK + LGA + EWR
 @enduml

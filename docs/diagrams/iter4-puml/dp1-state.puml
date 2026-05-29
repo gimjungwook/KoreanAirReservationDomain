@@ -1,34 +1,76 @@
 @startuml dp1-state
 !include _style.puml
-title DP#1 State — 예약 상태별 행동 캡슐화
-
-interface ReservationState <<interface>> {
-  +enterPassengerInfo(ctx)
-  +processPayment(ctx)
-  +issueTicket(ctx)
-  +requestCancellation(ctx)
-  +requestRefund(ctx)
-  +processRefundDecision(ctx, approved)
-  +getStateName(): String
+title DP#1 State - 예약 상태별 행동 캡슐화
+interface ReservationState <<State>> {
+  +name(): String
+  +enterPassengerInfo(): void
+  +processPayment(): void
+  +handlePaymentFailure(): void
+  +issueTicket(): void
+  +requestCancellation(): void
+  +confirmCancellation(): void
+  +requestRefund(): void
+  +processRefundDecision(): void
 }
 abstract class AbstractReservationState {
-  #invalid(action)
+  +enterPassengerInfo(): void
+  +processPayment(): void
+  +handlePaymentFailure(): void
+  +issueTicket(): void
+  +requestCancellation(): void
+  +confirmCancellation(): void
+  +requestRefund(): void
+  +processRefundDecision(): void
 }
 class Reservation <<Context>> {
-  -currentState: ReservationState
-  +setState(s)
-  +getStateName(): String
+  -reservationId: Long
+  -reservationNumber: String
+  -requester: User
+  -status: ReservationStatus
+  -createdAt: LocalDateTime
+  --
+  +getReservationId(): Long
+  +getReservationNumber(): String
+  +getRequester(): User
+  +getStatus(): ReservationStatus
+  +getPassengers(): List<Passenger>
+  +getReservationItems(): List<ReservationItem>
+  +getPayments(): List<Payment>
 }
-
-class InitiatedState
-class PendingPaymentState
-class ConfirmedState
-class TicketedState
-class CancellationRequestedState
-class CancelledState
-class RefundRequestedState
-class RefundedState
-
+class InitiatedState {
+  +name(): String
+  +enterPassengerInfo(): void
+}
+class PendingPaymentState {
+  +name(): String
+  +processPayment(): void
+  +handlePaymentFailure(): void
+}
+class ConfirmedState {
+  +name(): String
+  +issueTicket(): void
+  +requestCancellation(): void
+}
+class TicketedState {
+  +name(): String
+  +requestCancellation(): void
+}
+class CancellationRequestedState {
+  +name(): String
+  +confirmCancellation(): void
+}
+class CancelledState {
+  +name(): String
+  +requestRefund(): void
+  -resolveFareRule(): FareRule
+}
+class RefundRequestedState {
+  +name(): String
+  +processRefundDecision(): void
+}
+class RefundedState {
+  +name(): String
+}
 ReservationState <|.. AbstractReservationState
 AbstractReservationState <|-- InitiatedState
 AbstractReservationState <|-- PendingPaymentState
@@ -39,5 +81,5 @@ AbstractReservationState <|-- CancelledState
 AbstractReservationState <|-- RefundRequestedState
 AbstractReservationState <|-- RefundedState
 Reservation o--> ReservationState : currentState
-note bottom of Reservation : 상태에 따라 행동을\n현재 상태 객체에 위임
+note bottom of Reservation : 현재 상태 객체에 행동 위임
 @enduml

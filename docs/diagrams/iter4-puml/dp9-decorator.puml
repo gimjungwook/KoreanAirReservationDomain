@@ -1,22 +1,49 @@
 @startuml dp9-decorator
 !include _style.puml
-title DP#9 Decorator — 좌석 부가옵션 누적
-
+title DP#9 Decorator - 좌석 부가옵션 누적
 interface SeatView <<Component>> {
   +getSeat(): Seat
   +getDescription(): String
   +getSurcharge(): BigDecimal
   +getMetadataLabels(): List<String>
 }
-class SeatViewAdapter <<ConcreteComponent>>
+class SeatViewAdapter <<ConcreteComponent>> {
+  -seat: Seat
+  --
+  +getSeat(): Seat
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+}
 abstract class AbstractSeatDecorator <<Decorator>> {
   #wrapped: SeatView
+  --
+  +getSeat(): Seat
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+  #appendLabel(): String
 }
-class WindowSeatDecorator
-class AisleSeatDecorator
-class ExtraLegroomDecorator
-class LoungeAccessDecorator
-
+class WindowSeatDecorator {
+  #appendLabel(): String
+  #extraSurcharge(): BigDecimal
+  #ownLabel(): String
+}
+class AisleSeatDecorator {
+  #appendLabel(): String
+  #extraSurcharge(): BigDecimal
+  #ownLabel(): String
+}
+class ExtraLegroomDecorator {
+  #appendLabel(): String
+  #extraSurcharge(): BigDecimal
+  #ownLabel(): String
+}
+class LoungeAccessDecorator {
+  #appendLabel(): String
+  #extraSurcharge(): BigDecimal
+  #ownLabel(): String
+}
 SeatView <|.. SeatViewAdapter
 SeatView <|.. AbstractSeatDecorator
 AbstractSeatDecorator o--> SeatView : wrapped
@@ -24,5 +51,5 @@ AbstractSeatDecorator <|-- WindowSeatDecorator
 AbstractSeatDecorator <|-- AisleSeatDecorator
 AbstractSeatDecorator <|-- ExtraLegroomDecorator
 AbstractSeatDecorator <|-- LoungeAccessDecorator
-note bottom : 창측 + 레그룸(+5만) + 라운지(+8만)\n런타임 체인으로 설명/요금 누적
+note bottom : 창측+레그룸(+5만)+라운지(+8만) 런타임 체인
 @enduml

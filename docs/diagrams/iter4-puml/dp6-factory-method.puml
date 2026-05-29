@@ -1,38 +1,71 @@
 @startuml dp6-factory-method
 !include _style.puml
-title DP#6 Factory Method — 결제수단 / 여정 생성 위임
-
+title DP#6 Factory Method - 결제수단/여정 생성 위임
 abstract class PaymentMethodProcessor <<Product>> {
-  +processCharge(amount, pnr): Payment
-  #createPayment(amount): Payment
+  -paymentSequence: long
+  -gateway: PaymentGatewayInterface
+  --
+  #createPayment(): Payment
   +method(): PaymentMethod
+  +processCharge(): Payment
+  #authorize(): boolean
+  #declineReason(): String
 }
 class PaymentProcessorFactory <<Creator>> {
-  +{static} forMethod(method, gateway, mileage): PaymentMethodProcessor
+  +forMethod(): PaymentMethodProcessor
+  +method(): PaymentMethod
 }
-class CreditCardPaymentProcessor
-class KakaoPayPaymentProcessor
-class ApplePayPaymentProcessor
-class BankTransferPaymentProcessor
-class MileagePaymentProcessor
-
+class CreditCardPaymentProcessor {
+  #createPayment(): Payment
+  +method(): PaymentMethod
+}
+class KakaoPayPaymentProcessor {
+  #createPayment(): Payment
+  +method(): PaymentMethod
+  #declineReason(): String
+}
+class ApplePayPaymentProcessor {
+  #createPayment(): Payment
+  +method(): PaymentMethod
+  #declineReason(): String
+}
+class BankTransferPaymentProcessor {
+  #createPayment(): Payment
+  +method(): PaymentMethod
+  #declineReason(): String
+}
+class MileagePaymentProcessor {
+  -account: MileageAccount
+  --
+  #createPayment(): Payment
+  +method(): PaymentMethod
+  +processCharge(): Payment
+}
+abstract class ItineraryFactory <<Creator>> {
+  +build(): Itinerary
+  #createItinerary(): Itinerary
+  #validate(): void
+  #postCheck(): void
+}
+class DirectItineraryFactory {
+  #createItinerary(): Itinerary
+  #validate(): void
+}
+class ConnectingItineraryFactory {
+  #createItinerary(): Itinerary
+  #validate(): void
+}
+class MultiCityItineraryFactory {
+  #createItinerary(): Itinerary
+  #validate(): void
+}
 PaymentMethodProcessor <|-- CreditCardPaymentProcessor
 PaymentMethodProcessor <|-- KakaoPayPaymentProcessor
 PaymentMethodProcessor <|-- ApplePayPaymentProcessor
 PaymentMethodProcessor <|-- BankTransferPaymentProcessor
 PaymentMethodProcessor <|-- MileagePaymentProcessor
 PaymentProcessorFactory ..> PaymentMethodProcessor : creates
-
-abstract class ItineraryFactory <<Creator>> {
-  +build(schedules): Itinerary
-  #createItinerary(): Itinerary
-  #validate(schedules)
-}
-class DirectItineraryFactory
-class ConnectingItineraryFactory
-class MultiCityItineraryFactory
 ItineraryFactory <|-- DirectItineraryFactory
 ItineraryFactory <|-- ConnectingItineraryFactory
 ItineraryFactory <|-- MultiCityItineraryFactory
-note bottom of PaymentProcessorFactory : 결제수단 추가 시 호출자 수정 불필요
 @enduml
