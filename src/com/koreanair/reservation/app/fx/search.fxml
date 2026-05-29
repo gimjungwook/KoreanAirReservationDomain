@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.koreanair.reservation.app.fx.screen.SearchController"
+      styleClass="screen">
+
+    <Label text="항공편 검색" styleClass="screen-title"/>
+    <Label text="출발지·도착지 공항 코드(예: ICN, JFK)와 날짜로 직항편을 검색합니다." styleClass="screen-sub"/>
+
+    <HBox styleClass="card" spacing="12" alignment="BOTTOM_LEFT">
+        <VBox spacing="4">
+            <Label text="출발 (From)" styleClass="field-label"/>
+            <TextField fx:id="fromField" text="ICN" promptText="ICN" prefWidth="120"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="도착 (To)" styleClass="field-label"/>
+            <TextField fx:id="toField" text="JFK" promptText="JFK" prefWidth="120"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="날짜" styleClass="field-label"/>
+            <DatePicker fx:id="datePicker" prefWidth="170"/>
+        </VBox>
+        <Button text="검색" styleClass="btn-primary" onAction="#onSearch"/>
+        <Button text="전체 항공편" styleClass="btn-ghost" onAction="#onShowAll"/>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <Label fx:id="message" styleClass="error-text"/>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="content">
+        <VBox fx:id="results" spacing="10"/>
+    </ScrollPane>
+</VBox>

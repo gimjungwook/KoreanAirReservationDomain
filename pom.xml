@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.koreanair</groupId>
+    <artifactId>reservation</artifactId>
+    <version>4.0.0</version>
+    <packaging>jar</packaging>
+    <name>Korean Air Reservation (JavaFX)</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>21</maven.compiler.release>
+        <javafx.version>23.0.2</javafx.version>
+        <fx.mainClass>com.koreanair.reservation.app.fx.FxApp</fx.mainClass>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- 기존 Eclipse 프로젝트 레이아웃 유지 (src/main/java 로 옮기지 않음) -->
+        <sourceDirectory>src</sourceDirectory>
+
+        <!-- FXML / CSS / 이미지를 패키지 경로 그대로 classes 에 복사 -->
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/*.fxml</include>
+                    <include>**/*.css</include>
+                    <include>**/*.png</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <!-- tools/ 는 AmaterasUML(Eclipse 플러그인 jar)에 의존하므로 CLI 빌드에서 제외 -->
+                    <excludes>
+                        <exclude>com/koreanair/reservation/tools/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>${fx.mainClass}</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

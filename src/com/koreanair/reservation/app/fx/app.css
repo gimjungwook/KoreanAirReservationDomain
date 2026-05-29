@@ -1,0 +1,159 @@
+/* =========================================================
+   대한항공 예약 시스템 — JavaFX 라이트 테마
+   Korean Air sky-blue accent. FXML 레이아웃 + CSS 스타일 분리.
+   ========================================================= */
+
+.root {
+    -fx-font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    -fx-font-size: 13px;
+    -kal-blue: #2b5a8e;
+    -kal-blue-dark: #173a5e;
+    -kal-sky: #5b9bd5;
+    -kal-bg: #f5f7fa;
+    -kal-card: #ffffff;
+    -kal-line: #e2e8f0;
+    -kal-ink: #1f2733;
+    -kal-soft: #64748b;
+    -kal-green: #2f9e6b;
+    -kal-amber: #d98c2b;
+    -kal-red: #c0504d;
+}
+
+.root-pane { -fx-background-color: -kal-bg; }
+.content   { -fx-background-color: -kal-bg; -fx-padding: 0; }
+
+/* ---------- 헤더 ---------- */
+.header {
+    -fx-background-color: linear-gradient(to right, -kal-blue-dark, -kal-blue);
+    -fx-padding: 14 24 14 24;
+}
+.brand {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1;
+}
+.brand-sub { -fx-text-fill: #dfe8f7; -fx-font-size: 13px; -fx-padding: 4 0 0 0; }
+
+.state-badge {
+    -fx-background-color: rgba(255,255,255,0.16);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 12 4 12;
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255,255,255,0.5);
+    -fx-border-radius: 999;
+}
+
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 6 14 6 14;
+    -fx-border-color: #cce4ff;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+.nav-btn:hover { -fx-background-color: rgba(255,255,255,0.18); }
+
+/* ---------- 단계 표시줄 ---------- */
+.step-bar {
+    -fx-background-color: white;
+    -fx-padding: 10 0 10 0;
+    -fx-border-color: transparent transparent -kal-line transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.step {
+    -fx-text-fill: -kal-soft;
+    -fx-font-size: 12px;
+    -fx-padding: 5 14 5 14;
+    -fx-background-radius: 999;
+}
+.step-active {
+    -fx-text-fill: white;
+    -fx-background-color: -kal-blue;
+    -fx-font-weight: bold;
+}
+.step-done { -fx-text-fill: -kal-green; -fx-font-weight: bold; }
+
+/* ---------- 화면 공통 ---------- */
+.screen { -fx-padding: 26 32 26 32; -fx-spacing: 16; }
+.screen-title { -fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: -kal-blue-dark; }
+.screen-sub   { -fx-font-size: 13px; -fx-text-fill: -kal-soft; }
+
+.card {
+    -fx-background-color: -kal-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -kal-line;
+    -fx-border-radius: 14;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(30,40,60,0.08), 18, 0, 0, 4);
+}
+
+.field-label { -fx-text-fill: -kal-soft; -fx-font-size: 12px; }
+.text-field, .password-field, .combo-box, .date-picker {
+    -fx-background-color: white;
+    -fx-border-color: -kal-line;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 10 8 10;
+}
+.text-field:focused, .password-field:focused { -fx-border-color: -kal-sky; }
+
+/* ---------- 버튼 ---------- */
+.btn-primary {
+    -fx-background-color: -kal-blue;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 22 10 22;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.btn-primary:hover { -fx-background-color: -kal-blue-dark; }
+.btn-ghost {
+    -fx-background-color: white;
+    -fx-text-fill: -kal-blue;
+    -fx-border-color: -kal-line;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 9 18 9 18;
+    -fx-cursor: hand;
+}
+.btn-ghost:hover { -fx-background-color: #eef4fb; }
+
+/* ---------- 항공편/예약 행 ---------- */
+.flight-row {
+    -fx-background-color: white;
+    -fx-border-color: -kal-line;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 14 18 14 18;
+    -fx-cursor: hand;
+}
+.flight-row:hover { -fx-border-color: -kal-sky; -fx-background-color: #f8fbff; }
+.flight-route { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-ink; }
+.flight-meta  { -fx-font-size: 12px; -fx-text-fill: -kal-soft; }
+.flight-fare  { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; }
+
+/* ---------- 좌석 ---------- */
+.seat {
+    -fx-min-width: 40; -fx-min-height: 36;
+    -fx-background-color: #eef2f7;
+    -fx-text-fill: -kal-ink;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-font-size: 11px;
+}
+.seat:hover { -fx-background-color: #d7e6f7; }
+.seat-selected { -fx-background-color: -kal-blue; -fx-text-fill: white; -fx-font-weight: bold; }
+
+/* ---------- 결과/메시지 ---------- */
+.error-text { -fx-text-fill: -kal-red; -fx-font-size: 12px; }
+.ok-text    { -fx-text-fill: -kal-green; -fx-font-size: 13px; -fx-font-weight: bold; }
+.big-pnr    { -fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: -kal-blue-dark; }
+.kv-key     { -fx-text-fill: -kal-soft; -fx-font-size: 12px; }
+.kv-val     { -fx-text-fill: -kal-ink; -fx-font-size: 13px; -fx-font-weight: bold; }
+.total-amt  { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; }

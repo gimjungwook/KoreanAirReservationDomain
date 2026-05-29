@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.koreanair.reservation.app.fx.screen.CancellationController"
+      styleClass="screen">
+
+    <Label text="예약 취소 / 환불" styleClass="screen-title"/>
+    <Label text="환불 금액은 운임 등급에 따라 Strategy 패턴(RefundPolicy)으로 계산됩니다." styleClass="screen-sub"/>
+
+    <VBox styleClass="card" spacing="14" maxWidth="520">
+        <HBox spacing="24">
+            <VBox spacing="4">
+                <Label text="예약번호" styleClass="kv-key"/>
+                <Label fx:id="pnrLabel" styleClass="kv-val"/>
+            </VBox>
+            <VBox spacing="4">
+                <Label text="현재 상태" styleClass="kv-key"/>
+                <Label fx:id="stateLabel" styleClass="kv-val"/>
+            </VBox>
+        </HBox>
+
+        <Label fx:id="previewLabel" styleClass="kv-val"/>
+        <Label fx:id="message" styleClass="error-text"/>
+
+        <HBox spacing="10">
+            <Button text="이전" styleClass="btn-ghost" onAction="#onBack"/>
+            <Button text="환불 미리보기" styleClass="btn-ghost" onAction="#onPreview"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="취소 확정" styleClass="btn-primary" onAction="#onCancel"/>
+        </HBox>
+    </VBox>
+</VBox>

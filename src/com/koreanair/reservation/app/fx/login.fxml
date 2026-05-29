@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.koreanair.reservation.app.fx.screen.LoginController">
+    <VBox styleClass="card" alignment="CENTER_LEFT" spacing="14" maxWidth="420">
+        <Label text="로그인" styleClass="screen-title"/>
+        <Label text="Skypass 회원 로그인 후 예약을 진행합니다." styleClass="screen-sub"/>
+
+        <VBox spacing="4">
+            <Label text="이름" styleClass="field-label"/>
+            <TextField fx:id="nameField" text="김정욱" promptText="이름"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="비밀번호" styleClass="field-label"/>
+            <PasswordField fx:id="passwordField" text="pw1234" promptText="비밀번호"/>
+        </VBox>
+        <Label text="샘플 계정 — 김정욱 / pw1234" styleClass="screen-sub"/>
+
+        <HBox spacing="10">
+            <Button text="로그인" styleClass="btn-primary" onAction="#onLogin"/>
+            <Button text="비회원으로 둘러보기" styleClass="btn-ghost" onAction="#onGuest"/>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+        <Label fx:id="message" styleClass="error-text"/>
+    </VBox>
+</StackPane>

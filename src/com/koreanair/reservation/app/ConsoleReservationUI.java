@@ -58,8 +58,10 @@ public class ConsoleReservationUI implements ReservationUI {
             System.out.println("(선택된 항공편이 없습니다)");
             return;
         }
-        Object[] row = com.koreanair.reservation.app.swing.SwingReservationUI.toTableRow(1, schedule);
-        System.out.printf(" 항공편: %s / %s -> %s%n", row[2], row[3], row[4]);
+        String flightNo = schedule.getFlightNumber();
+        String origin = schedule.getFlight().getRoute().getOrigin().getCode();
+        String dest = schedule.getFlight().getRoute().getDestination().getCode();
+        System.out.printf(" 항공편: %s / %s -> %s%n", flightNo, origin, dest);
         System.out.printf(" 출발/도착: %s / %s%n", schedule.getDepartureDateTime(), schedule.getArrivalDateTime());
         if (schedule.getFareRule() != null) {
             System.out.printf(" 운임: class=%s refundable=%s changeFee=%s penalty=%s%n",

@@ -96,8 +96,9 @@ flowchart LR
 
 ```
 src/com/koreanair/reservation/
-├── app/                    # 진입점(App, SwingApp), 목 인프라, 샘플 데이터
-│   └── swing/              # Swing UI 패널 (MainFrame, LoginPanel, SearchPanel, ...)
+├── app/                    # 진입점(App 콘솔, FxApp), 목 인프라, 샘플 데이터
+│   └── fx/                 # JavaFX UI — Navigator, ShellController, *.fxml, app.css
+│       └── screen/         # 화면별 Controller (Login, Search, Passenger, Seat, Payment, ...)
 ├── boundary/               # ReservationUI, PaymentGatewayInterface, SkypassInterface
 ├── control/                # BookingController, AuthService, FlightSearchService,
 │                           # PaymentProcessor, RefundHandler
@@ -150,7 +151,7 @@ sequenceDiagram
 [STATE] PendingPayment -> Confirmed
 ```
 
-또 다른 `ReservationUI` 구현체가 `app.swing.SwingApp`에 있으며, Control과 Domain 코드를 그대로 사용하면서 동일한 시나리오를 구동합니다 — **Boundary 교체가 비파괴적임을 증명하는 셈**입니다.
+UI 는 **JavaFX(`app.fx.FxApp`)** 로 구현되어 있으며, Control 과 Domain 코드를 그대로 사용하면서 동일한 시나리오를 구동합니다. 화면 레이아웃은 FXML, 스타일은 CSS, 로직은 Controller 로 분리됩니다. 처음에는 Swing 으로 시작했으나 선언형 FXML + CSS 구조로 전환했습니다 — Control/Domain 을 한 줄도 건드리지 않고 Boundary 만 교체했다는 점이 **ECB 아키텍처의 비파괴적 경계 교체**를 그대로 증명합니다.
 
 ### State 패턴 전이도
 
@@ -177,33 +178,36 @@ stateDiagram-v2
 
 ## 🛠 빌드 및 실행
 
-표준 Eclipse 자바 프로젝트입니다 (build tool 미도입 — Maven / Gradle은 iteration 2 작업).
+UI 는 **JavaFX(FXML + CSS)** 로 구현되어 있고, 의존성 관리는 **Maven** 으로 합니다. Maven Wrapper(`mvnw`)가 포함되어 있어 별도 설치 없이 바로 실행됩니다.
 
-### A) Eclipse
+### A) JavaFX UI (권장)
+
+```bash
+./mvnw javafx:run          # macOS / Linux
+mvnw.cmd javafx:run        # Windows
+```
+
+> JavaFX 23 의존성은 첫 실행 시 Maven 이 자동으로 내려받습니다. `tools/`(AmaterasUML 에미터)는 Eclipse 플러그인 jar 에 의존하므로 Maven 빌드에서 제외됩니다.
+
+### B) 콘솔 드라이버
+
+```bash
+./mvnw -q compile
+java -cp target/classes com.koreanair.reservation.app.App
+```
+
+### C) Eclipse
 
 ```
-File → Import → Existing Projects into Workspace → clone한 디렉토리 선택
+File → Import → Existing Maven Projects → clone한 디렉토리 선택
 ```
 
 진입점:
 
 | 모드 | 클래스 |
 | --- | --- |
+| JavaFX UI | `com.koreanair.reservation.app.fx.FxApp` |
 | 콘솔 | `com.koreanair.reservation.app.App` |
-| Swing UI | `com.koreanair.reservation.app.swing.SwingApp` |
-
-### B) 커맨드라인
-
-```bash
-cd src
-# tools/ 패키지는 AmaterasUML·Eclipse 플러그인 jar에 의존하므로 CLI 빌드에서 제외합니다.
-# (다이어그램 생성은 Eclipse에서 실행 — 아래 "다이어그램 자동 생성" 참조)
-find . -name "*.java" -not -path "./com/koreanair/reservation/tools/*" > sources.txt
-javac -d ../bin @sources.txt
-cd ..
-java -cp bin com.koreanair.reservation.app.App        # 콘솔
-java -cp bin com.koreanair.reservation.app.swing.SwingApp   # Swing UI
-```
 
 ---
 

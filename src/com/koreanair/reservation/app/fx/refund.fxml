@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.koreanair.reservation.app.fx.screen.RefundController"
+      styleClass="screen">
+
+    <Label text="환불 처리 완료" styleClass="screen-title"/>
+
+    <VBox styleClass="card" spacing="16" maxWidth="480">
+        <VBox spacing="4">
+            <Label text="예약번호" styleClass="kv-key"/>
+            <Label fx:id="pnrLabel" styleClass="kv-val"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="적용 환불 정책 (Strategy)" styleClass="kv-key"/>
+            <Label fx:id="policyLabel" styleClass="kv-val"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="환불 금액" styleClass="kv-key"/>
+            <Label fx:id="amountLabel" styleClass="total-amt"/>
+        </VBox>
+
+        <HBox spacing="10">
+            <Button text="내 예약 보기" styleClass="btn-ghost" onAction="#onLookup"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="새 예약 시작" styleClass="btn-primary" onAction="#onNew"/>
+        </HBox>
+    </VBox>
+</VBox>

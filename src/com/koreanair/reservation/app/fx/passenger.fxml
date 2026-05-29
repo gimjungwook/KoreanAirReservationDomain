@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.koreanair.reservation.app.fx.screen.PassengerController"
+      styleClass="screen">
+
+    <Label text="승객 정보" styleClass="screen-title"/>
+    <Label fx:id="flightInfo" styleClass="screen-sub"/>
+
+    <VBox styleClass="card" spacing="14" maxWidth="460">
+        <VBox spacing="4">
+            <Label text="승객 이름" styleClass="field-label"/>
+            <TextField fx:id="nameField" promptText="홍길동"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="여권번호" styleClass="field-label"/>
+            <TextField fx:id="passportField" promptText="M12345678"/>
+        </VBox>
+        <VBox spacing="4">
+            <Label text="생년월일 (YYYY-MM-DD)" styleClass="field-label"/>
+            <TextField fx:id="birthField" text="1999-01-31" promptText="1999-01-31"/>
+        </VBox>
+        <Label fx:id="message" styleClass="error-text"/>
+        <HBox spacing="10">
+            <Button text="이전" styleClass="btn-ghost" onAction="#onBack"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="좌석 선택으로" styleClass="btn-primary" onAction="#onNext"/>
+        </HBox>
+    </VBox>
+</VBox>
