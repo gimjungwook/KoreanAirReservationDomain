@@ -3,6 +3,7 @@ package com.koreanair.reservation.control;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.koreanair.reservation.domain.flight.FlightSchedule;
@@ -71,6 +72,82 @@ public class ItinerarySearchService {
             }
         }
         return result;
+    }
+
+    /**
+     * Multi-city 검색. 각 도시쌍은 하루씩 이동하는 데모 일정으로 찾는다.
+     *
+     * <p>예: ICN → NRT → JFK → LAX, 시작일이 5/27이면
+     * ICN-NRT는 5/27, NRT-JFK는 5/28, JFK-LAX는 5/29에서 조회한다.
+     * 발표 데모에서는 3차 iteration의 "다도시 여행 + 버스 연계" 진입점으로 사용한다.
+     */
+    public List<Itinerary> searchMultiCity(List<String> airportCodes, LocalDate startDate, Duration mct) {
+        List<Itinerary> result = new ArrayList<>();
+        if (flightSearch == null || airportCodes == null || airportCodes.size() < 2 || startDate == null) {
+            return result;
+        }
+
+        List<List<FlightSchedule>> legOptions = new ArrayList<>();
+        for (int i = 0; i < airportCodes.size() - 1; i++) {
+            String from = airportCodes.get(i);
+            String to = airportCodes.get(i + 1);
+            LocalDate legDate = startDate.plusDays(i);
+            List<FlightSchedule> options = flightSearch.search(from, to, legDate);
+            if (options == null || options.isEmpty()) {
+                return result;
+            }
+            legOptions.add(options);
+        }
+
+        buildMultiCityCombinations(result, legOptions, new ArrayList<>(), 0, mct);
+        return result;
+    }
+
+    /**
+     * PPT 데모용 기본 다도시 코스.
+     */
+    public List<Itinerary> searchDemoMultiCity(LocalDate startDate) {
+        return searchMultiCity(Arrays.asList("ICN", "NRT", "JFK", "LAX"), startDate,
+                Itinerary.INTERNATIONAL_MCT);
+    }
+
+    private void buildMultiCityCombinations(List<Itinerary> result,
+                                            List<List<FlightSchedule>> legOptions,
+                                            List<FlightSchedule> selected,
+                                            int depth,
+                                            Duration mct) {
+        if (result.size() >= 5) {
+            return;
+        }
+        if (depth == legOptions.size()) {
+            Itinerary candidate = Itinerary.multiCity(new ArrayList<>(selected));
+            Duration min = mct != null ? mct : Itinerary.INTERNATIONAL_MCT;
+            if (candidate.isConnectionTimeValid(min)) {
+                result.add(candidate);
+            }
+            return;
+        }
+        for (FlightSchedule schedule : legOptions.get(depth)) {
+            if (canFollow(selected, schedule, mct)) {
+                selected.add(schedule);
+                buildMultiCityCombinations(result, legOptions, selected, depth + 1, mct);
+                selected.remove(selected.size() - 1);
+            }
+        }
+    }
+
+    private boolean canFollow(List<FlightSchedule> selected, FlightSchedule next, Duration mct) {
+        if (selected.isEmpty()) {
+            return true;
+        }
+        FlightSchedule previous = selected.get(selected.size() - 1);
+        if (previous == null || next == null
+                || previous.getArrivalDateTime() == null || next.getDepartureDateTime() == null) {
+            return false;
+        }
+        Duration min = mct != null ? mct : Itinerary.INTERNATIONAL_MCT;
+        return Duration.between(previous.getArrivalDateTime(), next.getDepartureDateTime())
+                .compareTo(min) >= 0;
     }
 
     private boolean isFirstLegOf(FlightSchedule fs, String from, LocalDate date) {
