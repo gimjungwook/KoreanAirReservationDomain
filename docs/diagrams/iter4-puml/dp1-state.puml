@@ -1,0 +1,43 @@
+@startuml dp1-state
+!include _style.puml
+title DP#1 State — 예약 상태별 행동 캡슐화
+
+interface ReservationState <<interface>> {
+  +enterPassengerInfo(ctx)
+  +processPayment(ctx)
+  +issueTicket(ctx)
+  +requestCancellation(ctx)
+  +requestRefund(ctx)
+  +processRefundDecision(ctx, approved)
+  +getStateName(): String
+}
+abstract class AbstractReservationState {
+  #invalid(action)
+}
+class Reservation <<Context>> {
+  -currentState: ReservationState
+  +setState(s)
+  +getStateName(): String
+}
+
+class InitiatedState
+class PendingPaymentState
+class ConfirmedState
+class TicketedState
+class CancellationRequestedState
+class CancelledState
+class RefundRequestedState
+class RefundedState
+
+ReservationState <|.. AbstractReservationState
+AbstractReservationState <|-- InitiatedState
+AbstractReservationState <|-- PendingPaymentState
+AbstractReservationState <|-- ConfirmedState
+AbstractReservationState <|-- TicketedState
+AbstractReservationState <|-- CancellationRequestedState
+AbstractReservationState <|-- CancelledState
+AbstractReservationState <|-- RefundRequestedState
+AbstractReservationState <|-- RefundedState
+Reservation o--> ReservationState : currentState
+note bottom of Reservation : 상태에 따라 행동을\n현재 상태 객체에 위임
+@enduml

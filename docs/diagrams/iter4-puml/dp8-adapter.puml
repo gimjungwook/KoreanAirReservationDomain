@@ -1,0 +1,25 @@
+@startuml dp8-adapter
+!include _style.puml
+title DP#8 Adapter — 외부 Skypass API 인터페이스 변환
+
+interface SkypassInterface <<Target>> {
+  +verifyMembership(num, pw): Object
+  +getMileageBalance(num): int
+  +deductMileage(num, amount): boolean
+  +verifyAndDeduct(num, amount): Object
+}
+class SkypassAdapter <<Adapter>> {
+  -remoteApi: RemoteSkypassApi
+}
+class RemoteSkypassApi <<Adaptee>> {
+  +postAuth(code, token): Map
+  +getMileage(code): Map
+  +postDeduct(code, amount): Map
+}
+class PaymentController <<Client>>
+
+SkypassInterface <|.. SkypassAdapter
+SkypassAdapter o--> RemoteSkypassApi : 위임/변환
+PaymentController ..> SkypassInterface : 마일리지 잔액/결제
+note bottom of SkypassAdapter : 외부 API 시그니처를\n우리 인터페이스로 감싼다
+@enduml

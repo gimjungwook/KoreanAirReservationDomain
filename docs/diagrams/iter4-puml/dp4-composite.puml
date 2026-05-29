@@ -1,0 +1,31 @@
+@startuml dp4-composite
+!include _style.puml
+title DP#4 Composite — 공항(Leaf)과 도시(Composite) 동일 취급
+
+interface AirportLocation <<Component>> {
+  +getCode(): String
+  +getDisplayName(): String
+  +getAirports(): List<Airport>
+  +matches(code): boolean
+  +isComposite(): boolean
+}
+class Airport <<Leaf>> {
+  -code
+  -city
+}
+class AirportCity <<Composite>> {
+  -cityCode
+  -airports: List<Airport>
+  +add(Airport): AirportCity
+}
+class AirportCatalog {
+  +lookup(code): AirportLocation
+  +registerCity(AirportCity)
+}
+
+AirportLocation <|.. Airport
+AirportLocation <|.. AirportCity
+AirportCity o--> "0..*" Airport : contains
+AirportCatalog ..> AirportLocation : lookup
+note bottom of AirportCity : NYC = JFK + LGA + EWR\n도시 검색이 소속 공항 전체로 확장
+@enduml

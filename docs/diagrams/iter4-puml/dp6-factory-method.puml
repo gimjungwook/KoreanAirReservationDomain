@@ -1,0 +1,38 @@
+@startuml dp6-factory-method
+!include _style.puml
+title DP#6 Factory Method — 결제수단 / 여정 생성 위임
+
+abstract class PaymentMethodProcessor <<Product>> {
+  +processCharge(amount, pnr): Payment
+  #createPayment(amount): Payment
+  +method(): PaymentMethod
+}
+class PaymentProcessorFactory <<Creator>> {
+  +{static} forMethod(method, gateway, mileage): PaymentMethodProcessor
+}
+class CreditCardPaymentProcessor
+class KakaoPayPaymentProcessor
+class ApplePayPaymentProcessor
+class BankTransferPaymentProcessor
+class MileagePaymentProcessor
+
+PaymentMethodProcessor <|-- CreditCardPaymentProcessor
+PaymentMethodProcessor <|-- KakaoPayPaymentProcessor
+PaymentMethodProcessor <|-- ApplePayPaymentProcessor
+PaymentMethodProcessor <|-- BankTransferPaymentProcessor
+PaymentMethodProcessor <|-- MileagePaymentProcessor
+PaymentProcessorFactory ..> PaymentMethodProcessor : creates
+
+abstract class ItineraryFactory <<Creator>> {
+  +build(schedules): Itinerary
+  #createItinerary(): Itinerary
+  #validate(schedules)
+}
+class DirectItineraryFactory
+class ConnectingItineraryFactory
+class MultiCityItineraryFactory
+ItineraryFactory <|-- DirectItineraryFactory
+ItineraryFactory <|-- ConnectingItineraryFactory
+ItineraryFactory <|-- MultiCityItineraryFactory
+note bottom of PaymentProcessorFactory : 결제수단 추가 시 호출자 수정 불필요
+@enduml

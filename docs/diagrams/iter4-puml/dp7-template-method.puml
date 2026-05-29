@@ -1,0 +1,20 @@
+@startuml dp7-template-method
+!include _style.puml
+title DP#7 Template Method — e-Ticket 렌더 골격 고정
+
+abstract class TicketRenderer <<AbstractClass>> {
+  +render(reservation, ticket): String <<final>>
+  #{abstract} header(r, t): String
+  #{abstract} body(r, t): String
+  #{abstract} footer(r, t): String
+  #{abstract} separator(): String
+}
+class PlainTextTicketRenderer <<ConcreteClass>>
+class HtmlTicketRenderer <<ConcreteClass>>
+class BoardingPassRenderer <<ConcreteClass>>
+
+TicketRenderer <|-- PlainTextTicketRenderer
+TicketRenderer <|-- HtmlTicketRenderer
+TicketRenderer <|-- BoardingPassRenderer
+note bottom of TicketRenderer : render() = header → separator → body → footer\n골격은 고정, 각 단계만 하위가 채움
+@enduml
