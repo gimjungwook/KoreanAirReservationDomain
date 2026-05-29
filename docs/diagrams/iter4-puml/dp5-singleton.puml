@@ -9,6 +9,7 @@ class AppConfig <<Singleton>> {
   -currency: Currency
   -modernTheme: boolean
   -showSeatMetadata: boolean
+  -listeners: List<Consumer<AppConfig>>
   --
   +getInstance(): AppConfig
   +getFontFamily(): String

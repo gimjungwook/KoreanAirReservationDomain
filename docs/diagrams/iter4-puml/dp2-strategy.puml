@@ -10,6 +10,8 @@ class FullRefundPolicy {
   +getRefundType(): String
 }
 class PartialRefundPolicy {
+  -HALF: BigDecimal
+  --
   +calculateRefundAmount(): BigDecimal
   +getRefundType(): String
 }
@@ -18,10 +20,13 @@ class NoRefundPolicy {
   +getRefundType(): String
 }
 class RefundHandler <<Context>> {
+  -pending: Map<String,RefundRequest>
+  -completed: Map<String,Refund>
+  -requestToPnr: Map<String,String>
   -gateway: PaymentGatewayInterface
   -requestSeq: int
   -refundSeq: int
-  -REFUND_YYMM: java.time.format.DateTimeFormatter
+  -REFUND_YYMM: DateTimeFormatter
   --
   +evaluateRefund(): RefundRequest
   +processRefund(): void

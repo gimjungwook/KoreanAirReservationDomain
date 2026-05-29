@@ -30,6 +30,11 @@ class Reservation <<Context>> {
   -createdAt: LocalDateTime
   -reservationDate: LocalDateTime
   -itinerary: Itinerary
+  -passengers: List<Passenger>
+  -reservationItems: List<ReservationItem>
+  -payments: List<Payment>
+  -tickets: List<Ticket>
+  -REGISTRY: Map<String,Reservation>
   -currentState: ReservationState
   --
   +getReservationId(): Long

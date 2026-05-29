@@ -37,11 +37,15 @@ class AisleSeatDecorator {
   #ownLabel(): String
 }
 class ExtraLegroomDecorator {
+  -SURCHARGE: BigDecimal
+  --
   #appendLabel(): String
   #extraSurcharge(): BigDecimal
   #ownLabel(): String
 }
 class LoungeAccessDecorator {
+  -SURCHARGE: BigDecimal
+  --
   #appendLabel(): String
   #extraSurcharge(): BigDecimal
   #ownLabel(): String

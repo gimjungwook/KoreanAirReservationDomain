@@ -28,6 +28,7 @@ class AirportCity <<Composite>> {
   -cityCode: String
   -cityName: String
   -country: String
+  -airports: List<Airport>
   --
   +add(): AirportCity
   +getCityCode(): String
@@ -40,6 +41,9 @@ class AirportCity <<Composite>> {
   +isComposite(): boolean
 }
 class AirportCatalog {
+  -airportsByCode: Map<String,Airport>
+  -citiesByCode: Map<String,AirportCity>
+  --
   +registerAirport(): AirportCatalog
   +registerCity(): AirportCatalog
   +lookup(): AirportLocation

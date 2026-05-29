@@ -56,6 +56,9 @@ package "Boundary (JavaFX)" {
     +verifyAndDeduct(): Object
   }
   class RemoteSkypassApi <<Adaptee>> {
+    -balances: Map<String,Integer>
+    -tokens: Map<String,String>
+    --
     +registerAccount(): void
     +postAuth(): Map<String,Object>
     +getMileage(): Map<String,Object>
@@ -75,8 +78,8 @@ package "Control" {
     +setPassengerInfo(): void
     +confirmInfo(): void
     +assignSeat(): void
-    +assignSeat(): com.koreanair.reservation.domain.reservation.SeatAssignment
-    -resolveBookingClass(): com.koreanair.reservation.domain.flight.BookingClass
+    +assignSeat(): SeatAssignment
+    -resolveBookingClass(): BookingClass
     +processCancellation(): void
     -resolveFareClass(): String
     +changeFlightStatus(): void
@@ -99,6 +102,11 @@ package "Control" {
     +airport(): Airport
   }
   class AuthService {
+    -memberBySkypass: Map<String,Member>
+    -passwordBySkypass: Map<String,String>
+    -memberByName: Map<String,Member>
+    -saltBySkypass: Map<String,String>
+    -hashedPasswordBySkypass: Map<String,String>
     -memberSequence: int
     -current: Member
     --
@@ -115,6 +123,7 @@ package "Control" {
     -generateSalt(): String
   }
   class FlightSearchService {
+    -catalog: List<FlightSchedule>
     -airportCatalog: AirportCatalog
     --
     +getAirportCatalog(): AirportCatalog
@@ -124,10 +133,13 @@ package "Control" {
     +getCatalog(): List<FlightSchedule>
   }
   class RefundHandler {
+    -pending: Map<String,RefundRequest>
+    -completed: Map<String,Refund>
+    -requestToPnr: Map<String,String>
     -gateway: PaymentGatewayInterface
     -requestSeq: int
     -refundSeq: int
-    -REFUND_YYMM: java.time.format.DateTimeFormatter
+    -REFUND_YYMM: DateTimeFormatter
     --
     +evaluateRefund(): RefundRequest
     +processRefund(): void
@@ -182,6 +194,11 @@ package "Domain :: reservation" {
     -createdAt: LocalDateTime
     -reservationDate: LocalDateTime
     -itinerary: Itinerary
+    -passengers: List<Passenger>
+    -reservationItems: List<ReservationItem>
+    -payments: List<Payment>
+    -tickets: List<Ticket>
+    -REGISTRY: Map<String,Reservation>
     -currentState: ReservationState
     --
     +getReservationId(): Long
@@ -241,6 +258,7 @@ package "Domain :: reservation" {
     +DOMESTIC_MCT: Duration
     +INTERNATIONAL_MCT: Duration
     -tripType: String
+    -segments: List<Segment>
     --
     +getTripType(): String
     +setTripType(): void
@@ -270,6 +288,7 @@ package "Domain :: payment" {
     -paymentMethod: PaymentMethod
     -status: PaymentStatus
     -paidAt: LocalDateTime
+    -refunds: List<Refund>
     --
     +getAmount(): BigDecimal
     +setAmount(): void
@@ -297,6 +316,7 @@ package "Domain :: flight" {
     -cityCode: String
     -cityName: String
     -country: String
+    -airports: List<Airport>
     --
     +add(): AirportCity
     +getCityCode(): String
@@ -353,6 +373,7 @@ package "app" {
     -currency: Currency
     -modernTheme: boolean
     -showSeatMetadata: boolean
+    -listeners: List<Consumer<AppConfig>>
     --
     +getInstance(): AppConfig
     +getFontFamily(): String

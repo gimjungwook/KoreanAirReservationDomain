@@ -16,6 +16,9 @@ class SkypassAdapter <<Adapter>> {
   +verifyAndDeduct(): Object
 }
 class RemoteSkypassApi <<Adaptee>> {
+  -balances: Map<String,Integer>
+  -tokens: Map<String,String>
+  --
   +registerAccount(): void
   +postAuth(): Map<String,Object>
   +getMileage(): Map<String,Object>
