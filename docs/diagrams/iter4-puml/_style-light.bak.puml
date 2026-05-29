@@ -1,0 +1,20 @@
+' 공통 스타일 — Korean Air 라이트 테마 (iter4 클래스 다이어그램 세트)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName "Helvetica"
+skinparam dpi 150
+skinparam roundcorner 8
+skinparam class {
+    BackgroundColor #F5F8FC
+    BorderColor #2B5A8E
+    ArrowColor #173A5E
+    FontColor #1F2733
+    HeaderBackgroundColor #E5EEF7
+    AttributeFontColor #5B6470
+    StereotypeFontColor #2B5A8E
+}
+skinparam note {
+    BackgroundColor #FFF7E8
+    BorderColor #D98C2B
+}
+hide circle

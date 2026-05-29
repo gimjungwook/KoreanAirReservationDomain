@@ -1,0 +1,7 @@
+@startuml
+class A {
++x()
+}
+class B
+A <|-- B
+@enduml

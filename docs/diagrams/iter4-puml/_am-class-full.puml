@@ -1,0 +1,67 @@
+@startuml class-full
+!include _amateras.puml
+title 대한항공 예약 시스템 — 전체 클래스 다이어그램 (ECB + 9 GoF 패턴)
+left to right direction
+
+package "Boundary (JavaFX)" #EEF4FB {
+  class FxApp
+  class Navigator
+  interface SkypassInterface <<Target>>
+  class SkypassAdapter <<Adapter>>
+  class RemoteSkypassApi <<Adaptee>>
+}
+
+package "Control" #FDF4E6 {
+  class BookingController
+  class AuthService
+  class FlightSearchService
+  class RefundHandler
+  class PaymentProcessorFactory <<Factory>>
+  abstract class PaymentMethodProcessor
+  class ItineraryFactory <<Factory>>
+  abstract class TicketRenderer <<Template>>
+  class TicketPurchasePublisher <<Subject>>
+}
+
+package "Domain :: reservation" #EEF7F1 {
+  class Reservation <<Context>>
+  interface ReservationState <<State>>
+  class Itinerary
+}
+package "Domain :: payment" #EEF7F1 {
+  interface RefundPolicy <<Strategy>>
+  class Payment
+}
+package "Domain :: flight" #EEF7F1 {
+  interface AirportLocation <<Composite>>
+  class AirportCity
+  class Airport
+  interface SeatView <<Decorator>>
+}
+package "Domain :: event" #EEF7F1 {
+  interface EventListener
+  abstract class DomainEvent
+}
+package "app" #F3F0E8 {
+  class AppConfig <<Singleton>>
+}
+
+FxApp --> Navigator
+Navigator ..> BookingController
+BookingController --> Reservation
+BookingController ..> PaymentProcessorFactory
+BookingController ..> ItineraryFactory
+PaymentProcessorFactory ..> PaymentMethodProcessor
+Reservation o--> ReservationState
+Reservation --> Itinerary
+RefundHandler ..> RefundPolicy
+FlightSearchService ..> AirportLocation
+AirportCity o--> Airport
+SkypassInterface <|.. SkypassAdapter
+SkypassAdapter --> RemoteSkypassApi
+TicketPurchasePublisher o--> EventListener
+TicketRenderer ..> Reservation
+FxApp ..> AppConfig
+
+note bottom of AppConfig : 9개 GoF 패턴이\nControl/Domain 전반에 배치
+@enduml
