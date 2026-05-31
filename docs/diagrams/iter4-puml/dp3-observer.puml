@@ -7,7 +7,7 @@ abstract class EventPublisher <<Subject>> {
   +subscribe(): void
   +unsubscribe(): void
   +subscriberCount(): int
-  #publish(): void
+  +publish(): void
 }
 interface EventListener <<Observer>> {
   +onEvent(): void
@@ -21,14 +21,25 @@ abstract class DomainEvent {
   +getEventType(): String
 }
 class TicketPurchasePublisher {
+  -subjectState: TicketIssuedEvent
+  --
+  +getState(): TicketIssuedEvent
+  +setState(): void
   +publishTicketIssued(): void
 }
 class BusTicketPurchaseListener {
   -busTicketingService: BusTicketingService
+  -subject: TicketPurchasePublisher
   --
+  +setSubject(): void
+  +getSubject(): TicketPurchasePublisher
   +onEvent(): void
 }
 class ReservationAutoCancelListener {
+  -subject: EventPublisher
+  --
+  +setSubject(): void
+  +getSubject(): EventPublisher
   +onEvent(): void
 }
 class TicketIssuedEvent {

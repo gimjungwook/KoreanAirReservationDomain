@@ -1,0 +1,42 @@
+@startuml sequence-mileage-adapter
+title Sequence: Mileage Payment via Adapter (Iteration 4 — Adapter)\n(red lifelines/messages = iteration 4 additions)
+skinparam sequenceMessageAlign center
+skinparam sequenceFontSize 11
+skinparam shadowing false
+skinparam dpi 130
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceLifeLineBorderColor #888
+hide footbox
+autonumber
+
+actor Member
+participant "PaymentController\n(JavaFX)" as UI
+participant "BookingController" as BC
+participant "SkypassAdapter\n<<Adapter / Target>>" as AD #FFCCCC
+participant "RemoteSkypassApi\n<<Adaptee>>" as API #FFCCCC
+
+Member -> UI : pay with mileage
+activate UI
+UI -> BC : confirmMileagePayment(reservation, skypassNo, amount)
+activate BC
+BC -[#CC0000]> AD : verifyAndDeduct(skypassNo, amount)
+activate AD
+note right of AD #FFF0F0
+  Adapter converts the domain call into the
+  external API's two-step shape (no single endpoint).
+end note
+AD -[#CC0000]> API : getMileage(skypassNo)
+activate API
+API --> AD : Map{status,balance}
+deactivate API
+AD -[#CC0000]> API : postDeduct(skypassNo, amount)
+activate API
+API --> AD : Map{success}
+deactivate API
+AD --> BC : skypassNo (ok) / null
+deactivate AD
+BC --> UI : Payment (MILEAGE)
+deactivate BC
+UI --> Member : confirmation
+deactivate UI
+@enduml

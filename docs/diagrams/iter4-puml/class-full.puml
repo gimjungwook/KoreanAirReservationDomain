@@ -137,10 +137,13 @@ package "Control" {
     -completed: Map<String,Refund>
     -requestToPnr: Map<String,String>
     -gateway: PaymentGatewayInterface
+    -strategy: RefundPolicy
     -requestSeq: int
     -refundSeq: int
     -REFUND_YYMM: DateTimeFormatter
     --
+    +setStrategy(): void
+    +getStrategy(): RefundPolicy
     +evaluateRefund(): RefundRequest
     +processRefund(): void
     +denyRefund(): void
@@ -166,7 +169,7 @@ package "Control" {
     #authorize(): boolean
     #declineReason(): String
     #nextPaymentId(): long
-    #basePayment(): Payment
+    #stamp(): Payment
   }
   abstract class ItineraryFactory <<Factory>> #FFCCCC {
     +build(): Itinerary
@@ -182,6 +185,10 @@ package "Control" {
     #separator(): String
   }
   class TicketPurchasePublisher <<Subject>> {
+    -subjectState: TicketIssuedEvent
+    --
+    +getState(): TicketIssuedEvent
+    +setState(): void
     +publishTicketIssued(): void
   }
 }
@@ -245,16 +252,8 @@ package "Domain :: reservation" {
   }
   interface ReservationState <<State>> {
     +name(): String
-    +enterPassengerInfo(): void
-    +processPayment(): void
-    +handlePaymentFailure(): void
-    +issueTicket(): void
-    +requestCancellation(): void
-    +confirmCancellation(): void
-    +requestRefund(): void
-    +processRefundDecision(): void
   }
-  class Itinerary {
+  abstract class Itinerary {
     +DOMESTIC_MCT: Duration
     +INTERNATIONAL_MCT: Duration
     -tripType: String
@@ -264,12 +263,6 @@ package "Domain :: reservation" {
     +setTripType(): void
     +getSegments(): List<Segment>
     +addSegment(): void
-    -inferTripType(): String
-    -isPureConnecting(): boolean
-    -firstOriginCode(): String
-    -lastDestinationCode(): String
-    -originCode(): String
-    -destinationCode(): String
     +isConnectionTimeValid(): boolean
     +getTotalDuration(): Duration
     +direct(): Itinerary
@@ -282,7 +275,7 @@ package "Domain :: payment" {
     +calculateRefundAmount(): BigDecimal
     +getRefundType(): String
   }
-  class Payment {
+  abstract class Payment {
     -paymentId: Long
     -amount: BigDecimal
     -paymentMethod: PaymentMethod
@@ -305,7 +298,7 @@ package "Domain :: payment" {
   }
 }
 package "Domain :: flight" {
-  interface AirportLocation <<Composite>> #FFCCCC {
+  abstract class AirportLocation <<Composite>> #FFCCCC {
     +getCode(): String
     +getDisplayName(): String
     +getAirports(): List<Airport>
@@ -316,9 +309,10 @@ package "Domain :: flight" {
     -cityCode: String
     -cityName: String
     -country: String
-    -airports: List<Airport>
+    -components: List<AirportLocation>
     --
-    +add(): AirportCity
+    +addComponent(): void
+    +removeComponent(): void
     +getCityCode(): String
     +getCityName(): String
     +getCountry(): String
@@ -344,7 +338,7 @@ package "Domain :: flight" {
     +matches(): boolean
     +isComposite(): boolean
   }
-  interface SeatView <<Decorator>> #FFCCCC {
+  abstract class SeatView <<Decorator>> #FFCCCC {
     +getSeat(): Seat
     +getDescription(): String
     +getSurcharge(): BigDecimal
@@ -403,7 +397,7 @@ Reservation o--> ReservationState
 Reservation --> Itinerary
 RefundHandler ..> RefundPolicy
 FlightSearchService ..> AirportLocation
-AirportCity o--> Airport
+AirportCity o--> AirportLocation
 SkypassInterface <|.. SkypassAdapter
 SkypassAdapter --> RemoteSkypassApi
 TicketPurchasePublisher o--> EventListener

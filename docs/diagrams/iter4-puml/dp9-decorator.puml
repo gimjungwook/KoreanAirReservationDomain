@@ -1,7 +1,7 @@
 @startuml dp9-decorator
 !include _style.puml
 title DP#9 Decorator - 좌석 부가옵션 누적
-interface SeatView <<Component>> #FFCCCC {
+abstract class SeatView <<Component>> #FFCCCC {
   +getSeat(): Seat
   +getDescription(): String
   +getSurcharge(): BigDecimal
@@ -16,43 +16,42 @@ class SeatViewAdapter <<ConcreteComponent>> #FFCCCC {
   +getMetadataLabels(): List<String>
 }
 abstract class AbstractSeatDecorator <<Decorator>> #FFCCCC {
-  #wrapped: SeatView
+  #component: SeatView
   --
   +getSeat(): Seat
   +getDescription(): String
   +getSurcharge(): BigDecimal
   +getMetadataLabels(): List<String>
-  #appendLabel(): String
-  #extraSurcharge(): BigDecimal
-  #ownLabel(): String
 }
 class WindowSeatDecorator #FFCCCC {
-  #appendLabel(): String
-  #extraSurcharge(): BigDecimal
-  #ownLabel(): String
+  +getDescription(): String
+  +getMetadataLabels(): List<String>
+  -addedLabel(): String
 }
 class AisleSeatDecorator #FFCCCC {
-  #appendLabel(): String
-  #extraSurcharge(): BigDecimal
-  #ownLabel(): String
+  +getDescription(): String
+  +getMetadataLabels(): List<String>
+  -addedLabel(): String
 }
 class ExtraLegroomDecorator #FFCCCC {
   -SURCHARGE: BigDecimal
   --
-  #appendLabel(): String
-  #extraSurcharge(): BigDecimal
-  #ownLabel(): String
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+  -addedLabel(): String
 }
 class LoungeAccessDecorator #FFCCCC {
   -SURCHARGE: BigDecimal
   --
-  #appendLabel(): String
-  #extraSurcharge(): BigDecimal
-  #ownLabel(): String
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+  -addedLabel(): String
 }
-SeatView <|.. SeatViewAdapter
-SeatView <|.. AbstractSeatDecorator
-AbstractSeatDecorator o--> SeatView : wrapped
+SeatView <|-- SeatViewAdapter
+SeatView <|-- AbstractSeatDecorator
+AbstractSeatDecorator o--> SeatView : component
 AbstractSeatDecorator <|-- WindowSeatDecorator
 AbstractSeatDecorator <|-- AisleSeatDecorator
 AbstractSeatDecorator <|-- ExtraLegroomDecorator

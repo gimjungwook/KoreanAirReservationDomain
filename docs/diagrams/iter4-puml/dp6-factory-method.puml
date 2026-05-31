@@ -1,7 +1,7 @@
 @startuml dp6-factory-method
 !include _style.puml
-title DP#6 Factory Method - 결제수단/여정 생성 위임
-abstract class PaymentMethodProcessor <<Product>> #FFCCCC {
+title DP#6 Factory Method - Creator/Product/ConcreteCreator/ConcreteProduct
+abstract class PaymentMethodProcessor <<Creator>> #FFCCCC {
   -paymentSequence: long
   -gateway: PaymentGatewayInterface
   --
@@ -11,66 +11,116 @@ abstract class PaymentMethodProcessor <<Product>> #FFCCCC {
   #authorize(): boolean
   #declineReason(): String
   #nextPaymentId(): long
-  #basePayment(): Payment
+  #stamp(): Payment
 }
-class PaymentProcessorFactory <<Creator>> #FFCCCC {
-  +forMethod(): PaymentMethodProcessor
-  +method(): PaymentMethod
-}
-class CreditCardPaymentProcessor #FFCCCC {
+class CreditCardPaymentProcessor <<ConcreteCreator>> #FFCCCC {
   #createPayment(): Payment
   +method(): PaymentMethod
 }
-class KakaoPayPaymentProcessor #FFCCCC {
+class KakaoPayPaymentProcessor <<ConcreteCreator>> #FFCCCC {
   #createPayment(): Payment
   +method(): PaymentMethod
   #declineReason(): String
 }
-class ApplePayPaymentProcessor #FFCCCC {
+class ApplePayPaymentProcessor <<ConcreteCreator>> #FFCCCC {
   #createPayment(): Payment
   +method(): PaymentMethod
   #declineReason(): String
 }
-class BankTransferPaymentProcessor #FFCCCC {
+class BankTransferPaymentProcessor <<ConcreteCreator>> #FFCCCC {
   #createPayment(): Payment
   +method(): PaymentMethod
   #declineReason(): String
 }
-class MileagePaymentProcessor #FFCCCC {
+class MileagePaymentProcessor <<ConcreteCreator>> #FFCCCC {
   -account: MileageAccount
   --
   #createPayment(): Payment
   +method(): PaymentMethod
   +processCharge(): Payment
 }
+abstract class Payment <<Product>> {
+  -paymentId: Long
+  -amount: BigDecimal
+  -paymentMethod: PaymentMethod
+  -status: PaymentStatus
+  -paidAt: LocalDateTime
+  -refunds: List<Refund>
+  --
+  +getAmount(): BigDecimal
+  +setAmount(): void
+  +getPaymentMethod(): PaymentMethod
+  +setPaymentMethod(): void
+  +getPaymentId(): Long
+  +setPaymentId(): void
+  +getStatus(): PaymentStatus
+  +getRefunds(): List<Refund>
+  +pay(): void
+  +fail(): void
+  +addRefund(): void
+  +isRefundable(): boolean
+}
+class CreditCardPayment <<ConcreteProduct>> #FFCCCC
+class KakaoPayPayment <<ConcreteProduct>> #FFCCCC
+class ApplePayPayment <<ConcreteProduct>> #FFCCCC
+class BankTransferPayment <<ConcreteProduct>> #FFCCCC
+class MileagePayment <<ConcreteProduct>> #FFCCCC
 abstract class ItineraryFactory <<Creator>> #FFCCCC {
   +build(): Itinerary
   #createItinerary(): Itinerary
   #validate(): void
   #postCheck(): void
 }
-class DirectItineraryFactory #FFCCCC {
+class DirectItineraryFactory <<ConcreteCreator>> #FFCCCC {
   #createItinerary(): Itinerary
   #validate(): void
 }
-class ConnectingItineraryFactory #FFCCCC {
+class ConnectingItineraryFactory <<ConcreteCreator>> #FFCCCC {
   -mct: Duration
   --
   #createItinerary(): Itinerary
   #validate(): void
   #postCheck(): void
 }
-class MultiCityItineraryFactory #FFCCCC {
+class MultiCityItineraryFactory <<ConcreteCreator>> #FFCCCC {
   #createItinerary(): Itinerary
   #validate(): void
 }
+abstract class Itinerary <<Product>> {
+  +DOMESTIC_MCT: Duration
+  +INTERNATIONAL_MCT: Duration
+  -tripType: String
+  -segments: List<Segment>
+  --
+  +getTripType(): String
+  +setTripType(): void
+  +getSegments(): List<Segment>
+  +addSegment(): void
+  +isConnectionTimeValid(): boolean
+  +getTotalDuration(): Duration
+  +direct(): Itinerary
+  +connecting(): Itinerary
+  +multiCity(): Itinerary
+}
+class DirectItinerary <<ConcreteProduct>> #FFCCCC
+class ConnectingItinerary <<ConcreteProduct>> #FFCCCC
+class MultiCityItinerary <<ConcreteProduct>> #FFCCCC
 PaymentMethodProcessor <|-- CreditCardPaymentProcessor
 PaymentMethodProcessor <|-- KakaoPayPaymentProcessor
 PaymentMethodProcessor <|-- ApplePayPaymentProcessor
 PaymentMethodProcessor <|-- BankTransferPaymentProcessor
 PaymentMethodProcessor <|-- MileagePaymentProcessor
-PaymentProcessorFactory ..> PaymentMethodProcessor : creates
+Payment <|-- CreditCardPayment
+Payment <|-- KakaoPayPayment
+Payment <|-- ApplePayPayment
+Payment <|-- BankTransferPayment
+Payment <|-- MileagePayment
+PaymentMethodProcessor ..> Payment : createPayment()
 ItineraryFactory <|-- DirectItineraryFactory
 ItineraryFactory <|-- ConnectingItineraryFactory
 ItineraryFactory <|-- MultiCityItineraryFactory
+Itinerary <|-- DirectItinerary
+Itinerary <|-- ConnectingItinerary
+Itinerary <|-- MultiCityItinerary
+ItineraryFactory ..> Itinerary : createItinerary()
 @enduml

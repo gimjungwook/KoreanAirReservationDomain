@@ -1,0 +1,44 @@
+@startuml sequence-payment-factory
+title Sequence: Payment Method Routing via Factory Method (Iteration 4)\n(red = iteration 4 additions)
+skinparam sequenceMessageAlign center
+skinparam sequenceFontSize 11
+skinparam shadowing false
+skinparam dpi 130
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceLifeLineBorderColor #888
+hide footbox
+autonumber
+
+actor Member
+participant "PaymentController\n(JavaFX)" as UI
+participant "BookingController" as BC
+participant "PaymentProcessorFactory\n<<Creator>>" as F #FFCCCC
+participant "PaymentMethodProcessor\n<<Product>>" as P #FFCCCC
+participant "PaymentGateway\n(mock)" as PG
+
+Member -> UI : select method (KakaoPay)
+activate UI
+UI -> BC : confirmPaymentWith(reservation, method, gateway)
+activate BC
+BC -[#CC0000]> F : forMethod(method, gateway)
+activate F
+note right of F #FFF0F0
+  factory maps PaymentMethod enum to the
+  matching ConcreteCreator without BC branching.
+end note
+F --> BC : PaymentMethodProcessor
+deactivate F
+BC -[#CC0000]> P : processCharge(amount, pnr)
+activate P
+P -[#CC0000]> P : createPayment(seq)
+P -> PG : authorize(payment)
+activate PG
+PG --> P : true
+deactivate PG
+P --> BC : Payment (authorized)
+deactivate P
+BC --> UI : Payment
+deactivate BC
+UI --> Member : confirmation
+deactivate UI
+@enduml

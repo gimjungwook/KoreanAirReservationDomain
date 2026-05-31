@@ -24,10 +24,13 @@ class RefundHandler <<Context>> {
   -completed: Map<String,Refund>
   -requestToPnr: Map<String,String>
   -gateway: PaymentGatewayInterface
+  -strategy: RefundPolicy
   -requestSeq: int
   -refundSeq: int
   -REFUND_YYMM: DateTimeFormatter
   --
+  +setStrategy(): void
+  +getStrategy(): RefundPolicy
   +evaluateRefund(): RefundRequest
   +processRefund(): void
   +denyRefund(): void
@@ -55,7 +58,7 @@ class FareRule {
 RefundPolicy <|.. FullRefundPolicy
 RefundPolicy <|.. PartialRefundPolicy
 RefundPolicy <|.. NoRefundPolicy
-RefundHandler ..> RefundPolicy : 위임
+RefundHandler o--> RefundPolicy : strategy
 FareRule ..> RefundPolicy : 등급이 정책 결정
 note bottom of RefundHandler : 운임 추가시 핸들러 수정 불필요
 @enduml

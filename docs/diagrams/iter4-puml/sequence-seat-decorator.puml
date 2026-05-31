@@ -1,0 +1,38 @@
+@startuml sequence-seat-decorator
+title Sequence: Seat Add-on Stacking via Decorator (Iteration 4)\n(red = iteration 4 additions)
+skinparam sequenceMessageAlign center
+skinparam sequenceFontSize 11
+skinparam shadowing false
+skinparam dpi 130
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceLifeLineBorderColor #888
+hide footbox
+autonumber
+
+actor Member
+participant "SeatController\n(JavaFX)" as UI
+participant "ExtraLegroomDecorator" as D2 #FFCCCC
+participant "WindowSeatDecorator" as D1 #FFCCCC
+participant "SeatViewAdapter\n<<ConcreteComponent>>" as C #FFCCCC
+
+Member -> UI : choose window + extra legroom
+activate UI
+note over UI,C #FFF0F0
+  chain built at runtime:
+  new ExtraLegroomDecorator(new WindowSeatDecorator(new SeatViewAdapter(seat)))
+end note
+UI -[#CC0000]> D2 : getSurcharge()
+activate D2
+D2 -[#CC0000]> D1 : wrapped.getSurcharge()
+activate D1
+D1 -[#CC0000]> C : wrapped.getSurcharge()
+activate C
+C --> D1 : base (0)
+deactivate C
+D1 --> D2 : base + window extra
+deactivate D1
+D2 --> UI : base + window + legroom (accumulated)
+deactivate D2
+UI --> Member : total surcharge + labels
+deactivate UI
+@enduml

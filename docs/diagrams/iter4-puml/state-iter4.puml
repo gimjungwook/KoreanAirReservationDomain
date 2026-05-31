@@ -1,0 +1,36 @@
+@startuml state-iter4
+title Reservation Lifecycle — Cumulative through Iteration 4 (State pattern)\n(no new states in iter4; red = transition newly driven by iter4 admin refund-review queue)
+hide empty description
+skinparam stateFontSize 12
+skinparam ranksep 48
+skinparam nodesep 32
+skinparam shadowing false
+skinparam dpi 130
+
+[*] -down-> Initiated
+Initiated -right-> PendingPayment : processPayment()
+PendingPayment -right-> Confirmed : payment authorized
+PendingPayment -down-> Cancelled : handlePaymentFailure()
+Confirmed -right-> Ticketed : issueTicket()
+Confirmed -down-> CancellationRequested : requestCancellation()
+Ticketed -down-> CancellationRequested : requestCancellation()
+CancellationRequested -left-> Cancelled : confirmCancellation()
+Cancelled -down-> RefundRequested : requestRefund()
+RefundRequested -[#CC0000]-> Refunded : processRefundDecision()\n(iter4: admin review queue)
+Refunded -right-> [*]
+
+note right of RefundRequested #FFF0F0
+  <b><color:#CC0000>Iteration 4 change</color></b>
+  RefundRequested -> Refunded is now driven by
+  the admin refund-review queue (RefundHandler:
+  evaluateRefund -> processRefund). The state set
+  itself is unchanged from iter3 — the 6 iter4
+  patterns are orthogonal to this lifecycle.
+end note
+
+note left of PendingPayment
+  iter3 (Observer): PendingPayment -> Cancelled
+  also triggered by AutoCancelListener on
+  PaymentFailedEvent / SeatHoldExpiredEvent.
+end note
+@enduml

@@ -1,7 +1,7 @@
 @startuml dp4-composite
 !include _style.puml
 title DP#4 Composite - 공항(Leaf)과 도시(Composite) 동일 취급
-interface AirportLocation <<Component>> #FFCCCC {
+abstract class AirportLocation <<Component>> #FFCCCC {
   +getCode(): String
   +getDisplayName(): String
   +getAirports(): List<Airport>
@@ -28,9 +28,10 @@ class AirportCity <<Composite>> #FFCCCC {
   -cityCode: String
   -cityName: String
   -country: String
-  -airports: List<Airport>
+  -components: List<AirportLocation>
   --
-  +add(): AirportCity
+  +addComponent(): void
+  +removeComponent(): void
   +getCityCode(): String
   +getCityName(): String
   +getCountry(): String
@@ -50,9 +51,9 @@ class AirportCatalog #FFCCCC {
   +getMultiAirportCities(): List<AirportCity>
   +getAllAirports(): List<Airport>
 }
-AirportLocation <|.. Airport
-AirportLocation <|.. AirportCity
-AirportCity o--> "0..*" Airport
+AirportLocation <|-- Airport
+AirportLocation <|-- AirportCity
+AirportCity o--> "0..*" AirportLocation : components
 AirportCatalog ..> AirportLocation : lookup
 note bottom of AirportCity : NYC = JFK + LGA + EWR
 @enduml

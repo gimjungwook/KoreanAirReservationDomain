@@ -3,24 +3,6 @@
 title DP#1 State - 예약 상태별 행동 캡슐화
 interface ReservationState <<State>> {
   +name(): String
-  +enterPassengerInfo(): void
-  +processPayment(): void
-  +handlePaymentFailure(): void
-  +issueTicket(): void
-  +requestCancellation(): void
-  +confirmCancellation(): void
-  +requestRefund(): void
-  +processRefundDecision(): void
-}
-abstract class AbstractReservationState {
-  +enterPassengerInfo(): void
-  +processPayment(): void
-  +handlePaymentFailure(): void
-  +issueTicket(): void
-  +requestCancellation(): void
-  +confirmCancellation(): void
-  +requestRefund(): void
-  +processRefundDecision(): void
 }
 class Reservation <<Context>> {
   -reservationId: Long
@@ -113,15 +95,14 @@ class RefundRequestedState {
 class RefundedState {
   +name(): String
 }
-ReservationState <|.. AbstractReservationState
-AbstractReservationState <|-- InitiatedState
-AbstractReservationState <|-- PendingPaymentState
-AbstractReservationState <|-- ConfirmedState
-AbstractReservationState <|-- TicketedState
-AbstractReservationState <|-- CancellationRequestedState
-AbstractReservationState <|-- CancelledState
-AbstractReservationState <|-- RefundRequestedState
-AbstractReservationState <|-- RefundedState
+ReservationState <|.. InitiatedState
+ReservationState <|.. PendingPaymentState
+ReservationState <|.. ConfirmedState
+ReservationState <|.. TicketedState
+ReservationState <|.. CancellationRequestedState
+ReservationState <|.. CancelledState
+ReservationState <|.. RefundRequestedState
+ReservationState <|.. RefundedState
 Reservation o--> ReservationState : currentState
 note bottom of Reservation : 현재 상태 객체에 행동 위임
 @enduml

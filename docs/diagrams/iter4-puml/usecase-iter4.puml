@@ -1,0 +1,73 @@
+@startuml usecase-iter4
+title Use Case Diagram — Cumulative through Iteration 4\n(red = use cases newly enabled or changed in Iteration 4)
+left to right direction
+skinparam linetype polyline
+skinparam ranksep 55
+skinparam nodesep 40
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 130
+
+actor "Skypass\nMember" as Member
+actor "Guest\n(non-member)" as Guest
+actor "Administrator" as Admin
+actor "Skypass\nSystem" as Skypass <<external>>
+actor "GDS" as Gds <<external>>
+actor "Payment\nGateway" as Pay <<external>>
+
+rectangle "Korean Air Reservation System" {
+  package "Core booking (iter1-2)" {
+    usecase "Search Flights" as UC_Search
+    usecase "Book Flight" as UC_Book
+    usecase "Enter Passenger Info" as UC_Pax
+    usecase "Make Payment" as UC_Pay
+    usecase "Issue e-Ticket" as UC_Ticket
+    usecase "Look up Reservation" as UC_Lookup
+    usecase "Cancel / Refund" as UC_Cancel
+  }
+  package "Itinerary (iter3)" {
+    usecase "Search Connecting Flights" as UC_Conn
+    usecase "Book Multi-city Trip" as UC_Multi
+  }
+  package "Iteration 4 additions" #FFF0F0 {
+    usecase "Pay with KakaoPay /\nApplePay / Bank transfer" as UC_PayM #FFCCCC
+    usecase "Pay with Mileage" as UC_Mile #FFCCCC
+    usecase "Configure Settings\n(font / currency / theme)" as UC_Set #FFCCCC
+    usecase "Select Seat Add-ons\n(window / legroom / lounge)" as UC_Seat #FFCCCC
+    usecase "Toggle e-Ticket Format\n(plain / HTML / boarding pass)" as UC_Fmt #FFCCCC
+    usecase "Search by City\n(grouped airports)" as UC_City #FFCCCC
+    usecase "Review Refund Queue" as UC_Refund #FFCCCC
+  }
+}
+
+Member --> UC_Search
+Member --> UC_Book
+Guest --> UC_Book
+Member --> UC_Lookup
+Member --> UC_Cancel
+Member --> UC_Conn
+Member --> UC_Multi
+Member --> UC_PayM
+Member --> UC_Mile
+Member --> UC_Set
+Member --> UC_Seat
+Member --> UC_Fmt
+Member --> UC_City
+Admin --> UC_Refund
+
+UC_Book ..> UC_Pax : <<include>>
+UC_Book ..> UC_Pay : <<include>>
+UC_Pay ..> UC_Ticket : <<include>>
+UC_PayM .[#CC0000].> UC_Pay : <<extend>>
+UC_Mile .[#CC0000].> UC_Pay : <<extend>>
+UC_Seat .[#CC0000].> UC_Book : <<extend>>
+UC_City .[#CC0000].> UC_Search : <<extend>>
+UC_Fmt .[#CC0000].> UC_Ticket : <<extend>>
+UC_Refund .[#CC0000].> UC_Cancel : <<extend>>
+UC_Conn ..> UC_Book : <<include>>
+UC_Multi ..> UC_Book : <<include>>
+
+UC_Mile .[#CC0000].> Skypass
+UC_PayM --> Pay
+UC_Conn ..> Gds
+@enduml
