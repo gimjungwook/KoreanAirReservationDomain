@@ -205,6 +205,13 @@ public final class Navigator {
         shell.setContent(l.node());
     }
 
+    public void showPatternGuide() {
+        Loaded<com.koreanair.reservation.app.fx.screen.PatternGuideController> l = load("pattern-guide.fxml");
+        l.controller().bind(this, ctx);
+        shell.showStep(false);
+        shell.setContent(l.node());
+    }
+
     // ---- 세션 / 헤더 콜백 ----
 
     public void onLoginSuccess(Member m) {

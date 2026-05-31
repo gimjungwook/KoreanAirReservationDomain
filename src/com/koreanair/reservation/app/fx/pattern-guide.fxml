@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.koreanair.reservation.app.fx.screen.PatternGuideController"
+            fitToWidth="true" styleClass="landing-scroll">
+    <content>
+        <VBox fx:id="patternList" styleClass="screen" spacing="16">
+            <Label text="Design Pattern Code Guide" styleClass="screen-title"/>
+            <Label text="교과서 구조의 역할을 우리 코드의 클래스, 메서드, attribute, 실행 흐름으로 바로 대응시킨 발표용 가이드입니다."
+                   styleClass="screen-sub"/>
+        </VBox>
+    </content>
+</ScrollPane>
