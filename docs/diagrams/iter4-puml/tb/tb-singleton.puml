@@ -1,0 +1,35 @@
+@startuml tb-singleton
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Lucida Grande"
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  FontColor #000000
+  AttributeFontColor #000000
+  StereotypeFontColor #000000
+  HeaderBackgroundColor #FFFFCE
+}
+skinparam legendBackgroundColor #FFFFFF
+
+title 그림 6-2 대응 — Singleton / AppConfig (iteration 4)
+class AppConfig <<Singleton>> #line:red;line.bold {
+  -{static} instance: AppConfig
+  --
+  -AppConfig()
+  +{static} getInstance(): AppConfig
+}
+note bottom of AppConfig
+  그림 6-2 와 동일: private static instance + private 생성자 + static getInstance().
+  (앱 전역 설정 payload 는 적용 확장)
+end note
+legend bottom
+  <#FFFFCE>|= 표기 |= 의미 |
+  |<#FFFFCE> 노란 박스 | iteration 1-3 기존 |
+  | <color:red>빨강 테두리/글자</color> | iteration 4 신규/수정 |
+endlegend
+@enduml

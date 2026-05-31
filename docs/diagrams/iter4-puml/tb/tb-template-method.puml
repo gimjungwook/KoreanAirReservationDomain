@@ -1,0 +1,47 @@
+@startuml tb-template-method
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Lucida Grande"
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  FontColor #000000
+  AttributeFontColor #000000
+  StereotypeFontColor #000000
+  HeaderBackgroundColor #FFFFCE
+}
+skinparam legendBackgroundColor #FFFFFF
+
+title 그림 11-7 대응 — Template Method (티켓 렌더링) (iteration 4)
+abstract class TicketRenderer <<AbstractClass>> #line:red;line.bold {
+  +{final} render(): String
+  #{abstract} header(): String
+  #{abstract} body(): String
+  #{abstract} footer(): String
+}
+class HtmlTicketRenderer <<ConcreteClass>> #line:red;line.bold {
+  #header(): String
+  #body(): String
+  #footer(): String
+}
+class PlainTextTicketRenderer <<ConcreteClass>> #line:red;line.bold {
+  #header(): String
+  #body(): String
+  #footer(): String
+}
+TicketRenderer <|-- HtmlTicketRenderer
+TicketRenderer <|-- PlainTextTicketRenderer
+note bottom of TicketRenderer
+  templateMethod(render, final) 가 protected primitiveOperation(header/body/footer) 호출,
+  서브클래스가 primitive 만 override
+end note
+legend bottom
+  <#FFFFCE>|= 표기 |= 의미 |
+  |<#FFFFCE> 노란 박스 | iteration 1-3 기존 |
+  | <color:red>빨강 테두리/글자</color> | iteration 4 신규/수정 |
+endlegend
+@enduml
