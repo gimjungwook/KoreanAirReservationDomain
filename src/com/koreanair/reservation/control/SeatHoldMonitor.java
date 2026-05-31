@@ -21,6 +21,20 @@ public class SeatHoldMonitor extends EventPublisher {
 
     private final List<HeldSeat> tracked = new ArrayList<>();
 
+    /** 교과서 ConcreteSubject 의 관찰 상태(-subjectState) — 마지막 좌석 hold 만료 이벤트. */
+    private SeatHoldExpiredEvent subjectState;
+
+    /** 교과서 ConcreteSubject.getState(). */
+    public SeatHoldExpiredEvent getState() {
+        return subjectState;
+    }
+
+    /** 교과서 ConcreteSubject.setState(state) — 상태 저장 후 무인자 notifyObservers(). */
+    public void setState(SeatHoldExpiredEvent event) {
+        this.subjectState = event;
+        notifyObservers();
+    }
+
     public void track(Seat seat, String reservationPnr) {
         if (seat == null) {
             return;
@@ -41,7 +55,7 @@ public class SeatHoldMonitor extends EventPublisher {
         List<HeldSeat> snapshot = new ArrayList<>(tracked);
         for (HeldSeat h : snapshot) {
             if (h.seat.isHoldExpiredAt(now)) {
-                notifyObservers(new SeatHoldExpiredEvent(h.seat, h.reservationPnr));
+                setState(new SeatHoldExpiredEvent(h.seat, h.reservationPnr));
                 tracked.remove(h);
                 fired++;
             }

@@ -86,9 +86,9 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        // Strategy 선택: 정책을 로컬로 확정한 뒤 Context 필드에 반영(getter용)하고, 계산은 로컬 정책으로 위임한다.
-        RefundPolicy policy = resolvePolicy(fareRule);
-        setStrategy(policy);
+        // Strategy 패턴(교과서 그림 5-6) — Context 는 현재 전략을 필드(-strategy)로 교체(setStrategy)한 뒤,
+        // 계산은 "보유한 전략 객체"에 위임한다: ContextMethod() -> this.strategy.strategyMethod().
+        setStrategy(resolvePolicy(fareRule));
 
         // 결제 합계 계산 — payments.amount 단순 합산.
         BigDecimal paid = BigDecimal.ZERO;
@@ -97,10 +97,10 @@ public class RefundHandler {
                 paid = paid.add(p.getAmount());
             }
         }
-        BigDecimal refundAmount = policy.calculateRefundAmount(paid);
+        BigDecimal refundAmount = this.strategy.calculateRefundAmount(paid);
         System.out.printf("[STRATEGY] FareRule(%s) -> %s -> %,d KRW%n",
                 fareRule.getFareClass() != null ? fareRule.getFareClass() : "?",
-                policy.getClass().getSimpleName(),
+                this.strategy.getClass().getSimpleName(),
                 refundAmount.longValue());
 
         String requestId = "REQ-" + (requestSeq++);
@@ -182,15 +182,14 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        RefundPolicy policy = resolvePolicy(fareRule);
-        setStrategy(policy);
+        setStrategy(resolvePolicy(fareRule));
         BigDecimal paid = BigDecimal.ZERO;
         for (Payment p : reservation.getPayments()) {
             if (p != null && p.getAmount() != null) {
                 paid = paid.add(p.getAmount());
             }
         }
-        return policy.calculateRefundAmount(paid);
+        return this.strategy.calculateRefundAmount(paid);
     }
 
     /** 미리보기에서 사용할 정책 이름 (Strategy 클래스명). */
@@ -203,9 +202,8 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        RefundPolicy policy = resolvePolicy(fareRule);
-        setStrategy(policy);
-        return policy.getClass().getSimpleName();
+        setStrategy(resolvePolicy(fareRule));
+        return this.strategy.getClass().getSimpleName();
     }
 
     /**

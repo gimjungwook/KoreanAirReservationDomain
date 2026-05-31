@@ -1,7 +1,6 @@
 package com.koreanair.reservation.control;
 
 import com.koreanair.reservation.domain.bus.BusTicketRequest;
-import com.koreanair.reservation.domain.event.DomainEvent;
 import com.koreanair.reservation.domain.event.EventListener;
 import com.koreanair.reservation.domain.event.TicketIssuedEvent;
 
@@ -30,11 +29,11 @@ public class BusTicketPurchaseListener implements EventListener {
     }
 
     @Override
-    public void update(DomainEvent event) {
-        if (!(event instanceof TicketIssuedEvent)) {
+    public void update() {
+        TicketIssuedEvent ticketIssued = subject != null ? subject.getState() : null;
+        if (ticketIssued == null) {
             return;
         }
-        TicketIssuedEvent ticketIssued = (TicketIssuedEvent) event;
         BusTicketRequest req = ticketIssued.getBusTicketRequest();
         if (req == null || req.getOriginCity() == null) {
             System.out.println("[BUS] no linked bus origin city selected; skip shuttle issue");

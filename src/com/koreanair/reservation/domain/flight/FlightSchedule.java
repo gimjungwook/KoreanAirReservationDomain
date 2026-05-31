@@ -79,11 +79,25 @@ public class FlightSchedule extends EventPublisher {
         return null;
     }
 
+    /** 교과서 ConcreteSubject 의 관찰 상태(-subjectState) — 마지막 항공편 상태변경 이벤트. */
+    private FlightStatusChangedEvent subjectState;
+
+    /** 교과서 ConcreteSubject.getState(). */
+    public FlightStatusChangedEvent getState() {
+        return subjectState;
+    }
+
+    /** 교과서 ConcreteSubject.setState(state) — 상태 저장 후 무인자 notifyObservers(). */
+    public void setState(FlightStatusChangedEvent event) {
+        this.subjectState = event;
+        notifyObservers();
+    }
+
     public void changeStatus(FlightStatus status) {
         FlightStatus previous = this.status;
         this.status = status;
         if (previous != status) {
-            notifyObservers(new FlightStatusChangedEvent(this, previous, status));
+            setState(new FlightStatusChangedEvent(this, previous, status));
         }
     }
 

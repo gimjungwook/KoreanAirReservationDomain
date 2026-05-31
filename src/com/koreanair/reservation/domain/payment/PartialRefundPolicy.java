@@ -14,9 +14,4 @@ public class PartialRefundPolicy implements RefundPolicy {
         }
         return baseAmount.multiply(HALF).setScale(0, RoundingMode.HALF_UP);
     }
-
-    @Override
-    public String getRefundType() {
-        return "PARTIAL";
-    }
 }

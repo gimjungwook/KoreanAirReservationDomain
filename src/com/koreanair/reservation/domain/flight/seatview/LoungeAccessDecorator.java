@@ -18,7 +18,7 @@ public class LoungeAccessDecorator extends AbstractSeatDecorator {
 
     @Override
     public String getDescription() {
-        return super.getDescription() + addedLabel();
+        return super.getDescription() + addedBehavior();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class LoungeAccessDecorator extends AbstractSeatDecorator {
         return labels;
     }
 
-    private String addedLabel() {
+    private String addedBehavior() {
         return " · 라운지 이용 (+80,000)";
     }
 }

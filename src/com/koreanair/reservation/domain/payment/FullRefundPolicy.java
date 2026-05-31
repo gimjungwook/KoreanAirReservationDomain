@@ -8,9 +8,4 @@ public class FullRefundPolicy implements RefundPolicy {
     public BigDecimal calculateRefundAmount(BigDecimal baseAmount) {
         return baseAmount;
     }
-
-    @Override
-    public String getRefundType() {
-        return "FULL";
-    }
 }

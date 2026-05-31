@@ -3,7 +3,6 @@ package com.koreanair.reservation.control;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.koreanair.reservation.domain.event.DomainEvent;
 import com.koreanair.reservation.domain.event.EventListener;
 import com.koreanair.reservation.domain.event.FlightStatusChangedEvent;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
@@ -20,6 +19,8 @@ import com.koreanair.reservation.domain.reservation.Segment;
 public class AffectedReservationListener implements EventListener {
 
     private final ReservationRegistry registry;
+    /** 교과서 ConcreteObserver 가 관찰하는 ConcreteSubject 역참조(-concreteSubject). */
+    private FlightSchedule subject;
 
     public AffectedReservationListener() {
         this(ReservationRegistry.DEFAULT);
@@ -29,12 +30,21 @@ public class AffectedReservationListener implements EventListener {
         this.registry = registry != null ? registry : ReservationRegistry.DEFAULT;
     }
 
+    /** 관찰 대상 Subject 주입 — 교과서 ConcreteObserver -> ConcreteSubject 연관. */
+    public void setSubject(FlightSchedule subject) {
+        this.subject = subject;
+    }
+
+    public FlightSchedule getSubject() {
+        return subject;
+    }
+
     @Override
-    public void update(DomainEvent event) {
-        if (!(event instanceof FlightStatusChangedEvent)) {
+    public void update() {
+        FlightStatusChangedEvent e = subject != null ? subject.getState() : null;
+        if (e == null) {
             return;
         }
-        FlightStatusChangedEvent e = (FlightStatusChangedEvent) event;
         FlightSchedule schedule = e.getSchedule();
         if (schedule == null) {
             return;

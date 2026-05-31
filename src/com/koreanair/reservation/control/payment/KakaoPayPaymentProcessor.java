@@ -13,8 +13,8 @@ public class KakaoPayPaymentProcessor extends PaymentMethodProcessor {
     }
 
     @Override
-    protected Payment createPayment(long amount) {
-        return stamp(new KakaoPayPayment(), amount);
+    public Payment createPayment() {
+        return new KakaoPayPayment();
     }
 
     @Override

@@ -3,8 +3,6 @@ package com.koreanair.reservation.control.payment;
 import java.math.BigDecimal;
 
 import com.koreanair.reservation.boundary.PaymentGatewayInterface;
-import com.koreanair.reservation.domain.event.EventPublisher;
-import com.koreanair.reservation.domain.event.PaymentFailedEvent;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
@@ -14,9 +12,10 @@ import com.koreanair.reservation.domain.payment.PaymentMethod;
  * <p>구체 결제 수단별 ConcreteCreator 가 {@link #createPayment(long)} 을 오버라이드해
  * 자기 종류의 Payment 객체를 생성한다. processCharge() 가 템플릿으로 동작한다.
  *
- * <p>EventPublisher 를 상속해 결제 실패 시 PaymentFailedEvent 를 발행한다 (Observer 연계).
+ * <p>SOLID(SRP): 이 클래스는 Factory Method 의 Creator 역할만 담당한다. Observer 의 Subject 역할은
+ * 별도 클래스({@link com.koreanair.reservation.control.PaymentProcessor})가 맡아 결제 실패 이벤트를 발행한다.
  */
-public abstract class PaymentMethodProcessor extends EventPublisher {
+public abstract class PaymentMethodProcessor {
 
     private static long paymentSequence = 1;
     private final PaymentGatewayInterface gateway;
@@ -25,8 +24,8 @@ public abstract class PaymentMethodProcessor extends EventPublisher {
         this.gateway = gateway;
     }
 
-    /** Factory Method: 서브클래스에서 자기 method 타입의 Payment 생성. */
-    protected abstract Payment createPayment(long amount);
+    /** 교과서 factoryMethod(): Product — public, 무인자. ConcreteCreator 가 자기 종류의 Payment 를 생성. */
+    public abstract Payment createPayment();
 
     /** PaymentMethod 메타. 로깅/리포팅용. */
     public abstract PaymentMethod method();
@@ -38,13 +37,15 @@ public abstract class PaymentMethodProcessor extends EventPublisher {
         if (amount <= 0) {
             throw new IllegalArgumentException("결제 금액은 0보다 커야 합니다.");
         }
-        Payment payment = createPayment(amount);
+        // anOperation(템플릿): factoryMethod() 로 ConcreteProduct 생성 후 amount/seq 를 찍는다.
+        Payment payment = stamp(createPayment(), amount);
         boolean authorized = authorize(payment);
         if (authorized) {
             payment.pay();
         } else {
             payment.fail();
-            notifyObservers(new PaymentFailedEvent(payment, reservationPnr, declineReason()));
+            System.out.println("[PAYMENT] " + method() + " 결제 실패 pnr=" + reservationPnr
+                    + " reason=" + declineReason());
         }
         return payment;
     }

@@ -1,6 +1,5 @@
 package com.koreanair.reservation.control;
 
-import com.koreanair.reservation.domain.event.DomainEvent;
 import com.koreanair.reservation.domain.event.EventListener;
 import com.koreanair.reservation.domain.event.PaymentFailedEvent;
 import com.koreanair.reservation.domain.reservation.Reservation;
@@ -27,11 +26,11 @@ public class ReservationAutoCancelListener implements EventListener {
     }
 
     @Override
-    public void update(DomainEvent event) {
-        if (!(event instanceof PaymentFailedEvent)) {
+    public void update() {
+        PaymentFailedEvent e = subject != null ? subject.getState() : null;
+        if (e == null) {
             return;
         }
-        PaymentFailedEvent e = (PaymentFailedEvent) event;
         String pnr = e.getReservationPnr();
         if (pnr == null) {
             return;

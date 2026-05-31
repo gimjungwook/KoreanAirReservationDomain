@@ -8,7 +8,7 @@ import com.koreanair.reservation.domain.flight.seatview.AisleSeatDecorator;
 import com.koreanair.reservation.domain.flight.seatview.ExtraLegroomDecorator;
 import com.koreanair.reservation.domain.flight.seatview.LoungeAccessDecorator;
 import com.koreanair.reservation.domain.flight.seatview.SeatView;
-import com.koreanair.reservation.domain.flight.seatview.SeatViewAdapter;
+import com.koreanair.reservation.domain.flight.seatview.BaseSeatView;
 import com.koreanair.reservation.domain.flight.seatview.WindowSeatDecorator;
 import com.koreanair.reservation.domain.reservation.Reservation;
 
@@ -97,7 +97,7 @@ public final class SeatController {
     private void refreshSeatView() {
         if (selectedSeat == null) return;
         Seat seat = new Seat(selectedSeat, CabinClass.ECONOMY);
-        SeatView view = new SeatViewAdapter(seat);                       // ConcreteComponent
+        SeatView view = new BaseSeatView(seat);                       // ConcreteComponent
         char col = selectedSeat.charAt(selectedSeat.length() - 1);
         if (col == 'A' || col == 'F') view = new WindowSeatDecorator(view);   // 창측
         else if (col == 'C' || col == 'D') view = new AisleSeatDecorator(view); // 통로

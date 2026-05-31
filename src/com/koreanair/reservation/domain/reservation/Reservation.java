@@ -2,9 +2,7 @@ package com.koreanair.reservation.domain.reservation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.koreanair.reservation.domain.passenger.Passenger;
 import com.koreanair.reservation.domain.payment.Payment;
@@ -40,12 +38,6 @@ public class Reservation {
     private List<ReservationItem> reservationItems = new ArrayList<>();
     private List<Payment> payments = new ArrayList<>();
     private List<Ticket> tickets = new ArrayList<>();
-
-    /**
-     * Iteration 2: PNR -> Reservation 인메모리 레지스트리.
-     * setReservationNumber() 시점에 등록되어 findByPnr 조회를 지원한다.
-     */
-    private static final Map<String, Reservation> REGISTRY = new HashMap<>();
 
     // --- State 패턴 ---
     private ReservationState currentState;
@@ -150,19 +142,6 @@ public class Reservation {
     public void evaluateImpactOfFlightStatusChange() {
     }
 
-    public static Reservation create(ReservationStatus initialStatus) {
-        Reservation r = new Reservation();
-        r.status = initialStatus;
-        return r;
-    }
-
-    public static Reservation create(String initialStatus) {
-        return create(ReservationStatus.valueOf(initialStatus));
-    }
-
-    public void updatePassengerInfo(Object passengerData) {
-    }
-
     /**
      * 기존 시그니처 보존. ReservationStatus enum 컨텍스트만 갱신.
      * State 객체와의 동기화는 State 전이 메서드 내부에서 자동으로 수행된다.
@@ -173,21 +152,14 @@ public class Reservation {
 
     /**
      * Iteration 2: PNR 로 Reservation 을 조회한다.
-     * 등록은 {@link #setReservationNumber(String)} 호출 시점에 자동 수행.
+     *
+     * <p>Iteration 4 SRP — PNR 영속/조회 책임은
+     * {@link com.koreanair.reservation.control.ReservationRegistry} 한 곳으로 단일화하고,
+     * 본 메서드는 기존 호출부 호환을 위한 얇은 위임 shim 으로만 남긴다.
+     * (이전: Reservation 내부 static REGISTRY 맵 — ReservationRegistry 와 이중 보관하던 중복 제거.)
      */
     public static Reservation findByPnr(String pnr) {
-        if (pnr == null) {
-            return null;
-        }
-        return REGISTRY.get(pnr);
-    }
-
-    public String getContactEmail() {
-        return null;
-    }
-
-    public Reservation getReservationDetail(String pnr) {
-        return findByPnr(pnr);
+        return com.koreanair.reservation.control.ReservationRegistry.DEFAULT.findByPnr(pnr);
     }
 
     // --- State 패턴 전용 메서드 (신규) ---
@@ -258,7 +230,6 @@ public class Reservation {
     public void setReservationNumber(String reservationNumber) {
         this.reservationNumber = reservationNumber;
         if (reservationNumber != null) {
-            REGISTRY.put(reservationNumber, this);
             com.koreanair.reservation.control.ReservationRegistry.DEFAULT.register(this);
         }
     }

@@ -13,8 +13,8 @@ public class BankTransferPaymentProcessor extends PaymentMethodProcessor {
     }
 
     @Override
-    protected Payment createPayment(long amount) {
-        return stamp(new BankTransferPayment(), amount);
+    public Payment createPayment() {
+        return new BankTransferPayment();
     }
 
     @Override

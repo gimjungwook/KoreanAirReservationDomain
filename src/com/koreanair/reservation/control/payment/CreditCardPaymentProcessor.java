@@ -13,8 +13,8 @@ public class CreditCardPaymentProcessor extends PaymentMethodProcessor {
     }
 
     @Override
-    protected Payment createPayment(long amount) {
-        return stamp(new CreditCardPayment(), amount);
+    public Payment createPayment() {
+        return new CreditCardPayment();
     }
 
     @Override

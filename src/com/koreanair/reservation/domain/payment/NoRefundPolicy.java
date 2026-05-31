@@ -8,9 +8,4 @@ public class NoRefundPolicy implements RefundPolicy {
     public BigDecimal calculateRefundAmount(BigDecimal baseAmount) {
         return BigDecimal.ZERO;
     }
-
-    @Override
-    public String getRefundType() {
-        return "NONE";
-    }
 }

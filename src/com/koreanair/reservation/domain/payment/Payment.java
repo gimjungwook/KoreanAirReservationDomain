@@ -35,10 +35,6 @@ public abstract class Payment {
         return paymentMethod;
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
     public Long getPaymentId() {
         return paymentId;
     }

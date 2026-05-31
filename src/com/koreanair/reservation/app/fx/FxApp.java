@@ -41,7 +41,9 @@ public final class FxApp extends Application {
         ReservationLookupService lookupService = new ReservationLookupService(auth);
         TicketPurchasePublisher ticketPublisher = new TicketPurchasePublisher();
         BusTicketingService busTicketingService = new BusTicketingService();
-        ticketPublisher.attach(new BusTicketPurchaseListener(busTicketingService));
+        BusTicketPurchaseListener busListener = new BusTicketPurchaseListener(busTicketingService);
+        busListener.setSubject(ticketPublisher);
+        ticketPublisher.attach(busListener);
         BookingController booking = new BookingController(
                 auth, search, paymentProcessor, refundHandler, lookupService);
 

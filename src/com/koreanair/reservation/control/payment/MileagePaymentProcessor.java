@@ -1,8 +1,5 @@
 package com.koreanair.reservation.control.payment;
 
-import java.math.BigDecimal;
-
-import com.koreanair.reservation.domain.event.PaymentFailedEvent;
 import com.koreanair.reservation.domain.passenger.MileageAccount;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.MileagePayment;
@@ -23,8 +20,8 @@ public class MileagePaymentProcessor extends PaymentMethodProcessor {
     }
 
     @Override
-    protected Payment createPayment(long amount) {
-        return stamp(new MileagePayment(), amount);
+    public Payment createPayment() {
+        return new MileagePayment();
     }
 
     @Override
@@ -32,22 +29,15 @@ public class MileagePaymentProcessor extends PaymentMethodProcessor {
         return PaymentMethod.MILEAGE;
     }
 
+    /**
+     * Factory Method 의 anOperation(processCharge)은 Creator 에 고정하고, 마일리지 특화 동작은
+     * primitive hook authorize() 만 override 한다(외부 gateway 대신 MileageAccount 잔액 차감).
+     */
     @Override
-    public Payment processCharge(long amount, String reservationPnr) {
+    protected boolean authorize(Payment payment) {
         if (account == null) {
             throw new IllegalStateException("마일리지 계정이 필요합니다.");
         }
-        if (amount <= 0) {
-            throw new IllegalArgumentException("결제 금액은 0보다 커야 합니다.");
-        }
-        Payment payment = createPayment(amount);
-        boolean charged = account.withdraw(BigDecimal.valueOf(amount));
-        if (charged) {
-            payment.pay();
-        } else {
-            payment.fail();
-            notifyObservers(new PaymentFailedEvent(payment, reservationPnr, "insufficient-mileage"));
-        }
-        return payment;
+        return payment.getAmount() != null && account.withdraw(payment.getAmount());
     }
 }

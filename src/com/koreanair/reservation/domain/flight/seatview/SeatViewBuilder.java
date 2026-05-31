@@ -14,7 +14,7 @@ public final class SeatViewBuilder {
     private SeatViewBuilder() {}
 
     public static SeatView decorate(Seat seat) {
-        SeatView view = new SeatViewAdapter(seat);
+        SeatView view = new BaseSeatView(seat);
         if (seat.isWindowSeat()) {
             view = new WindowSeatDecorator(view);
         } else if (seat.isAisleSeat()) {

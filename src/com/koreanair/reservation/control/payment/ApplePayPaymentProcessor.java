@@ -13,8 +13,8 @@ public class ApplePayPaymentProcessor extends PaymentMethodProcessor {
     }
 
     @Override
-    protected Payment createPayment(long amount) {
-        return stamp(new ApplePayPayment(), amount);
+    public Payment createPayment() {
+        return new ApplePayPayment();
     }
 
     @Override

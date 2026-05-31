@@ -13,7 +13,7 @@ public class AisleSeatDecorator extends AbstractSeatDecorator {
 
     @Override
     public String getDescription() {
-        return super.getDescription() + addedLabel();
+        return super.getDescription() + addedBehavior();
     }
 
     @Override
@@ -23,7 +23,7 @@ public class AisleSeatDecorator extends AbstractSeatDecorator {
         return labels;
     }
 
-    private String addedLabel() {
+    private String addedBehavior() {
         return " · 통로";
     }
 }

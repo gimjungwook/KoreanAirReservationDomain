@@ -10,14 +10,15 @@ import com.koreanair.reservation.domain.flight.Seat;
 /**
  * DP#9 Decorator — ConcreteComponent.
  *
- * <p>Seat 도메인 객체를 SeatView 인터페이스에 맞춰 노출하는 기본 어댑터.
- * Decorator 체인의 시작점.
+ * <p>교과서 그림 10-7 의 ConcreteComponent 역할. Seat 도메인 객체를 SeatView(Component) 로
+ * 노출하는 기본 구현이며 Decorator 체인의 시작점이 된다. (Adapter 패턴과 혼동을 피하기 위해
+ * 이전 이름 SeatViewAdapter 를 BaseSeatView 로 정정 — 이 클래스는 순수 ConcreteComponent 다.)
  */
-public class SeatViewAdapter extends SeatView {
+public class BaseSeatView extends SeatView {
 
     private final Seat seat;
 
-    public SeatViewAdapter(Seat seat) {
+    public BaseSeatView(Seat seat) {
         this.seat = Objects.requireNonNull(seat);
     }
 

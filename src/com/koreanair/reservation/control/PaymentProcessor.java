@@ -23,6 +23,20 @@ public class PaymentProcessor extends EventPublisher {
     private PaymentGatewayInterface gateway;
     private static long paymentSequence = 1;
 
+    /** 교과서 ConcreteSubject 의 관찰 상태(-subjectState) — 마지막 결제 실패 이벤트. */
+    private PaymentFailedEvent subjectState;
+
+    /** 교과서 ConcreteSubject.getState(). */
+    public PaymentFailedEvent getState() {
+        return subjectState;
+    }
+
+    /** 교과서 ConcreteSubject.setState(state) — 상태 저장 후 무인자 notifyObservers(). */
+    public void setState(PaymentFailedEvent event) {
+        this.subjectState = event;
+        notifyObservers();
+    }
+
     public PaymentProcessor() {
     }
 
@@ -101,7 +115,7 @@ public class PaymentProcessor extends EventPublisher {
             payment.pay();
         } else {
             payment.fail();
-            notifyObservers(new PaymentFailedEvent(payment, reservationPnr, "gateway-declined"));
+            setState(new PaymentFailedEvent(payment, reservationPnr, "gateway-declined"));
         }
         return payment;
     }
@@ -128,7 +142,7 @@ public class PaymentProcessor extends EventPublisher {
             payment.pay();
         } else {
             payment.fail();
-            notifyObservers(new PaymentFailedEvent(payment, pnr, "insufficient-mileage"));
+            setState(new PaymentFailedEvent(payment, pnr, "insufficient-mileage"));
         }
         return payment;
     }

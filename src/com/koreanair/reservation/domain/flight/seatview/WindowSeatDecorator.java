@@ -15,7 +15,7 @@ public class WindowSeatDecorator extends AbstractSeatDecorator {
 
     @Override
     public String getDescription() {
-        return super.getDescription() + addedLabel();
+        return super.getDescription() + addedBehavior();
     }
 
     @Override
@@ -26,7 +26,7 @@ public class WindowSeatDecorator extends AbstractSeatDecorator {
     }
 
     /** addedBehavior — 창가 라벨. 요금은 0 이므로 getSurcharge 는 super 전달을 그대로 사용. */
-    private String addedLabel() {
+    private String addedBehavior() {
         return " · 창가";
     }
 }
