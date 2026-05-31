@@ -41,13 +41,13 @@ package "Boundary (JavaFX)" {
     +registerReservationToMember(): void
     +noop(): List<FlightSchedule>
   }
-  interface SkypassInterface <<Target>> {
+  interface SkypassInterface <<Target>> #FFCCCC {
     +verifyMembership(): Object
     +getMileageBalance(): int
     +deductMileage(): boolean
     +verifyAndDeduct(): Object
   }
-  class SkypassAdapter <<Adapter>> {
+  class SkypassAdapter <<Adapter>> #FFCCCC {
     -remoteApi: RemoteSkypassApi
     --
     +verifyMembership(): Object
@@ -55,7 +55,7 @@ package "Boundary (JavaFX)" {
     +deductMileage(): boolean
     +verifyAndDeduct(): Object
   }
-  class RemoteSkypassApi <<Adaptee>> {
+  class RemoteSkypassApi <<Adaptee>> #FFCCCC {
     -balances: Map<String,Integer>
     -tokens: Map<String,String>
     --
@@ -152,11 +152,11 @@ package "Control" {
     -resolveFareRuleFrom(): FareRule
     -synthesize(): FareRule
   }
-  class PaymentProcessorFactory <<Factory>> {
+  class PaymentProcessorFactory <<Factory>> #FFCCCC {
     +forMethod(): PaymentMethodProcessor
     +method(): PaymentMethod
   }
-  abstract class PaymentMethodProcessor {
+  abstract class PaymentMethodProcessor #FFCCCC {
     -paymentSequence: long
     -gateway: PaymentGatewayInterface
     --
@@ -168,13 +168,13 @@ package "Control" {
     #nextPaymentId(): long
     #basePayment(): Payment
   }
-  abstract class ItineraryFactory <<Factory>> {
+  abstract class ItineraryFactory <<Factory>> #FFCCCC {
     +build(): Itinerary
     #createItinerary(): Itinerary
     #validate(): void
     #postCheck(): void
   }
-  abstract class TicketRenderer <<Template>> {
+  abstract class TicketRenderer <<Template>> #FFCCCC {
     +render(): String
     #header(): String
     #body(): String
@@ -305,14 +305,14 @@ package "Domain :: payment" {
   }
 }
 package "Domain :: flight" {
-  interface AirportLocation <<Composite>> {
+  interface AirportLocation <<Composite>> #FFCCCC {
     +getCode(): String
     +getDisplayName(): String
     +getAirports(): List<Airport>
     +matches(): boolean
     +isComposite(): boolean
   }
-  class AirportCity {
+  class AirportCity #FFCCCC {
     -cityCode: String
     -cityName: String
     -country: String
@@ -328,7 +328,7 @@ package "Domain :: flight" {
     +matches(): boolean
     +isComposite(): boolean
   }
-  class Airport {
+  class Airport #FFCCCC {
     -airportCode: String
     -airportName: String
     -city: String
@@ -344,7 +344,7 @@ package "Domain :: flight" {
     +matches(): boolean
     +isComposite(): boolean
   }
-  interface SeatView <<Decorator>> {
+  interface SeatView <<Decorator>> #FFCCCC {
     +getSeat(): Seat
     +getDescription(): String
     +getSurcharge(): BigDecimal
@@ -365,7 +365,7 @@ package "Domain :: event" {
   }
 }
 package "app" {
-  class AppConfig <<Singleton>> {
+  class AppConfig <<Singleton>> #FFCCCC {
     -instance: AppConfig
     -fontFamily: String
     -fontSize: int
@@ -409,4 +409,9 @@ SkypassAdapter --> RemoteSkypassApi
 TicketPurchasePublisher o--> EventListener
 TicketRenderer ..> Reservation
 FxApp ..> AppConfig
+legend bottom
+|= 색 |= 의미 |
+|<#FFCCCC>    | iter4 신규 적용 패턴 (Composite/Singleton/Factory Method/Template Method/Adapter/Decorator) |
+|<#FFFFCE>    | iter1-3 기존 패턴 (State/Strategy/Observer) + 인프라 |
+endlegend
 @enduml

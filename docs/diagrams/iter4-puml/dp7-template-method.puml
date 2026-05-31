@@ -1,28 +1,28 @@
 @startuml dp7-template-method
 !include _style.puml
 title DP#7 Template Method - e-Ticket 렌더 골격 고정
-abstract class TicketRenderer <<AbstractClass>> {
+abstract class TicketRenderer <<AbstractClass>> #FFCCCC {
   +render(): String
   #header(): String
   #body(): String
   #footer(): String
   #separator(): String
 }
-class PlainTextTicketRenderer {
+class PlainTextTicketRenderer #FFCCCC {
   #header(): String
   #body(): String
   #footer(): String
   #separator(): String
   -safe(): String
 }
-class HtmlTicketRenderer {
+class HtmlTicketRenderer #FFCCCC {
   #header(): String
   #body(): String
   #footer(): String
   #separator(): String
   -safe(): String
 }
-class BoardingPassRenderer {
+class BoardingPassRenderer #FFCCCC {
   #header(): String
   #body(): String
   #footer(): String

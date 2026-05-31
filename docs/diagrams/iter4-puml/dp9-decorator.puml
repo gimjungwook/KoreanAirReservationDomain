@@ -1,13 +1,13 @@
 @startuml dp9-decorator
 !include _style.puml
 title DP#9 Decorator - 좌석 부가옵션 누적
-interface SeatView <<Component>> {
+interface SeatView <<Component>> #FFCCCC {
   +getSeat(): Seat
   +getDescription(): String
   +getSurcharge(): BigDecimal
   +getMetadataLabels(): List<String>
 }
-class SeatViewAdapter <<ConcreteComponent>> {
+class SeatViewAdapter <<ConcreteComponent>> #FFCCCC {
   -seat: Seat
   --
   +getSeat(): Seat
@@ -15,7 +15,7 @@ class SeatViewAdapter <<ConcreteComponent>> {
   +getSurcharge(): BigDecimal
   +getMetadataLabels(): List<String>
 }
-abstract class AbstractSeatDecorator <<Decorator>> {
+abstract class AbstractSeatDecorator <<Decorator>> #FFCCCC {
   #wrapped: SeatView
   --
   +getSeat(): Seat
@@ -26,24 +26,24 @@ abstract class AbstractSeatDecorator <<Decorator>> {
   #extraSurcharge(): BigDecimal
   #ownLabel(): String
 }
-class WindowSeatDecorator {
+class WindowSeatDecorator #FFCCCC {
   #appendLabel(): String
   #extraSurcharge(): BigDecimal
   #ownLabel(): String
 }
-class AisleSeatDecorator {
+class AisleSeatDecorator #FFCCCC {
   #appendLabel(): String
   #extraSurcharge(): BigDecimal
   #ownLabel(): String
 }
-class ExtraLegroomDecorator {
+class ExtraLegroomDecorator #FFCCCC {
   -SURCHARGE: BigDecimal
   --
   #appendLabel(): String
   #extraSurcharge(): BigDecimal
   #ownLabel(): String
 }
-class LoungeAccessDecorator {
+class LoungeAccessDecorator #FFCCCC {
   -SURCHARGE: BigDecimal
   --
   #appendLabel(): String

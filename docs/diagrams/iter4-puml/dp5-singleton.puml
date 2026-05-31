@@ -1,7 +1,7 @@
 @startuml dp5-singleton
 !include _style.puml
 title DP#5 Singleton - 전역 설정 단일 인스턴스
-class AppConfig <<Singleton>> {
+class AppConfig <<Singleton>> #FFCCCC {
   -instance: AppConfig
   -fontFamily: String
   -fontSize: int

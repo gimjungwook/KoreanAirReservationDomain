@@ -1,13 +1,13 @@
 @startuml dp8-adapter
 !include _style.puml
 title DP#8 Adapter - 외부 Skypass API 인터페이스 변환
-interface SkypassInterface <<Target>> {
+interface SkypassInterface <<Target>> #FFCCCC {
   +verifyMembership(): Object
   +getMileageBalance(): int
   +deductMileage(): boolean
   +verifyAndDeduct(): Object
 }
-class SkypassAdapter <<Adapter>> {
+class SkypassAdapter <<Adapter>> #FFCCCC {
   -remoteApi: RemoteSkypassApi
   --
   +verifyMembership(): Object
@@ -15,7 +15,7 @@ class SkypassAdapter <<Adapter>> {
   +deductMileage(): boolean
   +verifyAndDeduct(): Object
 }
-class RemoteSkypassApi <<Adaptee>> {
+class RemoteSkypassApi <<Adaptee>> #FFCCCC {
   -balances: Map<String,Integer>
   -tokens: Map<String,String>
   --

@@ -1,7 +1,7 @@
 @startuml dp6-factory-method
 !include _style.puml
 title DP#6 Factory Method - 결제수단/여정 생성 위임
-abstract class PaymentMethodProcessor <<Product>> {
+abstract class PaymentMethodProcessor <<Product>> #FFCCCC {
   -paymentSequence: long
   -gateway: PaymentGatewayInterface
   --
@@ -13,54 +13,54 @@ abstract class PaymentMethodProcessor <<Product>> {
   #nextPaymentId(): long
   #basePayment(): Payment
 }
-class PaymentProcessorFactory <<Creator>> {
+class PaymentProcessorFactory <<Creator>> #FFCCCC {
   +forMethod(): PaymentMethodProcessor
   +method(): PaymentMethod
 }
-class CreditCardPaymentProcessor {
+class CreditCardPaymentProcessor #FFCCCC {
   #createPayment(): Payment
   +method(): PaymentMethod
 }
-class KakaoPayPaymentProcessor {
-  #createPayment(): Payment
-  +method(): PaymentMethod
-  #declineReason(): String
-}
-class ApplePayPaymentProcessor {
+class KakaoPayPaymentProcessor #FFCCCC {
   #createPayment(): Payment
   +method(): PaymentMethod
   #declineReason(): String
 }
-class BankTransferPaymentProcessor {
+class ApplePayPaymentProcessor #FFCCCC {
   #createPayment(): Payment
   +method(): PaymentMethod
   #declineReason(): String
 }
-class MileagePaymentProcessor {
+class BankTransferPaymentProcessor #FFCCCC {
+  #createPayment(): Payment
+  +method(): PaymentMethod
+  #declineReason(): String
+}
+class MileagePaymentProcessor #FFCCCC {
   -account: MileageAccount
   --
   #createPayment(): Payment
   +method(): PaymentMethod
   +processCharge(): Payment
 }
-abstract class ItineraryFactory <<Creator>> {
+abstract class ItineraryFactory <<Creator>> #FFCCCC {
   +build(): Itinerary
   #createItinerary(): Itinerary
   #validate(): void
   #postCheck(): void
 }
-class DirectItineraryFactory {
+class DirectItineraryFactory #FFCCCC {
   #createItinerary(): Itinerary
   #validate(): void
 }
-class ConnectingItineraryFactory {
+class ConnectingItineraryFactory #FFCCCC {
   -mct: Duration
   --
   #createItinerary(): Itinerary
   #validate(): void
   #postCheck(): void
 }
-class MultiCityItineraryFactory {
+class MultiCityItineraryFactory #FFCCCC {
   #createItinerary(): Itinerary
   #validate(): void
 }

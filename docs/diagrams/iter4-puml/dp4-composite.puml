@@ -1,14 +1,14 @@
 @startuml dp4-composite
 !include _style.puml
 title DP#4 Composite - 공항(Leaf)과 도시(Composite) 동일 취급
-interface AirportLocation <<Component>> {
+interface AirportLocation <<Component>> #FFCCCC {
   +getCode(): String
   +getDisplayName(): String
   +getAirports(): List<Airport>
   +matches(): boolean
   +isComposite(): boolean
 }
-class Airport <<Leaf>> {
+class Airport <<Leaf>> #FFCCCC {
   -airportCode: String
   -airportName: String
   -city: String
@@ -24,7 +24,7 @@ class Airport <<Leaf>> {
   +matches(): boolean
   +isComposite(): boolean
 }
-class AirportCity <<Composite>> {
+class AirportCity <<Composite>> #FFCCCC {
   -cityCode: String
   -cityName: String
   -country: String
@@ -40,7 +40,7 @@ class AirportCity <<Composite>> {
   +matches(): boolean
   +isComposite(): boolean
 }
-class AirportCatalog {
+class AirportCatalog #FFCCCC {
   -airportsByCode: Map<String,Airport>
   -citiesByCode: Map<String,AirportCity>
   --
