@@ -86,9 +86,9 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        // Strategy 교체: Context 가 보유한 strategy 필드에 운임에 맞는 정책을 세팅하고, 이후 필드로 위임한다.
-        setStrategy(resolvePolicy(fareRule));
-        RefundPolicy policy = this.strategy;
+        // Strategy 선택: 정책을 로컬로 확정한 뒤 Context 필드에 반영(getter용)하고, 계산은 로컬 정책으로 위임한다.
+        RefundPolicy policy = resolvePolicy(fareRule);
+        setStrategy(policy);
 
         // 결제 합계 계산 — payments.amount 단순 합산.
         BigDecimal paid = BigDecimal.ZERO;
@@ -182,8 +182,8 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        setStrategy(resolvePolicy(fareRule));
-        RefundPolicy policy = this.strategy;
+        RefundPolicy policy = resolvePolicy(fareRule);
+        setStrategy(policy);
         BigDecimal paid = BigDecimal.ZERO;
         for (Payment p : reservation.getPayments()) {
             if (p != null && p.getAmount() != null) {
@@ -203,8 +203,9 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        setStrategy(resolvePolicy(fareRule));
-        return this.strategy.getClass().getSimpleName();
+        RefundPolicy policy = resolvePolicy(fareRule);
+        setStrategy(policy);
+        return policy.getClass().getSimpleName();
     }
 
     /**

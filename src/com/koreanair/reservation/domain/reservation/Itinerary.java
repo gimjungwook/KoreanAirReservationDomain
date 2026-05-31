@@ -44,66 +44,9 @@ public abstract class Itinerary {
     }
 
     public void addSegment(Segment segment) {
+        // tripType 은 ConcreteProduct(Direct/Connecting/MultiCity Itinerary)가 생성자에서 고정한다.
+        // 여기서 재추론하면 MULTI_CITY 가 CONNECTING 으로 덮여쓰일 수 있어 재추론하지 않는다.
         segments.add(segment);
-        if (tripType == null) {
-            tripType = "DIRECT";
-        } else if (segments.size() >= 2) {
-            tripType = inferTripType();
-        }
-    }
-
-    private String inferTripType() {
-        if (segments.size() <= 1) {
-            return "DIRECT";
-        }
-        String origin = firstOriginCode();
-        String finalDest = lastDestinationCode();
-        if (origin != null && origin.equals(finalDest)) {
-            return "MULTI_CITY";
-        }
-        if (isPureConnecting()) {
-            return "CONNECTING";
-        }
-        return "MULTI_CITY";
-    }
-
-    private boolean isPureConnecting() {
-        for (int i = 0; i < segments.size() - 1; i++) {
-            Segment a = segments.get(i);
-            Segment b = segments.get(i + 1);
-            String aArr = destinationCode(a);
-            String bDep = originCode(b);
-            if (aArr == null || !aArr.equalsIgnoreCase(bDep)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private String firstOriginCode() {
-        return segments.isEmpty() ? null : originCode(segments.get(0));
-    }
-
-    private String lastDestinationCode() {
-        return segments.isEmpty() ? null : destinationCode(segments.get(segments.size() - 1));
-    }
-
-    private String originCode(Segment s) {
-        FlightSchedule fs = s != null ? s.getFlightSchedule() : null;
-        if (fs == null || fs.getFlight() == null || fs.getFlight().getRoute() == null
-                || fs.getFlight().getRoute().getOrigin() == null) {
-            return null;
-        }
-        return fs.getFlight().getRoute().getOrigin().getAirportCode();
-    }
-
-    private String destinationCode(Segment s) {
-        FlightSchedule fs = s != null ? s.getFlightSchedule() : null;
-        if (fs == null || fs.getFlight() == null || fs.getFlight().getRoute() == null
-                || fs.getFlight().getRoute().getDestination() == null) {
-            return null;
-        }
-        return fs.getFlight().getRoute().getDestination().getAirportCode();
     }
 
     /**
