@@ -99,8 +99,8 @@ public final class PatternGuideController {
                 new PatternNote(
                         "DP#1 State - Reservation lifecycle",
                         "예약 객체가 상태명을 enum으로 검사하지 않고, 현재 State 객체에게 가능한 전이를 위임한다.",
-                        "Context = Reservation, State = ReservationState, ConcreteState = 8개 상태",
-                        "Reservation.currentState, setState(), requestPayment(), issueTicket()",
+                        "Context = Reservation, State = ReservationState, Default = AbstractReservationState, ConcreteState = 8개 상태",
+                        "Reservation.currentState, setState(), requestPayment(), issueTicket(), AbstractReservationState 기본 거부",
                         "UI 버튼 -> Reservation 메서드 -> 현재 State가 검증 -> setState(next)",
                         """
                         class Reservation {
@@ -112,7 +112,12 @@ public final class PatternGuideController {
                                 currentState = next;
                             }
                         }
-                        class PendingPaymentState implements ReservationState {
+                        abstract class AbstractReservationState implements ReservationState {
+                            void processPayment(Reservation r) {
+                                throw new InvalidStateTransitionException(...);
+                            }
+                        }
+                        class PendingPaymentState extends AbstractReservationState {
                             void processPayment(Reservation r) {
                                 r.setState(new ConfirmedState());
                             }
@@ -217,25 +222,32 @@ public final class PatternGuideController {
                 new PatternNote(
                         "DP#6 Factory Method - Payment and itinerary creation",
                         "호출자가 구체 결제/여정 클래스를 직접 new 하지 않고, 선택값에 맞는 Product 생성을 팩토리에 맡긴다.",
-                        "Creator = Factory, Product = abstract processor/itinerary, ConcreteProduct = method/type별 구현",
-                        "PaymentProcessorFactory.forMethod(), ItineraryFactory.create(), confirmPaymentWith()",
-                        "콤보 선택 -> enum 매핑 -> factory -> concrete processor -> processCharge",
+                        "Creator = PaymentMethodProcessor / ItineraryFactory, Factory Method = createPayment() / createItinerary()",
+                        "ConcreteCreator = 결제수단별 Processor + Direct/Connecting/MultiCityFactory, 선택 헬퍼 = PaymentProcessorFactory",
+                        "콤보 선택 -> forMethod가 ConcreteCreator 선택 -> processCharge/build 안에서 Factory Method 호출",
                         """
-                        class PaymentProcessorFactory {
-                            static PaymentMethodProcessor forMethod(PaymentMethod m, ...) {
-                                return switch (m) {
-                                    case KAKAO_PAY -> new KakaoPayPaymentProcessor(...);
-                                    case APPLE_PAY -> new ApplePayPaymentProcessor(...);
-                                    case MILEAGE -> new MileagePaymentProcessor(...);
-                                    default -> new CreditCardPaymentProcessor(...);
-                                };
+                        abstract class PaymentMethodProcessor {
+                            final Payment processCharge(long amount, String pnr) {
+                                Payment p = createPayment(amount); // factory method
+                                if (authorize(p)) p.pay();
+                                else { p.fail(); publish(new PaymentFailedEvent(...)); }
+                                return p;
+                            }
+                            protected abstract Payment createPayment(long amount);
+                        }
+                        class KakaoPayPaymentProcessor extends PaymentMethodProcessor {
+                            protected Payment createPayment(long amount) {
+                                return basePayment(amount, PaymentMethod.KAKAO_PAY);
                             }
                         }
-                        class BookingController {
-                            Payment confirmPaymentWith(..., PaymentMethod method, ...) {
-                                var processor = PaymentProcessorFactory.forMethod(method, ...);
-                                return processor.processCharge(amount, pnr);
+                        abstract class ItineraryFactory {
+                            final Itinerary build(List<FlightSchedule> fs) {
+                                validate(fs);
+                                Itinerary it = createItinerary(); // factory method
+                                fs.forEach(s -> it.addSegment(new Segment(s)));
+                                return it;
                             }
+                            protected abstract Itinerary createItinerary();
                         }
                         """,
                         "결제 화면에서 결제 수단을 바꾸거나 검색에서 환승/다구간을 골라 Factory가 ConcreteProduct를 고르는 장면을 설명한다."),
