@@ -30,7 +30,7 @@ F --> BC : PaymentMethodProcessor
 deactivate F
 BC -[#CC0000]> P : processCharge(amount, pnr)
 activate P
-P -[#CC0000]> P : createPayment(seq)
+P -[#CC0000]> P : createPayment() then stamp(amount)
 P -> PG : authorize(payment)
 activate PG
 PG --> P : true

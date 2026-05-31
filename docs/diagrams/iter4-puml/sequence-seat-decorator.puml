@@ -13,19 +13,19 @@ actor Member
 participant "SeatController\n(JavaFX)" as UI
 participant "ExtraLegroomDecorator" as D2 #FFCCCC
 participant "WindowSeatDecorator" as D1 #FFCCCC
-participant "SeatViewAdapter\n<<ConcreteComponent>>" as C #FFCCCC
+participant "BaseSeatView\n<<ConcreteComponent>>" as C #FFCCCC
 
 Member -> UI : choose window + extra legroom
 activate UI
 note over UI,C #FFF0F0
   chain built at runtime:
-  new ExtraLegroomDecorator(new WindowSeatDecorator(new SeatViewAdapter(seat)))
+  new ExtraLegroomDecorator(new WindowSeatDecorator(new BaseSeatView(seat)))
 end note
 UI -[#CC0000]> D2 : getSurcharge()
 activate D2
-D2 -[#CC0000]> D1 : wrapped.getSurcharge()
+D2 -[#CC0000]> D1 : component.getSurcharge()
 activate D1
-D1 -[#CC0000]> C : wrapped.getSurcharge()
+D1 -[#CC0000]> C : component.getSurcharge()
 activate C
 C --> D1 : base (0)
 deactivate C
