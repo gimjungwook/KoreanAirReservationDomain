@@ -6,7 +6,7 @@
 
 - `iter4-final-deck.pptx`: editable PowerPoint deck
 - `iter4-final-deck.pdf`: 발표/검토용 PDF
-- `speaker-script-iter4-ko.md`: 50페이지별 짧은 발표 대본
+- `speaker-script-iter4-ko.md`: 70페이지 수정판 기준 짧은 발표 대본
 - `pattern-code-map.md`: DP별 교과서 역할, 우리 코드, 핵심 메서드, 시연 포인트
 
 ## Source Alignment
@@ -30,7 +30,7 @@
 
 ## Red Change Markers
 
-Deck 48페이지의 빨간 변경사항은 iter4 신규/변경 항목을 표시하기 위한 발표 포인트입니다.
+Deck 65페이지의 빨간 변경사항은 iter4 신규/변경 항목을 표시하기 위한 발표 포인트입니다.
 
 - `Composite`: `AirportLocation`, `AirportCity`, city-code search
 - `Singleton`: `AppConfig`, global settings listener
@@ -40,4 +40,3 @@ Deck 48페이지의 빨간 변경사항은 iter4 신규/변경 항목을 표시�
 - `Decorator`: `SeatView` decorator chain
 - JavaFX migration: `app.fx`, FXML/CSS/controller split
 - QA fixes: double refund, fare scaling, back navigation, connecting booking path
-

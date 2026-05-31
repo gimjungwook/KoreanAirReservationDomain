@@ -65,7 +65,7 @@
 ## 추가 보강한 자료
 
 - `pattern-code-map.md`: DP별 Ctrl+F 키워드와 코드 설명 순서
-- `speaker-script-iter4-ko.md`: 50페이지별 발표 대본
+- `speaker-script-iter4-ko.md`: 70페이지 수정판 기준 발표 대본
 - JavaFX `PatternGuideController`: 앱 내 DP#1 State, DP#6 Factory Method 설명을 실제 코드 기준으로 수정
 
 ## 발표 중 특히 조심할 문장
@@ -78,4 +78,3 @@
 
 - 피해야 할 말: “UI만 바꾸고 Control은 한 줄도 안 바꿨습니다.”
 - 권장 문장: “Boundary 중심으로 JavaFX 전환했고, Control에는 화면 노출을 위한 얇은 glue만 추가했습니다. 핵심 DP 구조는 유지했습니다.”
-
