@@ -1,6 +1,7 @@
 package com.koreanair.reservation.domain.flight.seatview;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * DP#9 Decorator — ConcreteDecorator: 라운지 액세스 (+80,000원).
@@ -11,22 +12,28 @@ public class LoungeAccessDecorator extends AbstractSeatDecorator {
 
     private static final BigDecimal SURCHARGE = new BigDecimal("80000");
 
-    public LoungeAccessDecorator(SeatView wrapped) {
-        super(wrapped);
+    public LoungeAccessDecorator(SeatView component) {
+        super(component);
     }
 
     @Override
-    protected String appendLabel() {
+    public String getDescription() {
+        return super.getDescription() + addedLabel();
+    }
+
+    @Override
+    public BigDecimal getSurcharge() {
+        return super.getSurcharge().add(SURCHARGE);
+    }
+
+    @Override
+    public List<String> getMetadataLabels() {
+        List<String> labels = super.getMetadataLabels();
+        labels.add("Lounge");
+        return labels;
+    }
+
+    private String addedLabel() {
         return " · 라운지 이용 (+80,000)";
-    }
-
-    @Override
-    protected BigDecimal extraSurcharge() {
-        return SURCHARGE;
-    }
-
-    @Override
-    protected String ownLabel() {
-        return "Lounge";
     }
 }

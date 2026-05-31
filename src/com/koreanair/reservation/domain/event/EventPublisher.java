@@ -30,7 +30,7 @@ public class EventPublisher {
         return listeners.size();
     }
 
-    protected void publish(DomainEvent event) {
+    public void publish(DomainEvent event) {
         if (event == null) {
             return;
         }

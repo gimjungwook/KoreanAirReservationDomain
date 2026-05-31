@@ -15,13 +15,27 @@ import com.koreanair.reservation.domain.reservation.Ticket;
  */
 public class TicketPurchasePublisher extends EventPublisher {
 
+    /** 교과서 ConcreteSubject 의 관찰 대상 상태(-subjectState) — 마지막으로 발행한 발권 이벤트. */
+    private TicketIssuedEvent subjectState;
+
+    /** 교과서 ConcreteSubject.getState() — 현재 관찰 상태 반환. */
+    public TicketIssuedEvent getState() {
+        return subjectState;
+    }
+
+    /** 교과서 ConcreteSubject.setState() — 상태를 저장한 뒤 옵서버에게 통지(notify)한다. */
+    public void setState(TicketIssuedEvent event) {
+        this.subjectState = event;
+        publish(event);
+    }
+
     /** Iteration 4: 좌석·스케줄 포함 BusTicketRequest 전달 */
     public void publishTicketIssued(Reservation reservation, Ticket ticket, BusTicketRequest req) {
-        publish(new TicketIssuedEvent(reservation, ticket, req));
+        setState(new TicketIssuedEvent(reservation, ticket, req));
     }
 
     /** Legacy: city only (iter3 호환). */
     public void publishTicketIssued(Reservation reservation, Ticket ticket, BusCity busCity) {
-        publish(new TicketIssuedEvent(reservation, ticket, busCity));
+        setState(new TicketIssuedEvent(reservation, ticket, busCity));
     }
 }

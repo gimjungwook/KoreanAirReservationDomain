@@ -10,13 +10,17 @@ import java.util.Objects;
  *
  * <p>예) NYC = JFK + LGA + EWR, TYO = NRT + HND, LON = LHR + LGW + STN, SEL = ICN + GMP.
  * 도시 코드(IATA city code)는 공항 코드와 구분된 별도 키로 동작한다.
+ *
+ * <p>교과서 Composite 그림과 동일하게 자식을 Component 타입(-components: 0..* AirportLocation)으로
+ * 보유하고, addComponent/removeComponent child-management 연산을 제공한다. 자식이 Component 타입이므로
+ * 도시 안에 도시(중첩 Composite)도 담을 수 있다.
  */
-public class AirportCity implements AirportLocation {
+public class AirportCity extends AirportLocation {
 
     private final String cityCode;
     private final String cityName;
     private final String country;
-    private final List<Airport> airports = new ArrayList<>();
+    private final List<AirportLocation> components = new ArrayList<>();
 
     public AirportCity(String cityCode, String cityName, String country) {
         this.cityCode = Objects.requireNonNull(cityCode);
@@ -24,12 +28,17 @@ public class AirportCity implements AirportLocation {
         this.country = country;
     }
 
-    public AirportCity add(Airport airport) {
-        if (airport == null) {
-            throw new IllegalArgumentException("airport must not be null");
+    /** 교과서 Composite.addComponent(Component) — 자식(Leaf 또는 중첩 Composite)을 추가. */
+    public void addComponent(AirportLocation component) {
+        if (component == null) {
+            throw new IllegalArgumentException("component must not be null");
         }
-        airports.add(airport);
-        return this;
+        components.add(component);
+    }
+
+    /** 교과서 Composite.removeComponent(Component) — 자식을 제거. */
+    public void removeComponent(AirportLocation component) {
+        components.remove(component);
     }
 
     public String getCityCode() {
@@ -56,7 +65,12 @@ public class AirportCity implements AirportLocation {
 
     @Override
     public List<Airport> getAirports() {
-        return Collections.unmodifiableList(airports);
+        // 자식 Component 전체를 재귀적으로 평탄화 — Leaf 는 자기 자신, 중첩 Composite 는 그 자식 전체.
+        List<Airport> all = new ArrayList<>();
+        for (AirportLocation component : components) {
+            all.addAll(component.getAirports());
+        }
+        return Collections.unmodifiableList(all);
     }
 
     @Override
@@ -67,8 +81,8 @@ public class AirportCity implements AirportLocation {
         if (cityCode.equalsIgnoreCase(code)) {
             return true;
         }
-        for (Airport a : airports) {
-            if (a.matches(code)) {
+        for (AirportLocation component : components) {
+            if (component.matches(code)) {
                 return true;
             }
         }

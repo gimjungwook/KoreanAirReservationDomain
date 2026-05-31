@@ -17,21 +17,39 @@ public interface ReservationState {
     /** 현재 상태의 사람이 읽을 수 있는 이름 (예: "Confirmed"). */
     String name();
 
-    // --- Reservation 생명주기 8개 이벤트 ---
+    // --- Reservation 생명주기 8개 이벤트 (디폴트 동작: 전이 거부) ---
+    // 교과서 State 그림과 동일하게 abstract class 중간층 없이 «interface» 가 직접 1:n 으로 구체 상태와 연결된다.
+    // 각 구체 상태는 자신이 허용하는 전이만 override 하고, 나머지는 아래 디폴트 거부를 사용한다.
 
-    void enterPassengerInfo(Reservation ctx);
+    default void enterPassengerInfo(Reservation ctx) {
+        throw new InvalidStateTransitionException(name(), "enterPassengerInfo");
+    }
 
-    void processPayment(Reservation ctx);
+    default void processPayment(Reservation ctx) {
+        throw new InvalidStateTransitionException(name(), "processPayment");
+    }
 
-    void handlePaymentFailure(Reservation ctx);
+    default void handlePaymentFailure(Reservation ctx) {
+        throw new InvalidStateTransitionException(name(), "handlePaymentFailure");
+    }
 
-    void issueTicket(Reservation ctx);
+    default void issueTicket(Reservation ctx) {
+        throw new InvalidStateTransitionException(name(), "issueTicket");
+    }
 
-    void requestCancellation(Reservation ctx);
+    default void requestCancellation(Reservation ctx) {
+        throw new InvalidStateTransitionException(name(), "requestCancellation");
+    }
 
-    void confirmCancellation(Reservation ctx);
+    default void confirmCancellation(Reservation ctx) {
+        throw new InvalidStateTransitionException(name(), "confirmCancellation");
+    }
 
-    void requestRefund(Reservation ctx);
+    default void requestRefund(Reservation ctx) {
+        throw new InvalidStateTransitionException(name(), "requestRefund");
+    }
 
-    void processRefundDecision(Reservation ctx, boolean approved);
+    default void processRefundDecision(Reservation ctx, boolean approved) {
+        throw new InvalidStateTransitionException(name(), "processRefundDecision");
+    }
 }

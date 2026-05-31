@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.koreanair.reservation.domain.event.PaymentFailedEvent;
 import com.koreanair.reservation.domain.passenger.MileageAccount;
 import com.koreanair.reservation.domain.payment.Payment;
+import com.koreanair.reservation.domain.payment.MileagePayment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
 /**
@@ -23,7 +24,7 @@ public class MileagePaymentProcessor extends PaymentMethodProcessor {
 
     @Override
     protected Payment createPayment(long amount) {
-        return basePayment(amount, PaymentMethod.MILEAGE);
+        return stamp(new MileagePayment(), amount);
     }
 
     @Override

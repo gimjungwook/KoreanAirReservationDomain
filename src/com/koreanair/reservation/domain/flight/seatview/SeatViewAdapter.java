@@ -13,7 +13,7 @@ import com.koreanair.reservation.domain.flight.Seat;
  * <p>Seat 도메인 객체를 SeatView 인터페이스에 맞춰 노출하는 기본 어댑터.
  * Decorator 체인의 시작점.
  */
-public class SeatViewAdapter implements SeatView {
+public class SeatViewAdapter extends SeatView {
 
     private final Seat seat;
 

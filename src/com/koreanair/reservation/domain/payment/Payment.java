@@ -5,7 +5,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Payment {
+/**
+ * DP#6 Factory Method — Product (교과서 그림과 동일하게 abstract).
+ * 구체 결제 수단(ConcreteProduct: CreditCardPayment 등)이 자기 PaymentMethod 를 고정한다.
+ */
+public abstract class Payment {
 
     private Long paymentId;
     private BigDecimal amount;
@@ -13,6 +17,11 @@ public class Payment {
     private PaymentStatus status;
     private LocalDateTime paidAt;
     private List<Refund> refunds = new ArrayList<>();
+
+    /** ConcreteProduct 가 자기 결제 수단을 고정하는 생성자. */
+    protected Payment(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
 
     public BigDecimal getAmount() {
         return amount;

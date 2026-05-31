@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.reservation.Itinerary;
+import com.koreanair.reservation.domain.reservation.ConnectingItinerary;
 
 /**
  * DP#6 Factory Method — ConcreteCreator: 환승편 (Connecting).
@@ -25,9 +26,7 @@ public class ConnectingItineraryFactory extends ItineraryFactory {
 
     @Override
     protected Itinerary createItinerary() {
-        Itinerary it = new Itinerary();
-        it.setTripType("CONNECTING");
-        return it;
+        return new ConnectingItinerary();
     }
 
     @Override

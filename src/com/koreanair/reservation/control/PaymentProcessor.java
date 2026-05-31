@@ -7,6 +7,8 @@ import com.koreanair.reservation.domain.event.EventPublisher;
 import com.koreanair.reservation.domain.event.PaymentFailedEvent;
 import com.koreanair.reservation.domain.flight.FareRule;
 import com.koreanair.reservation.domain.passenger.MileageAccount;
+import com.koreanair.reservation.domain.payment.CreditCardPayment;
+import com.koreanair.reservation.domain.payment.MileagePayment;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
@@ -90,10 +92,9 @@ public class PaymentProcessor extends EventPublisher {
         if (amount <= 0) {
             throw new IllegalArgumentException("결제 금액은 0보다 커야 합니다.");
         }
-        Payment payment = new Payment();
+        Payment payment = new CreditCardPayment();
         payment.setPaymentId(paymentSequence++);
         payment.setAmount(BigDecimal.valueOf(amount));
-        payment.setPaymentMethod(PaymentMethod.CREDIT_CARD);
         boolean authorized = gateway != null
                 && gateway.authorize(payment);
         if (authorized) {
@@ -119,10 +120,9 @@ public class PaymentProcessor extends EventPublisher {
         if (mileageCost <= 0) {
             throw new IllegalArgumentException("마일리지 결제 금액은 0보다 커야 합니다.");
         }
-        Payment payment = new Payment();
+        Payment payment = new MileagePayment();
         payment.setPaymentId(paymentSequence++);
         payment.setAmount(BigDecimal.valueOf(mileageCost));
-        payment.setPaymentMethod(PaymentMethod.MILEAGE);
         boolean charged = account.withdraw(BigDecimal.valueOf(mileageCost));
         if (charged) {
             payment.pay();

@@ -61,12 +61,10 @@ public abstract class PaymentMethodProcessor extends EventPublisher {
         return paymentSequence++;
     }
 
-    /** Helper: BigDecimal amount 변환. */
-    protected Payment basePayment(long amount, PaymentMethod m) {
-        Payment p = new Payment();
-        p.setPaymentId(nextPaymentId());
-        p.setAmount(BigDecimal.valueOf(amount));
-        p.setPaymentMethod(m);
-        return p;
+    /** Helper: ConcreteCreator 가 만든 ConcreteProduct 에 paymentId/amount 를 찍어 반환. */
+    protected Payment stamp(Payment payment, long amount) {
+        payment.setPaymentId(nextPaymentId());
+        payment.setAmount(BigDecimal.valueOf(amount));
+        return payment;
     }
 }

@@ -38,6 +38,11 @@ public class RefundHandler {
     private final Map<String, Refund> completed = new HashMap<>();
     private final Map<String, String> requestToPnr = new HashMap<>();
     private final PaymentGatewayInterface gateway;
+    /**
+     * Strategy 패턴 Context 역할 — 교과서 그림과 동일하게 Context 가 현재 전략(RefundPolicy)을
+     * 필드로 보유한다(-strategy). 디폴트는 NoRefundPolicy, {@link #setStrategy(RefundPolicy)} 로 런타임 교체.
+     */
+    private RefundPolicy strategy = new NoRefundPolicy();
     private static int requestSeq = 1;
     private static int refundSeq = 1;
     private static final java.time.format.DateTimeFormatter REFUND_YYMM =
@@ -49,6 +54,19 @@ public class RefundHandler {
 
     public RefundHandler(PaymentGatewayInterface gateway) {
         this.gateway = gateway;
+    }
+
+    /**
+     * Strategy 패턴 — 교과서 Context.setStrategy(Strategy). Context 가 보유한 환불 정책을
+     * 런타임에 교체한다. 운임 등급이 바뀌면 핸들러를 고치지 않고 정책 객체만 갈아끼우면 된다.
+     */
+    public void setStrategy(RefundPolicy strategy) {
+        this.strategy = strategy;
+    }
+
+    /** 현재 Context 에 적용된 환불 정책(Strategy). */
+    public RefundPolicy getStrategy() {
+        return this.strategy;
     }
 
     /**
@@ -68,7 +86,9 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        RefundPolicy policy = resolvePolicy(fareRule);
+        // Strategy 교체: Context 가 보유한 strategy 필드에 운임에 맞는 정책을 세팅하고, 이후 필드로 위임한다.
+        setStrategy(resolvePolicy(fareRule));
+        RefundPolicy policy = this.strategy;
 
         // 결제 합계 계산 — payments.amount 단순 합산.
         BigDecimal paid = BigDecimal.ZERO;
@@ -162,7 +182,8 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        RefundPolicy policy = resolvePolicy(fareRule);
+        setStrategy(resolvePolicy(fareRule));
+        RefundPolicy policy = this.strategy;
         BigDecimal paid = BigDecimal.ZERO;
         for (Payment p : reservation.getPayments()) {
             if (p != null && p.getAmount() != null) {
@@ -182,7 +203,8 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        return resolvePolicy(fareRule).getClass().getSimpleName();
+        setStrategy(resolvePolicy(fareRule));
+        return this.strategy.getClass().getSimpleName();
     }
 
     /**

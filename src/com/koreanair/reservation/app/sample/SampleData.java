@@ -106,12 +106,23 @@ public final class SampleData {
         Airport lgw = airport("LGW", "Gatwick Airport", "London", "UK", "🇬🇧");
         Airport stn = airport("STN", "Stansted Airport", "London", "UK", "🇬🇧");
         Airport yyz = airport("YYZ", "Pearson International", "Toronto", "Canada", "🇨🇦");
+        // 직항이 없어 환승(경유)으로만 닿는 목적지들 — 경유 검색 데모용
+        Airport bcn = airport("BCN", "Barcelona El Prat", "Barcelona", "Spain", "🇪🇸");
+        Airport mad = airport("MAD", "Adolfo Suárez Madrid-Barajas", "Madrid", "Spain", "🇪🇸");
+        Airport dxb = airport("DXB", "Dubai International", "Dubai", "UAE", "🇦🇪");
+        Airport sfo = airport("SFO", "San Francisco International", "San Francisco", "USA", "🇺🇸");
+        Airport bos = airport("BOS", "Boston Logan International", "Boston", "USA", "🇺🇸");
+        Airport mel = airport("MEL", "Melbourne Airport", "Melbourne", "Australia", "🇦🇺");
 
         // DP#4 Composite — multi-airport metropolitan groups
-        AirportCity nyc = new AirportCity("NYC", "New York", "USA").add(jfk).add(lga).add(ewr);
-        AirportCity tyo = new AirportCity("TYO", "Tokyo", "Japan").add(nrt).add(hnd);
-        AirportCity lon = new AirportCity("LON", "London", "UK").add(lhr).add(lgw).add(stn);
-        AirportCity sel = new AirportCity("SEL", "Seoul", "Korea").add(icn).add(gmp);
+        AirportCity nyc = new AirportCity("NYC", "New York", "USA");
+        nyc.addComponent(jfk); nyc.addComponent(lga); nyc.addComponent(ewr);
+        AirportCity tyo = new AirportCity("TYO", "Tokyo", "Japan");
+        tyo.addComponent(nrt); tyo.addComponent(hnd);
+        AirportCity lon = new AirportCity("LON", "London", "UK");
+        lon.addComponent(lhr); lon.addComponent(lgw); lon.addComponent(stn);
+        AirportCity sel = new AirportCity("SEL", "Seoul", "Korea");
+        sel.addComponent(icn); sel.addComponent(gmp);
 
         AirportCatalog cat = search.getAirportCatalog();
         cat.registerAirport(icn).registerAirport(nrt).registerAirport(lax).registerAirport(gmp)
@@ -119,7 +130,9 @@ public final class SampleData {
                 .registerAirport(pvg).registerAirport(hkg).registerAirport(del).registerAirport(syd)
                 .registerAirport(cdg).registerAirport(fra).registerAirport(jfk).registerAirport(lga)
                 .registerAirport(ewr).registerAirport(fco).registerAirport(lhr).registerAirport(lgw)
-                .registerAirport(stn).registerAirport(yyz);
+                .registerAirport(stn).registerAirport(yyz)
+                .registerAirport(bcn).registerAirport(mad).registerAirport(dxb)
+                .registerAirport(sfo).registerAirport(bos).registerAirport(mel);
         cat.registerCity(nyc).registerCity(tyo).registerCity(lon).registerCity(sel);
 
         Fare ecoY = fare(BookingClass.Y, 320_000L, true);
@@ -234,6 +247,24 @@ public final class SampleData {
         Flight k704 = flight("KE704", cdg, icn, ecoY, busJ);
         Flight k705 = flight("KE705", nrt, syd, ecoY, busJ);
         Flight k706 = flight("KE706", syd, sin, ecoY, ecoB);
+
+        // 경유 전용 2nd leg (hub → 직항 없는 목적지) + 역방향. ICN 에서 직항이 없어
+        // Itinerary Factory 의 1-stop 경유로만 닿는다.
+        Flight kc801 = flight("KE801", fra, bcn, ecoY, busJ);   // FRA → 바르셀로나
+        Flight kc802 = flight("KE802", bcn, fra, ecoY, busJ);
+        Flight kc803 = flight("KE803", cdg, bcn, ecoB, ecoY);   // 바르셀로나 2nd hub (CDG)
+        Flight kc811 = flight("KE811", cdg, mad, ecoY, busJ);   // CDG → 마드리드
+        Flight kc812 = flight("KE812", mad, cdg, ecoY, busJ);
+        Flight kc813 = flight("KE813", fra, mad, ecoB, ecoY);   // 마드리드 2nd hub (FRA)
+        Flight kc821 = flight("KE821", bkk, dxb, ecoY, busJ);   // BKK → 두바이
+        Flight kc822 = flight("KE822", dxb, bkk, ecoY, busJ);
+        Flight kc823 = flight("KE823", sin, dxb, ecoB, ecoY);   // 두바이 2nd hub (SIN)
+        Flight kc831 = flight("KE831", lax, sfo, ecoY, ecoB);   // LAX → 샌프란시스코
+        Flight kc832 = flight("KE832", sfo, lax, ecoY, ecoB);
+        Flight kc841 = flight("KE841", jfk, bos, ecoY, ecoB);   // JFK → 보스턴
+        Flight kc842 = flight("KE842", bos, jfk, ecoY, ecoB);
+        Flight kc851 = flight("KE851", syd, mel, ecoY, ecoB);   // SYD → 멜버른
+        Flight kc852 = flight("KE852", mel, syd, ecoY, ecoB);
 
         LocalDate d = LocalDate.now();
         LocalDate d1 = d.plusDays(1);
@@ -360,6 +391,34 @@ public final class SampleData {
         search.addSchedule(schedule(k301, 97L, LocalDateTime.of(d3y, d3m, d3day, 18, 30), LocalDateTime.of(d4y, d4m, d4day, 7, 30), yRule));
         search.addSchedule(schedule(k705, 98L, LocalDateTime.of(d4y, d4m, d4day, 9, 30), LocalDateTime.of(d5y, d5m, d5day, 7, 10), jRule));
         search.addSchedule(schedule(k706, 99L, LocalDateTime.of(d5y, d5m, d5day, 12, 10), LocalDateTime.of(d5y, d5m, d5day, 18, 40), yRule));
+
+        // ===== 경유(1-stop) 2nd leg — 각 첫 leg(d1 ICN 출발) 도착 + MCT(90분) 이후 출발 =====
+        // ICN→FRA(k141, FRA 도착 d2 01:00) → BCN
+        search.addSchedule(schedule(kc801, 100L, LocalDateTime.of(d2y, d2m, d2day, 6, 0), LocalDateTime.of(d2y, d2m, d2day, 8, 30), yRule));
+        // ICN→CDG(k131, CDG 도착 d1 23:30) → BCN (2nd hub)
+        search.addSchedule(schedule(kc803, 101L, LocalDateTime.of(d2y, d2m, d2day, 3, 0), LocalDateTime.of(d2y, d2m, d2day, 5, 0), yRule));
+        // ICN→CDG(k131, CDG 도착 d1 23:30) → MAD
+        search.addSchedule(schedule(kc811, 102L, LocalDateTime.of(d2y, d2m, d2day, 2, 0), LocalDateTime.of(d2y, d2m, d2day, 4, 30), yRule));
+        // ICN→FRA(k141, FRA 도착 d2 01:00) → MAD (2nd hub)
+        search.addSchedule(schedule(kc813, 103L, LocalDateTime.of(d2y, d2m, d2day, 7, 0), LocalDateTime.of(d2y, d2m, d2day, 9, 0), yRule));
+        // ICN→BKK(k061, BKK 도착 d1 16:00) → DXB
+        search.addSchedule(schedule(kc821, 104L, LocalDateTime.of(d1y, d1m, d1day, 19, 0), LocalDateTime.of(d1y, d1m, d1day, 23, 0), yRule));
+        // ICN→SIN(k051, SIN 도착 d1 17:30) → DXB (2nd hub)
+        search.addSchedule(schedule(kc823, 105L, LocalDateTime.of(d1y, d1m, d1day, 20, 0), LocalDateTime.of(d2y, d2m, d2day, 0, 30), yRule));
+        // ICN→LAX(k101, LAX 도착 d1 18:30) → SFO
+        search.addSchedule(schedule(kc831, 106L, LocalDateTime.of(d1y, d1m, d1day, 21, 0), LocalDateTime.of(d1y, d1m, d1day, 22, 30), yRule));
+        // ICN→JFK(k111, JFK 도착 d2 05:30) → BOS
+        search.addSchedule(schedule(kc841, 107L, LocalDateTime.of(d2y, d2m, d2day, 8, 0), LocalDateTime.of(d2y, d2m, d2day, 9, 30), yRule));
+        // ICN→SYD(k121, SYD 도착 d2 16:00) → MEL
+        search.addSchedule(schedule(kc851, 108L, LocalDateTime.of(d2y, d2m, d2day, 19, 0), LocalDateTime.of(d2y, d2m, d2day, 20, 30), yRule));
+
+        // 역방향 hub-목적지 편(데이터 풍부화 · 다른 출발지 경유 옵션)
+        search.addSchedule(schedule(kc802, 109L, LocalDateTime.of(d4y, d4m, d4day, 10, 0), LocalDateTime.of(d4y, d4m, d4day, 12, 30), yRule));
+        search.addSchedule(schedule(kc812, 110L, LocalDateTime.of(d4y, d4m, d4day, 9, 0), LocalDateTime.of(d4y, d4m, d4day, 11, 30), yRule));
+        search.addSchedule(schedule(kc822, 111L, LocalDateTime.of(d4y, d4m, d4day, 8, 0), LocalDateTime.of(d4y, d4m, d4day, 16, 0), yRule));
+        search.addSchedule(schedule(kc832, 112L, LocalDateTime.of(d4y, d4m, d4day, 9, 0), LocalDateTime.of(d4y, d4m, d4day, 10, 30), yRule));
+        search.addSchedule(schedule(kc842, 113L, LocalDateTime.of(d4y, d4m, d4day, 11, 0), LocalDateTime.of(d4y, d4m, d4day, 12, 30), yRule));
+        search.addSchedule(schedule(kc852, 114L, LocalDateTime.of(d4y, d4m, d4day, 10, 0), LocalDateTime.of(d4y, d4m, d4day, 11, 30), yRule));
 
         Member me = member("김정욱", "venturers.team@gmail.com", "SKY-000-001");
         Member lee = member("이재호", "lee.jaeho@email.com", "SKY-000-002");

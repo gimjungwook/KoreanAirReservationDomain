@@ -12,7 +12,7 @@ import com.koreanair.reservation.domain.reservation.ReservationStatus;
  *   - approved=true  -> RefundedState (최종)
  *   - approved=false -> CancelledState 로 복귀
  */
-public class RefundRequestedState extends AbstractReservationState {
+public class RefundRequestedState implements ReservationState {
 
     @Override
     public String name() {

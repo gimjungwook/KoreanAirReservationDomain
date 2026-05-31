@@ -2,6 +2,7 @@ package com.koreanair.reservation.control.payment;
 
 import com.koreanair.reservation.boundary.PaymentGatewayInterface;
 import com.koreanair.reservation.domain.payment.Payment;
+import com.koreanair.reservation.domain.payment.BankTransferPayment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
 /** DP#6 Factory Method — ConcreteCreator: 계좌이체. */
@@ -13,7 +14,7 @@ public class BankTransferPaymentProcessor extends PaymentMethodProcessor {
 
     @Override
     protected Payment createPayment(long amount) {
-        return basePayment(amount, PaymentMethod.BANK_TRANSFER);
+        return stamp(new BankTransferPayment(), amount);
     }
 
     @Override

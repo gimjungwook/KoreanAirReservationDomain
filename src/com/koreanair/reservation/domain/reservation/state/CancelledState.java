@@ -15,7 +15,7 @@ import com.koreanair.reservation.domain.reservation.Segment;
  *
  * <p>Iteration 2 활성화: requestRefund() 에서 FareRule.isRefundable 1차 검증 후 전이.
  */
-public class CancelledState extends AbstractReservationState {
+public class CancelledState implements ReservationState {
 
     @Override
     public String name() {

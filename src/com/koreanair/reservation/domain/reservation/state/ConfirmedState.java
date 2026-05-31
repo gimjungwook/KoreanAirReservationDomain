@@ -12,7 +12,7 @@ import com.koreanair.reservation.domain.reservation.Ticket;
  * <p>Iteration 2: 두 전이 모두 실제 구현. issueTicket 은 승객별 Ticket.generate 호출,
  * requestCancellation 은 CancellationRequestedState 로 단순 전이.
  */
-public class ConfirmedState extends AbstractReservationState {
+public class ConfirmedState implements ReservationState {
 
     @Override
     public String name() {

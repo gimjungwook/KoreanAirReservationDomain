@@ -14,6 +14,18 @@ import com.koreanair.reservation.domain.reservation.state.InvalidStateTransition
  */
 public class ReservationAutoCancelListener implements EventListener {
 
+    /** 교과서 ConcreteObserver 가 관찰하는 Subject 역참조(-subject). 결제 실패를 발행하는 PaymentProcessor 등. */
+    private com.koreanair.reservation.domain.event.EventPublisher subject;
+
+    /** 관찰 대상 Subject 주입 — 교과서 ConcreteObserver -> Subject 연관. */
+    public void setSubject(com.koreanair.reservation.domain.event.EventPublisher subject) {
+        this.subject = subject;
+    }
+
+    public com.koreanair.reservation.domain.event.EventPublisher getSubject() {
+        return subject;
+    }
+
     @Override
     public void onEvent(DomainEvent event) {
         if (!(event instanceof PaymentFailedEvent)) {

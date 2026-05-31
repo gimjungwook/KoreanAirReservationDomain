@@ -55,7 +55,7 @@ public class Reservation {
         this.status = ReservationStatus.CREATED;
         this.createdAt = LocalDateTime.now();
         this.reservationDate = this.createdAt;
-        this.itinerary = new Itinerary();
+        this.itinerary = new DirectItinerary();
     }
 
     // --- 기존 getter / setter (시그니처 보존) ---

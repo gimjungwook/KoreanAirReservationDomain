@@ -9,7 +9,7 @@ import com.koreanair.reservation.domain.reservation.ReservationStatus;
  * <p>Iteration 2 활성화: requestCancellation() 으로 CancellationRequestedState 전이.
  * 발권 후 취소이므로 후속 환불 단계에서 발권 수수료 / 위약금이 추가될 수 있다.
  */
-public class TicketedState extends AbstractReservationState {
+public class TicketedState implements ReservationState {
 
     @Override
     public String name() {

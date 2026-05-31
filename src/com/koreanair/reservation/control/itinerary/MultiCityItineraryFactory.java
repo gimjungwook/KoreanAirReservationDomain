@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.reservation.Itinerary;
+import com.koreanair.reservation.domain.reservation.MultiCityItinerary;
 
 /**
  * DP#6 Factory Method — ConcreteCreator: Multi-city (서로 다른 OD 다중 segment).
@@ -14,9 +15,7 @@ public class MultiCityItineraryFactory extends ItineraryFactory {
 
     @Override
     protected Itinerary createItinerary() {
-        Itinerary it = new Itinerary();
-        it.setTripType("MULTI_CITY");
-        return it;
+        return new MultiCityItinerary();
     }
 
     @Override

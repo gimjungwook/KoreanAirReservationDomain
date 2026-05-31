@@ -10,44 +10,35 @@ import com.koreanair.reservation.domain.flight.Seat;
 /**
  * DP#9 Decorator — abstract Decorator.
  *
- * <p>하위 클래스는 한 가지 메타(창가/통로/추가 레그룸/라운지 등)를 누적한다.
+ * <p>교과서 Decorator 그림과 동일하게 Component(SeatView)를 참조(-component)하고,
+ * 모든 연산을 component 로 그대로 전달(forward)한다. 구체 Decorator 는 operation 을
+ * override 하여 super 호출 뒤 자신의 addedBehavior 를 더한다(super.operation(); addedBehavior();).
  */
-public abstract class AbstractSeatDecorator implements SeatView {
+public abstract class AbstractSeatDecorator extends SeatView {
 
-    protected final SeatView wrapped;
+    protected final SeatView component;
 
-    protected AbstractSeatDecorator(SeatView wrapped) {
-        this.wrapped = Objects.requireNonNull(wrapped);
+    protected AbstractSeatDecorator(SeatView component) {
+        this.component = Objects.requireNonNull(component);
     }
 
     @Override
     public Seat getSeat() {
-        return wrapped.getSeat();
+        return component.getSeat();
     }
 
     @Override
     public String getDescription() {
-        return wrapped.getDescription() + appendLabel();
+        return component.getDescription();
     }
 
     @Override
     public BigDecimal getSurcharge() {
-        return wrapped.getSurcharge().add(extraSurcharge());
+        return component.getSurcharge();
     }
 
     @Override
     public List<String> getMetadataLabels() {
-        List<String> labels = new ArrayList<>(wrapped.getMetadataLabels());
-        String mine = ownLabel();
-        if (mine != null && !mine.isEmpty()) {
-            labels.add(mine);
-        }
-        return labels;
+        return new ArrayList<>(component.getMetadataLabels());
     }
-
-    protected abstract String appendLabel();
-
-    protected abstract BigDecimal extraSurcharge();
-
-    protected abstract String ownLabel();
 }

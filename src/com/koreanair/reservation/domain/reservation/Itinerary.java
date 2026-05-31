@@ -18,13 +18,18 @@ import com.koreanair.reservation.domain.flight.FlightSchedule;
  *
  * <p>MCT(Minimum Connection Time, 국내 60분 / 국제 90분)는 connecting trip 생성 시 검증한다.
  */
-public class Itinerary {
+public abstract class Itinerary {
 
     public static final Duration DOMESTIC_MCT = Duration.ofMinutes(60);
     public static final Duration INTERNATIONAL_MCT = Duration.ofMinutes(90);
 
     private String tripType;
     private List<Segment> segments = new ArrayList<>();
+
+    /** ConcreteProduct(Direct/Connecting/MultiCity Itinerary)가 자기 trip type 을 고정하는 생성자. */
+    protected Itinerary(String tripType) {
+        this.tripType = tripType;
+    }
 
     public String getTripType() {
         return tripType;
@@ -135,26 +140,23 @@ public class Itinerary {
     }
 
     public static Itinerary direct(FlightSchedule schedule) {
-        Itinerary it = new Itinerary();
-        it.tripType = "DIRECT";
+        Itinerary it = new DirectItinerary();
         it.addSegment(new Segment(schedule));
         return it;
     }
 
     public static Itinerary connecting(FlightSchedule first, FlightSchedule second) {
-        Itinerary it = new Itinerary();
+        Itinerary it = new ConnectingItinerary();
         it.addSegment(new Segment(first));
         it.addSegment(new Segment(second));
-        it.tripType = "CONNECTING";
         return it;
     }
 
     public static Itinerary multiCity(List<FlightSchedule> schedules) {
-        Itinerary it = new Itinerary();
+        Itinerary it = new MultiCityItinerary();
         for (FlightSchedule s : schedules) {
             it.addSegment(new Segment(s));
         }
-        it.tripType = "MULTI_CITY";
         return it;
     }
 }

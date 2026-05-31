@@ -9,7 +9,7 @@ import com.koreanair.reservation.domain.reservation.ReservationStatus;
  * <p>Iteration 1: 실제 전이 로직 구현.
  * <p>다음 상태: {@link PendingPaymentState}.
  */
-public class InitiatedState extends AbstractReservationState {
+public class InitiatedState implements ReservationState {
 
     @Override
     public String name() {

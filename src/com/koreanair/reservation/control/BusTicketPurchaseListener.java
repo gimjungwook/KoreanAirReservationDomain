@@ -13,9 +13,20 @@ import com.koreanair.reservation.domain.event.TicketIssuedEvent;
 public class BusTicketPurchaseListener implements EventListener {
 
     private final BusTicketingService busTicketingService;
+    /** 교과서 ConcreteObserver 가 관찰하는 ConcreteSubject 역참조(-concreteSubject). */
+    private TicketPurchasePublisher subject;
 
     public BusTicketPurchaseListener(BusTicketingService busTicketingService) {
         this.busTicketingService = busTicketingService;
+    }
+
+    /** 관찰 대상 Subject 주입 — 교과서 ConcreteObserver -> ConcreteSubject 연관. */
+    public void setSubject(TicketPurchasePublisher subject) {
+        this.subject = subject;
+    }
+
+    public TicketPurchasePublisher getSubject() {
+        return subject;
     }
 
     @Override

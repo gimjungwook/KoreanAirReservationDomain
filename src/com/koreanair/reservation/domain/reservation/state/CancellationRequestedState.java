@@ -8,7 +8,7 @@ import com.koreanair.reservation.domain.reservation.ReservationStatus;
  *
  * <p>Iteration 2 활성화: confirmCancellation() 으로 CancelledState 전이.
  */
-public class CancellationRequestedState extends AbstractReservationState {
+public class CancellationRequestedState implements ReservationState {
 
     @Override
     public String name() {

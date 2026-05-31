@@ -9,7 +9,7 @@ import com.koreanair.reservation.domain.reservation.ReservationStatus;
  * <p>Iteration 1: 결제 성공 경로만 Happy Path 로 시연.
  * <p>TODO(iter3): handlePaymentFailure() 에서 Seat: Held -> Available 해제 트리거.
  */
-public class PendingPaymentState extends AbstractReservationState {
+public class PendingPaymentState implements ReservationState {
 
     @Override
     public String name() {

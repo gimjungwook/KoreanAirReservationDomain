@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Composite 패턴의 Leaf — 단일 공항.
  */
-public class Airport implements AirportLocation {
+public class Airport extends AirportLocation {
 
     private String airportCode;
     private String airportName;
