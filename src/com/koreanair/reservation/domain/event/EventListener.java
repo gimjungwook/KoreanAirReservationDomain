@@ -8,5 +8,5 @@ package com.koreanair.reservation.domain.event;
  */
 public interface EventListener {
 
-    void onEvent(DomainEvent event);
+    void update(DomainEvent event);
 }

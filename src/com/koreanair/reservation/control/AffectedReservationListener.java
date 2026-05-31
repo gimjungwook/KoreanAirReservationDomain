@@ -30,7 +30,7 @@ public class AffectedReservationListener implements EventListener {
     }
 
     @Override
-    public void onEvent(DomainEvent event) {
+    public void update(DomainEvent event) {
         if (!(event instanceof FlightStatusChangedEvent)) {
             return;
         }

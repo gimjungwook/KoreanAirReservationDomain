@@ -41,7 +41,7 @@ public class SeatHoldMonitor extends EventPublisher {
         List<HeldSeat> snapshot = new ArrayList<>(tracked);
         for (HeldSeat h : snapshot) {
             if (h.seat.isHoldExpiredAt(now)) {
-                publish(new SeatHoldExpiredEvent(h.seat, h.reservationPnr));
+                notifyObservers(new SeatHoldExpiredEvent(h.seat, h.reservationPnr));
                 tracked.remove(h);
                 fired++;
             }

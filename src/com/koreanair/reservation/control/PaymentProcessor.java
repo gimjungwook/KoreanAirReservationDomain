@@ -101,7 +101,7 @@ public class PaymentProcessor extends EventPublisher {
             payment.pay();
         } else {
             payment.fail();
-            publish(new PaymentFailedEvent(payment, reservationPnr, "gateway-declined"));
+            notifyObservers(new PaymentFailedEvent(payment, reservationPnr, "gateway-declined"));
         }
         return payment;
     }
@@ -128,7 +128,7 @@ public class PaymentProcessor extends EventPublisher {
             payment.pay();
         } else {
             payment.fail();
-            publish(new PaymentFailedEvent(payment, pnr, "insufficient-mileage"));
+            notifyObservers(new PaymentFailedEvent(payment, pnr, "insufficient-mileage"));
         }
         return payment;
     }

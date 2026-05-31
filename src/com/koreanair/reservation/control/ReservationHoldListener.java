@@ -16,7 +16,7 @@ import com.koreanair.reservation.domain.reservation.state.InvalidStateTransition
 public class ReservationHoldListener implements EventListener {
 
     @Override
-    public void onEvent(DomainEvent event) {
+    public void update(DomainEvent event) {
         if (!(event instanceof SeatHoldExpiredEvent)) {
             return;
         }

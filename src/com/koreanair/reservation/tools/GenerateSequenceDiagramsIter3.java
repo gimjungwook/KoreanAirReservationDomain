@@ -41,8 +41,8 @@ public class GenerateSequenceDiagramsIter3 {
           // Publish event
           b.createMessage("new SeatHoldExpiredEvent(seat, pnr)", event);
           b.endMessage();
-          b.createMessage("publish(event)", monitor);
-            b.createMessage("onEvent(event)", listener);
+          b.createMessage("notifyObservers(event)", monitor);
+            b.createMessage("update(event)", listener);
               b.createMessage("release()", seat);
               b.endMessage();
               b.createMessage("findByPnr(pnr)", reservation);
@@ -82,8 +82,8 @@ public class GenerateSequenceDiagramsIter3 {
               b.endMessage();
               b.createMessage("new PaymentFailedEvent(payment, pnr, reason)", event);
               b.endMessage();
-              b.createMessage("publish(event)", payProc);
-                b.createMessage("onEvent(event)", listener);
+              b.createMessage("notifyObservers(event)", payProc);
+                b.createMessage("update(event)", listener);
                   b.createMessage("findByPnr(pnr)", reservation);
                   b.endMessage();
                   b.createMessage("handlePaymentFailure()", reservation);
@@ -121,8 +121,8 @@ public class GenerateSequenceDiagramsIter3 {
             b.createMessage("changeStatus(CANCELLED)", schedule);
               b.createMessage("new FlightStatusChangedEvent(schedule, prev, new)", event);
               b.endMessage();
-              b.createMessage("publish(event)", schedule);
-                b.createMessage("onEvent(event)", listener);
+              b.createMessage("notifyObservers(event)", schedule);
+                b.createMessage("update(event)", listener);
                   b.createMessage("all()", registry);
                   b.endMessage();
                   b.createSelfCallMessage("filter Reservations referencing schedule");

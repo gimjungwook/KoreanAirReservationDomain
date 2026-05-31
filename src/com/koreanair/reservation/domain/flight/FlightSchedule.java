@@ -83,7 +83,7 @@ public class FlightSchedule extends EventPublisher {
         FlightStatus previous = this.status;
         this.status = status;
         if (previous != status) {
-            publish(new FlightStatusChangedEvent(this, previous, status));
+            notifyObservers(new FlightStatusChangedEvent(this, previous, status));
         }
     }
 

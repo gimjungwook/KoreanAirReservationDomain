@@ -44,7 +44,7 @@ public abstract class PaymentMethodProcessor extends EventPublisher {
             payment.pay();
         } else {
             payment.fail();
-            publish(new PaymentFailedEvent(payment, reservationPnr, declineReason()));
+            notifyObservers(new PaymentFailedEvent(payment, reservationPnr, declineReason()));
         }
         return payment;
     }

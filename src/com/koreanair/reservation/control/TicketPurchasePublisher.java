@@ -26,7 +26,7 @@ public class TicketPurchasePublisher extends EventPublisher {
     /** 교과서 ConcreteSubject.setState() — 상태를 저장한 뒤 옵서버에게 통지(notify)한다. */
     public void setState(TicketIssuedEvent event) {
         this.subjectState = event;
-        publish(event);
+        notifyObservers(event);
     }
 
     /** Iteration 4: 좌석·스케줄 포함 BusTicketRequest 전달 */

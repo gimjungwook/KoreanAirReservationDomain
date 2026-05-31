@@ -71,15 +71,15 @@ public class Iter3DemoRunner {
     private static void bootSubscribers() {
         System.out.println("[BOOT] event subscribers loaded");
         monitor = new SeatHoldMonitor();
-        monitor.subscribe(new ReservationHoldListener());
+        monitor.attach(new ReservationHoldListener());
 
         failingGateway = new FailingGateway();
         payProc = new PaymentProcessor(failingGateway);
-        payProc.subscribe(new ReservationAutoCancelListener());
+        payProc.attach(new ReservationAutoCancelListener());
 
         ticketPublisher = new TicketPurchasePublisher();
         busTicketingService = new BusTicketingService();
-        ticketPublisher.subscribe(new BusTicketPurchaseListener(busTicketingService));
+        ticketPublisher.attach(new BusTicketPurchaseListener(busTicketingService));
 
         System.out.printf("  SeatHoldMonitor    .subscriberCount = %d%n", monitor.subscriberCount());
         System.out.printf("  PaymentProcessor   .subscriberCount = %d%n", payProc.subscriberCount());
@@ -140,7 +140,7 @@ public class Iter3DemoRunner {
         forceField(flight, "flightNumber", "KE001");
         forceField(schedule, "flight", flight);
         schedule.changeStatus(FlightStatus.SCHEDULED);
-        schedule.subscribe(new AffectedReservationListener(registry));
+        schedule.attach(new AffectedReservationListener(registry));
 
         Reservation a = newReservation("PNR-DEMO03A");
         Reservation b = newReservation("PNR-DEMO03B");

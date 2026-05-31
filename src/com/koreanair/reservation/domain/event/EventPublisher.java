@@ -13,30 +13,30 @@ import java.util.List;
  */
 public class EventPublisher {
 
-    private final List<EventListener> listeners = new ArrayList<>();
+    private final List<EventListener> observers = new ArrayList<>();
 
-    public void subscribe(EventListener listener) {
-        if (listener == null || listeners.contains(listener)) {
+    public void attach(EventListener listener) {
+        if (listener == null || observers.contains(listener)) {
             return;
         }
-        listeners.add(listener);
+        observers.add(listener);
     }
 
-    public void unsubscribe(EventListener listener) {
-        listeners.remove(listener);
+    public void detach(EventListener listener) {
+        observers.remove(listener);
     }
 
     public int subscriberCount() {
-        return listeners.size();
+        return observers.size();
     }
 
-    public void publish(DomainEvent event) {
+    public void notifyObservers(DomainEvent event) {
         if (event == null) {
             return;
         }
-        for (EventListener listener : new ArrayList<>(listeners)) {
+        for (EventListener listener : new ArrayList<>(observers)) {
             try {
-                listener.onEvent(event);
+                listener.update(event);
             } catch (RuntimeException ex) {
                 System.out.println("[EVENT] listener " + listener.getClass().getSimpleName()
                         + " failed on " + event.getEventType() + ": " + ex.getMessage());

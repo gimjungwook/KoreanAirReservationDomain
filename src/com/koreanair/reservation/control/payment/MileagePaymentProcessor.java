@@ -46,7 +46,7 @@ public class MileagePaymentProcessor extends PaymentMethodProcessor {
             payment.pay();
         } else {
             payment.fail();
-            publish(new PaymentFailedEvent(payment, reservationPnr, "insufficient-mileage"));
+            notifyObservers(new PaymentFailedEvent(payment, reservationPnr, "insufficient-mileage"));
         }
         return payment;
     }
