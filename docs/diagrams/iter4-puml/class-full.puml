@@ -347,7 +347,7 @@ package "Domain :: flight" {
 }
 package "Domain :: event" {
   interface EventListener {
-    +onEvent(): void
+    +update(): void
   }
   abstract class DomainEvent {
     -occurredAt: LocalDateTime

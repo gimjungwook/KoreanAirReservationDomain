@@ -2,15 +2,15 @@
 !include _style.puml
 title DP#3 Observer - 이벤트 1대N 전파
 abstract class EventPublisher <<Subject>> {
-  -listeners: List<EventListener>
+  -observers: List<EventListener>
   --
-  +subscribe(): void
-  +unsubscribe(): void
+  +attach(): void
+  +detach(): void
   +subscriberCount(): int
-  +publish(): void
+  +notifyObservers(): void
 }
 interface EventListener <<Observer>> {
-  +onEvent(): void
+  +update(): void
 }
 abstract class DomainEvent {
   -occurredAt: LocalDateTime
@@ -33,14 +33,14 @@ class BusTicketPurchaseListener {
   --
   +setSubject(): void
   +getSubject(): TicketPurchasePublisher
-  +onEvent(): void
+  +update(): void
 }
 class ReservationAutoCancelListener {
-  -subject: EventPublisher
+  -subject: PaymentProcessor
   --
   +setSubject(): void
-  +getSubject(): EventPublisher
-  +onEvent(): void
+  +getSubject(): PaymentProcessor
+  +update(): void
 }
 class TicketIssuedEvent {
   -reservation: Reservation
