@@ -440,6 +440,30 @@ ctx.setSeatSurcharge(view.getSurcharge().longValue());
 
 ---
 
+## 📌 3.6 팀 역할분담
+
+| 팀원 | 주 담당 | 기여 요약 |
+| --- | --- | --- |
+| 김정욱 | Domain model / reservation lifecycle | State 기반 예약 생애주기, 결제/환불 도메인 점검, 데모 시나리오 검증 |
+| 이재호 | UI Boundary / presentation flow | Swing to JavaFX 전환 검토, 데모 사용성 피드백, Pattern Guide 및 보고서/대본 흐름 강화 |
+| 김경동 | Control services / integration QA | 검색/결제/버스 연계 흐름 점검, 패턴 매핑 검증, Maven/JavaFX 실행 검증 |
+
+> 최종 제출 전 실제 팀 기여율에 맞추어 문구와 비율은 조정 가능하다.
+
+## 📌 3.7 <span style="color:#c00000">Iteration 4 변경사항 빨간색 표시</span>
+
+<span style="color:#c00000">- Iteration 4에서는 Swing Boundary를 JavaFX(FXML + CSS + Controller)로 교체했다. Control/Domain의 핵심 패턴 구조는 유지했다.</span>
+
+<span style="color:#c00000">- Composite, Singleton, Factory Method, Template Method, Adapter, Decorator 6개 GoF 패턴을 새로 추가했다.</span>
+
+<span style="color:#c00000">- Iteration 1~4 누적 기준 9개 패턴이 모두 UI에서 시연 가능하도록 연결되었다.</span>
+
+<span style="color:#c00000">- JavaFX 앱에 `패턴 가이드` 화면을 추가하여 각 DP의 GoF 역할, 팀 구현 클래스, 핵심 메서드/attribute, 코드 스켈레톤, 시연 포인트를 바로 확인할 수 있게 했다.</span>
+
+<span style="color:#c00000">- 결제 화면은 Factory Method와 Adapter, 좌석 화면은 Decorator, 확인 화면은 Template Method와 Observer를 직접 보여주는 구조로 정리했다.</span>
+
+---
+
 ## 📌 4. 신규 6개 패턴의 도입 동기와 구조
 
 ### 4.1 Composite (구조)
