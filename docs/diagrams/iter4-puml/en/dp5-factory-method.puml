@@ -3,8 +3,8 @@ skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 0
 skinparam linetype polyline
-skinparam nodesep 26
-skinparam ranksep 42
+skinparam nodesep 30
+skinparam ranksep 60
 skinparam defaultFontName "Helvetica Neue"
 skinparam defaultFontSize 13
 skinparam dpi 150
@@ -27,31 +27,19 @@ skinparam note {
 }
 
 title DP#5 Factory Method Pattern - Creator = PaymentMethodProcessor
+
 abstract class PaymentMethodProcessor <<Creator>> {
-  -paymentSequence: long
+  -paymentSequence: long {static}
   -gateway: PaymentGatewayInterface
   --
   #PaymentMethodProcessor(gateway: PaymentGatewayInterface)
-  +createPayment(): Payment
-  +method(): PaymentMethod
+  +{abstract} createPayment(): Payment
+  +{abstract} method(): PaymentMethod
   +processCharge(amount: long, reservationPnr: String): Payment
   #authorize(payment: Payment): boolean
   #declineReason(): String
   #nextPaymentId(): long
   #stamp(payment: Payment, amount: long): Payment
-}
-class CreditCardPaymentProcessor <<ConcreteCreator>> {
-  +CreditCardPaymentProcessor(gateway: PaymentGatewayInterface)
-  +createPayment(): Payment
-  +method(): PaymentMethod
-}
-class MileagePaymentProcessor <<ConcreteCreator>> {
-  -account: MileageAccount
-  --
-  +MileagePaymentProcessor(account: MileageAccount)
-  +createPayment(): Payment
-  +method(): PaymentMethod
-  #authorize(payment: Payment): boolean
 }
 abstract class Payment <<Product>> {
   -paymentId: Long
@@ -74,18 +62,87 @@ abstract class Payment <<Product>> {
   +addRefund(refund: Refund): void
   +isRefundable(): boolean
 }
+
+class CreditCardPaymentProcessor <<ConcreteCreator>> {
+  +CreditCardPaymentProcessor(gateway: PaymentGatewayInterface)
+  +createPayment(): Payment
+  +method(): PaymentMethod
+}
+class KakaoPayPaymentProcessor <<ConcreteCreator>> {
+  +KakaoPayPaymentProcessor(gateway: PaymentGatewayInterface)
+  +createPayment(): Payment
+  +method(): PaymentMethod
+  #declineReason(): String
+}
+class ApplePayPaymentProcessor <<ConcreteCreator>> {
+  +ApplePayPaymentProcessor(gateway: PaymentGatewayInterface)
+  +createPayment(): Payment
+  +method(): PaymentMethod
+  #declineReason(): String
+}
+class BankTransferPaymentProcessor <<ConcreteCreator>> {
+  +BankTransferPaymentProcessor(gateway: PaymentGatewayInterface)
+  +createPayment(): Payment
+  +method(): PaymentMethod
+  #declineReason(): String
+}
+class MileagePaymentProcessor <<ConcreteCreator>> {
+  -account: MileageAccount
+  --
+  +MileagePaymentProcessor(account: MileageAccount)
+  +createPayment(): Payment
+  +method(): PaymentMethod
+  #authorize(payment: Payment): boolean
+}
+
 class CreditCardPayment <<ConcreteProduct>> {
   +CreditCardPayment()
+}
+class KakaoPayPayment <<ConcreteProduct>> {
+  +KakaoPayPayment()
+}
+class ApplePayPayment <<ConcreteProduct>> {
+  +ApplePayPayment()
+}
+class BankTransferPayment <<ConcreteProduct>> {
+  +BankTransferPayment()
 }
 class MileagePayment <<ConcreteProduct>> {
   +MileagePayment()
 }
+
+' Keep the two parents on one rank so the factory-method dependency sits cleanly between them.
+PaymentMethodProcessor -[hidden]right- Payment
+PaymentMethodProcessor ..> Payment : createPayment()
+
+' Generalizations: ConcreteCreator -|> Creator, ConcreteProduct -|> Product.
 PaymentMethodProcessor <|-- CreditCardPaymentProcessor
+PaymentMethodProcessor <|-- KakaoPayPaymentProcessor
+PaymentMethodProcessor <|-- ApplePayPaymentProcessor
+PaymentMethodProcessor <|-- BankTransferPaymentProcessor
 PaymentMethodProcessor <|-- MileagePaymentProcessor
 Payment <|-- CreditCardPayment
+Payment <|-- KakaoPayPayment
+Payment <|-- ApplePayPayment
+Payment <|-- BankTransferPayment
 Payment <|-- MileagePayment
-PaymentMethodProcessor ..> Payment : createPayment()
+
+' Order the two 5-wide fans identically so each ..> create arrow runs straight down.
+CreditCardPaymentProcessor -[hidden]right- KakaoPayPaymentProcessor
+KakaoPayPaymentProcessor -[hidden]right- ApplePayPaymentProcessor
+ApplePayPaymentProcessor -[hidden]right- BankTransferPaymentProcessor
+BankTransferPaymentProcessor -[hidden]right- MileagePaymentProcessor
+CreditCardPayment -[hidden]right- KakaoPayPayment
+KakaoPayPayment -[hidden]right- ApplePayPayment
+ApplePayPayment -[hidden]right- BankTransferPayment
+BankTransferPayment -[hidden]right- MileagePayment
+
+' Each ConcreteCreator instantiates exactly its own ConcreteProduct (factory-method body).
 CreditCardPaymentProcessor ..> CreditCardPayment
+KakaoPayPaymentProcessor ..> KakaoPayPayment
+ApplePayPaymentProcessor ..> ApplePayPayment
+BankTransferPaymentProcessor ..> BankTransferPayment
 MileagePaymentProcessor ..> MileagePayment
-note bottom : 5 payment ConcreteCreators/Products and 3 itinerary ones follow the same structure (ApplePay, KakaoPay, BankTransfer; Direct, Connecting, MultiCity).
+
+note bottom : Each ConcreteCreator overrides createPayment() to return its own ConcreteProduct, fixed via super(PaymentMethod.X).
 @enduml

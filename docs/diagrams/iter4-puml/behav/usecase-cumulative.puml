@@ -23,61 +23,130 @@ skinparam noteBackgroundColor #FFFFFF
 skinparam noteBorderColor #777777
 
 skinparam linetype ortho
-skinparam nodesep 16
-skinparam ranksep 60
+skinparam nodesep 18
+skinparam ranksep 110
 left to right direction
 title Use Case Diagram - Korean Air Reservation System (cumulative, Iteration 1-4)
+
+' === Human actors on the LEFT (Customer is the generalized booking actor) ===
+' Order Member -> Customer -> Guest so the parent Customer sits BETWEEN its two
+' children: Member's generalization triangle lands on Customer's top edge and
+' Guest's on the bottom edge, keeping the two hollow arrowheads clearly apart.
 actor "Skypass Member" as Member
 actor Customer
 actor Guest
 actor Administrator as Admin
+
+' Member and Guest generalize the abstract booking actor Customer.
+Member -up-|> Customer
+Guest  -down-|> Customer
+
+rectangle "Korean Air Reservation System" {
+
+  ' Declaration order groups use cases by their owning actor so each actor's
+  ' edges stay short and parallel: Member-only at the top, then the large
+  ' Customer band in the middle, then Guest-only and Admin-only at the bottom.
+
+  ' --- Skypass Member only (top band) ---
+  usecase "Log in"                  as UC_Login
+  usecase "Log out"                 as UC_Logout
+  usecase "View my reservations"    as UC_MyRes
+
+  ' --- Customer shared band (middle) ---
+  usecase "Register Skypass membership"                 as UC_Register
+  usecase "Search flights"                              as UC_Search
+  usecase "<color:#C00000>Search round-trip</color>"           as UC_SearchRT
+  usecase "<color:#C00000>Search multi-city itinerary</color>" as UC_SearchMC
+  usecase "<color:#C00000>Search connecting itinerary</color>" as UC_SearchConn
+  usecase "Make reservation"                            as UC_Book
+  usecase "<color:#C00000>Book round-trip</color>"             as UC_BookRT
+  usecase "<color:#C00000>Book multi-city trip</color>"        as UC_BookMC
+  usecase "Enter passenger info"                        as UC_Passenger
+  usecase "<color:#C00000>Select seat options</color>"         as UC_Seat
+  usecase "Issue e-Ticket"                              as UC_Ticket
+  usecase "<color:#C00000>Render e-Ticket</color>"            as UC_Render
+  usecase "<color:#C00000>Issue linked bus ticket</color>"    as UC_BusTicket
+  usecase "View booking and e-Ticket"                   as UC_ViewBooking
+  usecase "Cancel reservation"                          as UC_Cancel
+  usecase "Preview refund amount and policy"            as UC_RefundPreview
+  usecase "<color:#C00000>Change display settings</color>"    as UC_Settings
+  usecase "Pay"                                         as UC_Pay
+  usecase "<color:#C00000>Pay with mileage</color>"           as UC_PayMileage
+  usecase "Request refund"                              as UC_Refund
+  usecase "<color:#C00000>Review refund requests</color>"     as UC_RefundReview
+
+  ' --- Guest only (lower band) ---
+  usecase "Continue as guest"       as UC_GuestEntry
+  usecase "Look up reservation"     as UC_Lookup
+
+  ' --- Administrator only (bottom band) ---
+  ' Cumulative since Iteration 3 (schedule admin), so black, not red.
+  usecase "Change flight status"      as UC_FlightStatus
+
+  ' include / extend dependencies (kept local to their cluster)
+  UC_SearchConn ..> UC_Search   : <<extend>>
+  UC_Ticket     ..> UC_Render   : <<include>>
+  UC_BusTicket  ..> UC_Ticket   : <<extend>>
+}
+
+' === Skypass Member only (top band) ===
+Member --> UC_Login
+Member --> UC_Logout
+Member --> UC_MyRes
+
+' === Customer (shared) associations, in declared band order ===
+Customer --> UC_Register
+Customer --> UC_Search
+Customer --> UC_SearchRT
+Customer --> UC_SearchMC
+Customer --> UC_SearchConn
+Customer --> UC_Book
+Customer --> UC_BookRT
+Customer --> UC_BookMC
+Customer --> UC_Passenger
+Customer --> UC_Seat
+Customer --> UC_Ticket
+Customer --> UC_ViewBooking
+Customer --> UC_Cancel
+Customer --> UC_RefundPreview
+Customer --> UC_Settings
+Customer --> UC_Pay
+Customer --> UC_PayMileage
+Customer --> UC_Refund
+Customer --> UC_RefundReview
+
+' === Guest only (lower band) ===
+Guest --> UC_GuestEntry
+Guest --> UC_Lookup
+
+' === Administrator (cumulative since Iteration 3 schedule admin) ===
+' Change flight status: real via FlightSchedule.changeStatus, exercised by the [ADMIN] scenario in Iter3DemoRunner.
+Admin --> UC_FlightStatus
+
+' === External systems on the RIGHT, pinned adjacent to the payment use cases ===
 actor "Payment Gateway" as PG
 actor "Skypass System" as SK
-Member --|> Customer
-Guest --|> Customer
-rectangle "Korean Air Reservation System" {
-  ' --- Authentication (Iteration 1-2) ---
-  Member --> (Log in)
-  Guest --> (Continue as guest)
-  Customer --> (Register Skypass membership)
-  Member --> (Log out)
-  ' --- Search (Iteration 1; trip-type variants in Iteration 4) ---
-  Customer --> (Search flights)
-  Customer --> (<color:#C00000>Search round-trip</color>)
-  Customer --> (<color:#C00000>Search multi-city itinerary</color>)
-  (Search flights) ..> (<color:#C00000>Search connecting itinerary</color>) : <<extend>>
-  ' --- Booking ---
-  Customer --> (Make reservation)
-  Customer --> (<color:#C00000>Book round-trip</color>)
-  Customer --> (<color:#C00000>Book multi-city trip</color>)
-  Customer --> (Enter passenger info)
-  Customer --> (<color:#C00000>Select seat options</color>)
-  ' --- Payment ---
-  Customer --> (Pay)
-  Customer --> (<color:#C00000>Pay with mileage</color>)
-  (Pay) --> PG
-  (<color:#C00000>Pay with mileage</color>) --> SK
-  ' --- Ticketing ---
-  Customer --> (Issue e-Ticket)
-  (Issue e-Ticket) ..> (<color:#C00000>Render e-Ticket</color>) : <<include>>
-  (Issue e-Ticket) ..> (<color:#C00000>Issue linked bus ticket</color>) : <<extend>>
-  ' --- Manage booking ---
-  Member --> (View my reservations)
-  Guest --> (Look up reservation)
-  Customer --> (View booking and e-Ticket)
-  Customer --> (Cancel reservation)
-  Customer --> (Preview refund amount and policy)
-  Customer --> (Request refund)
-  (Request refund) --> PG
-  ' --- Settings (Iteration 4) ---
-  Customer --> (<color:#C00000>Change display settings</color>)
-  ' --- Administration ---
-  Admin --> (<color:#C00000>Change flight status</color>)
-}
+
+' Hidden ordering edges keep PG/SK to the right of the payment cluster so their
+' inbound association edges stay short and do not back-run up the left gutter.
+UC_Pay        -[hidden]right- PG
+UC_PayMileage -[hidden]right- SK
+PG            -[hidden]down-  SK
+
+' === External-system associations (outbound calls only) ===
+UC_Pay         -right-> PG
+UC_Refund      -right-> PG
+UC_PayMileage  -right-> SK : <<query balance>>
+
 note as UCN
-  <color:#C00000>Red use cases/flows were added in Iteration 4: round-trip / multi-city / connecting itinerary search and booking,</color>
-  <color:#C00000>seat option selection, mileage payment, e-Ticket rendering, linked bus ticket, display settings, flight-status change.</color>
+  <color:#C00000>Red use cases / flows were added in Iteration 4: round-trip / multi-city / connecting itinerary search and booking,</color>
+  <color:#C00000>seat option selection, mileage payment, e-Ticket rendering, linked bus ticket, display settings, refund review.</color>
   Black use cases (authentication, one-way search and booking, passenger entry, card payment, ticketing,
-  reservation lookup, cancellation, refund) accumulated across Iteration 1-3.
+  reservation lookup, cancellation, refund, admin flight-status change) accumulated across Iteration 1-3.
+  'Change flight status' (real via FlightSchedule.changeStatus) is the Administrator schedule-management
+  use case carried over from Iteration 3, exercised by the [ADMIN] scenario in the console demo (Iter3DemoRunner).
+  'Review refund requests' (RefundReviewController approve/reject, an Iteration 4 addition) is reached from the
+  customer cancellation flow (Cancellation/Refund controllers -> Navigator.showRefundReview), so it is
+  associated with the Customer actor, not Administrator.
 end note
 @enduml

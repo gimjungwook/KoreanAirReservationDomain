@@ -12,7 +12,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 
 /**
- * 전역 환경 설정 화면 — DP#5 Singleton(AppConfig).
+ * 전역 환경 설정 화면 — DP#4 Singleton(AppConfig).
  * 모든 변경은 AppConfig.getInstance() 한 인스턴스에 반영되고, 등록된 listener 가 즉시 UI 를 재렌더한다.
  */
 public final class SettingsController {

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DP#6 Factory Method — Product (교과서 그림과 동일하게 abstract).
+ * DP#5 Factory Method — Product (교과서 그림과 동일하게 abstract).
  * 구체 결제 수단(ConcreteProduct: CreditCardPayment 등)이 자기 PaymentMethod 를 고정한다.
  */
 public abstract class Payment {

@@ -1,11 +1,16 @@
 @startuml class-full
 !include _style.puml
 title 대한항공 예약 시스템 - 전체 클래스 다이어그램 (ECB + 9 GoF 패턴)
+' ortho 는 6개 패키지/대형 박스에서 가로 폭이 과도하게 퍼져 한 페이지를 넘기므로
+' _style.puml 의 polyline 을 유지하고 명시적 방향 힌트로 무교차 배치한다.
+skinparam linetype polyline
+skinparam nodesep 25
+skinparam ranksep 55
 left to right direction
 package "Boundary (JavaFX)" {
   class FxApp {
     +start(): void
-    +main(): void
+    +main(): void {static}
   }
   class Navigator {
     +STEP_SEARCH: int
@@ -48,7 +53,7 @@ package "Boundary (JavaFX)" {
     +verifyAndDeduct(): Object
   }
   class SkypassAdapter <<Adapter>> #FFCCCC {
-    -remoteApi: RemoteSkypassApi
+    -adaptee: RemoteSkypassApi
     --
     +verifyMembership(): Object
     +getMileageBalance(): int
@@ -73,8 +78,8 @@ package "Control" {
     -refundHandler: RefundHandler
     -lookupService: ReservationLookupService
     --
-    +processSearch(): Object
-    +initiateBooking(): Reservation
+    +processSearch(criteria): Object
+    +initiateBooking(flightId, fareClass): Reservation
     +setPassengerInfo(): void
     +confirmInfo(): void
     +assignSeat(): void
@@ -90,7 +95,7 @@ package "Control" {
     +getTicketDetail(): Object
     +verifyGuestIdentity(): boolean
     +reconfirmGuestIdentity(): boolean
-    +processSearch(): List<FlightSchedule>
+    +processSearch(from, to, date): List<FlightSchedule>
     +getAllSchedules(): List<FlightSchedule>
     +initiateMultiCityBooking(): Reservation
     +initiateConnectingBooking(): Reservation
@@ -99,7 +104,7 @@ package "Control" {
     +confirmPaymentWith(): Payment
     +confirmMileagePayment(): Payment
     +currentMember(): Member
-    +airport(): Airport
+    +airport(): Airport {static}
   }
   class AuthService {
     -memberBySkypass: Map<String,Member>
@@ -138,9 +143,9 @@ package "Control" {
     -requestToPnr: Map<String,String>
     -gateway: PaymentGatewayInterface
     -strategy: RefundPolicy
-    -requestSeq: int
-    -refundSeq: int
-    -REFUND_YYMM: DateTimeFormatter
+    -requestSeq: int {static}
+    -refundSeq: int {static}
+    -REFUND_YYMM: DateTimeFormatter {static}
     --
     +setStrategy(): void
     +getStrategy(): RefundPolicy
@@ -156,14 +161,13 @@ package "Control" {
     -synthesize(): FareRule
   }
   class PaymentProcessorFactory <<Factory>> #FFCCCC {
-    +forMethod(): PaymentMethodProcessor
-    +method(): PaymentMethod
+    +forMethod(): PaymentMethodProcessor {static}
   }
   abstract class PaymentMethodProcessor #FFCCCC {
-    -paymentSequence: long
+    -paymentSequence: long {static}
     -gateway: PaymentGatewayInterface
     --
-    #createPayment(): Payment
+    +createPayment(): Payment {abstract}
     +method(): PaymentMethod
     +processCharge(): Payment
     #authorize(): boolean
@@ -172,19 +176,19 @@ package "Control" {
     #stamp(): Payment
   }
   abstract class ItineraryFactory <<Factory>> #FFCCCC {
-    +build(): Itinerary
-    #createItinerary(): Itinerary
-    #validate(): void
+    +build(): Itinerary {final}
+    #createItinerary(): Itinerary {abstract}
+    #validate(): void {abstract}
     #postCheck(): void
   }
   abstract class TicketRenderer <<Template>> #FFCCCC {
-    +render(): String
-    #header(): String
-    #body(): String
-    #footer(): String
+    +render(): String {final}
+    #header(): String {abstract}
+    #body(): String {abstract}
+    #footer(): String {abstract}
     #separator(): String
   }
-  class TicketPurchasePublisher <<Subject>> {
+  class TicketPurchasePublisher <<ConcreteSubject>> {
     -subjectState: TicketIssuedEvent
     --
     +getState(): TicketIssuedEvent
@@ -205,7 +209,6 @@ package "Domain :: reservation" {
     -reservationItems: List<ReservationItem>
     -payments: List<Payment>
     -tickets: List<Ticket>
-    -REGISTRY: Map<String,Reservation>
     -currentState: ReservationState
     --
     +getReservationId(): Long
@@ -225,14 +228,10 @@ package "Domain :: reservation" {
     +issueTickets(): void
     +cancelReservation(): void
     +canBeCancelled(): boolean
-    +requestRefund(): Refund
+    +requestRefund(payment, reason): Refund
     +evaluateImpactOfFlightStatusChange(): void
-    +create(): Reservation
-    +updatePassengerInfo(): void
     +updateStatus(): void
     +findByPnr(): Reservation
-    +getContactEmail(): String
-    +getReservationDetail(): Reservation
     +setState(): void
     +getCurrentState(): ReservationState
     +getStateName(): String
@@ -252,10 +251,18 @@ package "Domain :: reservation" {
   }
   interface ReservationState <<State>> {
     +name(): String
+    +enterPassengerInfo(): void
+    +processPayment(): void
+    +handlePaymentFailure(): void
+    +issueTicket(): void
+    +requestCancellation(): void
+    +confirmCancellation(): void
+    +requestRefund(): void
+    +processRefundDecision(): void
   }
   abstract class Itinerary {
-    +DOMESTIC_MCT: Duration
-    +INTERNATIONAL_MCT: Duration
+    +DOMESTIC_MCT: Duration {static}
+    +INTERNATIONAL_MCT: Duration {static}
     -tripType: String
     -segments: List<Segment>
     --
@@ -265,15 +272,14 @@ package "Domain :: reservation" {
     +addSegment(): void
     +isConnectionTimeValid(): boolean
     +getTotalDuration(): Duration
-    +direct(): Itinerary
-    +connecting(): Itinerary
-    +multiCity(): Itinerary
+    +direct(): Itinerary {static}
+    +connecting(): Itinerary {static}
+    +multiCity(): Itinerary {static}
   }
 }
 package "Domain :: payment" {
   interface RefundPolicy <<Strategy>> {
     +calculateRefundAmount(): BigDecimal
-    +getRefundType(): String
   }
   abstract class Payment {
     -paymentId: Long
@@ -286,7 +292,6 @@ package "Domain :: payment" {
     +getAmount(): BigDecimal
     +setAmount(): void
     +getPaymentMethod(): PaymentMethod
-    +setPaymentMethod(): void
     +getPaymentId(): Long
     +setPaymentId(): void
     +getStatus(): PaymentStatus
@@ -346,6 +351,14 @@ package "Domain :: flight" {
   }
 }
 package "Domain :: event" {
+  class EventPublisher <<Subject>> {
+    -observers: List<EventListener>
+    --
+    +attach(): void
+    +detach(): void
+    +subscriberCount(): int
+    +notifyObservers(): void
+  }
   interface EventListener {
     +update(): void
   }
@@ -360,7 +373,7 @@ package "Domain :: event" {
 }
 package "app" {
   class AppConfig <<Singleton>> #FFCCCC {
-    -instance: AppConfig
+    -instance: AppConfig {static}
     -fontFamily: String
     -fontSize: int
     -displayLocale: Locale
@@ -369,7 +382,7 @@ package "app" {
     -showSeatMetadata: boolean
     -listeners: List<Consumer<AppConfig>>
     --
-    +getInstance(): AppConfig
+    +getInstance(): AppConfig {static}
     +getFontFamily(): String
     +setFontFamily(): void
     +getFontSize(): int
@@ -387,22 +400,43 @@ package "app" {
     -notifyListeners(): void
   }
 }
+
+' ============================================================
+'  레이아웃 (무교차): top->bottom 방향으로 Boundary -> Control -> Domain
+'  세로 스파인을 만든다. 모든 패키지간 의존을 아래 방향으로 통일하고,
+'  Adapter/Composite/Observer 의 내부 상속은 같은 패키지 안에서 짧게 닫는다.
+' ============================================================
+' === ECB 핵심 흐름: FxApp -> Navigator -> BookingController -> Reservation ===
 FxApp --> Navigator
+FxApp ..> AppConfig
 Navigator ..> BookingController
 BookingController --> Reservation
 BookingController ..> PaymentProcessorFactory
 BookingController ..> ItineraryFactory
+
+' === Factory Method / Strategy / Template ===
 PaymentProcessorFactory ..> PaymentMethodProcessor
+RefundHandler ..> RefundPolicy
+TicketRenderer ..> Reservation
+
+' === State ===
 Reservation o--> ReservationState
 Reservation --> Itinerary
-RefundHandler ..> RefundPolicy
+
+' === Composite (flight): Component <- Leaf/Composite + Composite o--> Component ===
 FlightSearchService ..> AirportLocation
-AirportCity o--> AirportLocation
+Airport --|> AirportLocation
+AirportCity --|> AirportLocation
+AirportCity o--> "0..*" AirportLocation : components
+
+' === Adapter (Boundary 내부) ===
 SkypassInterface <|.. SkypassAdapter
 SkypassAdapter --> RemoteSkypassApi
-TicketPurchasePublisher o--> EventListener
-TicketRenderer ..> Reservation
-FxApp ..> AppConfig
+
+' === Observer (Subject 베이스 <- ConcreteSubject, aggregation 은 Subject 가 보유) ===
+TicketPurchasePublisher --|> EventPublisher
+EventPublisher o--> "0..*" EventListener
+
 legend bottom
 |= 색 |= 의미 |
 |<#FFCCCC>    | iter4 신규 적용 패턴 (Composite/Singleton/Factory Method/Template Method/Adapter/Decorator) |

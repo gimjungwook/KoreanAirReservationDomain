@@ -5,7 +5,7 @@ import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.KakaoPayPayment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
-/** DP#6 Factory Method — ConcreteCreator: KakaoPay. */
+/** DP#5 Factory Method — ConcreteCreator: KakaoPay. */
 public class KakaoPayPaymentProcessor extends PaymentMethodProcessor {
 
     public KakaoPayPaymentProcessor(PaymentGatewayInterface gateway) {

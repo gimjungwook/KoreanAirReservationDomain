@@ -3,7 +3,7 @@ package com.koreanair.reservation.domain.flight.seatview;
 import java.util.List;
 
 /**
- * DP#9 Decorator — ConcreteDecorator: 창가 좌석 표시 (요금 0).
+ * DP#8 Decorator — ConcreteDecorator: 창가 좌석 표시 (요금 0).
  *
  * <p>operation 을 override 하여 super(=component 로 전달) 호출 뒤 자신의 addedBehavior 를 더한다.
  */

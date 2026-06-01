@@ -1,0 +1,4 @@
+node_modules/
+_pdf/
+_shot.mjs
+.DS_Store

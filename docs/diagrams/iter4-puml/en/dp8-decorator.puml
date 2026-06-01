@@ -64,7 +64,7 @@ class AisleSeatDecorator <<ConcreteDecorator>> {
   -addedBehavior(): String
 }
 class ExtraLegroomDecorator <<ConcreteDecorator>> {
-  -SURCHARGE: BigDecimal
+  -SURCHARGE: BigDecimal {static}
   --
   +ExtraLegroomDecorator(component: SeatView)
   +getDescription(): String
@@ -73,7 +73,7 @@ class ExtraLegroomDecorator <<ConcreteDecorator>> {
   -addedBehavior(): String
 }
 class LoungeAccessDecorator <<ConcreteDecorator>> {
-  -SURCHARGE: BigDecimal
+  -SURCHARGE: BigDecimal {static}
   --
   +LoungeAccessDecorator(component: SeatView)
   +getDescription(): String
@@ -81,11 +81,20 @@ class LoungeAccessDecorator <<ConcreteDecorator>> {
   +getMetadataLabels(): List<String>
   -addedBehavior(): String
 }
+' Inheritance edges stay vertical (Component on top, ConcreteComponent + Decorator
+' below, the 4 ConcreteDecorators fanned beneath the abstract Decorator).
 SeatView <|-- BaseSeatView
 SeatView <|-- AbstractSeatDecorator
-AbstractSeatDecorator *--> SeatView : -component
 AbstractSeatDecorator <|-- WindowSeatDecorator
 AbstractSeatDecorator <|-- AisleSeatDecorator
 AbstractSeatDecorator <|-- ExtraLegroomDecorator
 AbstractSeatDecorator <|-- LoungeAccessDecorator
+
+' Decorator-wraps-Component aggregation: AbstractSeatDecorator HAS-A one SeatView
+' (the protected final #component field). Anchored from the component field across to
+' SeatView's left side so the diamond edge stays clear of the vertical inheritance
+' triangle that joins the same two boxes; multiplicity reads 1 wrapped Component.
+AbstractSeatDecorator::component "1" o-left- SeatView : component >
+
+note bottom of AbstractSeatDecorator : ConcreteDecorators override an operation, call super (forwarding down the wrapped SeatView chain)\nand append addedBehavior; getDescription += " · 창가/통로", getSurcharge via super.getSurcharge().add(SURCHARGE)\n(ExtraLegroom +50,000 / Lounge +80,000), getMetadataLabels adds Window/Aisle/ExtraLegroom/Lounge.
 @enduml

@@ -7,7 +7,7 @@ import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.Segment;
 
 /**
- * DP#6 Factory Method — Creator (abstract).
+ * DP#5 Factory Method — Creator (abstract).
  *
  * <p>Concrete Creator (Direct/Connecting/MultiCity)가 createItinerary() 와 validate() 를
  * 오버라이드해서 각 trip 종류의 Itinerary 객체를 만든다. build() 는 템플릿 흐름이다.

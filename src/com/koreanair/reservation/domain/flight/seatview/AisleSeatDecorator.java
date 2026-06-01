@@ -3,7 +3,7 @@ package com.koreanair.reservation.domain.flight.seatview;
 import java.util.List;
 
 /**
- * DP#9 Decorator — ConcreteDecorator: 통로 좌석 표시 (요금 0).
+ * DP#8 Decorator — ConcreteDecorator: 통로 좌석 표시 (요금 0).
  */
 public class AisleSeatDecorator extends AbstractSeatDecorator {
 

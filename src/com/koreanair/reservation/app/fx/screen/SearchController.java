@@ -171,7 +171,7 @@ public final class SearchController {
         message.setText(list.isEmpty() ? from + " → " + to + " 직항편이 없습니다." : from + " → " + to + " · " + list.size() + "편");
     }
 
-    /** 환승 포함 검색 — DP#6 Factory Method(ConnectingItineraryFactory) + Itinerary 추상화. */
+    /** 환승 포함 검색 — DP#5 Factory Method(ConnectingItineraryFactory) + Itinerary 추상화. */
     private void searchConnecting(String from, String to) {
         com.koreanair.reservation.control.ItinerarySearchService its =
                 new com.koreanair.reservation.control.ItinerarySearchService(ctx.search);
@@ -372,7 +372,7 @@ public final class SearchController {
     private List<FlightSchedule> routeOnly(String from, String to) {
         List<FlightSchedule> out = new ArrayList<>();
         if (from.isEmpty() || to.isEmpty()) return out;
-        // DP#4 Composite — 도시 코드(SEL/TYO/NYC/LON)면 소속 공항 전체로 확장.
+        // DP#3 Composite — 도시 코드(SEL/TYO/NYC/LON)면 소속 공항 전체로 확장.
         java.util.Set<String> fromCodes = expand(from);
         java.util.Set<String> toCodes = expand(to);
         for (FlightSchedule s : ctx.search.getCatalog()) {

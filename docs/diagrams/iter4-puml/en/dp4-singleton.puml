@@ -28,7 +28,7 @@ skinparam note {
 
 title DP#4 Singleton Pattern - AppConfig
 class AppConfig <<Singleton>> {
-  -instance: AppConfig
+  -instance: AppConfig {static}
   -fontFamily: String
   -fontSize: int
   -displayLocale: Locale
@@ -38,7 +38,7 @@ class AppConfig <<Singleton>> {
   -listeners: List<Consumer<AppConfig>>
   --
   -AppConfig()
-  +getInstance(): AppConfig
+  +getInstance(): AppConfig {static}
   +getFontFamily(): String
   +setFontFamily(fontFamily: String): void
   +getFontSize(): int

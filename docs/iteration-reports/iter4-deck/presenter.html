@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Presenter view · OODP Iter4</title>
+<script src="deck-manifest.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --accent: #ff7eb6; }
+  html, body { height: 100%; background: #141416; color: #f0f0f2; font-family: "Pretendard Variable", Pretendard, ui-sans-serif, -apple-system, sans-serif; overflow: hidden; }
+  body { display: flex; flex-direction: column; padding: 18px 22px 16px; gap: 14px; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .topbar .count { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+  .topbar .count b { color: var(--accent); }
+  .topbar .timer { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .topbar .timer.run { color: #5fd39a; }
+  .topbar .clock { font-size: 15px; color: rgba(255,255,255,0.45); font-variant-numeric: tabular-nums; }
+  .topbar .tbtn { background: rgba(255,255,255,0.08); color: #f0f0f2; border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .topbar .tbtn:hover { background: rgba(255,255,255,0.16); }
+
+  .main { flex: 1; min-height: 0; display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; }
+  .col { display: flex; flex-direction: column; min-height: 0; gap: 10px; }
+  .col .cap { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .col .cap b { color: var(--accent); }
+
+  .preview { position: relative; width: 100%; aspect-ratio: 16/9; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); }
+  .preview iframe { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; border: 0; transform-origin: top left; }
+  .preview.next { opacity: 0.92; }
+
+  .notes { flex: 1; min-height: 0; overflow-y: auto; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 22px 26px; }
+  .notes .nlabel { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+  .notes .nbody { font-size: 26px; line-height: 1.72; font-weight: 500; white-space: pre-line; }
+  .nextup { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 18px; }
+  .nextup .nu-l { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+
+  .controls { flex-shrink: 0; display: flex; gap: 12px; align-items: center; justify-content: center; }
+  .controls button { font-family: inherit; font-weight: 700; border-radius: 12px; cursor: pointer; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.08); color: #f0f0f2; transition: all 0.15s ease; }
+  .controls button:hover { background: rgba(255,255,255,0.18); }
+  .controls .nav { font-size: 20px; padding: 14px 34px; }
+  .controls .nav.primary { background: var(--accent); color: #0a0a0a; border-color: var(--accent); }
+  .controls .small { font-size: 15px; padding: 12px 18px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="count">slide <b id="cur">1</b> / <span id="total">22</span></div>
+    <div class="timer" id="timer">00:00</div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <span class="clock" id="clock">--:--</span>
+      <button class="tbtn" id="timerBtn">▶ timer</button>
+      <button class="tbtn" id="resetBtn">↺</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="col">
+      <div class="cap">now showing — <b id="curLabel">—</b></div>
+      <div class="preview" id="pvCur"><iframe id="ifCur" src=""></iframe></div>
+      <div class="nextup">
+        <div class="nu-l">next ▶ <span id="nextLabel"></span></div>
+        <div class="preview next" id="pvNext" style="aspect-ratio:16/9; margin-top:8px;"><iframe id="ifNext" src=""></iframe></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="notes">
+        <div class="nlabel" id="nLabel">presenter script</div>
+        <div class="nbody" id="nBody">—</div>
+      </div>
+      <div class="controls">
+        <button class="nav" id="prevBtn">◀ prev</button>
+        <button class="small" id="replayBtn">🔁 replay anim</button>
+        <button class="nav primary" id="nextBtn">next ▶</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const M = window.DECK_MANIFEST, DECK_VER = window.DECK_VER;
+  document.getElementById('total').textContent = M.length;
+  const ifCur = document.getElementById('ifCur'), ifNext = document.getElementById('ifNext');
+  let idx = parseInt(localStorage.getItem('oodp4-idx') || '0', 10);
+  if (idx < 0 || idx >= M.length) idx = 0;
+
+  function scalePreview(box, ifr) { ifr.style.transform = `scale(${box.clientWidth / window.DECK_WIDTH})`; }
+  function render() {
+    const cur = M[idx], nxt = M[Math.min(idx + 1, M.length - 1)];
+    document.getElementById('cur').textContent = idx + 1;
+    document.getElementById('curLabel').textContent = cur.label;
+    document.getElementById('nLabel').textContent = `presenter script — ${idx + 1} / ${M.length} · ${cur.label}`;
+    document.getElementById('nBody').textContent = cur.notes || '(no notes)';
+    if (idx + 1 < M.length) {
+      document.getElementById('nextLabel').textContent = nxt.label;
+      ifNext.src = nxt.file + '?v=' + DECK_VER;
+      document.getElementById('pvNext').style.display = '';
+    } else {
+      document.getElementById('nextLabel').textContent = '(last slide)';
+      document.getElementById('pvNext').style.display = 'none';
+    }
+    ifCur.src = cur.file + '?v=' + DECK_VER;
+    setTimeout(() => { scalePreview(document.getElementById('pvCur'), ifCur); scalePreview(document.getElementById('pvNext'), ifNext); }, 30);
+  }
+
+  function send(a, n) {
+    localStorage.setItem('oodp4-cmd', JSON.stringify({ a, n }));
+    localStorage.setItem('oodp4-cmd-ts', String(Date.now()));
+    if (a === 'next') idx = Math.min(idx + 1, M.length - 1);
+    else if (a === 'prev') idx = Math.max(idx - 1, 0);
+    else if (a === 'goto' && typeof n === 'number') idx = n;
+    if (a !== 'replay') render();
+  }
+  document.getElementById('nextBtn').onclick = () => send('next');
+  document.getElementById('prevBtn').onclick = () => send('prev');
+  document.getElementById('replayBtn').onclick = () => send('replay');
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); send('next'); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); send('prev'); }
+    else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); send('replay'); }
+  });
+
+  let lastIdxTs = localStorage.getItem('oodp4-idx-ts') || '0';
+  setInterval(() => {
+    const ts = localStorage.getItem('oodp4-idx-ts');
+    if (ts && ts !== lastIdxTs) {
+      lastIdxTs = ts;
+      const ni = parseInt(localStorage.getItem('oodp4-idx') || '0', 10);
+      if (ni !== idx && ni >= 0 && ni < M.length) { idx = ni; render(); }
+    }
+  }, 200);
+
+  let t0 = null, tInt = null;
+  function fmt(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+  const timerEl = document.getElementById('timer');
+  document.getElementById('timerBtn').onclick = function(){
+    if (tInt) { clearInterval(tInt); tInt=null; this.textContent='▶ resume'; timerEl.classList.remove('run'); }
+    else { if(!t0) t0=Date.now(); else t0=Date.now()-(parseInt(timerEl.dataset.el||'0')); tInt=setInterval(()=>{ const el=Date.now()-t0; timerEl.dataset.el=el; timerEl.textContent=fmt(el); },250); this.textContent='⏸ pause'; timerEl.classList.add('run'); }
+  };
+  document.getElementById('resetBtn').onclick = ()=>{ if(tInt){clearInterval(tInt);tInt=null;} t0=null; timerEl.dataset.el='0'; timerEl.textContent='00:00'; timerEl.classList.remove('run'); document.getElementById('timerBtn').textContent='▶ timer'; };
+  function clock(){ const d=new Date(); document.getElementById('clock').textContent = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  clock(); setInterval(clock, 10000);
+
+  window.addEventListener('resize', () => { scalePreview(document.getElementById('pvCur'), ifCur); scalePreview(document.getElementById('pvNext'), ifNext); });
+  render();
+</script>
+</body>
+</html>

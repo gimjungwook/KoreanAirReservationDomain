@@ -8,7 +8,7 @@ import java.util.Objects;
 import com.koreanair.reservation.domain.flight.Seat;
 
 /**
- * DP#9 Decorator — abstract Decorator.
+ * DP#8 Decorator — abstract Decorator.
  *
  * <p>교과서 Decorator 그림과 동일하게 Component(SeatView)를 참조(-component)하고,
  * 모든 연산을 component 로 그대로 전달(forward)한다. 구체 Decorator 는 operation 을

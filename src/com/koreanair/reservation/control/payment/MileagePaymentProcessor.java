@@ -6,7 +6,7 @@ import com.koreanair.reservation.domain.payment.MileagePayment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
 /**
- * DP#6 Factory Method — ConcreteCreator: 마일리지 결제.
+ * DP#5 Factory Method — ConcreteCreator: 마일리지 결제.
  *
  * <p>외부 gateway 가 아니라 사용자 MileageAccount 잔액에서 차감.
  */

@@ -4,7 +4,7 @@ import com.koreanair.reservation.domain.flight.CabinClass;
 import com.koreanair.reservation.domain.flight.Seat;
 
 /**
- * DP#9 Decorator — Client 헬퍼.
+ * DP#8 Decorator — Client 헬퍼.
  *
  * <p>Seat 의 boolean 필드를 보고 적절한 Decorator 체인을 자동 조립한다.
  * 비즈니스/퍼스트 좌석에는 LoungeAccess 가 기본 포함된다.

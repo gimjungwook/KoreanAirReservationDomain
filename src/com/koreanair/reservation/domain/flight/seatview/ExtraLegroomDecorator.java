@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * DP#9 Decorator — ConcreteDecorator: 프리미엄 레그룸 (+50,000원).
+ * DP#8 Decorator — ConcreteDecorator: 프리미엄 레그룸 (+50,000원).
  *
  * <p>operation override: super(=하위 체인) 호출 뒤 자신의 추가 요금/라벨(addedBehavior)을 더한다.
  */

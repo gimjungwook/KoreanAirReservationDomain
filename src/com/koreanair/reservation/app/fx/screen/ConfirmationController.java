@@ -84,7 +84,7 @@ public final class ConfirmationController {
         }
     }
 
-    /** DP#7 Template Method — 선택한 포맷의 TicketRenderer 로 동일 데이터를 다른 매체로 렌더. */
+    /** DP#6 Template Method — 선택한 포맷의 TicketRenderer 로 동일 데이터를 다른 매체로 렌더. */
     private void renderTicket() {
         if (reservation == null || reservation.getTickets().isEmpty()) return;
         Ticket ticket = reservation.getTickets().get(reservation.getTickets().size() - 1);

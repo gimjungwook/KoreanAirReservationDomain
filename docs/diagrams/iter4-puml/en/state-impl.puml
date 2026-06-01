@@ -4,7 +4,7 @@ skinparam shadowing false
 skinparam roundcorner 0
 skinparam linetype polyline
 skinparam nodesep 26
-skinparam ranksep 42
+skinparam ranksep 50
 skinparam defaultFontName "Helvetica Neue"
 skinparam defaultFontSize 13
 skinparam dpi 150
@@ -27,6 +27,7 @@ skinparam note {
 }
 
 title State Pattern (implementation, not numbered as DP) - Context = Reservation
+
 class Reservation <<Context>> {
   -reservationId: Long
   -reservationNumber: String
@@ -62,7 +63,7 @@ class Reservation <<Context>> {
   +requestRefund(payment: Payment, reason: String): Refund
   +evaluateImpactOfFlightStatusChange(): void
   +updateStatus(newStatus: ReservationStatus): void
-  +findByPnr(pnr: String): Reservation
+  +findByPnr(pnr: String): Reservation {static}
   +setState(next: ReservationState): void
   +getCurrentState(): ReservationState
   +getStateName(): String
@@ -81,43 +82,82 @@ class Reservation <<Context>> {
   +getCreatedAt(): LocalDateTime
   +getReservationDate(): LocalDateTime
 }
+
 interface ReservationState <<State>> {
   +name(): String
+  --
+  +enterPassengerInfo(ctx: Reservation): void {default}
+  +processPayment(ctx: Reservation): void {default}
+  +handlePaymentFailure(ctx: Reservation): void {default}
+  +issueTicket(ctx: Reservation): void {default}
+  +requestCancellation(ctx: Reservation): void {default}
+  +confirmCancellation(ctx: Reservation): void {default}
+  +requestRefund(ctx: Reservation): void {default}
+  +processRefundDecision(ctx: Reservation, approved: boolean): void {default}
 }
-class InitiatedState <<ConcreteState>> {
-  +name(): String
-  +enterPassengerInfo(ctx: Reservation): void
+
+class InvalidStateTransitionException <<Exception>> {
+  +InvalidStateTransitionException(currentState: String, action: String)
 }
-class PendingPaymentState <<ConcreteState>> {
-  +name(): String
-  +processPayment(ctx: Reservation): void
-  +handlePaymentFailure(ctx: Reservation): void
+class RuntimeException <<JDK>> {
 }
-class ConfirmedState <<ConcreteState>> {
-  +name(): String
-  +issueTicket(ctx: Reservation): void
-  +requestCancellation(ctx: Reservation): void
+
+' Concrete states laid out as two rows of four (top row = forward/happy path,
+' bottom row = cancellation / refund branch) so the eight realization arrows fan
+' symmetrically into ReservationState instead of overflowing one wide row.
+together {
+  class InitiatedState <<ConcreteState>> {
+    +name(): String
+    +enterPassengerInfo(ctx: Reservation): void
+  }
+  class PendingPaymentState <<ConcreteState>> {
+    +name(): String
+    +processPayment(ctx: Reservation): void
+    +handlePaymentFailure(ctx: Reservation): void
+  }
+  class ConfirmedState <<ConcreteState>> {
+    +name(): String
+    +issueTicket(ctx: Reservation): void
+    +requestCancellation(ctx: Reservation): void
+  }
+  class TicketedState <<ConcreteState>> {
+    +name(): String
+    +requestCancellation(ctx: Reservation): void
+  }
 }
-class TicketedState <<ConcreteState>> {
-  +name(): String
-  +requestCancellation(ctx: Reservation): void
+
+together {
+  class CancellationRequestedState <<ConcreteState>> {
+    +name(): String
+    +confirmCancellation(ctx: Reservation): void
+  }
+  class CancelledState <<ConcreteState>> {
+    +name(): String
+    +requestRefund(ctx: Reservation): void
+    -resolveFareRule(ctx: Reservation): FareRule
+  }
+  class RefundRequestedState <<ConcreteState>> {
+    +name(): String
+    +processRefundDecision(ctx: Reservation, approved: boolean): void
+  }
+  class RefundedState <<ConcreteState>> {
+    +name(): String
+  }
 }
-class CancellationRequestedState <<ConcreteState>> {
-  +name(): String
-  +confirmCancellation(ctx: Reservation): void
-}
-class CancelledState <<ConcreteState>> {
-  +name(): String
-  +requestRefund(ctx: Reservation): void
-  -resolveFareRule(ctx: Reservation): FareRule
-}
-class RefundRequestedState <<ConcreteState>> {
-  +name(): String
-  +processRefundDecision(ctx: Reservation, approved: boolean): void
-}
-class RefundedState <<ConcreteState>> {
-  +name(): String
-}
+
+' Context HOLDS-A current state (the -currentState field). Anchored from the field
+' to ReservationState's left side and forced rightward so the aggregation diamond
+' stays clear of the realization fan that joins the ConcreteStates below.
+Reservation::currentState "1" o-right-> ReservationState : -currentState
+
+' Each interface default throws InvalidStateTransitionException (base reject path);
+' kept to the right of the interface so the dependency never crosses the realizations.
+ReservationState ..> InvalidStateTransitionException : throws on\nillegal transition
+RuntimeException <|-- InvalidStateTransitionException
+
+' Eight realizations fan downward into the interface. Only the top row realizes
+' directly; the bottom row is pinned one rank lower via hidden edges (below) so the
+' eight boxes form a 4+4 grid instead of one over-wide row, keeping single-page fit.
 ReservationState <|.. InitiatedState
 ReservationState <|.. PendingPaymentState
 ReservationState <|.. ConfirmedState
@@ -126,6 +166,17 @@ ReservationState <|.. CancellationRequestedState
 ReservationState <|.. CancelledState
 ReservationState <|.. RefundRequestedState
 ReservationState <|.. RefundedState
-Reservation o--> ReservationState : -currentState
-note bottom : The 8 lifecycle methods are default (reject illegal transition); each ConcreteState overrides only its allowed transitions.
+
+' Layout pins: keep each row left-to-right in lifecycle order, and stack the
+' cancellation/refund row one rank below the forward row (hidden, no glyph).
+InitiatedState -[hidden]right- PendingPaymentState
+PendingPaymentState -[hidden]right- ConfirmedState
+ConfirmedState -[hidden]right- TicketedState
+CancellationRequestedState -[hidden]right- CancelledState
+CancelledState -[hidden]right- RefundRequestedState
+RefundRequestedState -[hidden]right- RefundedState
+InitiatedState -[hidden]down- CancellationRequestedState
+TicketedState -[hidden]down- RefundedState
+
+note bottom of RefundedState : Base interface defaults reject illegal transitions (throw InvalidStateTransitionException);\neach ConcreteState overrides only its allowed transitions and inherits the default rejection for the rest.\nInitial state = InitiatedState, set in the Reservation() constructor; RefundedState overrides none (final state).
 @enduml

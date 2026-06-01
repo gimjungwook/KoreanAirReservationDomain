@@ -7,7 +7,7 @@ import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.MultiCityItinerary;
 
 /**
- * DP#6 Factory Method — ConcreteCreator: Multi-city (서로 다른 OD 다중 segment).
+ * DP#5 Factory Method — ConcreteCreator: Multi-city (서로 다른 OD 다중 segment).
  *
  * <p>예: ICN → NRT → BKK → ICN. Connecting 처럼 동일 공항 환승 제약은 없음.
  */

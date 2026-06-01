@@ -114,7 +114,7 @@ public final class SampleData {
         Airport bos = airport("BOS", "Boston Logan International", "Boston", "USA", "🇺🇸");
         Airport mel = airport("MEL", "Melbourne Airport", "Melbourne", "Australia", "🇦🇺");
 
-        // DP#4 Composite — multi-airport metropolitan groups
+        // DP#3 Composite — multi-airport metropolitan groups
         AirportCity nyc = new AirportCity("NYC", "New York", "USA");
         nyc.addComponent(jfk); nyc.addComponent(lga); nyc.addComponent(ewr);
         AirportCity tyo = new AirportCity("TYO", "Tokyo", "Japan");

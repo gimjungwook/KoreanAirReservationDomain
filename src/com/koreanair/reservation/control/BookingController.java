@@ -294,7 +294,7 @@ public class BookingController {
         return r;
     }
 
-    /** 환승(경유) 여정 예약 — DP#6 Factory Method(ConnectingItineraryFactory). */
+    /** 환승(경유) 여정 예약 — DP#5 Factory Method(ConnectingItineraryFactory). */
     public Reservation initiateConnectingBooking(java.util.List<FlightSchedule> segments) {
         if (segments == null || segments.size() < 2) {
             throw new IllegalArgumentException("환승은 2개 이상 segment 필요");
@@ -356,7 +356,7 @@ public class BookingController {
     }
 
     /**
-     * 결제 수단별 결제 — DP#6 Factory Method.
+     * 결제 수단별 결제 — DP#5 Factory Method.
      * PaymentProcessorFactory.forMethod 로 선택된 결제 수단의 ConcreteCreator(PaymentMethodProcessor)를
      * 생성하고 그 프로세서로 결제한다. 성공 시 State: PendingPayment → Confirmed.
      */

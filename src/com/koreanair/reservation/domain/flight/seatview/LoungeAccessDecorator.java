@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * DP#9 Decorator — ConcreteDecorator: 라운지 액세스 (+80,000원).
+ * DP#8 Decorator — ConcreteDecorator: 라운지 액세스 (+80,000원).
  *
  * <p>비즈니스/퍼스트 좌석에는 자동 적용, 이코노미에는 옵션으로 추가.
  */

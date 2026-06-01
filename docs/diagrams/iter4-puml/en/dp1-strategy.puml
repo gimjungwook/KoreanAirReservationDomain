@@ -34,7 +34,7 @@ class NoRefundPolicy <<ConcreteStrategy>> {
   +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
 }
 class PartialRefundPolicy <<ConcreteStrategy>> {
-  -HALF: BigDecimal
+  -HALF: BigDecimal {static}
   --
   +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
 }
@@ -47,9 +47,9 @@ class RefundHandler <<Context>> {
   -requestToPnr: Map<String,String>
   -gateway: PaymentGatewayInterface
   -strategy: RefundPolicy
-  -requestSeq: int
-  -refundSeq: int
-  -REFUND_YYMM: DateTimeFormatter
+  -requestSeq: int {static}
+  -refundSeq: int {static}
+  -REFUND_YYMM: DateTimeFormatter {static}
   --
   +RefundHandler()
   +RefundHandler(gateway: PaymentGatewayInterface)

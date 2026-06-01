@@ -22,15 +22,14 @@ skinparam LifelineBorderColor #000000
 skinparam noteBackgroundColor #FFFFFF
 skinparam noteBorderColor #777777
 
-title <color:#C00000>Sequence Diagram - Mileage Payment via Adapter (Iteration 4, DP#7)</color>
-actor Customer
-participant MileagePaymentProcessor as MPP
-participant SkypassAdapter as ADP
-participant RemoteSkypassApi as API
-Customer -> MPP : <color:#C00000>processCharge(amount, pnr)</color>
-MPP -> ADP : <color:#C00000>deductMileage(skypassNo, amount)</color>
+title <color:#C00000>Sequence Diagram - Skypass Mileage Deduction via Adapter (Iteration 4, DP#7)</color>
+participant "Client" as CL
+participant "skypass : SkypassInterface\n(= SkypassAdapter)" as ADP
+participant "RemoteSkypassApi" as API
+CL -> ADP : <color:#C00000>deductMileage(skypassNo, amount)</color>
 ADP -> API : <color:#C00000>postDeduct(skypassNo, amount)</color>
 API --> ADP : <color:#C00000>Map { success }</color>
-ADP --> MPP : <color:#C00000>boolean</color>
-MPP --> Customer : <color:#C00000>Payment (PAID)</color>
+ADP -> ADP : <color:#C00000>translate Map -> boolean</color>
+ADP --> CL : <color:#C00000>boolean</color>
+note over CL, API : FxApp wires SkypassAdapter(adaptee) into AppContext;\nthe client depends only on SkypassInterface (Adapter, DP#7).
 @enduml

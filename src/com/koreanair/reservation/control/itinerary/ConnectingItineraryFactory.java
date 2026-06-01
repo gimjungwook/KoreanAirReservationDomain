@@ -8,7 +8,7 @@ import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.ConnectingItinerary;
 
 /**
- * DP#6 Factory Method — ConcreteCreator: 환승편 (Connecting).
+ * DP#5 Factory Method — ConcreteCreator: 환승편 (Connecting).
  *
  * <p>최소 2 segment, 첫 도착 == 다음 출발 동일 공항, MCT 충족 검증.
  */

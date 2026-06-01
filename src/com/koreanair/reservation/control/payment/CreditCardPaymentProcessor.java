@@ -5,7 +5,7 @@ import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.CreditCardPayment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
-/** DP#6 Factory Method — ConcreteCreator: 신용카드. */
+/** DP#5 Factory Method — ConcreteCreator: 신용카드. */
 public class CreditCardPaymentProcessor extends PaymentMethodProcessor {
 
     public CreditCardPaymentProcessor(PaymentGatewayInterface gateway) {

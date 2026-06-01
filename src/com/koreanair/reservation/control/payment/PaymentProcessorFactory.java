@@ -5,7 +5,7 @@ import com.koreanair.reservation.domain.passenger.MileageAccount;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
 /**
- * DP#6 Factory Method — 적용처 헬퍼.
+ * DP#5 Factory Method — 적용처 헬퍼.
  *
  * <p>PaymentMethod 에 매핑되는 ConcreteCreator (PaymentMethodProcessor 서브클래스)를 반환한다.
  * 호출자(BookingController, SwingApp)는 이 헬퍼만 알면 되고, 새 결제 수단 추가 시

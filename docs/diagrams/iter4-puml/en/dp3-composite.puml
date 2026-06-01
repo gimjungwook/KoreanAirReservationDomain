@@ -68,7 +68,16 @@ class AirportCity <<Composite>> {
   +matches(code: String): boolean
   +isComposite(): boolean
 }
+
+' Inheritance edges stay vertical (Component on top, Leaf + Composite below).
 AirportLocation <|-- Airport
 AirportLocation <|-- AirportCity
-AirportCity *--> "0..*" AirportLocation : -components
+
+' Composite-holds-Component aggregation (Composite "1" holds "0..*" Component).
+' Anchored from AirportCity's components field across to AirportLocation's left side
+' so the diamond edge stays clear of the vertical inheritance triangle between the
+' same two boxes; multiplicities read 1 (owner) to 0..* (children).
+AirportCity::components "1" o-left- "0..*" AirportLocation : components >
+
+note bottom of AirportCity : AirportCity (Composite) holds 0..* AirportLocation children (recursive composition):\nLeaf and Composite are treated uniformly through AirportLocation, so a city may even contain another city.
 @enduml

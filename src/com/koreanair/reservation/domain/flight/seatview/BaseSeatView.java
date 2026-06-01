@@ -8,7 +8,7 @@ import java.util.Objects;
 import com.koreanair.reservation.domain.flight.Seat;
 
 /**
- * DP#9 Decorator — ConcreteComponent.
+ * DP#8 Decorator — ConcreteComponent.
  *
  * <p>교과서 그림 10-7 의 ConcreteComponent 역할. Seat 도메인 객체를 SeatView(Component) 로
  * 노출하는 기본 구현이며 Decorator 체인의 시작점이 된다. (Adapter 패턴과 혼동을 피하기 위해

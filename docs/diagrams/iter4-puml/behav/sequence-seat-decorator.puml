@@ -23,14 +23,58 @@ skinparam noteBackgroundColor #FFFFFF
 skinparam noteBorderColor #777777
 
 title <color:#C00000>Sequence Diagram - Seat Option Stacking via Decorator (Iteration 4, DP#8)</color>
+
 actor Client
 participant LoungeAccessDecorator as L
+participant "AbstractSeatDecorator\n(super of L)" as AL
 participant ExtraLegroomDecorator as E
+participant "AbstractSeatDecorator\n(super of E)" as AE
 participant BaseSeatView as B
+
+note over Client
+  Client = SeatController.refreshSeatView() / SeatViewBuilder.decorate(Seat)
+  체인 조립 순서: LoungeAccess( ExtraLegroom( BaseSeatView ) )
+  super.getSurcharge() 는 다음 데코레이터를 직접 호출하지 않는다 —
+  AbstractSeatDecorator.getSurcharge() { return component.getSurcharge(); } 프레임을
+  거쳐 protected final SeatView component 로 forward 된다.
+end note
+
 Client -> L : <color:#C00000>getSurcharge()</color>
-L -> E : <color:#C00000>super.getSurcharge()</color>
-E -> B : <color:#C00000>super.getSurcharge()</color>
-B --> E : <color:#C00000>base</color>
-E --> L : <color:#C00000>base + 50000</color>
-L --> Client : <color:#C00000>base + 50000 + 80000</color>
+activate L
+
+' LoungeAccessDecorator.getSurcharge() = super.getSurcharge().add(SURCHARGE)
+' super 는 상속된 AbstractSeatDecorator.getSurcharge() 로 해석된다.
+L -> AL : <color:#C00000>super.getSurcharge()</color>
+activate AL
+' AbstractSeatDecorator 가 component(=ExtraLegroomDecorator)로 forward
+AL -> E : <color:#C00000>component.getSurcharge()</color>
+activate E
+
+' ExtraLegroomDecorator.getSurcharge() = super.getSurcharge().add(SURCHARGE)
+E -> AE : <color:#C00000>super.getSurcharge()</color>
+activate AE
+' AbstractSeatDecorator 가 component(=BaseSeatView)로 forward
+AE -> B : <color:#C00000>component.getSurcharge()</color>
+activate B
+B --> AE : <color:#C00000>0 (BigDecimal.ZERO)</color>
+deactivate B
+AE --> E : <color:#C00000>0</color>
+deactivate AE
+
+E -> E : <color:#C00000>addedBehavior: add(50000)</color>
+E --> AL : <color:#C00000>0 + 50000 = 50000</color>
+deactivate E
+AL --> L : <color:#C00000>50000</color>
+deactivate AL
+
+L -> L : <color:#C00000>addedBehavior: add(80000)</color>
+L --> Client : <color:#C00000>50000 + 80000 = 130000</color>
+deactivate L
+
+note over E, B
+  base = BaseSeatView.getSurcharge() = BigDecimal.ZERO (0)
+  ExtraLegroom.SURCHARGE = 50000, LoungeAccess.SURCHARGE = 80000
+  최종 부가요금 = 0 + 50000 + 80000 = 130000
+end note
+
 @enduml

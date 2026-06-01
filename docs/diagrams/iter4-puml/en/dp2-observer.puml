@@ -27,7 +27,7 @@ skinparam note {
 }
 
 title DP#2 Observer Pattern (pull) - Subject = EventPublisher
-abstract class EventPublisher <<Subject>> {
+class EventPublisher <<Subject>> {
   -observers: List<EventListener>
   --
   +attach(observer: EventListener): void
@@ -55,23 +55,15 @@ class BusTicketPurchaseListener <<ConcreteObserver>> {
   +getSubject(): TicketPurchasePublisher
   +update(): void
 }
-class ReservationAutoCancelListener <<ConcreteObserver>> {
-  -subject: PaymentProcessor
-  --
-  +setSubject(subject: PaymentProcessor): void
-  +getSubject(): PaymentProcessor
-  +update(): void
-}
 EventPublisher <|-- TicketPurchasePublisher
 EventListener <|.. BusTicketPurchaseListener
-EventListener <|.. ReservationAutoCancelListener
 EventPublisher o--> "*" EventListener : -observers
-BusTicketPurchaseListener --> TicketPurchasePublisher : -subject
+BusTicketPurchaseListener -right-> TicketPurchasePublisher : -subject
 note bottom
-  4 ConcreteSubjects (TicketPurchasePublisher, PaymentProcessor, SeatHoldMonitor,
-  FlightSchedule) and 4 ConcreteObservers (BusTicketPurchaseListener,
-  ReservationAutoCancelListener, ReservationHoldListener, AffectedReservationListener)
+  4 ConcreteSubjects (TicketPurchasePublisher, FlightSchedule, SeatHoldMonitor,
+  PaymentProcessor) and 4 ConcreteObservers (BusTicketPurchaseListener,
+  AffectedReservationListener, ReservationHoldListener, ReservationAutoCancelListener)
   all share the same attach / notifyObservers() / update() pull structure;
-  representative participants are shown above.
+  a representative ConcreteSubject + ConcreteObserver pair is shown above.
 end note
 @enduml

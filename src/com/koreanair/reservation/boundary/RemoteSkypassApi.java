@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * DP#8 Adapter — Adaptee (외부 API).
+ * DP#7 Adapter — Adaptee (외부 API).
  *
  * <p>실 Skypass HTTP API 를 시뮬레이션하는 raw 인터페이스. 응답은 status/payload Map 형태로
  * 외부 JSON 시그니처와 유사하다. 내부 도메인은 이 형식을 직접 다루지 않는다.

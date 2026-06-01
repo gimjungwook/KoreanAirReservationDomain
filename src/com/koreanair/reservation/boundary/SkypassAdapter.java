@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * DP#8 Adapter — Adapter.
+ * DP#7 Adapter — Adapter.
  *
  * <p>외부 {@link RemoteSkypassApi}(Adaptee) 의 raw 응답 Map 을 내부 {@link SkypassInterface}(Target)
  * 시그니처로 변환한다. 도메인 코드는 SkypassInterface 만 알면 되고, 외부 API 변경 시 본 어댑터만 갱신.

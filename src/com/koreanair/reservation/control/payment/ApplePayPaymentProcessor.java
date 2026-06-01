@@ -5,7 +5,7 @@ import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.ApplePayPayment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
-/** DP#6 Factory Method — ConcreteCreator: Apple Pay. */
+/** DP#5 Factory Method — ConcreteCreator: Apple Pay. */
 public class ApplePayPaymentProcessor extends PaymentMethodProcessor {
 
     public ApplePayPaymentProcessor(PaymentGatewayInterface gateway) {

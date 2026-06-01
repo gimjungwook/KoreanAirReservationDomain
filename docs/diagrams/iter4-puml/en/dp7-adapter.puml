@@ -27,13 +27,8 @@ skinparam note {
 }
 
 title DP#7 Adapter Pattern - SkypassAdapter
-class MileagePaymentProcessor <<Client>> {
-  -account: MileageAccount
-  --
-  +MileagePaymentProcessor(account: MileageAccount)
-  +createPayment(): Payment
-  +method(): PaymentMethod
-  #authorize(payment: Payment): boolean
+class AppContext <<Client>> {
+  +skypass: SkypassInterface
 }
 interface SkypassInterface <<Target>> {
   +verifyMembership(skypassNumber: String, password: String): Object
@@ -59,7 +54,8 @@ class RemoteSkypassApi <<Adaptee>> {
   +getMileage(memberCode: String): Map<String,Object>
   +postDeduct(memberCode: String, amount: int): Map<String,Object>
 }
-MileagePaymentProcessor --> SkypassInterface
+AppContext --> SkypassInterface
 SkypassInterface <|.. SkypassAdapter
 SkypassAdapter --> RemoteSkypassApi : -adaptee
+note bottom : AppContext is the Client and depends only on SkypassInterface.\nFxApp wires SkypassAdapter(adaptee) into AppContext; deductMileage converts adaptee.postDeduct -> success.
 @enduml

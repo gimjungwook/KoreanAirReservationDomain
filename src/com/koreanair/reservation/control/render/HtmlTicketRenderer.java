@@ -3,7 +3,7 @@ package com.koreanair.reservation.control.render;
 import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.Ticket;
 
-/** DP#7 Template Method — ConcreteClass: HTML e-Ticket. */
+/** DP#6 Template Method — ConcreteClass: HTML e-Ticket. */
 public class HtmlTicketRenderer extends TicketRenderer {
 
     @Override

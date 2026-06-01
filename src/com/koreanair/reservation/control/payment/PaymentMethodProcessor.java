@@ -7,7 +7,7 @@ import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.PaymentMethod;
 
 /**
- * DP#6 Factory Method — Creator.
+ * DP#5 Factory Method — Creator.
  *
  * <p>구체 결제 수단별 ConcreteCreator 가 {@link #createPayment()} 을 오버라이드해
  * 자기 종류의 Payment 객체를 생성한다. processCharge() 가 템플릿으로 동작한다.

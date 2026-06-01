@@ -6,7 +6,7 @@ import com.koreanair.reservation.domain.flight.FlightSchedule;
 import com.koreanair.reservation.domain.reservation.Itinerary;
 import com.koreanair.reservation.domain.reservation.DirectItinerary;
 
-/** DP#6 Factory Method — ConcreteCreator: 직항. */
+/** DP#5 Factory Method — ConcreteCreator: 직항. */
 public class DirectItineraryFactory extends ItineraryFactory {
 
     @Override

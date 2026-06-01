@@ -27,11 +27,13 @@ skinparam note {
 }
 
 title DP#6 Template Method Pattern - TicketRenderer
+
 abstract class TicketRenderer <<AbstractClass>> {
-  +render(reservation: Reservation, ticket: Ticket): String
-  #header(reservation: Reservation, ticket: Ticket): String
-  #body(reservation: Reservation, ticket: Ticket): String
-  #footer(reservation: Reservation, ticket: Ticket): String
+  +render(reservation: Reservation, ticket: Ticket): String {final}
+  --
+  #{abstract} header(reservation: Reservation, ticket: Ticket): String
+  #{abstract} body(reservation: Reservation, ticket: Ticket): String
+  #{abstract} footer(reservation: Reservation, ticket: Ticket): String
   #separator(): String
 }
 class PlainTextTicketRenderer <<ConcreteClass>> {
@@ -55,7 +57,19 @@ class BoardingPassRenderer <<ConcreteClass>> {
   #separator(): String
   -safe(s: String): String
 }
+
+' Keep the 3 children on one rank so the generalization fan stays symmetric and crossing-free.
+PlainTextTicketRenderer -[hidden]right- HtmlTicketRenderer
+HtmlTicketRenderer -[hidden]right- BoardingPassRenderer
+
+' Generalizations: each ConcreteClass -|> AbstractClass.
 TicketRenderer <|-- PlainTextTicketRenderer
 TicketRenderer <|-- HtmlTicketRenderer
 TicketRenderer <|-- BoardingPassRenderer
+
+note bottom of TicketRenderer
+  render() = final template method (fixed skeleton: header + separator + body + separator + footer).
+  header/body/footer = abstract primitives — each ConcreteClass MUST override.
+  separator() = default hook (returns "\n") — subclasses MAY override.
+end note
 @enduml

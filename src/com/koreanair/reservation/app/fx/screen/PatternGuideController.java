@@ -97,7 +97,7 @@ public final class PatternGuideController {
     private List<PatternNote> notes() {
         return List.of(
                 new PatternNote(
-                        "DP#1 State - Reservation lifecycle",
+                        "State - Reservation lifecycle",
                         "예약 객체가 상태명을 enum으로 검사하지 않고, 현재 State 객체에게 가능한 전이를 위임한다.",
                         "Context = Reservation, State = ReservationState, Default = AbstractReservationState, ConcreteState = 8개 상태",
                         "Reservation.currentState, setState(), requestPayment(), issueTicket(), AbstractReservationState 기본 거부",
@@ -125,7 +125,7 @@ public final class PatternGuideController {
                         """,
                         "헤더 STATE 배지를 보며 검색 -> 승객정보 -> 결제 -> 발권 단계에서 상태가 어떻게 바뀌는지 설명한다."),
                 new PatternNote(
-                        "DP#2 Strategy - RefundPolicy family",
+                        "DP#1 Strategy - RefundPolicy family",
                         "환불 계산 if/else를 RefundHandler 밖으로 빼고, 운임 규칙이 적절한 정책 객체를 고르게 한다.",
                         "Context = RefundHandler, Strategy = RefundPolicy, ConcreteStrategy = Full/Partial/No",
                         "FareRule.checkRefundPolicy(), RefundHandler.previewRefund(), RefundRequest",
@@ -150,7 +150,7 @@ public final class PatternGuideController {
                         """,
                         "취소 화면에서 미리보기를 누르고 Full/Partial/No 정책명이 바뀌는 구조를 보여준다."),
                 new PatternNote(
-                        "DP#3 Observer - Domain event broadcast",
+                        "DP#2 Observer - Domain event broadcast",
                         "발권, 결제 실패, 좌석 홀드 만료 같은 부수효과를 호출자에게 직접 묶지 않고 이벤트로 전파한다.",
                         "Subject = EventPublisher, Observer = EventListener, ConcreteEvent = DomainEvent",
                         "TicketPurchasePublisher, BusTicketPurchaseListener, TicketIssuedEvent",
@@ -176,7 +176,7 @@ public final class PatternGuideController {
                         """,
                         "확인 화면에서 e-Ticket/셔틀 연계를 실행하고 콘솔의 BUS 로그와 화면의 버스티켓 상태를 같이 보여준다."),
                 new PatternNote(
-                        "DP#4 Composite - Airport city search",
+                        "DP#3 Composite - Airport city search",
                         "도시 코드와 공항 코드를 같은 타입으로 다루어 SEL, TYO, NYC 검색을 공항 목록 검색으로 확장한다.",
                         "Component = AirportLocation, Composite = AirportCity, Leaf = Airport",
                         "AirportLocation.getAirports(), AirportCity.members, AirportCatalog.resolve()",
@@ -197,7 +197,7 @@ public final class PatternGuideController {
                         """,
                         "검색창에 TYO, NYC, SEL 같은 도시 코드를 넣고 여러 공항 노선이 함께 잡히는 점을 설명한다."),
                 new PatternNote(
-                        "DP#5 Singleton - AppConfig",
+                        "DP#4 Singleton - AppConfig",
                         "글꼴 크기, 통화, 테마 설정을 화면마다 따로 들고 있지 않고 앱 전체가 한 객체를 공유한다.",
                         "Singleton = AppConfig, private constructor, getInstance()",
                         "AppConfig.instance, listeners, setFontSize(), setCurrency()",
@@ -221,7 +221,7 @@ public final class PatternGuideController {
                         """,
                         "설정 화면에서 글꼴 크기를 바꾸고 전체 UI가 같은 설정 객체를 바라본다는 점을 보여준다."),
                 new PatternNote(
-                        "DP#6 Factory Method - Payment and itinerary creation",
+                        "DP#5 Factory Method - Payment and itinerary creation",
                         "호출자가 구체 결제/여정 클래스를 직접 new 하지 않고, 선택값에 맞는 Product 생성을 팩토리에 맡긴다.",
                         "Creator = PaymentMethodProcessor / ItineraryFactory, Factory Method = createPayment() / createItinerary()",
                         "ConcreteCreator = 결제수단별 Processor + Direct/Connecting/MultiCityFactory, 선택 헬퍼 = PaymentProcessorFactory",
@@ -253,7 +253,7 @@ public final class PatternGuideController {
                         """,
                         "결제 화면에서 결제 수단을 바꾸거나 검색에서 환승/다구간을 골라 Factory가 ConcreteProduct를 고르는 장면을 설명한다."),
                 new PatternNote(
-                        "DP#7 Template Method - TicketRenderer",
+                        "DP#6 Template Method - TicketRenderer",
                         "전자항공권 출력은 header/body/footer 흐름이 같고 표현만 다르므로, 알고리즘 골격을 상위 클래스에 고정한다.",
                         "AbstractClass = TicketRenderer, templateMethod = render(), primitiveOperation = header/body/footer",
                         "PlainTextTicketRenderer, HtmlTicketRenderer, BoardingPassRenderer",
@@ -273,7 +273,7 @@ public final class PatternGuideController {
                         """,
                         "확인 화면에서 일반 텍스트/HTML/보딩패스를 토글해 같은 데이터가 다른 템플릿 step으로 렌더됨을 보여준다."),
                 new PatternNote(
-                        "DP#8 Adapter - Skypass mileage API",
+                        "DP#7 Adapter - Skypass mileage API",
                         "외부 Skypass API의 Map 기반 응답을 우리 도메인이 기대하는 SkypassInterface 형태로 변환한다.",
                         "Target = SkypassInterface, Adapter = SkypassAdapter, Adaptee = RemoteSkypassApi",
                         "SkypassAdapter.remote, getMileageBalance(), verifyAndDeduct()",
@@ -293,7 +293,7 @@ public final class PatternGuideController {
                         """,
                         "회원 로그인 후 결제 화면의 마일리지 잔액 표시와 마일리지 결제 흐름을 Target 인터페이스 기준으로 설명한다."),
                 new PatternNote(
-                        "DP#9 Decorator - Seat add-on chain",
+                        "DP#8 Decorator - Seat add-on chain",
                         "창측/통로/레그룸/라운지 부가옵션을 조합별 클래스로 만들지 않고 런타임 wrapper 체인으로 쌓는다.",
                         "Component = SeatView, ConcreteComponent = BaseSeatView, Decorator = AbstractSeatDecorator",
                         "SeatController.refreshSeatView(), getDescription(), getSurcharge(), metadataLabels",

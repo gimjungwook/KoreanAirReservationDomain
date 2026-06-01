@@ -36,7 +36,7 @@ public final class AppContext {
     public final BusTicketingService busTicketingService;
     public final SeedResult seed;
 
-    // 결제 게이트웨이 + 세션 마일리지(마일리지 결제용) + Skypass 외부 API 어댑터(DP#8)
+    // 결제 게이트웨이 + 세션 마일리지(마일리지 결제용) + Skypass 외부 API 어댑터(DP#7)
     public final com.koreanair.reservation.boundary.PaymentGatewayInterface gateway;
     public final com.koreanair.reservation.domain.passenger.MileageAccount sessionMileage;
     public final com.koreanair.reservation.boundary.SkypassInterface skypass;

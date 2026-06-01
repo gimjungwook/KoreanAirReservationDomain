@@ -93,7 +93,7 @@ public final class SeatController {
         refreshSeatView();
     }
 
-    /** DP#9 Decorator — 좌석 위치 + 선택한 부가옵션으로 SeatView 데코레이터 체인을 조립. */
+    /** DP#8 Decorator — 좌석 위치 + 선택한 부가옵션으로 SeatView 데코레이터 체인을 조립. */
     private void refreshSeatView() {
         if (selectedSeat == null) return;
         Seat seat = new Seat(selectedSeat, CabinClass.ECONOMY);

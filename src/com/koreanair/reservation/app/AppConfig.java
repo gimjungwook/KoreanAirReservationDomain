@@ -4,7 +4,7 @@ import java.util.Currency;
 import java.util.Locale;
 
 /**
- * DP#5 Singleton — 시스템 전역 환경 설정.
+ * DP#4 Singleton — 시스템 전역 환경 설정.
  *
  * <p>폰트, 표시 언어, 통화 등 UI/도메인 양쪽에서 동일하게 참조되는 옵션을 한 곳에 모은다.
  * 변경 시 등록된 Listener를 통보해 Swing UI 가 즉시 재렌더링한다.

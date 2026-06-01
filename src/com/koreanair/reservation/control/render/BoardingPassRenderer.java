@@ -4,7 +4,7 @@ import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.Ticket;
 
 /**
- * DP#7 Template Method — ConcreteClass: 탑승권.
+ * DP#6 Template Method — ConcreteClass: 탑승권.
  *
  * <p>출력 형식이 e-Ticket 과 비슷하지만 게이트·좌석을 강조하고 바코드 placeholder 가 들어간다.
  */

@@ -147,7 +147,7 @@ public final class PaymentController {
             return;
         }
         try {
-            // DP#6 Factory Method — 선택한 결제 수단에 맞는 PaymentMethodProcessor 를 팩토리가 생성.
+            // DP#5 Factory Method — 선택한 결제 수단에 맞는 PaymentMethodProcessor 를 팩토리가 생성.
             Payment payment = ctx.booking.confirmPaymentWith(
                     reservation, fareRule, baseFare(), tax() + ctx.seatSurcharge(),
                     methodOf(methodCombo.getValue()), ctx.gateway, ctx.sessionMileage);
