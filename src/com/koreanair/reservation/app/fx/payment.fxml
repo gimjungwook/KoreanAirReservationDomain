@@ -31,6 +31,11 @@
             <CheckBox fx:id="busAddon" text="우등고속 셔틀버스 연계 발권 (Observer 시연)"/>
             <Label text="출발 도시" styleClass="field-label"/>
             <ComboBox fx:id="busCityCombo" prefWidth="240"/>
+            <Label text="운행 시간" styleClass="field-label"/>
+            <ComboBox fx:id="busScheduleCombo" prefWidth="360"/>
+            <Label text="좌석" styleClass="field-label"/>
+            <ComboBox fx:id="busSeatCombo" prefWidth="180"/>
+            <Label fx:id="busHelpLabel" styleClass="screen-sub"/>
         </VBox>
 
         <HBox spacing="10" alignment="CENTER_LEFT">

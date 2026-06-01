@@ -1,6 +1,7 @@
 package com.koreanair.reservation.domain.bus;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
  * <p>예) 부산-인천공항 06:00 출발, 11:00 도착. 좌석 28석.
  */
 public class BusSchedule {
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("MM/dd HH:mm");
 
     private final String scheduleId;
     private final BusCity originCity;
@@ -71,6 +73,9 @@ public class BusSchedule {
 
     @Override
     public String toString() {
-        return originCity + " → ICN  " + departureDateTime + "  좌석 " + availableSeats().size() + "/" + seats.size();
+        return originCity.getDisplayName() + " → ICN  "
+                + departureDateTime.format(TIME_FMT) + " 출발 · "
+                + arrivalDateTime.format(TIME_FMT) + " 도착 · 좌석 "
+                + availableSeats().size() + "/" + seats.size();
     }
 }
