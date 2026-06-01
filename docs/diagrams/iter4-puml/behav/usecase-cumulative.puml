@@ -1,0 +1,48 @@
+@startuml usecase-cumulative
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam ArrowColor #000000
+skinparam ArrowThickness 1
+skinparam UsecaseBackgroundColor #FFFFCE
+skinparam UsecaseBorderColor #000000
+skinparam ActorBackgroundColor #FFFFFF
+skinparam ActorBorderColor #000000
+skinparam ActorFontColor #000000
+skinparam RectangleBackgroundColor #FFFFFF
+skinparam RectangleBorderColor #000000
+skinparam StateBackgroundColor #FFFFCE
+skinparam StateBorderColor #000000
+skinparam ParticipantBackgroundColor #FFFFCE
+skinparam ParticipantBorderColor #000000
+skinparam LifelineBorderColor #000000
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #777777
+
+left to right direction
+title Use Case Diagram - Korean Air Reservation System (cumulative, Iteration 1-4)
+actor Customer
+actor Administrator as Admin
+actor "Payment Gateway" as PG
+actor "Skypass System" as SK
+rectangle "Korean Air Reservation System" {
+  Customer --> (Search flights)
+  Customer --> (Make reservation)
+  Customer --> (Enter passenger info)
+  Customer --> (Pay)
+  Customer --> (Issue e-Ticket)
+  Customer --> (Cancel reservation)
+  Customer --> (Request refund)
+  Customer --> (<color:#C00000>Select seat options</color>)
+  Customer --> (<color:#C00000>Pay with mileage</color>)
+  (Pay) --> PG
+  (<color:#C00000>Pay with mileage</color>) --> SK
+  (Issue e-Ticket) ..> (<color:#C00000>Render e-Ticket</color>) : <<include>>
+  (Issue e-Ticket) ..> (<color:#C00000>Issue linked bus ticket</color>) : <<extend>>
+  Admin --> (<color:#C00000>Change flight status</color>)
+}
+note bottom : <color:#C00000>Red use cases were added in Iteration 4 (seat options, mileage payment, e-Ticket rendering, linked bus ticket, flight-status change).</color>
+@enduml

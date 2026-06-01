@@ -1,0 +1,59 @@
+@startuml dp4-singleton
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title DP#4 Singleton Pattern - AppConfig
+class AppConfig <<Singleton>> {
+  -instance: AppConfig
+  -fontFamily: String
+  -fontSize: int
+  -displayLocale: Locale
+  -currency: Currency
+  -modernTheme: boolean
+  -showSeatMetadata: boolean
+  -listeners: List<Consumer<AppConfig>>
+  --
+  -AppConfig()
+  +getInstance(): AppConfig
+  +getFontFamily(): String
+  +setFontFamily(fontFamily: String): void
+  +getFontSize(): int
+  +setFontSize(fontSize: int): void
+  +getDisplayLocale(): Locale
+  +setDisplayLocale(displayLocale: Locale): void
+  +getCurrency(): Currency
+  +setCurrency(currency: Currency): void
+  +isModernTheme(): boolean
+  +setModernTheme(modernTheme: boolean): void
+  +isShowSeatMetadata(): boolean
+  +setShowSeatMetadata(showSeatMetadata: boolean): void
+  +addChangeListener(listener: Consumer<AppConfig>): void
+  +removeChangeListener(listener: Consumer<AppConfig>): void
+  -notifyListeners(): void
+}
+
+@enduml

@@ -1,0 +1,36 @@
+@startuml sequence-mileage-adapter
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam ArrowColor #000000
+skinparam ArrowThickness 1
+skinparam UsecaseBackgroundColor #FFFFCE
+skinparam UsecaseBorderColor #000000
+skinparam ActorBackgroundColor #FFFFFF
+skinparam ActorBorderColor #000000
+skinparam ActorFontColor #000000
+skinparam RectangleBackgroundColor #FFFFFF
+skinparam RectangleBorderColor #000000
+skinparam StateBackgroundColor #FFFFCE
+skinparam StateBorderColor #000000
+skinparam ParticipantBackgroundColor #FFFFCE
+skinparam ParticipantBorderColor #000000
+skinparam LifelineBorderColor #000000
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #777777
+
+title <color:#C00000>Sequence Diagram - Mileage Payment via Adapter (Iteration 4, DP#7)</color>
+actor Customer
+participant MileagePaymentProcessor as MPP
+participant SkypassAdapter as ADP
+participant RemoteSkypassApi as API
+Customer -> MPP : <color:#C00000>processCharge(amount, pnr)</color>
+MPP -> ADP : <color:#C00000>deductMileage(skypassNo, amount)</color>
+ADP -> API : <color:#C00000>postDeduct(skypassNo, amount)</color>
+API --> ADP : <color:#C00000>Map { success }</color>
+ADP --> MPP : <color:#C00000>boolean</color>
+MPP --> Customer : <color:#C00000>Payment (PAID)</color>
+@enduml

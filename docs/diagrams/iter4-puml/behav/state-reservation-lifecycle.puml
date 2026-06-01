@@ -1,0 +1,39 @@
+@startuml state-reservation-lifecycle
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam ArrowColor #000000
+skinparam ArrowThickness 1
+skinparam UsecaseBackgroundColor #FFFFCE
+skinparam UsecaseBorderColor #000000
+skinparam ActorBackgroundColor #FFFFFF
+skinparam ActorBorderColor #000000
+skinparam ActorFontColor #000000
+skinparam RectangleBackgroundColor #FFFFFF
+skinparam RectangleBorderColor #000000
+skinparam StateBackgroundColor #FFFFCE
+skinparam StateBorderColor #000000
+skinparam ParticipantBackgroundColor #FFFFCE
+skinparam ParticipantBorderColor #000000
+skinparam LifelineBorderColor #000000
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #777777
+
+title State Diagram - Reservation Lifecycle (Iteration 1, behavioral view)
+[*] --> Initiated
+Initiated --> PendingPayment : enterPassengerInfo / processPayment
+PendingPayment --> Confirmed : payment authorized
+PendingPayment --> Cancelled : payment failed / hold expired
+Confirmed --> Ticketed : issueTicket
+Confirmed --> CancellationRequested : requestCancellation
+Ticketed --> CancellationRequested : requestCancellation
+CancellationRequested --> Cancelled : confirmCancellation
+Cancelled --> RefundRequested : requestRefund
+RefundRequested --> Refunded : processRefundDecision(approved)
+RefundRequested --> Cancelled : processRefundDecision(denied)
+Refunded --> [*]
+note "Eight states with event-driven transitions; each transition is handled by the matching State object (see Section 6)." as N1
+@enduml

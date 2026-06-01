@@ -48,7 +48,7 @@ package "Boundary (JavaFX)" {
     +verifyAndDeduct(): Object
   }
   class SkypassAdapter <<Adapter>> #FFCCCC {
-    -adaptee: RemoteSkypassApi
+    -remoteApi: RemoteSkypassApi
     --
     +verifyMembership(): Object
     +getMileageBalance(): int
@@ -163,7 +163,7 @@ package "Control" {
     -paymentSequence: long
     -gateway: PaymentGatewayInterface
     --
-    +createPayment(): Payment
+    #createPayment(): Payment
     +method(): PaymentMethod
     +processCharge(): Payment
     #authorize(): boolean
@@ -205,6 +205,7 @@ package "Domain :: reservation" {
     -reservationItems: List<ReservationItem>
     -payments: List<Payment>
     -tickets: List<Ticket>
+    -REGISTRY: Map<String,Reservation>
     -currentState: ReservationState
     --
     +getReservationId(): Long
@@ -226,8 +227,12 @@ package "Domain :: reservation" {
     +canBeCancelled(): boolean
     +requestRefund(): Refund
     +evaluateImpactOfFlightStatusChange(): void
+    +create(): Reservation
+    +updatePassengerInfo(): void
     +updateStatus(): void
     +findByPnr(): Reservation
+    +getContactEmail(): String
+    +getReservationDetail(): Reservation
     +setState(): void
     +getCurrentState(): ReservationState
     +getStateName(): String
@@ -268,6 +273,7 @@ package "Domain :: reservation" {
 package "Domain :: payment" {
   interface RefundPolicy <<Strategy>> {
     +calculateRefundAmount(): BigDecimal
+    +getRefundType(): String
   }
   abstract class Payment {
     -paymentId: Long
@@ -280,6 +286,7 @@ package "Domain :: payment" {
     +getAmount(): BigDecimal
     +setAmount(): void
     +getPaymentMethod(): PaymentMethod
+    +setPaymentMethod(): void
     +getPaymentId(): Long
     +setPaymentId(): void
     +getStatus(): PaymentStatus

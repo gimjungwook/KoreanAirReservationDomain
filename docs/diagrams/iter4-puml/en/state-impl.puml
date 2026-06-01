@@ -1,0 +1,131 @@
+@startuml state-impl
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title State Pattern (implementation, not numbered as DP) - Context = Reservation
+class Reservation <<Context>> {
+  -reservationId: Long
+  -reservationNumber: String
+  -requester: User
+  -status: ReservationStatus
+  -createdAt: LocalDateTime
+  -reservationDate: LocalDateTime
+  -itinerary: Itinerary
+  -passengers: List<Passenger>
+  -reservationItems: List<ReservationItem>
+  -payments: List<Payment>
+  -tickets: List<Ticket>
+  -currentState: ReservationState
+  --
+  +Reservation()
+  +getReservationId(): Long
+  +getReservationNumber(): String
+  +getRequester(): User
+  +getStatus(): ReservationStatus
+  +getPassengers(): List<Passenger>
+  +getReservationItems(): List<ReservationItem>
+  +getPayments(): List<Payment>
+  +getTickets(): List<Ticket>
+  +getItinerary(): Itinerary
+  +addPassenger(passenger: Passenger): void
+  +addReservationItem(reservationItem: ReservationItem): void
+  +addPayment(payment: Payment): void
+  +addTicket(ticket: Ticket): void
+  +confirmReservation(): void
+  +issueTickets(): void
+  +cancelReservation(): void
+  +canBeCancelled(): boolean
+  +requestRefund(payment: Payment, reason: String): Refund
+  +evaluateImpactOfFlightStatusChange(): void
+  +updateStatus(newStatus: ReservationStatus): void
+  +findByPnr(pnr: String): Reservation
+  +setState(next: ReservationState): void
+  +getCurrentState(): ReservationState
+  +getStateName(): String
+  +enterPassengerInfo(p: Passenger): void
+  +enterPassengerInfo(): void
+  +processPayment(): void
+  +handlePaymentFailure(): void
+  +issueTicket(): void
+  +requestCancellation(): void
+  +confirmCancellation(): void
+  +requestRefund(): void
+  +processRefundDecision(approved: boolean): void
+  +setReservationNumber(reservationNumber: String): void
+  +setRequester(requester: User): void
+  +getPnrNumber(): String
+  +getCreatedAt(): LocalDateTime
+  +getReservationDate(): LocalDateTime
+}
+interface ReservationState <<State>> {
+  +name(): String
+}
+class InitiatedState <<ConcreteState>> {
+  +name(): String
+  +enterPassengerInfo(ctx: Reservation): void
+}
+class PendingPaymentState <<ConcreteState>> {
+  +name(): String
+  +processPayment(ctx: Reservation): void
+  +handlePaymentFailure(ctx: Reservation): void
+}
+class ConfirmedState <<ConcreteState>> {
+  +name(): String
+  +issueTicket(ctx: Reservation): void
+  +requestCancellation(ctx: Reservation): void
+}
+class TicketedState <<ConcreteState>> {
+  +name(): String
+  +requestCancellation(ctx: Reservation): void
+}
+class CancellationRequestedState <<ConcreteState>> {
+  +name(): String
+  +confirmCancellation(ctx: Reservation): void
+}
+class CancelledState <<ConcreteState>> {
+  +name(): String
+  +requestRefund(ctx: Reservation): void
+  -resolveFareRule(ctx: Reservation): FareRule
+}
+class RefundRequestedState <<ConcreteState>> {
+  +name(): String
+  +processRefundDecision(ctx: Reservation, approved: boolean): void
+}
+class RefundedState <<ConcreteState>> {
+  +name(): String
+}
+ReservationState <|.. InitiatedState
+ReservationState <|.. PendingPaymentState
+ReservationState <|.. ConfirmedState
+ReservationState <|.. TicketedState
+ReservationState <|.. CancellationRequestedState
+ReservationState <|.. CancelledState
+ReservationState <|.. RefundRequestedState
+ReservationState <|.. RefundedState
+Reservation o--> ReservationState : -currentState
+note bottom : The 8 lifecycle methods are default (reject illegal transition); each ConcreteState overrides only its allowed transitions.
+@enduml

@@ -1,0 +1,65 @@
+@startuml dp7-adapter
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title DP#7 Adapter Pattern - SkypassAdapter
+class MileagePaymentProcessor <<Client>> {
+  -account: MileageAccount
+  --
+  +MileagePaymentProcessor(account: MileageAccount)
+  +createPayment(): Payment
+  +method(): PaymentMethod
+  #authorize(payment: Payment): boolean
+}
+interface SkypassInterface <<Target>> {
+  +verifyMembership(skypassNumber: String, password: String): Object
+  +getMileageBalance(skypassNumber: String): int
+  +deductMileage(skypassNumber: String, amount: int): boolean
+  +verifyAndDeduct(skypassNumber: String, amount: int): Object
+}
+class SkypassAdapter <<Adapter>> {
+  -adaptee: RemoteSkypassApi
+  --
+  +SkypassAdapter(adaptee: RemoteSkypassApi)
+  +verifyMembership(skypassNumber: String, password: String): Object
+  +getMileageBalance(skypassNumber: String): int
+  +deductMileage(skypassNumber: String, amount: int): boolean
+  +verifyAndDeduct(skypassNumber: String, amount: int): Object
+}
+class RemoteSkypassApi <<Adaptee>> {
+  -balances: Map<String,Integer>
+  -tokens: Map<String,String>
+  --
+  +registerAccount(memberCode: String, token: String, mileage: int): void
+  +postAuth(memberCode: String, token: String): Map<String,Object>
+  +getMileage(memberCode: String): Map<String,Object>
+  +postDeduct(memberCode: String, amount: int): Map<String,Object>
+}
+MileagePaymentProcessor --> SkypassInterface
+SkypassInterface <|.. SkypassAdapter
+SkypassAdapter --> RemoteSkypassApi : -adaptee
+@enduml

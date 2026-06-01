@@ -1,0 +1,73 @@
+@startuml dp1-strategy
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title DP#1 Strategy Pattern - Context = RefundHandler
+interface RefundPolicy <<Strategy>> {
+  +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+}
+class NoRefundPolicy <<ConcreteStrategy>> {
+  +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+}
+class PartialRefundPolicy <<ConcreteStrategy>> {
+  -HALF: BigDecimal
+  --
+  +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+}
+class FullRefundPolicy <<ConcreteStrategy>> {
+  +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+}
+class RefundHandler <<Context>> {
+  -pending: Map<String,RefundRequest>
+  -completed: Map<String,Refund>
+  -requestToPnr: Map<String,String>
+  -gateway: PaymentGatewayInterface
+  -strategy: RefundPolicy
+  -requestSeq: int
+  -refundSeq: int
+  -REFUND_YYMM: DateTimeFormatter
+  --
+  +RefundHandler()
+  +RefundHandler(gateway: PaymentGatewayInterface)
+  +setStrategy(strategy: RefundPolicy): void
+  +getStrategy(): RefundPolicy
+  +evaluateRefund(pnr: String, fareClass: String): RefundRequest
+  +processRefund(requestId: String, approvedAmount: BigDecimal): void
+  +denyRefund(requestId: String, reason: String): void
+  +getRefundDetail(requestId: String): RefundRequest
+  +getPendingRequests(): List<RefundRequest>
+  +previewRefund(pnr: String, fareClass: String): BigDecimal
+  +previewPolicyName(pnr: String, fareClass: String): String
+  -resolvePolicy(fareRule: FareRule): RefundPolicy
+  -resolveFareRuleFrom(reservation: Reservation): FareRule
+  -synthesize(fareClass: String): FareRule
+}
+RefundPolicy <|.. NoRefundPolicy
+RefundPolicy <|.. PartialRefundPolicy
+RefundPolicy <|.. FullRefundPolicy
+RefundHandler o--> RefundPolicy : -strategy
+@enduml

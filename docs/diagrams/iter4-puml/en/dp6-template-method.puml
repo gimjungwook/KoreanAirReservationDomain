@@ -1,0 +1,61 @@
+@startuml dp6-template-method
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title DP#6 Template Method Pattern - TicketRenderer
+abstract class TicketRenderer <<AbstractClass>> {
+  +render(reservation: Reservation, ticket: Ticket): String
+  #header(reservation: Reservation, ticket: Ticket): String
+  #body(reservation: Reservation, ticket: Ticket): String
+  #footer(reservation: Reservation, ticket: Ticket): String
+  #separator(): String
+}
+class PlainTextTicketRenderer <<ConcreteClass>> {
+  #header(reservation: Reservation, ticket: Ticket): String
+  #body(reservation: Reservation, ticket: Ticket): String
+  #footer(reservation: Reservation, ticket: Ticket): String
+  #separator(): String
+  -safe(s: String): String
+}
+class HtmlTicketRenderer <<ConcreteClass>> {
+  #header(reservation: Reservation, ticket: Ticket): String
+  #body(reservation: Reservation, ticket: Ticket): String
+  #footer(reservation: Reservation, ticket: Ticket): String
+  #separator(): String
+  -safe(s: String): String
+}
+class BoardingPassRenderer <<ConcreteClass>> {
+  #header(reservation: Reservation, ticket: Ticket): String
+  #body(reservation: Reservation, ticket: Ticket): String
+  #footer(reservation: Reservation, ticket: Ticket): String
+  #separator(): String
+  -safe(s: String): String
+}
+TicketRenderer <|-- PlainTextTicketRenderer
+TicketRenderer <|-- HtmlTicketRenderer
+TicketRenderer <|-- BoardingPassRenderer
+@enduml

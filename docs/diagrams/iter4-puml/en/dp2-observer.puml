@@ -1,0 +1,77 @@
+@startuml dp2-observer
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title DP#2 Observer Pattern (pull) - Subject = EventPublisher
+abstract class EventPublisher <<Subject>> {
+  -observers: List<EventListener>
+  --
+  +attach(observer: EventListener): void
+  +detach(observer: EventListener): void
+  +subscriberCount(): int
+  +notifyObservers(): void
+}
+interface EventListener <<Observer>> {
+  +update(): void
+}
+class TicketPurchasePublisher <<ConcreteSubject>> {
+  -subjectState: TicketIssuedEvent
+  --
+  +getState(): TicketIssuedEvent
+  +setState(event: TicketIssuedEvent): void
+  +publishTicketIssued(reservation: Reservation, ticket: Ticket, req: BusTicketRequest): void
+  +publishTicketIssued(reservation: Reservation, ticket: Ticket, busCity: BusCity): void
+}
+class BusTicketPurchaseListener <<ConcreteObserver>> {
+  -busTicketingService: BusTicketingService
+  -subject: TicketPurchasePublisher
+  --
+  +BusTicketPurchaseListener(busTicketingService: BusTicketingService)
+  +setSubject(subject: TicketPurchasePublisher): void
+  +getSubject(): TicketPurchasePublisher
+  +update(): void
+}
+class ReservationAutoCancelListener <<ConcreteObserver>> {
+  -subject: PaymentProcessor
+  --
+  +setSubject(subject: PaymentProcessor): void
+  +getSubject(): PaymentProcessor
+  +update(): void
+}
+EventPublisher <|-- TicketPurchasePublisher
+EventListener <|.. BusTicketPurchaseListener
+EventListener <|.. ReservationAutoCancelListener
+EventPublisher o--> "*" EventListener : -observers
+BusTicketPurchaseListener --> TicketPurchasePublisher : -subject
+note bottom
+  4 ConcreteSubjects (TicketPurchasePublisher, PaymentProcessor, SeatHoldMonitor,
+  FlightSchedule) and 4 ConcreteObservers (BusTicketPurchaseListener,
+  ReservationAutoCancelListener, ReservationHoldListener, AffectedReservationListener)
+  all share the same attach / notifyObservers() / update() pull structure;
+  representative participants are shown above.
+end note
+@enduml

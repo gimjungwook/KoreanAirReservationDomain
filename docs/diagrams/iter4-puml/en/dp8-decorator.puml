@@ -1,0 +1,91 @@
+@startuml dp8-decorator
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title DP#8 Decorator Pattern - SeatView
+abstract class SeatView <<Component>> {
+  +getSeat(): Seat
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+}
+class BaseSeatView <<ConcreteComponent>> {
+  -seat: Seat
+  --
+  +BaseSeatView(seat: Seat)
+  +getSeat(): Seat
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+}
+abstract class AbstractSeatDecorator <<Decorator>> {
+  #component: SeatView
+  --
+  #AbstractSeatDecorator(component: SeatView)
+  +getSeat(): Seat
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+}
+class WindowSeatDecorator <<ConcreteDecorator>> {
+  +WindowSeatDecorator(component: SeatView)
+  +getDescription(): String
+  +getMetadataLabels(): List<String>
+  -addedBehavior(): String
+}
+class AisleSeatDecorator <<ConcreteDecorator>> {
+  +AisleSeatDecorator(component: SeatView)
+  +getDescription(): String
+  +getMetadataLabels(): List<String>
+  -addedBehavior(): String
+}
+class ExtraLegroomDecorator <<ConcreteDecorator>> {
+  -SURCHARGE: BigDecimal
+  --
+  +ExtraLegroomDecorator(component: SeatView)
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+  -addedBehavior(): String
+}
+class LoungeAccessDecorator <<ConcreteDecorator>> {
+  -SURCHARGE: BigDecimal
+  --
+  +LoungeAccessDecorator(component: SeatView)
+  +getDescription(): String
+  +getSurcharge(): BigDecimal
+  +getMetadataLabels(): List<String>
+  -addedBehavior(): String
+}
+SeatView <|-- BaseSeatView
+SeatView <|-- AbstractSeatDecorator
+AbstractSeatDecorator *--> SeatView : -component
+AbstractSeatDecorator <|-- WindowSeatDecorator
+AbstractSeatDecorator <|-- AisleSeatDecorator
+AbstractSeatDecorator <|-- ExtraLegroomDecorator
+AbstractSeatDecorator <|-- LoungeAccessDecorator
+@enduml

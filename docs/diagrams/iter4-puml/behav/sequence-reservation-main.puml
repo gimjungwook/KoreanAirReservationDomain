@@ -1,0 +1,44 @@
+@startuml sequence-reservation-main
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam ArrowColor #000000
+skinparam ArrowThickness 1
+skinparam UsecaseBackgroundColor #FFFFCE
+skinparam UsecaseBorderColor #000000
+skinparam ActorBackgroundColor #FFFFFF
+skinparam ActorBorderColor #000000
+skinparam ActorFontColor #000000
+skinparam RectangleBackgroundColor #FFFFFF
+skinparam RectangleBorderColor #000000
+skinparam StateBackgroundColor #FFFFCE
+skinparam StateBorderColor #000000
+skinparam ParticipantBackgroundColor #FFFFCE
+skinparam ParticipantBorderColor #000000
+skinparam LifelineBorderColor #000000
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #777777
+
+title Sequence Diagram - Reservation, Payment, Ticketing (cumulative)
+actor Customer
+participant Reservation
+participant PaymentMethodProcessor as PMP
+participant Payment
+participant EventPublisher
+participant BusTicketPurchaseListener as BUS
+Customer -> Reservation : processPayment()
+Reservation -> PMP : processCharge(amount, pnr)
+PMP -> PMP : <color:#C00000>createPayment()  // factoryMethod (DP#5)</color>
+create Payment
+PMP -> Payment : <color:#C00000>new ConcreteProduct</color>
+PMP -> Payment : pay()
+PMP --> Reservation : Payment
+Reservation -> Reservation : setState(ConfirmedState)
+Customer -> Reservation : issueTicket()
+Reservation -> EventPublisher : <color:#C00000>notifyObservers()  // pull model (DP#2)</color>
+EventPublisher -> BUS : <color:#C00000>update()</color>
+BUS -> BUS : <color:#C00000>getState(); issuePremiumTicket(...)</color>
+@enduml

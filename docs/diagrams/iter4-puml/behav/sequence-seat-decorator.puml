@@ -1,0 +1,36 @@
+@startuml sequence-seat-decorator
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam ArrowColor #000000
+skinparam ArrowThickness 1
+skinparam UsecaseBackgroundColor #FFFFCE
+skinparam UsecaseBorderColor #000000
+skinparam ActorBackgroundColor #FFFFFF
+skinparam ActorBorderColor #000000
+skinparam ActorFontColor #000000
+skinparam RectangleBackgroundColor #FFFFFF
+skinparam RectangleBorderColor #000000
+skinparam StateBackgroundColor #FFFFCE
+skinparam StateBorderColor #000000
+skinparam ParticipantBackgroundColor #FFFFCE
+skinparam ParticipantBorderColor #000000
+skinparam LifelineBorderColor #000000
+skinparam noteBackgroundColor #FFFFFF
+skinparam noteBorderColor #777777
+
+title <color:#C00000>Sequence Diagram - Seat Option Stacking via Decorator (Iteration 4, DP#8)</color>
+actor Client
+participant LoungeAccessDecorator as L
+participant ExtraLegroomDecorator as E
+participant BaseSeatView as B
+Client -> L : <color:#C00000>getSurcharge()</color>
+L -> E : <color:#C00000>super.getSurcharge()</color>
+E -> B : <color:#C00000>super.getSurcharge()</color>
+B --> E : <color:#C00000>base</color>
+E --> L : <color:#C00000>base + 50000</color>
+L --> Client : <color:#C00000>base + 50000 + 80000</color>
+@enduml

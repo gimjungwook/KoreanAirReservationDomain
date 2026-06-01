@@ -1,0 +1,74 @@
+@startuml dp3-composite
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype polyline
+skinparam nodesep 26
+skinparam ranksep 42
+skinparam defaultFontName "Helvetica Neue"
+skinparam defaultFontSize 13
+skinparam dpi 150
+skinparam class {
+  BackgroundColor #FFFFCE
+  BorderColor #000000
+  BorderThickness 1
+  ArrowColor #000000
+  ArrowThickness 1
+  FontColor #000000
+  FontName "Helvetica Neue"
+  AttributeFontColor #000000
+  AttributeFontName "Helvetica Neue"
+  StereotypeFontColor #000000
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+  FontColor #000000
+}
+
+title DP#3 Composite Pattern - Airport (Leaf) / AirportCity (Composite)
+abstract class AirportLocation <<Component>> {
+  +getCode(): String
+  +getDisplayName(): String
+  +getAirports(): List<Airport>
+  +matches(code: String): boolean
+  +isComposite(): boolean
+}
+class Airport <<Leaf>> {
+  -airportCode: String
+  -airportName: String
+  -city: String
+  -country: String
+  --
+  +getAirportCode(): String
+  +getAirportName(): String
+  +getCity(): String
+  +getCountry(): String
+  +getCode(): String
+  +getDisplayName(): String
+  +getAirports(): List<Airport>
+  +matches(code: String): boolean
+  +isComposite(): boolean
+}
+class AirportCity <<Composite>> {
+  -cityCode: String
+  -cityName: String
+  -country: String
+  -components: List<AirportLocation>
+  --
+  +AirportCity(cityCode: String, cityName: String, country: String)
+  +addComponent(component: AirportLocation): void
+  +removeComponent(component: AirportLocation): void
+  +getCityCode(): String
+  +getCityName(): String
+  +getCountry(): String
+  +getCode(): String
+  +getDisplayName(): String
+  +getAirports(): List<Airport>
+  +matches(code: String): boolean
+  +isComposite(): boolean
+}
+AirportLocation <|-- Airport
+AirportLocation <|-- AirportCity
+AirportCity *--> "0..*" AirportLocation : -components
+@enduml
