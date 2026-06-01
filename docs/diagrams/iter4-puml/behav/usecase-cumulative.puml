@@ -22,10 +22,13 @@ skinparam LifelineBorderColor #000000
 skinparam noteBackgroundColor #FFFFFF
 skinparam noteBorderColor #777777
 
+skinparam linetype ortho
+skinparam nodesep 16
+skinparam ranksep 60
 left to right direction
 title Use Case Diagram - Korean Air Reservation System (cumulative, Iteration 1-4)
-actor Customer
 actor "Skypass Member" as Member
+actor Customer
 actor Guest
 actor Administrator as Admin
 actor "Payment Gateway" as PG
@@ -38,7 +41,6 @@ rectangle "Korean Air Reservation System" {
   Guest --> (Continue as guest)
   Customer --> (Register Skypass membership)
   Member --> (Log out)
-  (Log in) --> SK
   ' --- Search (Iteration 1; trip-type variants in Iteration 4) ---
   Customer --> (Search flights)
   Customer --> (<color:#C00000>Search round-trip</color>)
