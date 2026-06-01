@@ -56,6 +56,7 @@ public final class ShellController {
     @FXML private void onLogin()  { if (nav != null) nav.showLogin(); }
     @FXML private void onLogout() { if (nav != null) nav.doLogout(); }
     @FXML private void onSettings() { if (nav != null) nav.showSettings(); }
+    @FXML private void onPatternGuide() { if (nav != null) nav.showPatternGuide(); }
 
     // ---- Navigator 가 호출 ----
     public void setContent(Node node) {

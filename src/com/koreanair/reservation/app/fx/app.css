@@ -244,3 +244,45 @@
 .dest-city  { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: -kal-ink; }
 .dest-route { -fx-font-size: 12px; -fx-text-fill: -kal-soft; }
 .dest-price { -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; -fx-padding: 2 0 0 0; }
+
+/* ---------- 발표용 DP 코드 가이드 ---------- */
+.pattern-card {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-color: -kal-line;
+    -fx-border-radius: 14;
+    -fx-padding: 18 20 18 20;
+    -fx-effect: dropshadow(gaussian, rgba(30,40,60,0.08), 14, 0, 0, 4);
+}
+.pattern-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -kal-blue-dark;
+}
+.pattern-kv {
+    -fx-background-color: #f8fbff;
+    -fx-background-radius: 10;
+    -fx-border-color: #dce9f6;
+    -fx-border-radius: 10;
+    -fx-padding: 10 12 10 12;
+    -fx-min-width: 220;
+}
+.pattern-code {
+    -fx-font-family: "JetBrains Mono", "SF Mono", "Menlo", "Monaco", monospace;
+    -fx-font-size: 12px;
+    -fx-control-inner-background: #102033;
+    -fx-text-fill: #e8f1ff;
+    -fx-highlight-fill: -kal-sky;
+    -fx-highlight-text-fill: white;
+    -fx-background-radius: 10;
+}
+.pattern-code .content {
+    -fx-background-color: #102033;
+}
+.pattern-demo {
+    -fx-background-color: #eef4fb;
+    -fx-background-radius: 10;
+    -fx-text-fill: -kal-blue-dark;
+    -fx-font-weight: bold;
+    -fx-padding: 10 12 10 12;
+}

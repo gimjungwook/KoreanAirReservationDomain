@@ -12,6 +12,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -54,13 +56,25 @@ public final class LookupController {
         pnr.getStyleClass().add("flight-route");
         Label state = new Label("상태 · " + r.getStateName());
         state.getStyleClass().add("flight-meta");
-        left.getChildren().addAll(pnr, state);
+        Label route = new Label(routeSummary(r));
+        route.getStyleClass().add("flight-meta");
+        left.getChildren().addAll(pnr, state, route);
 
         Region sp = new Region();
         HBox.setHgrow(sp, Priority.ALWAYS);
 
         String stateName = r.getStateName();
         HBox row = new HBox(10, left, sp);
+        Button detail = new Button("상세/e-Ticket");
+        detail.getStyleClass().add("btn-ghost");
+        detail.setOnAction(e -> nav.showReservationDetail(r));
+        row.getChildren().add(detail);
+
+        Button copy = new Button("PNR 복사");
+        copy.getStyleClass().add("btn-ghost");
+        copy.setOnAction(e -> copyPnr(r));
+        row.getChildren().add(copy);
+
         // 미완료(Initiated/PendingPayment)만 이어서 진행 — 완료 상태는 잘못된 전이 방지.
         if ("Initiated".equals(stateName)) {
             Button cont = new Button("계속 진행");
@@ -83,6 +97,35 @@ public final class LookupController {
         row.setAlignment(Pos.CENTER_LEFT);
         row.getStyleClass().add("flight-row");
         return row;
+    }
+
+    private void copyPnr(Reservation r) {
+        ClipboardContent content = new ClipboardContent();
+        content.putString(r.getPnrNumber());
+        Clipboard.getSystemClipboard().setContent(content);
+        message.setText("PNR을 복사했습니다: " + r.getPnrNumber());
+    }
+
+    private static String routeSummary(Reservation r) {
+        try {
+            java.util.List<com.koreanair.reservation.domain.reservation.Segment> segs =
+                    r.getItinerary().getSegments();
+            if (segs.isEmpty()) {
+                return "여정 정보 없음";
+            }
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < segs.size(); i++) {
+                com.koreanair.reservation.domain.flight.FlightSchedule fs = segs.get(i).getFlightSchedule();
+                if (i == 0) {
+                    sb.append(fs.getFlight().getRoute().getOrigin().getCode());
+                }
+                sb.append(" → ").append(fs.getFlight().getRoute().getDestination().getCode());
+            }
+            sb.append(" · ").append(segs.size()).append("구간");
+            return sb.toString();
+        } catch (Exception ex) {
+            return "여정 정보 확인 불가";
+        }
     }
 
     @FXML

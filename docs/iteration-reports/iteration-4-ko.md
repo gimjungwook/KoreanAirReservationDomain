@@ -147,6 +147,323 @@ flowchart LR
 
 ---
 
+## 📌 3.5 DP별 코드 스켈레톤과 시연 흐름
+
+교과서의 클래스다이어그램은 `Context`, `Component`, `Creator`, `Subject` 같은 추상 역할을 보여준다. 발표에서는 그 추상 역할이 우리 코드의 어느 클래스/메서드/attribute 로 구현되었는지를 바로 대응시켜야 한다. JavaFX 앱의 헤더 **패턴 가이드** 화면은 아래 내용을 그대로 화면에 띄워, 데모 중 코드 구조를 함께 설명하도록 추가했다.
+
+### DP#1 State — Reservation lifecycle
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Context | `Reservation` |
+| State | `ReservationState` |
+| ConcreteState | `InitiatedState`, `PendingPaymentState`, `ConfirmedState`, `TicketedState`, `RefundedState` 등 8개 |
+| 핵심 attribute | `Reservation.currentState` |
+| 핵심 메서드 | `processPayment()`, `issueTicket()`, `setState(...)` |
+
+```java
+class Reservation {
+    private ReservationState currentState;
+
+    void processPayment() {
+        currentState.processPayment(this);
+    }
+
+    void setState(ReservationState next) {
+        currentState = next;
+    }
+}
+
+class PendingPaymentState implements ReservationState {
+    void processPayment(Reservation r) {
+        r.setState(new ConfirmedState());
+    }
+}
+```
+
+**시연 흐름.** 승객 정보 입력 후 예약이 `PendingPayment` 로 가고, 결제 성공 시 `Confirmed`, e-Ticket 발권 시 `Ticketed` 로 바뀐다. 헤더의 `STATE` 배지가 이 State 전이를 실시간으로 보여준다.
+
+### DP#2 Strategy — RefundPolicy family
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Context | `RefundHandler` |
+| Strategy | `RefundPolicy` |
+| ConcreteStrategy | `FullRefundPolicy`, `PartialRefundPolicy`, `NoRefundPolicy` |
+| 핵심 attribute | `FareRule.fareClass`, `FareRule.refundable` |
+| 핵심 메서드 | `FareRule.checkRefundPolicy()`, `RefundHandler.previewRefund(...)` |
+
+```java
+interface RefundPolicy {
+    BigDecimal calculateRefundAmount(BigDecimal paid);
+}
+
+class FareRule {
+    RefundPolicy checkRefundPolicy() {
+        if (!refundable) return new NoRefundPolicy();
+        if ("Y".equals(fareClass) || "B".equals(fareClass)) {
+            return new FullRefundPolicy();
+        }
+        return new PartialRefundPolicy();
+    }
+}
+
+class RefundHandler {
+    BigDecimal previewRefund(String pnr, String fareClass) {
+        RefundPolicy policy = fareRule.checkRefundPolicy();
+        return policy.calculateRefundAmount(paid);
+    }
+}
+```
+
+**시연 흐름.** 예약 조회에서 `Confirmed` 또는 `Ticketed` 예약을 열고 취소/환불 미리보기를 누른다. `FareRule` 이 정책을 고르고, `RefundHandler` 는 선택된 `RefundPolicy` 인터페이스만 호출한다.
+
+### DP#3 Observer — Domain event broadcast
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Subject | `EventPublisher`, `TicketPurchasePublisher` |
+| Observer | `EventListener` |
+| ConcreteObserver | `BusTicketPurchaseListener`, `ReservationAutoCancelListener`, `ReservationHoldListener` |
+| Event | `TicketIssuedEvent` 등 `DomainEvent` |
+| 핵심 메서드 | `publish(...)`, `onEvent(...)`, `publishTicketIssued(...)` |
+
+```java
+class TicketPurchasePublisher extends EventPublisher {
+    void publishTicketIssued(Reservation r, Ticket t, BusCity city) {
+        publish(new TicketIssuedEvent(r, t, city));
+    }
+}
+
+class EventPublisher {
+    void publish(DomainEvent event) {
+        for (EventListener listener : listeners) {
+            listener.onEvent(event);
+        }
+    }
+}
+
+class BusTicketPurchaseListener implements EventListener {
+    void onEvent(DomainEvent event) {
+        if (event instanceof TicketIssuedEvent e) {
+            busTicketingService.issuePremiumTicket(...);
+        }
+    }
+}
+```
+
+**시연 흐름.** 확인 화면에서 e-Ticket/셔틀 연계를 실행한다. 발권 이벤트가 publish 되고, listener 가 버스 티켓 발매를 수행한다. 발표 시 콘솔의 `[BUS]` 로그와 화면의 셔틀버스 발권 완료 상태를 함께 보여준다.
+
+### DP#4 Composite — Airport city search
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Component | `AirportLocation` |
+| Composite | `AirportCity` |
+| Leaf | `Airport` |
+| 핵심 attribute | `AirportCity.airports` |
+| 핵심 메서드 | `getAirports()`, `AirportCatalog.resolve(...)`, `SearchController.expand(...)` |
+
+```java
+interface AirportLocation {
+    String getCode();
+    List<Airport> getAirports();
+}
+
+class Airport implements AirportLocation {
+    List<Airport> getAirports() {
+        return List.of(this);
+    }
+}
+
+class AirportCity implements AirportLocation {
+    private final List<Airport> airports;
+
+    List<Airport> getAirports() {
+        return airports;
+    }
+}
+```
+
+**시연 흐름.** 검색창에 `TYO`, `NYC`, `SEL`, `LON` 같은 도시 코드를 넣는다. `AirportCity` 는 여러 `Airport` leaf 를 반환하고, 검색은 도시와 공항을 같은 `AirportLocation` 으로 다룬다.
+
+### DP#5 Singleton — AppConfig
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Singleton | `AppConfig` |
+| 단일 instance | `private static volatile AppConfig instance` |
+| 보호 장치 | private constructor, double-checked locking |
+| 핵심 메서드 | `getInstance()`, `setFontSize(...)`, `addChangeListener(...)` |
+
+```java
+public final class AppConfig {
+    private static volatile AppConfig instance;
+    private final List<Consumer<AppConfig>> listeners = new ArrayList<>();
+
+    private AppConfig() {}
+
+    public static AppConfig getInstance() {
+        if (instance == null) synchronized (AppConfig.class) {
+            if (instance == null) instance = new AppConfig();
+        }
+        return instance;
+    }
+
+    void setFontSize(int size) {
+        this.fontSize = size;
+        notifyListeners();
+    }
+}
+```
+
+**시연 흐름.** 설정 화면에서 글꼴 크기나 좌석 메타데이터 표시를 변경한다. 여러 화면이 새 객체를 만들지 않고 `AppConfig.getInstance()` 의 같은 값을 읽기 때문에 전역 설정이 즉시 일관되게 반영된다.
+
+### DP#6 Factory Method — Payment and itinerary creation
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Creator | `PaymentProcessorFactory`, `ItineraryFactory` |
+| Product | `PaymentMethodProcessor`, `Itinerary` |
+| ConcreteProduct | `CreditCardPaymentProcessor`, `KakaoPayPaymentProcessor`, `MileagePaymentProcessor`, `ConnectingItineraryFactory` 등 |
+| 핵심 메서드 | `forMethod(...)`, `create(...)`, `BookingController.confirmPaymentWith(...)` |
+
+```java
+class PaymentProcessorFactory {
+    static PaymentMethodProcessor forMethod(PaymentMethod method, ...) {
+        return switch (method) {
+            case KAKAO_PAY -> new KakaoPayPaymentProcessor(...);
+            case APPLE_PAY -> new ApplePayPaymentProcessor(...);
+            case BANK_TRANSFER -> new BankTransferPaymentProcessor(...);
+            case MILEAGE -> new MileagePaymentProcessor(...);
+            default -> new CreditCardPaymentProcessor(...);
+        };
+    }
+}
+
+class BookingController {
+    Payment confirmPaymentWith(..., PaymentMethod method, ...) {
+        var processor = PaymentProcessorFactory.forMethod(method, ...);
+        return processor.processCharge(amount, pnr);
+    }
+}
+```
+
+**시연 흐름.** 결제 화면에서 결제 수단을 바꾼다. UI 는 구체 결제 클래스를 모르고, `PaymentProcessorFactory` 가 선택값에 맞는 processor 를 생성한다. 환승/다구간 검색도 같은 원리로 여정 factory 가 concrete itinerary 를 만든다.
+
+### DP#7 Template Method — TicketRenderer
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| AbstractClass | `TicketRenderer` |
+| templateMethod | `final render(...)` |
+| primitiveOperation | `header(...)`, `body(...)`, `footer(...)` |
+| ConcreteClass | `PlainTextTicketRenderer`, `HtmlTicketRenderer`, `BoardingPassRenderer` |
+
+```java
+abstract class TicketRenderer {
+    public final String render(Reservation r, Ticket t) {
+        return header(r, t) + body(r, t) + footer(r, t);
+    }
+
+    protected abstract String header(Reservation r, Ticket t);
+    protected abstract String body(Reservation r, Ticket t);
+    protected abstract String footer(Reservation r, Ticket t);
+}
+
+class BoardingPassRenderer extends TicketRenderer {
+    protected String body(...) {
+        return boardingPassLayout;
+    }
+}
+```
+
+**시연 흐름.** 확인 화면에서 e-Ticket 포맷을 일반 텍스트, HTML, 보딩패스로 바꾼다. 전체 출력 순서(`render`)는 고정이고, 세부 표현만 subclass 가 바꾼다.
+
+### DP#8 Adapter — Skypass mileage API
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Target | `SkypassInterface` |
+| Adapter | `SkypassAdapter` |
+| Adaptee | `RemoteSkypassApi` |
+| 핵심 attribute | `SkypassAdapter.remote` |
+| 핵심 메서드 | `getMileageBalance(...)`, `verifyAndDeduct(...)` |
+
+```java
+interface SkypassInterface {
+    int getMileageBalance(String memberNo);
+    Object verifyAndDeduct(String memberNo, int amount);
+}
+
+class SkypassAdapter implements SkypassInterface {
+    private final RemoteSkypassApi remote;
+
+    int getMileageBalance(String memberNo) {
+        Map<String, Object> res = remote.getMileage(memberNo);
+        return (Integer) res.get("balance");
+    }
+}
+```
+
+**시연 흐름.** 회원 로그인 후 결제 화면에 마일리지 잔액이 표시된다. 화면과 control 은 `SkypassInterface` 만 알고, 외부 API 의 Map 응답 구조는 `SkypassAdapter` 안에 숨겨진다.
+
+### DP#9 Decorator — Seat add-on chain
+
+| GoF 역할 | 우리 구현 |
+| --- | --- |
+| Component | `SeatView` |
+| ConcreteComponent | `SeatViewAdapter` |
+| Decorator | `AbstractSeatDecorator` |
+| ConcreteDecorator | `WindowSeatDecorator`, `AisleSeatDecorator`, `ExtraLegroomDecorator`, `LoungeAccessDecorator` |
+| 핵심 메서드 | `SeatController.refreshSeatView()`, `getDescription()`, `getSurcharge()` |
+
+```java
+SeatView view = new SeatViewAdapter(seat);
+
+if (col == 'A' || col == 'F') {
+    view = new WindowSeatDecorator(view);
+} else if (col == 'C' || col == 'D') {
+    view = new AisleSeatDecorator(view);
+}
+if (legroomCheck.isSelected()) {
+    view = new ExtraLegroomDecorator(view);
+}
+if (loungeCheck.isSelected()) {
+    view = new LoungeAccessDecorator(view);
+}
+
+ctx.setSeatSurcharge(view.getSurcharge().longValue());
+```
+
+**시연 흐름.** 좌석 화면에서 A/F 좌석은 창측, C/D 좌석은 통로로 자동 설명된다. 레그룸/라운지를 체크하면 wrapper 가 추가되고, 설명과 부가요금이 누적되어 결제 금액에 합산된다.
+
+---
+
+## 📌 3.6 팀 역할분담
+
+| 팀원 | 주 담당 | 기여 요약 |
+| --- | --- | --- |
+| 김정욱 | Domain model / reservation lifecycle | State 기반 예약 생애주기, 결제/환불 도메인 점검, 데모 시나리오 검증 |
+| 이재호 | UI Boundary / presentation flow | Swing to JavaFX 전환 검토, 데모 사용성 피드백, Pattern Guide 및 보고서/대본 흐름 강화 |
+| 김경동 | Control services / integration QA | 검색/결제/버스 연계 흐름 점검, 패턴 매핑 검증, Maven/JavaFX 실행 검증 |
+
+> 최종 제출 전 실제 팀 기여율에 맞추어 문구와 비율은 조정 가능하다.
+
+## 📌 3.7 <span style="color:#c00000">Iteration 4 변경사항 빨간색 표시</span>
+
+<span style="color:#c00000">- Iteration 4에서는 Swing Boundary를 JavaFX(FXML + CSS + Controller)로 교체했다. Control/Domain의 핵심 패턴 구조는 유지했다.</span>
+
+<span style="color:#c00000">- Composite, Singleton, Factory Method, Template Method, Adapter, Decorator 6개 GoF 패턴을 새로 추가했다.</span>
+
+<span style="color:#c00000">- Iteration 1~4 누적 기준 9개 패턴이 모두 UI에서 시연 가능하도록 연결되었다.</span>
+
+<span style="color:#c00000">- JavaFX 앱에 `패턴 가이드` 화면을 추가하여 각 DP의 GoF 역할, 팀 구현 클래스, 핵심 메서드/attribute, 코드 스켈레톤, 시연 포인트를 바로 확인할 수 있게 했다.</span>
+
+<span style="color:#c00000">- 결제 화면은 Factory Method와 Adapter, 좌석 화면은 Decorator, 확인 화면은 Template Method와 Observer를 직접 보여주는 구조로 정리했다.</span>
+
+---
+
 ## 📌 4. 신규 6개 패턴의 도입 동기와 구조
 
 ### 4.1 Composite (구조)

@@ -157,6 +157,16 @@ public final class Navigator {
         shell.setContent(l.node());
     }
 
+    public void showReservationDetail(Reservation reservation) {
+        ctx.setCurrentReservation(reservation);
+        Loaded<ConfirmationController> l = load("confirmation.fxml");
+        l.controller().bind(this, ctx);
+        l.controller().prepare(reservation, null, null);
+        updateState(reservation);
+        shell.showStep(false);
+        shell.setContent(l.node());
+    }
+
     public void showLookup() {
         Loaded<LookupController> l = load("lookup.fxml");
         l.controller().bind(this, ctx);
@@ -200,6 +210,13 @@ public final class Navigator {
 
     public void showSettings() {
         Loaded<com.koreanair.reservation.app.fx.screen.SettingsController> l = load("settings.fxml");
+        l.controller().bind(this, ctx);
+        shell.showStep(false);
+        shell.setContent(l.node());
+    }
+
+    public void showPatternGuide() {
+        Loaded<com.koreanair.reservation.app.fx.screen.PatternGuideController> l = load("pattern-guide.fxml");
         l.controller().bind(this, ctx);
         shell.showStep(false);
         shell.setContent(l.node());
