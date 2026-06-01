@@ -25,24 +25,57 @@ skinparam noteBorderColor #777777
 left to right direction
 title Use Case Diagram - Korean Air Reservation System (cumulative, Iteration 1-4)
 actor Customer
+actor "Skypass Member" as Member
+actor Guest
 actor Administrator as Admin
 actor "Payment Gateway" as PG
 actor "Skypass System" as SK
+Member --|> Customer
+Guest --|> Customer
 rectangle "Korean Air Reservation System" {
+  ' --- Authentication (Iteration 1-2) ---
+  Member --> (Log in)
+  Guest --> (Continue as guest)
+  Customer --> (Register Skypass membership)
+  Member --> (Log out)
+  (Log in) --> SK
+  ' --- Search (Iteration 1; trip-type variants in Iteration 4) ---
   Customer --> (Search flights)
+  Customer --> (<color:#C00000>Search round-trip</color>)
+  Customer --> (<color:#C00000>Search multi-city itinerary</color>)
+  (Search flights) ..> (<color:#C00000>Search connecting itinerary</color>) : <<extend>>
+  ' --- Booking ---
   Customer --> (Make reservation)
+  Customer --> (<color:#C00000>Book round-trip</color>)
+  Customer --> (<color:#C00000>Book multi-city trip</color>)
   Customer --> (Enter passenger info)
-  Customer --> (Pay)
-  Customer --> (Issue e-Ticket)
-  Customer --> (Cancel reservation)
-  Customer --> (Request refund)
   Customer --> (<color:#C00000>Select seat options</color>)
+  ' --- Payment ---
+  Customer --> (Pay)
   Customer --> (<color:#C00000>Pay with mileage</color>)
   (Pay) --> PG
   (<color:#C00000>Pay with mileage</color>) --> SK
+  ' --- Ticketing ---
+  Customer --> (Issue e-Ticket)
   (Issue e-Ticket) ..> (<color:#C00000>Render e-Ticket</color>) : <<include>>
   (Issue e-Ticket) ..> (<color:#C00000>Issue linked bus ticket</color>) : <<extend>>
+  ' --- Manage booking ---
+  Member --> (View my reservations)
+  Guest --> (Look up reservation)
+  Customer --> (View booking and e-Ticket)
+  Customer --> (Cancel reservation)
+  Customer --> (Preview refund amount and policy)
+  Customer --> (Request refund)
+  (Request refund) --> PG
+  ' --- Settings (Iteration 4) ---
+  Customer --> (<color:#C00000>Change display settings</color>)
+  ' --- Administration ---
   Admin --> (<color:#C00000>Change flight status</color>)
 }
-note bottom : <color:#C00000>Red use cases were added in Iteration 4 (seat options, mileage payment, e-Ticket rendering, linked bus ticket, flight-status change).</color>
+note as UCN
+  <color:#C00000>Red use cases/flows were added in Iteration 4: round-trip / multi-city / connecting itinerary search and booking,</color>
+  <color:#C00000>seat option selection, mileage payment, e-Ticket rendering, linked bus ticket, display settings, flight-status change.</color>
+  Black use cases (authentication, one-way search and booking, passenger entry, card payment, ticketing,
+  reservation lookup, cancellation, refund) accumulated across Iteration 1-3.
+end note
 @enduml
