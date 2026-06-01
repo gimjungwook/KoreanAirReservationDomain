@@ -65,7 +65,7 @@
 ## 추가 보강한 자료
 
 - `pattern-code-map.md`: DP별 Ctrl+F 키워드와 코드 설명 순서
-- `speaker-script-iter4-ko.md`: 70페이지 수정판 기준 발표 대본
+- `speaker-script-iter4-ko.md`: 29페이지 콤팩트 최종본 기준 발표 대본
 - JavaFX `PatternGuideController`: 앱 내 DP#1 State, DP#6 Factory Method 설명을 실제 코드 기준으로 수정
 
 ## 발표 중 특히 조심할 문장
