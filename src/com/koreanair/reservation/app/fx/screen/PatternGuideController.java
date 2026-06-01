@@ -154,20 +154,21 @@ public final class PatternGuideController {
                         "발권, 결제 실패, 좌석 홀드 만료 같은 부수효과를 호출자에게 직접 묶지 않고 이벤트로 전파한다.",
                         "Subject = EventPublisher, Observer = EventListener, ConcreteEvent = DomainEvent",
                         "TicketPurchasePublisher, BusTicketPurchaseListener, TicketIssuedEvent",
-                        "e-Ticket 발권 -> publish(event) -> listeners 순회 -> bus service 실행",
+                        "e-Ticket 발권 -> setState(event) -> notifyObservers() -> 각 listener.update()가 getState()로 pull -> bus service 실행",
                         """
                         class TicketPurchasePublisher extends EventPublisher {
                             void publishTicketIssued(Reservation r, Ticket t, BusCity city) {
-                                publish(new TicketIssuedEvent(r, t, city));
+                                setState(new TicketIssuedEvent(r, t, city)); // store + notifyObservers()
                             }
                         }
                         class EventPublisher {
-                            void publish(DomainEvent e) {
-                                for (EventListener l : listeners) l.onEvent(e);
+                            void notifyObservers() {                  // pull model: no event arg
+                                for (EventListener l : observers) l.update();
                             }
                         }
                         class BusTicketPurchaseListener implements EventListener {
-                            void onEvent(DomainEvent e) {
+                            public void update() {                    // observer pulls from subject
+                                DomainEvent e = subject.getState();
                                 if (e instanceof TicketIssuedEvent t)
                                     busTicketingService.issuePremiumTicket(...);
                             }
@@ -230,7 +231,7 @@ public final class PatternGuideController {
                             final Payment processCharge(long amount, String pnr) {
                                 Payment p = createPayment(amount); // factory method
                                 if (authorize(p)) p.pay();
-                                else { p.fail(); publish(new PaymentFailedEvent(...)); }
+                                else { p.fail(); }
                                 return p;
                             }
                             protected abstract Payment createPayment(long amount);
@@ -294,11 +295,11 @@ public final class PatternGuideController {
                 new PatternNote(
                         "DP#9 Decorator - Seat add-on chain",
                         "창측/통로/레그룸/라운지 부가옵션을 조합별 클래스로 만들지 않고 런타임 wrapper 체인으로 쌓는다.",
-                        "Component = SeatView, ConcreteComponent = SeatViewAdapter, Decorator = AbstractSeatDecorator",
+                        "Component = SeatView, ConcreteComponent = BaseSeatView, Decorator = AbstractSeatDecorator",
                         "SeatController.refreshSeatView(), getDescription(), getSurcharge(), metadataLabels",
                         "좌석 선택 -> base SeatView -> 위치 decorator -> 체크박스 decorator -> surcharge 합산",
                         """
-                        SeatView view = new SeatViewAdapter(seat);
+                        SeatView view = new BaseSeatView(seat);
                         if (col == 'A' || col == 'F')
                             view = new WindowSeatDecorator(view);
                         else if (col == 'C' || col == 'D')
