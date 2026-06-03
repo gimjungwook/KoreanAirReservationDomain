@@ -17,7 +17,10 @@
         <HBox spacing="24">
             <VBox spacing="4">
                 <Label text="예약번호" styleClass="kv-key"/>
-                <Label fx:id="pnrLabel" styleClass="kv-val"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label fx:id="pnrLabel" styleClass="kv-val"/>
+                    <Button text="PNR 복사" styleClass="btn-ghost" onAction="#onCopyPnr"/>
+                </HBox>
             </VBox>
             <VBox spacing="4">
                 <Label text="현재 상태" styleClass="kv-key"/>

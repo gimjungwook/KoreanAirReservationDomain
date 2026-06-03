@@ -138,6 +138,14 @@
 .flight-route { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-ink; }
 .flight-meta  { -fx-font-size: 12px; -fx-text-fill: -kal-soft; }
 .flight-fare  { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; }
+.copy-target {
+    -fx-text-fill: -kal-blue;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+.copy-target:hover {
+    -fx-text-fill: -kal-blue-dark;
+}
 .row-actions { -fx-wrap-text: true; }
 
 .state-pill {

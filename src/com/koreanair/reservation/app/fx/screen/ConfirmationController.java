@@ -19,6 +19,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 public final class ConfirmationController {
 
@@ -61,6 +63,15 @@ public final class ConfirmationController {
         boolean signedIn = ctx.isSignedIn();
         lookupBtn.setVisible(signedIn);
         lookupBtn.setManaged(signedIn);
+    }
+
+    @FXML
+    private void onCopyPnr() {
+        if (reservation == null || reservation.getPnrNumber() == null) return;
+        ClipboardContent content = new ClipboardContent();
+        content.putString(reservation.getPnrNumber());
+        Clipboard.getSystemClipboard().setContent(content);
+        message.setText("PNR이 클립보드에 복사되었습니다.");
     }
 
     private void showBus(BusTicket bus) {

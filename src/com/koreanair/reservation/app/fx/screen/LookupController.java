@@ -12,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
@@ -54,6 +55,9 @@ public final class LookupController {
         VBox left = new VBox(2);
         Label pnr = new Label(r.getPnrNumber());
         pnr.getStyleClass().add("flight-route");
+        pnr.getStyleClass().add("copy-target");
+        pnr.setTooltip(new Tooltip("클릭하면 PNR이 복사됩니다"));
+        pnr.setOnMouseClicked(e -> copyPnr(r));
         String stateName = r.getStateName();
         Label state = new Label(formatStateName(stateName));
         state.getStyleClass().add("flight-meta");
@@ -140,6 +144,7 @@ public final class LookupController {
     }
 
     private void copyPnr(Reservation r) {
+        if (r == null || r.getPnrNumber() == null) return;
         ClipboardContent content = new ClipboardContent();
         content.putString(r.getPnrNumber());
         Clipboard.getSystemClipboard().setContent(content);

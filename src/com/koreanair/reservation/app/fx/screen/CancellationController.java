@@ -9,6 +9,8 @@ import com.koreanair.reservation.domain.reservation.Reservation;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 public final class CancellationController {
 
@@ -32,6 +34,15 @@ public final class CancellationController {
         stateLabel.setText(reservation != null ? reservation.getStateName() : "-");
         previewLabel.setText("환불 예상액을 미리 확인하세요.");
         message.setText("");
+    }
+
+    @FXML
+    private void onCopyPnr() {
+        if (reservation == null || reservation.getPnrNumber() == null) return;
+        ClipboardContent content = new ClipboardContent();
+        content.putString(reservation.getPnrNumber());
+        Clipboard.getSystemClipboard().setContent(content);
+        message.setText("PNR이 클립보드에 복사되었습니다.");
     }
 
     private String fareClass() {

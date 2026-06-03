@@ -17,7 +17,10 @@
     <VBox styleClass="card" spacing="16" maxWidth="520">
         <VBox spacing="4">
             <Label text="예약번호 (PNR)" styleClass="kv-key"/>
-            <Label fx:id="pnrLabel" styleClass="big-pnr"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="pnrLabel" styleClass="big-pnr"/>
+                <Button text="PNR 복사" styleClass="btn-ghost" onAction="#onCopyPnr"/>
+            </HBox>
         </VBox>
         <HBox spacing="24">
             <VBox spacing="4">
