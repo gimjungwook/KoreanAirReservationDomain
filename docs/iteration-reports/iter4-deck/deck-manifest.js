@@ -4,6 +4,15 @@ window.DECK_WIDTH = 1920;
 window.DECK_HEIGHT = 1080;
 window.DECK_VER = "iter4-final-v1";
 
+window.DECK_APP_FLOW = [
+  { label: "01 홈 + 허브", idx: 7, note: "발표 인트로, 전체 흐름 오리엔테이션" },
+  { label: "02 검색/예약", idx: 2, note: "기능 목록에서 검색/예약의 핵심 연결" },
+  { label: "03 좌석/결제 준비", idx: 24, note: "좌석 데코레이터·적립/결제 준비 흐름" },
+  { label: "04 결제/확정", idx: 8, note: "State + Strategy + Observer 동작 구간" },
+  { label: "05 조회/환불", idx: 3, note: "조회·환불·버스 연계 연계 포인트" },
+  { label: "06 패턴 가이드", idx: 4, note: "리팩터링/DP 정리 및 코드맵 마감" }
+];
+
 window.DECK_MANIFEST = [
   { file: "iter4-final-deck.pdf", page: 1, label: "01. Cover", notes: "이번 최종 발표는 JavaFX 전환한 대한항공 예약 시스템에서 9개 디자인 패턴 적용을 보여줍니다." },
   { file: "iter4-final-deck.pdf", page: 2, label: "02. 지침서 반영 원칙", notes: "양식 #1·#2·#3, 직전 대비 변경사항 표시, 교과서 비교를 우선 반영했습니다." },

@@ -5,10 +5,10 @@
 ## DP#1 State
 
 - GoF 역할: `Context`, `State`, `ConcreteState`
-- 우리 코드: `Reservation`, `ReservationState`, `AbstractReservationState`, `InitiatedState`~`RefundedState`
+- 우리 코드: `Reservation`, `ReservationState`, `InitiatedState`~`RefundedState`
 - 핵심 attribute: `Reservation.currentState`
 - 핵심 메서드: `Reservation.setState`, `processPayment`, `issueTicket`, `requestCancellation`, `processRefundDecision`
-- Ctrl+F: `class Reservation`, `interface ReservationState`, `AbstractReservationState`
+- Ctrl+F: `class Reservation`, `interface ReservationState`
 - 설명 흐름: UI 버튼이 `Reservation`에 요청하면 현재 `ReservationState`가 가능한 전이인지 판단하고, 허용된 경우에만 다음 상태 객체로 교체합니다.
 - 시연: 예약 신청, 결제, 발권, 취소/환불을 진행하면서 JavaFX header의 state badge와 터미널 state log를 같이 보여줍니다.
 
@@ -26,11 +26,11 @@
 
 - GoF 역할: `Subject`, `Observer`, `ConcreteSubject`, `ConcreteObserver`, `Event`
 - 우리 코드: `EventPublisher`, `EventListener`, `TicketPurchasePublisher`, `BusTicketPurchaseListener`, `TicketIssuedEvent`
-- 핵심 attribute: `EventPublisher.listeners`
-- 핵심 메서드: `register`, `publish`, `onEvent`, `publishTicketIssued`
+- 핵심 attribute: `EventPublisher.observers`
+- 핵심 메서드: `attach`, `notifyObservers`, `update`, `publishTicketIssued`
 - Ctrl+F: `class EventPublisher`, `class TicketPurchasePublisher`, `class BusTicketPurchaseListener`
-- 설명 흐름: 발권 완료 subject는 event만 발행하고, 버스 티켓 listener가 관심 이벤트를 받아 연계 발매를 수행합니다.
-- 시연: e-Ticket 발급 후 버스 도시를 선택하고 콘솔의 `[BUS] premium bus ticket ... issued` 로그를 확인합니다.
+- 설명 흐름: 발권 완료 subject는 event만 저장하고 Observer에게 통지하면 listener가 `update()`에서 pull 방식으로 상태를 받아 연계 발매를 수행합니다.
+- 시연: e-Ticket 발급 후 버스 도시를 선택하고 콘솔의 `[BUS] premium shuttle ... issued` 로그를 확인합니다.
 
 ## DP#4 Composite
 
@@ -84,13 +84,12 @@
 ## DP#9 Decorator
 
 - GoF 역할: `Component`, `ConcreteComponent`, `Decorator`, `ConcreteDecorator`
-- 우리 코드: `SeatView`, `SeatViewAdapter`, `AbstractSeatDecorator`, `WindowSeatDecorator`, `AisleSeatDecorator`, `ExtraLegroomDecorator`, `LoungeAccessDecorator`
-- 핵심 메서드: `getDescription`, `getSurcharge`, `getLabels`, `build`
-- Ctrl+F: `interface SeatView`, `class AbstractSeatDecorator`, `class SeatViewBuilder`
-- 설명 흐름: 좌석 옵션 조합별 class를 만들지 않고 base `SeatView`를 wrapper로 감싸 description과 surcharge를 누적합니다.
+- 우리 코드: `SeatView`, `BaseSeatView`, `AbstractSeatDecorator`, `WindowSeatDecorator`, `AisleSeatDecorator`, `ExtraLegroomDecorator`, `LoungeAccessDecorator`
+- 핵심 메서드: `getDescription`, `getSurcharge`, `getMetadataLabels`
+- Ctrl+F: `interface SeatView`, `class BaseSeatView`, `class AbstractSeatDecorator`, `class SeatViewBuilder`
+- 설명 흐름: 좌석 옵션 조합별 class를 만들지 않고 base `BaseSeatView`를 wrapper로 감싸 description과 surcharge를 누적합니다.
 - 시연: 좌석 선택 화면에서 window/aisle 자동 라벨, extra legroom, lounge 옵션을 바꾸며 총 결제 금액이 변하는 것을 보여줍니다.
 
 ## 발표 우선순위
 
 시간이 부족하면 DP#6 Factory Method, DP#9 Decorator, DP#8 Adapter, DP#1 State, DP#3 Observer 순서로 깊게 설명하고, 나머지는 코드 map으로 짧게 지나가면 됩니다.
-

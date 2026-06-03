@@ -13,7 +13,7 @@
 
 최종 deck은 Google Doc의 Form #1~#3, Section 4~16을 기준으로 구성했습니다. 단, 아래 항목은 실제 코드와 대조해 발표에서 틀리지 않도록 정정했습니다.
 
-- State: Google Doc에는 "interface + 8 concrete states directly"처럼 적힌 부분이 있지만, 실제 코드는 `ReservationState`와 8개 상태 사이에 `AbstractReservationState`가 있어 기본 invalid transition을 한 곳에 모읍니다.
+- State: Google Doc에는 "interface + 8 concrete states directly"처럼 적힌 부분이 있지만, 실제 코드는 `ReservationState`의 default 메서드로 기본 invalid transition을 한 곳에 모읍니다.
 - Factory Method: `PaymentProcessorFactory`는 선택 helper이고, GoF Creator 역할은 `PaymentMethodProcessor`와 `ItineraryFactory`가 맡습니다.
 - UI migration: Boundary 중심 JavaFX 전환이 맞지만, Control 계층에 UI 노출을 위한 얇은 glue method가 일부 추가되었습니다.
 - Domain layer: 핵심 DP 구조는 유지되지만, 발표에서는 "완전히 한 줄도 안 바뀜"보다 "패턴 구조는 보존됨"으로 말하는 편이 안전합니다.

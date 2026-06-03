@@ -32,7 +32,7 @@
   /* ============================================================
      OBSERVER 3D — broadcast + instanceof 선택 처리 시각화
      하나의 Subject가 publish → 모든 Listener에 broadcast.
-     매칭 Listener만 onEvent에서 실제 처리(녹색 점화), 나머지는 instanceof false로 무시.
+     매칭 Listener만 update에서 실제 처리(녹색 점화), 나머지는 instanceof false로 무시.
      ============================================================ */
   // 4 subjects (각 이벤트의 발행자) — 실제 코드와 1:1
   const SUBJECTS = [
@@ -177,7 +177,7 @@
             lm.mesh.material.emissiveIntensity = 0;
           }
         });
-        readout.innerHTML = `<b>onEvent() — instanceof 분기</b><br>`
+      readout.innerHTML = `<b>update() — instanceof 분기</b><br>`
           + `<span style="color:#28c840">✓ ${actedName}</span> 처리<br>`
           + `<span style="color:#b9e08a">${actedAct}</span><br>`
           + `<span style="color:#8b8b94">나머지 3개: instanceof false → 무시</span>`;

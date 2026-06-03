@@ -129,12 +129,12 @@ flowchart LR
 
 | # | 패턴 | 분류 | 도입 | 핵심 구현 클래스 | UI 시연 위치 |
 | :-: | --- | --- | :-: | --- | --- |
-| 1 | **State** | 행위 | iter1 | `ReservationState` + 구상 상태 8개 + `AbstractReservationState` | 헤더 상태 배지 (Initiated → PendingPayment → Confirmed → Ticketed → Refunded 실시간 표시) |
+| 1 | **State** | 행위 | iter1 | `ReservationState` + 구상 상태 8개(구현은 default 메서드 기반) | 헤더 상태 배지 (Initiated → PendingPayment → Confirmed → Ticketed → Refunded 실시간 표시) |
 | 2 | **Strategy** | 행위 | iter2 | `RefundPolicy` (Full/Partial/No) | 취소 화면 환불 미리보기, 환불 검토 대기열 |
 | 3 | **Observer** | 행위 | iter3 | `TicketPurchasePublisher`, `EventPublisher`, Listener 4개, `DomainEvent` 6개 | e-Ticket 발권 시 셔틀버스 연계 자동 발매 |
 | 4 | **Composite** | 구조 | iter4 | `AirportLocation`(Component), `AirportCity`(Composite), `Airport`(Leaf) | 도시 코드(SEL/TYO/NYC/LON) 검색 시 소속 공항 전체 |
 | 5 | **Singleton** | 생성 | iter4 | `AppConfig` (double-checked locking) | 설정 화면 글꼴/통화/테마, 즉시 전역 적용 |
-| 6 | **Factory Method** | 생성 | iter4 | `PaymentProcessorFactory`, `ItineraryFactory`(Direct/Connecting/MultiCity) | 결제 수단 선택 라우팅, 환승 검색 |
+| 6 | **Factory Method** | 생성 | iter4 | `PaymentMethodProcessor`, `ItineraryFactory`(Direct/Connecting/MultiCity) | 결제 수단 선택 라우팅, 환승 검색 |
 | 7 | **Template Method** | 행위 | iter4 | `TicketRenderer`(final 템플릿) + PlainText/Html/BoardingPass | 확인 화면 e-Ticket 포맷 토글 |
 | 8 | **Adapter** | 구조 | iter4 | `SkypassAdapter`(Adapter), `RemoteSkypassApi`(Adaptee), `SkypassInterface`(Target) | 결제 화면 마일리지 잔액 표시, 마일리지 결제 |
 | 9 | **Decorator** | 구조 | iter4 | `SeatView`(Component), `AbstractSeatDecorator` + Window/Aisle/ExtraLegroom/Lounge | 좌석 화면 창측/통로 자동 표시, 레그룸/라운지 부가요금 누적 |
@@ -191,26 +191,21 @@ class PendingPaymentState implements ReservationState {
 | Strategy | `RefundPolicy` |
 | ConcreteStrategy | `FullRefundPolicy`, `PartialRefundPolicy`, `NoRefundPolicy` |
 | 핵심 attribute | `FareRule.fareClass`, `FareRule.refundable` |
-| 핵심 메서드 | `FareRule.checkRefundPolicy()`, `RefundHandler.previewRefund(...)` |
+| 핵심 메서드 | `RefundHandler.resolvePolicy(FareRule)`, `RefundHandler.previewRefund(...)`, `RefundHandler.setStrategy(...)` |
 
 ```java
 interface RefundPolicy {
     BigDecimal calculateRefundAmount(BigDecimal paid);
 }
 
-class FareRule {
-    RefundPolicy checkRefundPolicy() {
-        if (!refundable) return new NoRefundPolicy();
-        if ("Y".equals(fareClass) || "B".equals(fareClass)) {
-            return new FullRefundPolicy();
-        }
-        return new PartialRefundPolicy();
-    }
-}
-
 class RefundHandler {
     BigDecimal previewRefund(String pnr, String fareClass) {
-        RefundPolicy policy = fareRule.checkRefundPolicy();
+        Reservation reservation = Reservation.findByPnr(pnr);
+        FareRule rule = resolveFareRuleFrom(reservation);
+        RefundPolicy policy = resolvePolicy(rule);
+        BigDecimal paid = reservation.getPayments().stream()
+            .map(Payment::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
         return policy.calculateRefundAmount(paid);
     }
 }
@@ -226,26 +221,27 @@ class RefundHandler {
 | Observer | `EventListener` |
 | ConcreteObserver | `BusTicketPurchaseListener`, `ReservationAutoCancelListener`, `ReservationHoldListener` |
 | Event | `TicketIssuedEvent` 등 `DomainEvent` |
-| 핵심 메서드 | `publish(...)`, `onEvent(...)`, `publishTicketIssued(...)` |
+| 핵심 메서드 | `setState(...)`, `notifyObservers()`, `publishTicketIssued(...)`, `update()` |
 
 ```java
 class TicketPurchasePublisher extends EventPublisher {
     void publishTicketIssued(Reservation r, Ticket t, BusCity city) {
-        publish(new TicketIssuedEvent(r, t, city));
+        setState(new TicketIssuedEvent(r, t, city));
     }
 }
 
 class EventPublisher {
-    void publish(DomainEvent event) {
-        for (EventListener listener : listeners) {
-            listener.onEvent(event);
+    void notifyObservers() {
+        for (EventListener observer : observers) {
+            observer.update();
         }
     }
 }
 
 class BusTicketPurchaseListener implements EventListener {
-    void onEvent(DomainEvent event) {
-        if (event instanceof TicketIssuedEvent e) {
+    void update() {
+        TicketIssuedEvent e = subject.getState();
+        if (e != null) {
             busTicketingService.issuePremiumTicket(...);
         }
     }
@@ -413,13 +409,13 @@ class SkypassAdapter implements SkypassInterface {
 | GoF 역할 | 우리 구현 |
 | --- | --- |
 | Component | `SeatView` |
-| ConcreteComponent | `SeatViewAdapter` |
+| ConcreteComponent | `BaseSeatView` |
 | Decorator | `AbstractSeatDecorator` |
 | ConcreteDecorator | `WindowSeatDecorator`, `AisleSeatDecorator`, `ExtraLegroomDecorator`, `LoungeAccessDecorator` |
 | 핵심 메서드 | `SeatController.refreshSeatView()`, `getDescription()`, `getSurcharge()` |
 
 ```java
-SeatView view = new SeatViewAdapter(seat);
+SeatView view = new BaseSeatView(seat);
 
 if (col == 'A' || col == 'F') {
     view = new WindowSeatDecorator(view);
@@ -585,12 +581,12 @@ classDiagram
         +getDescription() String
         +getSurcharge() BigDecimal
     }
-    class SeatViewAdapter
+    class BaseSeatView
     class AbstractSeatDecorator {
         <<abstract>>
         #wrapped SeatView
     }
-    SeatView <|.. SeatViewAdapter
+    SeatView <|-- BaseSeatView
     SeatView <|.. AbstractSeatDecorator
     AbstractSeatDecorator o--> SeatView : wrapped
     AbstractSeatDecorator <|-- WindowSeatDecorator

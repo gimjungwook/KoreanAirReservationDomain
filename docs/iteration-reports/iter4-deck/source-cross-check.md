@@ -26,9 +26,10 @@
 ### 1. State
 
 - 문서 위험 표현: `ReservationState interface + 8 concrete states directly`
-- 실제 코드: `ReservationState`와 8개 concrete state 사이에 `AbstractReservationState`가 있습니다.
-- 발표 표현: “기본 invalid transition은 abstract base class에 모으고, concrete state는 허용 전이만 override한다.”
-- 근거: `src/com/koreanair/reservation/domain/reservation/state/AbstractReservationState.java`
+- 실제 코드: `ReservationState`가 기본 동작(허용되지 않은 전이)에 대한 디폴트 예외를 제공합니다.
+  `Concrete state`는 허용 전이만 override 합니다.
+- 발표 표현: “기본 invalid transition은 interface의 default 메서드로 공통 처리하고, 각 concrete state는 허용 전이만 override한다.”
+- 근거: `src/com/koreanair/reservation/domain/reservation/state/ReservationState.java`
 
 ### 2. Factory Method
 
@@ -60,7 +61,7 @@
 
 - 문서 흐름은 맞습니다.
 - 발표에서는 `TicketPurchasePublisher`만 보여주면 subject만 보이고 observer가 약합니다.
-- 반드시 `BusTicketPurchaseListener.onEvent`와 콘솔 `[BUS]` 로그를 같이 보여줘야 합니다.
+- 반드시 `BusTicketPurchaseListener.update`와 콘솔 `[BUS]` 로그를 같이 보여줘야 합니다.
 
 ## 추가 보강한 자료
 
@@ -74,7 +75,7 @@
 - 권장 문장: “`PaymentProcessorFactory`는 선택 helper이고, GoF Creator는 `PaymentMethodProcessor`와 `ItineraryFactory`입니다.”
 
 - 피해야 할 말: “State는 interface와 concrete state만 있습니다.”
-- 권장 문장: “구현상 `AbstractReservationState`를 둬서 default invalid transition을 한 곳에 모았습니다.”
+- 권장 문장: “구현상 `ReservationState` 인터페이스의 default 메서드가 기본 전이 거부를 한 곳에 모으고, concrete state가 허용 전이만 구현합니다.”
 
 - 피해야 할 말: “UI만 바꾸고 Control은 한 줄도 안 바꿨습니다.”
 - 권장 문장: “Boundary 중심으로 JavaFX 전환했고, Control에는 화면 노출을 위한 얇은 glue만 추가했습니다. 핵심 DP 구조는 유지했습니다.”
