@@ -19,6 +19,7 @@
         <HBox spacing="10">
             <Label text="예약번호" styleClass="kv-key"/>
             <Label fx:id="pnrLabel" styleClass="kv-val"/>
+            <Button text="PNR 복사" styleClass="btn-ghost" onAction="#onCopyPnr"/>
         </HBox>
 
         <VBox spacing="4">
@@ -48,7 +49,7 @@
         <HBox spacing="10">
             <Button text="이전" styleClass="btn-ghost" onAction="#onBack"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="결제하기" styleClass="btn-primary" onAction="#onPay"/>
+            <Button fx:id="payBtn" text="결제하기" styleClass="btn-primary" onAction="#onPay"/>
         </HBox>
     </VBox>
 </VBox>

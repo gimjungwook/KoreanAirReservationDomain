@@ -16,7 +16,11 @@ import com.koreanair.reservation.domain.reservation.Reservation;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
 
 public final class PaymentController {
 
@@ -25,6 +29,7 @@ public final class PaymentController {
     @FXML private ComboBox<String> methodCombo;
     @FXML private Label mileageLabel;
     @FXML private Label projectedMileageLabel;
+    @FXML private Button payBtn;
     @FXML private CheckBox busAddon;
     @FXML private ComboBox<BusCity> busCityCombo;
     @FXML private ComboBox<BusSchedule> busScheduleCombo;
@@ -36,6 +41,7 @@ public final class PaymentController {
     private AppContext ctx;
     private Reservation reservation;
     private FareRule fareRule;
+    private boolean shortcutsBound;
 
     // 구간(segment)당 기본 운임/세금 — 왕복(2)·다구간(N)은 구간 수만큼 합산.
     private static final long FARE_PER_SEGMENT = 320_000L;
@@ -86,6 +92,29 @@ public final class PaymentController {
         busCityCombo.valueProperty().addListener((o, a, b) -> refreshBusOptions());
         busScheduleCombo.valueProperty().addListener((o, a, b) -> refreshBusSeats());
         refreshBusOptions();
+        bindKeyboardShortcuts();
+        message.setText("");
+    }
+
+    private void bindKeyboardShortcuts() {
+        if (payBtn != null) {
+            payBtn.setDefaultButton(true);
+        }
+        pnrLabel.sceneProperty().addListener((obs, oldScene, scene) -> {
+            if (scene == null || shortcutsBound) {
+                return;
+            }
+            scene.setOnKeyPressed(ev -> {
+                if (ev.getCode() == KeyCode.ENTER) {
+                    onPay();
+                    ev.consume();
+                } else if (ev.getCode() == KeyCode.ESCAPE) {
+                    onBack();
+                    ev.consume();
+                }
+            });
+            shortcutsBound = true;
+        });
     }
 
     private void refreshMileageLabel() {
@@ -202,5 +231,14 @@ public final class PaymentController {
 
     public void setContinueFromLookup(boolean continueFromLookup) {
         ctx.setContinueFromLookup(continueFromLookup);
+    }
+
+    @FXML
+    private void onCopyPnr() {
+        if (reservation == null || reservation.getPnrNumber() == null) return;
+        ClipboardContent content = new ClipboardContent();
+        content.putString(reservation.getPnrNumber());
+        Clipboard.getSystemClipboard().setContent(content);
+        message.setText("PNR이 클립보드에 복사되었습니다.");
     }
 }
