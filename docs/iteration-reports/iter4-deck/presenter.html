@@ -82,6 +82,13 @@
   let idx = parseInt(localStorage.getItem('oodp4-idx') || '0', 10);
   if (idx < 0 || idx >= M.length) idx = 0;
 
+  function slideUrl(item, replayTs) {
+    const query = DECK_VER ? `?v=${DECK_VER}` : '?v=0';
+    const replay = replayTs ? `&r=${Date.now()}` : '';
+    const page = item && item.page ? `#page=${item.page}` : '';
+    return `${item.file}${query}${replay}${page}`;
+  }
+
   function scalePreview(box, ifr) { ifr.style.transform = `scale(${box.clientWidth / window.DECK_WIDTH})`; }
   function render() {
     const cur = M[idx], nxt = M[Math.min(idx + 1, M.length - 1)];
@@ -91,13 +98,13 @@
     document.getElementById('nBody').textContent = cur.notes || '(no notes)';
     if (idx + 1 < M.length) {
       document.getElementById('nextLabel').textContent = nxt.label;
-      ifNext.src = nxt.file + '?v=' + DECK_VER;
+      ifNext.src = slideUrl(nxt, false);
       document.getElementById('pvNext').style.display = '';
     } else {
       document.getElementById('nextLabel').textContent = '(last slide)';
       document.getElementById('pvNext').style.display = 'none';
     }
-    ifCur.src = cur.file + '?v=' + DECK_VER;
+    ifCur.src = slideUrl(cur, false);
     setTimeout(() => { scalePreview(document.getElementById('pvCur'), ifCur); scalePreview(document.getElementById('pvNext'), ifNext); }, 30);
   }
 
@@ -107,6 +114,10 @@
     if (a === 'next') idx = Math.min(idx + 1, M.length - 1);
     else if (a === 'prev') idx = Math.max(idx - 1, 0);
     else if (a === 'goto' && typeof n === 'number') idx = n;
+    else if (a === 'replay') {
+      ifCur.src = slideUrl(M[idx], true);
+      return;
+    }
     if (a !== 'replay') render();
   }
   document.getElementById('nextBtn').onclick = () => send('next');
