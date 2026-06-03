@@ -27,6 +27,7 @@ public final class PassengerController {
     private Navigator nav;
     private AppContext ctx;
     private Reservation reservation;
+    private boolean fromLookupFlow;
 
     public void bind(Navigator nav, AppContext ctx) {
         this.nav = nav;
@@ -41,6 +42,7 @@ public final class PassengerController {
     /** 생성된 예약 공통 후처리 — 요청자/세션/회원 동기화 + 승객명 prefill. */
     private void afterCreate(String infoText) {
         Member me = ctx.loggedInMember();
+        fromLookupFlow = false;
         if (me != null) reservation.setRequester(me);
         ctx.setCurrentReservation(reservation);
         nav.registerReservationToMember(reservation);
@@ -89,6 +91,7 @@ public final class PassengerController {
 
     /** 예약 조회에서 "계속 진행"한 기존 예약. */
     public void prepareExisting(Reservation existing) {
+        fromLookupFlow = ctx.isContinueFromLookup();
         this.reservation = existing;
         ctx.setCurrentReservation(existing);
         flightInfo.setText("기존 예약 " + (existing != null ? existing.getPnrNumber() : "-"));
@@ -130,5 +133,15 @@ public final class PassengerController {
     }
 
     @FXML
-    private void onBack() { nav.showSearch(); }
+    private void onBack() {
+        if (fromLookupFlow) {
+            nav.showLookup();
+            return;
+        }
+        nav.showSearch();
+    }
+
+    public void setFromLookupFlow(boolean fromLookupFlow) {
+        this.fromLookupFlow = fromLookupFlow;
+    }
 }

@@ -24,6 +24,7 @@ public final class PaymentController {
     @FXML private Label totalLabel;
     @FXML private ComboBox<String> methodCombo;
     @FXML private Label mileageLabel;
+    @FXML private Label projectedMileageLabel;
     @FXML private CheckBox busAddon;
     @FXML private ComboBox<BusCity> busCityCombo;
     @FXML private ComboBox<BusSchedule> busScheduleCombo;
@@ -90,18 +91,31 @@ public final class PaymentController {
     private void refreshMileageLabel() {
         if (!(ctx.isSignedIn() && ctx.loggedInMember() != null)) {
             mileageLabel.setText("마일리지 결제는 회원 로그인 후 사용할 수 있습니다.");
+            if (projectedMileageLabel != null) {
+                projectedMileageLabel.setText("");
+            }
             return;
         }
         try {
             int bal = ctx.skypass.getMileageBalance(ctx.loggedInMember().getMemberNumber());
             boolean mileage = "마일리지".equals(methodCombo.getValue());
             if (mileage) {
-                mileageLabel.setText(String.format("보유 %,d M · 결제 시 %,d M 차감 예정", bal, totalAmount()));
+                long remaining = Math.max(0L, bal - totalAmount());
+                mileageLabel.setText(String.format("마일리지 결제 사용 · 현재 보유 %,d M", bal));
+                if (projectedMileageLabel != null) {
+                    projectedMileageLabel.setText(String.format("차감 예정 %,d M → 예상 잔액 %,d M", totalAmount(), remaining));
+                }
             } else {
                 mileageLabel.setText(String.format("보유 마일리지 %,d M", bal));
+                if (projectedMileageLabel != null) {
+                    projectedMileageLabel.setText("마일리지 결제 시 차감 예상치가 표시됩니다.");
+                }
             }
         } catch (Exception ignore) {
             mileageLabel.setText("");
+            if (projectedMileageLabel != null) {
+                projectedMileageLabel.setText("");
+            }
         }
     }
 
@@ -185,4 +199,8 @@ public final class PaymentController {
 
     @FXML
     private void onBack() { nav.showSeat(reservation); }
+
+    public void setContinueFromLookup(boolean continueFromLookup) {
+        ctx.setContinueFromLookup(continueFromLookup);
+    }
 }

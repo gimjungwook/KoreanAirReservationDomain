@@ -54,8 +54,11 @@ public final class LookupController {
         VBox left = new VBox(2);
         Label pnr = new Label(r.getPnrNumber());
         pnr.getStyleClass().add("flight-route");
-        Label state = new Label("상태 · " + r.getStateName());
+        String stateName = r.getStateName();
+        Label state = new Label(formatStateName(stateName));
         state.getStyleClass().add("flight-meta");
+        state.getStyleClass().add("state-pill");
+        state.getStyleClass().add(stateClass(stateName));
         Label route = new Label(routeSummary(r));
         route.getStyleClass().add("flight-meta");
         left.getChildren().addAll(pnr, state, route);
@@ -63,40 +66,77 @@ public final class LookupController {
         Region sp = new Region();
         HBox.setHgrow(sp, Priority.ALWAYS);
 
-        String stateName = r.getStateName();
         HBox row = new HBox(10, left, sp);
+        HBox actions = new HBox(8);
+        actions.getStyleClass().add("row-actions");
         Button detail = new Button("상세/e-Ticket");
         detail.getStyleClass().add("btn-ghost");
         detail.setOnAction(e -> nav.showReservationDetail(r));
-        row.getChildren().add(detail);
+        actions.getChildren().add(detail);
 
         Button copy = new Button("PNR 복사");
         copy.getStyleClass().add("btn-ghost");
         copy.setOnAction(e -> copyPnr(r));
-        row.getChildren().add(copy);
+        actions.getChildren().add(copy);
 
         // 미완료(Initiated/PendingPayment)만 이어서 진행 — 완료 상태는 잘못된 전이 방지.
         if ("Initiated".equals(stateName)) {
-            Button cont = new Button("계속 진행");
+            Button cont = new Button("승객정보 이어서 입력");
             cont.getStyleClass().add("btn-ghost");
             cont.setOnAction(e -> nav.showPassengerExisting(r));   // 승객정보부터
-            row.getChildren().add(cont);
+            actions.getChildren().add(cont);
         } else if ("PendingPayment".equals(stateName)) {
-            Button cont = new Button("계속 진행");
+            Button cont = new Button("좌석/결제 이어서 진행");
             cont.getStyleClass().add("btn-ghost");
-            cont.setOnAction(e -> nav.showSeat(r));   // 승객정보 입력 완료 → 좌석/결제부터
-            row.getChildren().add(cont);
+            cont.setOnAction(e -> nav.showSeatFromExisting(r));   // 승객정보 입력 완료 → 좌석/결제부터
+            actions.getChildren().add(cont);
         }
         // 확정/발권 상태만 취소·환불 가능.
         if ("Confirmed".equals(stateName) || "Ticketed".equals(stateName)) {
             Button cancel = new Button("취소/환불");
             cancel.getStyleClass().add("btn-ghost");
             cancel.setOnAction(e -> nav.showCancellation(r));
-            row.getChildren().add(cancel);
+            actions.getChildren().add(cancel);
         }
+        row.getChildren().add(actions);
         row.setAlignment(Pos.CENTER_LEFT);
         row.getStyleClass().add("flight-row");
         return row;
+    }
+
+    private static String formatStateName(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "상태 · -";
+        }
+        return "상태 · " + switch (raw) {
+            case "Initiated" -> "예약 개시";
+            case "PendingPayment" -> "결제 대기";
+            case "Confirmed" -> "예약 확정";
+            case "Ticketed" -> "발권 완료";
+            case "CancellationRequested" -> "취소 요청";
+            case "RefundRequested" -> "환불 요청";
+            case "Refunded" -> "환불 완료";
+            case "Cancelled" -> "예약 취소";
+            case "Paid" -> "결제 완료";
+            default -> raw;
+        };
+    }
+
+    private static String stateClass(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return "state-pill-default";
+        }
+        return switch (raw) {
+            case "Initiated" -> "state-pill-dim";
+            case "PendingPayment" -> "state-pill-warning";
+            case "Confirmed" -> "state-pill-info";
+            case "Ticketed" -> "state-pill-success";
+            case "CancellationRequested" -> "state-pill-warning";
+            case "RefundRequested" -> "state-pill-warning";
+            case "Refunded" -> "state-pill-success";
+            case "Cancelled" -> "state-pill-danger";
+            default -> "state-pill-default";
+        };
     }
 
     private void copyPnr(Reservation r) {

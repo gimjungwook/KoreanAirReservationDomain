@@ -61,6 +61,10 @@ public final class SeatController {
         ctx.setSeatSurcharge(0);
     }
 
+    public void setContinueFromLookup(boolean continueFromLookup) {
+        ctx.setContinueFromLookup(continueFromLookup);
+    }
+
     private void buildGrid() {
         seatGrid.getChildren().clear();
         for (int row = 1; row <= ROWS; row++) {
@@ -129,5 +133,7 @@ public final class SeatController {
     }
 
     @FXML
-    private void onBack() { nav.showPassengerExisting(reservation); }
+    private void onBack() {
+        nav.showPassengerResume(reservation);
+    }
 }

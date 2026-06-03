@@ -73,6 +73,7 @@ public final class Navigator {
 
     public void showSearch() {
         ctx.setCurrentReservation(null);
+        ctx.setContinueFromLookup(false);
         shell.setStateBadge(null);
         Loaded<SearchController> l = load("search.fxml");
         l.controller().bind(this, ctx);
@@ -84,6 +85,7 @@ public final class Navigator {
     public void showPassenger(FlightSchedule schedule) {
         Loaded<PassengerController> l = load("passenger.fxml");
         l.controller().bind(this, ctx);
+        ctx.setContinueFromLookup(false);
         l.controller().prepare(schedule);
         shell.showStep(true);
         shell.setStep(STEP_PASSENGER);
@@ -93,6 +95,7 @@ public final class Navigator {
     public void showPassengerRoundTrip(FlightSchedule outbound, FlightSchedule inbound) {
         Loaded<PassengerController> l = load("passenger.fxml");
         l.controller().bind(this, ctx);
+        ctx.setContinueFromLookup(false);
         l.controller().prepareRoundTrip(outbound, inbound);
         shell.showStep(true);
         shell.setStep(STEP_PASSENGER);
@@ -102,6 +105,7 @@ public final class Navigator {
     public void showPassengerMultiCity(java.util.List<FlightSchedule> segments) {
         Loaded<PassengerController> l = load("passenger.fxml");
         l.controller().bind(this, ctx);
+        ctx.setContinueFromLookup(false);
         l.controller().prepareMultiCity(segments);
         shell.showStep(true);
         shell.setStep(STEP_PASSENGER);
@@ -111,13 +115,25 @@ public final class Navigator {
     public void showPassengerConnecting(java.util.List<FlightSchedule> segments) {
         Loaded<PassengerController> l = load("passenger.fxml");
         l.controller().bind(this, ctx);
+        ctx.setContinueFromLookup(false);
         l.controller().prepareConnecting(segments);
         shell.showStep(true);
         shell.setStep(STEP_PASSENGER);
         shell.setContent(l.node());
     }
 
+    public void showPassengerResume(Reservation reservation) {
+        Loaded<PassengerController> l = load("passenger.fxml");
+        l.controller().bind(this, ctx);
+        l.controller().prepareExisting(reservation);
+        updateState(reservation);
+        shell.showStep(true);
+        shell.setStep(STEP_PASSENGER);
+        shell.setContent(l.node());
+    }
+
     public void showPassengerExisting(Reservation reservation) {
+        ctx.setContinueFromLookup(true);
         Loaded<PassengerController> l = load("passenger.fxml");
         l.controller().bind(this, ctx);
         l.controller().prepareExisting(reservation);
@@ -130,6 +146,7 @@ public final class Navigator {
     public void showSeat(Reservation reservation) {
         Loaded<SeatController> l = load("seat.fxml");
         l.controller().bind(this, ctx);
+        l.controller().setContinueFromLookup(ctx.isContinueFromLookup());
         l.controller().prepare(reservation);
         updateState(reservation);
         shell.showStep(true);
@@ -137,9 +154,15 @@ public final class Navigator {
         shell.setContent(l.node());
     }
 
+    public void showSeatFromExisting(Reservation reservation) {
+        ctx.setContinueFromLookup(true);
+        showSeat(reservation);
+    }
+
     public void showPayment(Reservation reservation) {
         Loaded<PaymentController> l = load("payment.fxml");
         l.controller().bind(this, ctx);
+        l.controller().setContinueFromLookup(ctx.isContinueFromLookup());
         l.controller().prepare(reservation, ctx.seed.defaultFareRule);
         updateState(reservation);
         shell.showStep(true);
@@ -159,6 +182,7 @@ public final class Navigator {
 
     public void showReservationDetail(Reservation reservation) {
         ctx.setCurrentReservation(reservation);
+        ctx.setContinueFromLookup(true);
         Loaded<ConfirmationController> l = load("confirmation.fxml");
         l.controller().bind(this, ctx);
         l.controller().prepare(reservation, null, null);
@@ -168,6 +192,7 @@ public final class Navigator {
     }
 
     public void showLookup() {
+        ctx.setContinueFromLookup(false);
         Loaded<LookupController> l = load("lookup.fxml");
         l.controller().bind(this, ctx);
         l.controller().refresh();
@@ -250,6 +275,7 @@ public final class Navigator {
 
     public void startNewBooking() {
         ctx.setCurrentReservation(null);
+        ctx.setContinueFromLookup(false);
         shell.setStateBadge(null);
         showSearch();
     }

@@ -46,6 +46,7 @@ public final class AppContext {
     private Reservation currentReservation;
     private FlightSchedule pendingSchedule;
     private long seatSurcharge;   // 좌석 Decorator 누적 부가요금 → 결제 합산
+    private boolean continueFromLookup; // lookup에서 이어진 흐름이면 true
     // 수동 환불 검토: 요청ID → 예약 (승인/거절 시 예약 상태 전이용)
     public final java.util.Map<String, Reservation> refundReview = new java.util.HashMap<>();
 
@@ -81,6 +82,8 @@ public final class AppContext {
 
     public Reservation currentReservation() { return currentReservation; }
     public void setCurrentReservation(Reservation r) { this.currentReservation = r; }
+    public boolean isContinueFromLookup() { return continueFromLookup; }
+    public void setContinueFromLookup(boolean continueFromLookup) { this.continueFromLookup = continueFromLookup; }
 
     public FlightSchedule pendingSchedule() { return pendingSchedule; }
     public void setPendingSchedule(FlightSchedule s) { this.pendingSchedule = s; }

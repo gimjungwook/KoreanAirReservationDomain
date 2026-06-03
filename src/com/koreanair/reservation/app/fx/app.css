@@ -138,6 +138,20 @@
 .flight-route { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-ink; }
 .flight-meta  { -fx-font-size: 12px; -fx-text-fill: -kal-soft; }
 .flight-fare  { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: -kal-blue; }
+.row-actions { -fx-wrap-text: true; }
+
+.state-pill {
+    -fx-padding: 3 10 3 10;
+    -fx-background-radius: 999;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+.state-pill-success { -fx-background-color: #dcfce7; -fx-text-fill: #166534; }
+.state-pill-info { -fx-background-color: #dbeafe; -fx-text-fill: #1d4ed8; }
+.state-pill-warning { -fx-background-color: #fef3c7; -fx-text-fill: #92400e; }
+.state-pill-danger { -fx-background-color: #fee2e2; -fx-text-fill: #991b1b; }
+.state-pill-dim { -fx-background-color: #f1f5f9; -fx-text-fill: #475569; }
+.state-pill-default { -fx-background-color: #f8fafc; -fx-text-fill: #0f172a; }
 
 /* ---------- 좌석 ---------- */
 .seat {
