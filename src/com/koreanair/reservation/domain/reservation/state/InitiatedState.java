@@ -2,6 +2,7 @@ package com.koreanair.reservation.domain.reservation.state;
 
 import com.koreanair.reservation.domain.reservation.Reservation;
 import com.koreanair.reservation.domain.reservation.ReservationStatus;
+import com.koreanair.reservation.domain.reservation.state.CancelledState;
 
 /**
  * 예약 개시 상태 — 승객 정보 입력만 허용.
@@ -23,5 +24,11 @@ public class InitiatedState implements ReservationState {
         ctx.setState(new PendingPaymentState());
         // 기존 ReservationStatus enum 과의 컨텍스트 동기화 (공존 원칙).
         ctx.updateStatus(ReservationStatus.PENDING_PAYMENT);
+    }
+
+    @Override
+    public void requestCancellation(Reservation ctx) {
+        ctx.setState(new CancelledState());
+        ctx.updateStatus(ReservationStatus.CANCELLED);
     }
 }

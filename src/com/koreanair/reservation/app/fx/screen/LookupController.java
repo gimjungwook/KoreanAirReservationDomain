@@ -98,8 +98,9 @@ public final class LookupController {
             cont.setOnAction(e -> nav.showSeatFromExisting(r));   // 승객정보 입력 완료 → 좌석/결제부터
             actions.getChildren().add(cont);
         }
-        // 확정/발권 상태만 취소·환불 가능.
-        if ("Confirmed".equals(stateName) || "Ticketed".equals(stateName)) {
+        // 미결제/확정 상태 모두 취소 가능(도메인에서 상태별 취소 전이를 정의).
+        if ("Initiated".equals(stateName) || "PendingPayment".equals(stateName)
+                || "Confirmed".equals(stateName) || "Ticketed".equals(stateName)) {
             Button cancel = new Button("취소/환불");
             cancel.getStyleClass().add("btn-ghost");
             cancel.setOnAction(e -> nav.showCancellation(r));

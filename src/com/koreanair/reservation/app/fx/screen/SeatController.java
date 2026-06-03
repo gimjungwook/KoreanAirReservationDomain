@@ -38,6 +38,7 @@ public final class SeatController {
 
     private String selectedSeat;
     private Button selectedBtn;
+    private boolean continueFromLookup;
 
     private static final int ROWS = 10;
     private static final char[] COLS = {'A', 'B', 'C', 'D', 'E', 'F'};
@@ -52,6 +53,7 @@ public final class SeatController {
 
     public void prepare(Reservation reservation) {
         this.reservation = reservation;
+        ctx.setCurrentReservation(reservation);
         buildGrid();
         selectedSeat = null;
         selectedBtn = null;
@@ -85,6 +87,7 @@ public final class SeatController {
     }
 
     public void setContinueFromLookup(boolean continueFromLookup) {
+        this.continueFromLookup = continueFromLookup;
         ctx.setContinueFromLookup(continueFromLookup);
     }
 
@@ -157,6 +160,10 @@ public final class SeatController {
 
     @FXML
     private void onBack() {
+        if (continueFromLookup) {
+            nav.showLookup();
+            return;
+        }
         nav.showPassengerResume(reservation);
     }
 }

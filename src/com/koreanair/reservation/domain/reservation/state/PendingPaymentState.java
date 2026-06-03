@@ -25,6 +25,13 @@ public class PendingPaymentState implements ReservationState {
     }
 
     @Override
+    public void requestCancellation(Reservation ctx) {
+        // 미결제 상태에서 사용자가 중단을 선택하면, 중간 단계 없이 바로 취소 처리.
+        ctx.setState(new CancelledState());
+        ctx.updateStatus(ReservationStatus.CANCELLED);
+    }
+
+    @Override
     public void handlePaymentFailure(Reservation ctx) {
         // TODO(iter3): Seat.release() 호출 연동
         ctx.setState(new CancelledState());
