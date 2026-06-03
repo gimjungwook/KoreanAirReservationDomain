@@ -34,6 +34,9 @@ public final class LookupController {
     public void bind(Navigator nav, AppContext ctx) {
         this.nav = nav;
         this.ctx = ctx;
+        pnrField.setOnAction(e -> onGuestLookup());
+        nameField.setOnAction(e -> onGuestLookup());
+        emailField.setOnAction(e -> onGuestLookup());
     }
 
     public void refresh() {

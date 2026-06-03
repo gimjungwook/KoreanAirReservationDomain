@@ -67,6 +67,10 @@ public final class SearchController {
         this.ctx = ctx;
         if (datePicker.getValue() == null) datePicker.setValue(LocalDate.now().plusDays(1));
         if (returnDate.getValue() == null) returnDate.setValue(LocalDate.now().plusDays(5));
+        fromField.setOnAction(e -> onSearch());
+        toField.setOnAction(e -> onSearch());
+        datePicker.setOnAction(e -> onSearch());
+        returnDate.setOnAction(e -> onSearch());
         if (passengersCombo.getItems().isEmpty()) {
             // 현재 예약 흐름은 성인 1명/일반석 기준 — 미지원 옵션을 노출하지 않는다.
             passengersCombo.getItems().setAll("성인 1명, 일반석");
@@ -95,6 +99,9 @@ public final class SearchController {
         lr.from.setText(f);
         lr.to.setText(t);
         lr.date.setValue(LocalDate.now().plusDays(plusDays));
+        lr.from.setOnAction(e -> onSearch());
+        lr.to.setOnAction(e -> onSearch());
+        lr.date.setOnAction(e -> onSearch());
         return lr;
     }
 

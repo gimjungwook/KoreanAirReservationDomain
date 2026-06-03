@@ -39,7 +39,7 @@
             <VBox.margin><Insets top="-52.0"/></VBox.margin>
 
             <HBox fx:id="tripTabs" spacing="6">
-                <Label text="편도" styleClass="trip-tab, trip-tab-active" userData="oneway" onMouseClicked="#onTripTab"/>
+                <Label text="편도" styleClass="trip-tab trip-tab-active" userData="oneway" onMouseClicked="#onTripTab"/>
                 <Label text="왕복" styleClass="trip-tab" userData="round" onMouseClicked="#onTripTab"/>
                 <Label text="다구간" styleClass="trip-tab" userData="multi" onMouseClicked="#onTripTab"/>
             </HBox>

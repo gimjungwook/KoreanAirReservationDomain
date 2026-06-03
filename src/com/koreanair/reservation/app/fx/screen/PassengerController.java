@@ -32,6 +32,9 @@ public final class PassengerController {
     public void bind(Navigator nav, AppContext ctx) {
         this.nav = nav;
         this.ctx = ctx;
+        nameField.setOnAction(e -> onNext());
+        passportField.setOnAction(e -> onNext());
+        birthField.setOnAction(e -> onNext());
     }
 
     private static String code(FlightSchedule s) {
