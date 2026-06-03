@@ -16,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 
@@ -28,6 +29,7 @@ public final class SeatController {
     @FXML private Label surchargeLabel;    // 누적 부가요금
     @FXML private CheckBox legroomCheck;
     @FXML private CheckBox loungeCheck;
+    @FXML private Button nextBtn;
     @FXML private Label message;
 
     private Navigator nav;
@@ -39,6 +41,7 @@ public final class SeatController {
 
     private static final int ROWS = 10;
     private static final char[] COLS = {'A', 'B', 'C', 'D', 'E', 'F'};
+    private boolean shortcutsBound;
 
     public void bind(Navigator nav, AppContext ctx) {
         this.nav = nav;
@@ -59,6 +62,26 @@ public final class SeatController {
         seatMetaLabel.setText("");
         surchargeLabel.setText("부가요금 ₩0");
         ctx.setSeatSurcharge(0);
+        if (nextBtn != null) {
+            nextBtn.setDefaultButton(true);
+        }
+        bindShortcuts();
+    }
+
+    private void bindShortcuts() {
+        selectedLabel.sceneProperty().addListener((obs, oldScene, scene) -> {
+            if (scene == null || shortcutsBound) return;
+            scene.setOnKeyPressed(ev -> {
+                if (ev.getCode() == KeyCode.ENTER) {
+                    onNext();
+                    ev.consume();
+                } else if (ev.getCode() == KeyCode.ESCAPE) {
+                    onBack();
+                    ev.consume();
+                }
+            });
+            shortcutsBound = true;
+        });
     }
 
     public void setContinueFromLookup(boolean continueFromLookup) {

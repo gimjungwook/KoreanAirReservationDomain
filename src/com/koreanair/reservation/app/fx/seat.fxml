@@ -42,6 +42,6 @@
     <HBox spacing="10">
         <Button text="이전" styleClass="btn-ghost" onAction="#onBack"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="결제로" styleClass="btn-primary" onAction="#onNext"/>
+        <Button fx:id="nextBtn" text="결제로" styleClass="btn-primary" onAction="#onNext"/>
     </HBox>
 </VBox>
