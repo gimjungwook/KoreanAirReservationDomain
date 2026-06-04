@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.koreanair.reservation.boundary.PaymentGatewayInterface;
+import com.koreanair.reservation.control.payment.RefundPolicyResolver;
 import com.koreanair.reservation.domain.flight.FareRule;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
-import com.koreanair.reservation.domain.payment.FullRefundPolicy;
 import com.koreanair.reservation.domain.payment.NoRefundPolicy;
-import com.koreanair.reservation.domain.payment.PartialRefundPolicy;
 import com.koreanair.reservation.domain.payment.Payment;
 import com.koreanair.reservation.domain.payment.Refund;
 import com.koreanair.reservation.domain.payment.RefundPolicy;
@@ -43,6 +42,8 @@ public class RefundHandler {
      * 필드로 보유한다(-strategy). 디폴트는 NoRefundPolicy, {@link #setStrategy(RefundPolicy)} 로 런타임 교체.
      */
     private RefundPolicy strategy = new NoRefundPolicy();
+    /** DP#1 Strategy — 정책 선택(팩토리)을 전담하는 Resolver. RefundHandler 는 setStrategy + delegate 만 수행한다. */
+    private final RefundPolicyResolver policyResolver = new RefundPolicyResolver();
     private static int requestSeq = 1;
     private static int refundSeq = 1;
     private static final java.time.format.DateTimeFormatter REFUND_YYMM =
@@ -88,7 +89,7 @@ public class RefundHandler {
         }
         // Strategy 패턴(교과서 그림 5-6) — Context 는 현재 전략을 필드(-strategy)로 교체(setStrategy)한 뒤,
         // 계산은 "보유한 전략 객체"에 위임한다: ContextMethod() -> this.strategy.strategyMethod().
-        setStrategy(resolvePolicy(fareRule));
+        setStrategy(policyResolver.resolve(fareRule));
 
         // 결제 합계 계산 — payments.amount 단순 합산.
         BigDecimal paid = BigDecimal.ZERO;
@@ -182,7 +183,7 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        setStrategy(resolvePolicy(fareRule));
+        setStrategy(policyResolver.resolve(fareRule));
         BigDecimal paid = BigDecimal.ZERO;
         for (Payment p : reservation.getPayments()) {
             if (p != null && p.getAmount() != null) {
@@ -202,26 +203,8 @@ public class RefundHandler {
         if (fareRule == null) {
             fareRule = synthesize(fareClass);
         }
-        setStrategy(resolvePolicy(fareRule));
+        setStrategy(policyResolver.resolve(fareRule));
         return this.strategy.getClass().getSimpleName();
-    }
-
-    /**
-     * Iteration 2 Strategy 선택 지점.
-     *
-     * <p>현재는 RefundHandler 안에서 fare rule -> concrete RefundPolicy 매핑을 단순 분기로 둔다.
-     * Iteration 4에서 결제 수단 factory를 도입할 때, 이 매핑도 RefundPolicyFactory로 분리하면
-     * Factory Method 적용 후보가 된다.
-     */
-    private RefundPolicy resolvePolicy(FareRule fareRule) {
-        if (fareRule == null || !fareRule.isRefundable()) {
-            return new NoRefundPolicy();
-        }
-        String fareClass = fareRule.getFareClass();
-        if ("Y".equals(fareClass) || "B".equals(fareClass)) {
-            return new FullRefundPolicy();
-        }
-        return new PartialRefundPolicy();
     }
 
     /**
@@ -242,14 +225,14 @@ public class RefundHandler {
 
     /**
      * Iteration 2 단순화: 도메인에서 FareRule 을 못 찾았을 때 fareClass 힌트로 합성하는 fallback.
-     * "Y"/"B" 만 환불 가능한 정책으로 처리하는 resolvePolicy 분기를 그대로 활용한다.
+     * "Y"/"B" 만 환불 가능한 정책으로 처리하는 RefundPolicyResolver 분기를 그대로 활용한다.
      *
      * <p>FareRule 의 setter 가 없어 reflection 없이는 fareClass 주입이 불가하므로
      * 이 fallback 은 "어떤 FareRule 이든 일단 비-null 보장" 정도의 역할이다.
      * (FareRule 의 isRefundable() 디폴트 false 이므로 NoRefundPolicy 로 귀결됨.)
      */
     private FareRule synthesize(String fareClass) {
-        // FareRule 에 setter 가 없으므로 빈 FareRule 만 생성. resolvePolicy 가 NoRefundPolicy 로 귀결.
+        // FareRule 에 setter 가 없으므로 빈 FareRule 만 생성. RefundPolicyResolver 가 NoRefundPolicy 로 귀결.
         return new FareRule();
     }
 }

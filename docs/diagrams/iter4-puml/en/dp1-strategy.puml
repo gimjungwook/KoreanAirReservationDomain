@@ -47,6 +47,7 @@ class RefundHandler <<Context>> {
   -requestToPnr: Map<String,String>
   -gateway: PaymentGatewayInterface
   -strategy: RefundPolicy
+  -policyResolver: RefundPolicyResolver
   -requestSeq: int {static}
   -refundSeq: int {static}
   -REFUND_YYMM: DateTimeFormatter {static}
@@ -62,12 +63,16 @@ class RefundHandler <<Context>> {
   +getPendingRequests(): List<RefundRequest>
   +previewRefund(pnr: String, fareClass: String): BigDecimal
   +previewPolicyName(pnr: String, fareClass: String): String
-  -resolvePolicy(fareRule: FareRule): RefundPolicy
   -resolveFareRuleFrom(reservation: Reservation): FareRule
   -synthesize(fareClass: String): FareRule
+}
+class RefundPolicyResolver <<Resolver>> {
+  +resolve(fareRule: FareRule): RefundPolicy
 }
 RefundPolicy <|.. NoRefundPolicy
 RefundPolicy <|.. PartialRefundPolicy
 RefundPolicy <|.. FullRefundPolicy
 RefundHandler o--> RefundPolicy : -strategy
+RefundHandler --> RefundPolicyResolver : -policyResolver
+RefundPolicyResolver ..> RefundPolicy : <<create>> ConcreteStrategy
 @enduml

@@ -29,6 +29,25 @@ import com.koreanair.reservation.domain.user.Member;
  *
  * <p>Iteration 2: 취소/환불 흐름 ({@link #processCancellation(String)}) 및
  * RefundHandler / ReservationLookupService 주입 생성자 추가.
+ *
+ * <p><b>SRP 1차 분해 표시 (Iteration 4 점검, 완전 분리는 다음 iteration).</b>
+ * 이 컨트롤러는 서로 다른 7개 책임 군을 한 클래스에 모으고 있어 Single-Responsibility Principle
+ * 위반 후보다. 아래 책임 군을 향후 Extract Class 경계로 본다(현재는 동작 보존을 위해 코드를
+ * 이동하지 않고 경계만 표시한다):
+ * <ol>
+ *   <li>SEARCH — processSearch, getAllSchedules ({@code -> FlightSearchService} 로 이미 위임). 향후 SearchCoordinator 로 추출.</li>
+ *   <li>BOOKING/ITINERARY — initiateBooking(오버로드), initiateMultiCity/Connecting/RoundTripBooking
+ *       ({@code -> ItineraryFactory} 위임). 향후 BookingService 로 추출.</li>
+ *   <li>PASSENGER INFO — setPassengerInfo, confirmInfo. 향후 PassengerService 로 추출.</li>
+ *   <li>SEAT ASSIGNMENT — assignSeat, resolveBookingClass (좌석/인벤토리 로직 인라인). 향후 SeatAssignmentService 로 추출.</li>
+ *   <li>PAYMENT ORCHESTRATION — confirmPayment, confirmPaymentWith, confirmMileagePayment
+ *       ({@code -> PaymentProcessorFactory / PaymentMethodProcessor} 위임). 향후 PaymentCoordinator 로 추출.</li>
+ *   <li>CANCELLATION/REFUND — processCancellation, resolveFareClass ({@code -> RefundHandler} 위임). 향후 CancellationService 로 추출.</li>
+ *   <li>FLIGHT-STATUS/ADMIN/AUTH/HISTORY — changeFlightStatus, createSchedule, authenticate*,
+ *       getBookingHistory 등(상당수는 Iteration 1 빈 stub 레거시 오버로드). 향후 AdminService / AuthService 로 분리하고 빈 stub 제거.</li>
+ * </ol>
+ * <p>TODO(iter5): 위 7개 군을 실제 별도 클래스로 Extract Class 하여 BookingController 는
+ * 화면 흐름 오케스트레이션만 남긴다. 빈 stub 레거시 오버로드도 함께 제거한다.
  */
 public class BookingController {
 
@@ -193,7 +212,7 @@ public class BookingController {
 
     /**
      * Reservation 의 itinerary 첫 segment FlightSchedule.FareRule.fareClass 추출.
-     * 도달 불가 시 "Y" 디폴트 (resolvePolicy 에서 FullRefundPolicy 로 귀결).
+     * 도달 불가 시 "Y" 디폴트 (RefundPolicyResolver 에서 FullRefundPolicy 로 귀결).
      */
     private String resolveFareClass(Reservation reservation) {
         Itinerary itinerary = reservation.getItinerary();

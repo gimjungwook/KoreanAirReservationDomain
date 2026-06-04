@@ -11,7 +11,7 @@ import com.koreanair.reservation.domain.payment.RefundPolicy;
  * FareRule — 운임 규칙 도메인 객체.
  *
  * <p>Iteration 2: {@link #checkRefundPolicy()} 가 운임 정보를 보고 적절한 RefundPolicy
- * 구현(Strategy) 을 반환한다. RefundHandler 의 private resolvePolicy 와 동일한 분기 정책을
+ * 구현(Strategy) 을 반환한다. RefundPolicyResolver.resolve 와 동일한 분기 정책을
  * 도메인에 노출시킨다.
  */
 public class FareRule {
