@@ -183,8 +183,9 @@
 - 각 표 안에서 이번 Iteration 4에서 무엇이 추가·변경·리팩토링되었는지 설명한다.
 - 리팩토링이 수행된 항목은 표에서 반드시 refactoring이 있었다고 명시한다.
 - 기존 기능을 수정하거나 구조를 바꾼 경우, 단순 변경인지 refactoring인지 구분해서 표기한다.
-- 실제 장표 번호와 보고서 페이지 번호는 정확한 숫자를 나중에 채울 수 있도록 placeholder로 둔다.
-- 단, page/slide number만 비워두고, 적용 내용·요약·설명은 먼저 완성한다.
+- 초안 단계에서는 실제 장표 번호와 보고서 페이지 번호를 placeholder로 둘 수 있다(내용·요약·설명은 먼저 완성).
+- **단, 최종 단계에서는 비워둔 페이지/섹션 참조를 빠짐없이 실제 값으로 채운다. placeholder(`Report p.__` 등)를 그대로 제출하지 않는다.**
+- **이후 내용을 추가·삭제·이동해 페이지가 밀리면 표의 페이지/섹션 참조도 같이 갱신한다. 표의 페이지 번호가 실제 위치와 어긋난 채로 두지 않는다(편집 시 페이지 참조 동기화 필수).**
 - Iteration 4 관련 표 텍스트는 빨간색 글자색으로 표시한다.
 - Iteration 4 관련 표 영역은 빨간색 사각 테두리 또는 클라우드 마킹으로 감싼다.
 - 본문 핵심 표는 정확히 세 종류만 포함한다.
@@ -214,8 +215,8 @@
   - Related Iteration
   - Related Section / Page
 
-- `Related Section / Page`에는 정확한 페이지 번호를 아직 확정할 수 없으면 `Report p.__ / Slide __`처럼 placeholder를 넣는다.
-- 페이지나 장표 번호만 비워두고, 어떤 섹션과 어떤 기여인지 내용은 반드시 작성한다.
+- `Related Section / Page`는 초안에서만 `Report p.__ / Slide __` placeholder를 허용하고, **최종본에서는 각 행이 가리키는 내용이 기술된 실제 보고서 섹션/페이지로 채운다.** Iteration Progress Table의 "Described Page" 컬럼도 동일하게 채운다.
+- 페이지나 장표 번호만 잠시 비워두더라도, 어떤 섹션과 어떤 기여인지 내용은 반드시 작성한다. 편집으로 페이지가 밀리면 이 참조도 동기화한다.
 - 실제 GWS 보고서에서는 컬럼명을 영어로 작성한다.
 - 각 팀원이 담당한 기능, 코드, 보고서, 다이어그램, 테스트, 리팩토링, 디자인 패턴 적용 내용을 구체적으로 적는다.
 - Iteration 4에서 새로 수행한 담당 내용은 빨간색 글자색으로 표시한다.
@@ -312,6 +313,11 @@
 - 각 확장 기능은 기존 Base Feature와 연결해서 작성한다.
 - 기존 기능을 변경했다면 리팩토링 여부를 표시한다.
 - 리팩토링이 필요한 확장 기능이나 이미 리팩토링된 기능은 Notes에 `Refactoring required`, `Refactoring applied`, 또는 구체적인 리팩토링명을 적는다.
+- **iteration 1 원래 계획에 없다가 이후 추가·적용된 기능은 "이미 적용된 확장"으로 이 표에 포함하고 Notes에 `Refactoring applied`와 추가 iteration을 적는다.** 판정은 iter1 보고서의 Feature Inventory + Pattern Roadmap(계획 패턴 = State / Strategy / Observer / Singleton / Factory Method)과 실제 산출물 대조로 한다. 계획 외 추가분:
+  - DP#3 Composite(공항 계층 검색), DP#6 Template Method(e-Ticket 렌더러), DP#7 Adapter(Skypass 마일리지), DP#8 Decorator(좌석 부가옵션) — Iteration 4.
+  - 연계 버스 티켓 자동 발권(DP#2 Observer 활용) — 교수님 지시로 추가, Iteration 3.
+  - 환불 정책 자동 선택(RefundPolicyResolver, DP#1 Strategy) — Iteration 4.
+- 이미 적용된 확장 중 **Iteration 4 추가분만 빨간색**, 이전 iteration(버스티켓 iter3 등) 추가분과 미구현 향후 확장은 검정으로 둔다.
 - 단순 확장과 구조 변경을 구분한다.
 - 확장에 리팩토링이 필요하면 예상 리팩토링 또는 예상 디자인 패턴을 Notes에 적는다.
 - 예상 디자인 패턴도 가능하면 `DP#n candidate` 또는 `Expected DP#n` 형식으로 표기한다.
