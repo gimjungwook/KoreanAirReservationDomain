@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>Feature 표</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#8 Decorator</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -27,9 +27,9 @@
  .compare{width:1920px;height:1080px;display:flex;gap:46px;align-items:center;justify-content:center;padding:50px 60px;background:#ffffff}
  .compare img{max-width:50%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
  /* table */
- table{border-collapse:collapse;width:100%;font-size:24px}
- th,td{border:1px solid #c9d2dc;padding:6px 16px;text-align:left;vertical-align:top;line-height:1.35}
- th{background:#eef2f7;color:#0b4a8f;font-weight:800;font-size:calc(24px + 1px)}
+ table{border-collapse:collapse;width:100%;font-size:26px}
+ th,td{border:1px solid #c9d2dc;padding:13px 16px;text-align:left;vertical-align:top;line-height:1.35}
+ th{background:#eef2f7;color:#0b4a8f;font-weight:800;font-size:calc(26px + 1px)}
  td.red{color:#c0202a}
  .tbwrap{flex:1;min-height:0;display:flex;align-items:flex-start;overflow:hidden}
  /* code */
@@ -58,4 +58,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🧩</span>Feature 표</h1><div class="sub">빨간색 = Iteration 4</div><div class="rule"></div><div class="body"><div class="tbwrap"><table><thead><tr><th>기능</th><th>세부 기능</th><th>구현 Iteration</th></tr></thead><tbody><tr><td class="">항공편 검색</td><td class="">직항, 경유, 다구간 여정</td><td class="red">Iteration 1 Iteration 4 / Refactored / DP#5</td></tr><tr><td class="">예약 생애주기</td><td class="">8개 상태 전이 기계</td><td class="red">Iteration 1 Iteration 4 / Refactored (state-management)</td></tr><tr><td class="">승객 관리</td><td class="">승객 추가 및 연락처 입력</td><td class="">Iteration 1</td></tr><tr><td class="">결제</td><td class="">카드, ApplePay, KakaoPay, 계좌이체, 마일리지</td><td class="red">Iteration 2 Iteration 4 / Refactored / DP#5</td></tr><tr><td class="">환불</td><td class="">무환불 / 부분환불 / 전액환불 정책</td><td class="red">Iteration 2 / DP#1 Iteration 4 / Refactored</td></tr><tr><td class="">이벤트 알림</td><td class="">연계 버스 티켓, 결제 실패 자동 취소, 항공편 상태 전파</td><td class="red">Iteration 3 / DP#2 Iteration 4 / Refactored (push to pull)</td></tr><tr><td class="">좌석 선택</td><td class="">창측, 통로측, 추가 레그룸, 라운지 옵션(추가 요금)</td><td class="red">Iteration 4 / DP#8</td></tr><tr><td class="">공항 계층</td><td class="">공항(Leaf)과 다중 공항 도시(Composite)</td><td class="red">Iteration 4 / DP#3</td></tr><tr><td class="">e-Ticket 렌더링</td><td class="">평문, HTML, 탑승권 렌더러</td><td class="red">Iteration 4 / DP#6</td></tr><tr><td class="">외부 마일리지</td><td class="">Skypass 회원 검증 및 마일리지 차감</td><td class="red">Iteration 4 / DP#7</td></tr><tr><td class="">전역 설정</td><td class="">단일 공유 설정: 글꼴, 로캘, 통화, 테마</td><td class="red">Iteration 4 / DP#4</td></tr><tr><td class="">사용자 인터페이스</td><td class="">JavaFX 검색/좌석/결제 화면</td><td class="red">Iteration 4 / Refactored (JavaFX FXML + CSS)</td></tr></tbody></table></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>4 / 42</span></div></div></body></html>
+</style></head><body><div class="slide"><h1><span class="emoji">🎁</span>DP#8 Decorator</h1><div class="sub">런타임에 좌석 옵션 누적</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="dpc"><div class="dpc-top"><figure class="dpc-tb"><figcaption>교과서</figcaption><img src="../assets/tb-decorator.jpg"></figure><div class="dpc-txt"><div class="role"><span class="em">Component</span>=SeatView, <span class="em">Decorator</span>=AbstractSeatDecorator.</div><ul><li class="">ExtraLegroom(+50,000), Lounge(+80,000)는 super에 더해 요금 / Window, Aisle은 라벨만</li><li class="">조합마다 클래스 안 만들고 옵션 결합 (OCP)</li></ul></div></div><figure class="dpc-impl"><figcaption>구현 다이어그램</figcaption><img src="../assets/dg-dp8.png"></figure></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>37 / 42</span></div></div></body></html>

@@ -1,66 +1,61 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>확장 아이디어</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>Extension Feature 표</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
- .slide{width:1920px;height:1080px;padding:72px 120px 46px;display:flex;flex-direction:column;position:relative;overflow:hidden}
- .kicker{font-size:26px;letter-spacing:.16em;color:#0b4a8f;font-weight:700;margin-bottom:16px}
- h1{font-size:68px;line-height:1.1;font-weight:800;letter-spacing:-1px}
- .sub{font-size:34px;color:#5a6472;margin-top:14px;font-weight:400}
- .rule{height:5px;width:110px;background:#0b4a8f;margin:26px 0 30px;border-radius:3px;flex:0 0 auto}
- .emoji{font-size:60px;margin-right:16px;vertical-align:-6px}
- .body{flex:1;min-height:0;display:flex;gap:60px;align-items:flex-start}
- .footer{margin-top:16px;flex:0 0 auto;align-self:stretch;display:flex;justify-content:space-between;font-size:21px;color:#9aa3ad;border-top:1px solid #d7dde5;padding-top:12px}
+ .slide{width:1920px;height:1080px;padding:66px 110px 44px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+ .kicker{font-size:25px;letter-spacing:.16em;color:#0b4a8f;font-weight:700;margin-bottom:14px}
+ h1{font-size:62px;line-height:1.1;font-weight:800;letter-spacing:-1px}
+ .sub{font-size:31px;color:#5a6472;margin-top:12px;font-weight:400}
+ .rule{height:5px;width:104px;background:#0b4a8f;margin:22px 0 26px;border-radius:3px;flex:0 0 auto}
+ .emoji{font-size:54px;margin-right:14px;vertical-align:-6px}
+ .body{flex:1;min-height:0;display:flex;gap:56px;align-items:flex-start}
+ .footer{margin-top:14px;flex:0 0 auto;align-self:stretch;display:flex;justify-content:space-between;font-size:20px;color:#9aa3ad;border-top:1px solid #d7dde5;padding-top:11px}
  ul{list-style:none}
- li{font-size:33px;line-height:1.5;margin:0 0 20px;padding-left:42px;position:relative;color:#222}
- li::before{content:"";position:absolute;left:8px;top:17px;width:13px;height:13px;background:#0b4a8f;border-radius:3px}
+ li{font-size:32px;line-height:1.5;margin:0 0 18px;padding-left:40px;position:relative;color:#222}
+ li::before{content:"";position:absolute;left:8px;top:16px;width:13px;height:13px;background:#0b4a8f;border-radius:3px}
  li.red,.red{color:#c0202a} li.red::before{background:#c0202a}
  b{font-weight:700;color:#1a1a1a}
- .lead{font-size:40px;line-height:1.45;color:#222;max-width:1500px}
- .prose{font-size:34px;line-height:1.6;color:#333;max-width:1500px}
- /* image + caption */
+ .cap{font-size:30px;line-height:1.5;color:#333} .cap .em{color:#0b4a8f;font-weight:700}
+ .col{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;height:100%}
  .imgwrap{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;height:100%}
  .imgwrap img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
- .col{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;height:100%}
- .cap{font-size:32px;line-height:1.5;color:#333} .cap .em{color:#0b4a8f;font-weight:700}
- /* two columns */
- .twocol{display:flex;gap:80px;width:100%} .twocol .c{flex:1;min-width:0}
- .colhd{font-size:30px;font-weight:800;color:#0b4a8f;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid #d7dde5}
+ /* focus: one diagram big + thin caption */
+ .focuscap{font-size:26px;color:#5a6472;margin-bottom:14px;flex:0 0 auto}
+ .focusimg{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+ .focusimg img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
+ /* compare: pure two images */
+ .compare{width:1920px;height:1080px;display:flex;gap:46px;align-items:center;justify-content:center;padding:50px 60px;background:#ffffff}
+ .compare img{max-width:50%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
+ /* table */
+ table{border-collapse:collapse;width:100%;font-size:24px}
+ th,td{border:1px solid #c9d2dc;padding:11px 16px;text-align:left;vertical-align:top;line-height:1.35}
+ th{background:#eef2f7;color:#0b4a8f;font-weight:800;font-size:calc(24px + 1px)}
+ td.red{color:#c0202a}
+ .tbwrap{flex:1;min-height:0;display:flex;align-items:flex-start;overflow:hidden}
+ /* code */
+ .codehd{background:#2d2d33;color:#e8e8ea;font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:24px;padding:14px 26px;border-radius:10px 10px 0 0;font-weight:600;flex:0 0 auto}
+ .codebox{background:#1e1e22;border-radius:0 0 10px 10px;padding:26px 30px;flex:1;min-height:0;overflow:hidden;display:flex}
+ pre{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:27px;line-height:1.55;color:#d4d4d4;white-space:pre;margin:auto 0;width:100%}
+ .kw{color:#569cd6} .ty{color:#4ec9b0} .st{color:#ce9178} .cm{color:#6a9955} .nu{color:#b5cea8}
+ /* team-table iter4 red handled by td.red */
+ .cover{justify-content:center;align-items:flex-start}
+ .cover h1{font-size:100px;line-height:1.04} .cover .sub{font-size:40px;margin-top:24px}
+ .cover .meta{font-size:28px;color:#5a6472;margin-top:46px}
+ .statgrid{display:flex;gap:56px;width:100%} .stat{flex:1;border-top:4px solid #0b4a8f;padding-top:22px}
+ .stat .h{font-size:33px;font-weight:800;margin-bottom:12px} .stat .d{font-size:27px;line-height:1.55;color:#333}
+ .twocol{display:flex;gap:72px;width:100%} .twocol .c{flex:1;min-width:0}
+ .colhd{font-size:29px;font-weight:800;color:#0b4a8f;margin-bottom:16px;padding-bottom:9px;border-bottom:2px solid #d7dde5}
  .colhd.red{color:#c0202a}
- /* team row */
- .teamrow{display:flex;gap:64px;width:100%;align-items:stretch}
- .person{flex:1;min-width:0;border-top:4px solid #0b4a8f;padding-top:22px}
- .person .nm{font-size:38px;font-weight:800} .person .ro{font-size:27px;color:#0b4a8f;margin:6px 0 16px;font-weight:700}
- .person .ct{font-size:28px;line-height:1.5;color:#333}
- /* timeline */
- .timeline{display:flex;gap:0;width:100%;align-items:stretch}
- .step{flex:1;padding:0 28px;position:relative}
- .step:not(:last-child)::after{content:"›";position:absolute;right:-12px;top:8px;font-size:46px;color:#d7dde5}
- .step .it{font-size:30px;font-weight:800;color:#0b4a8f}
- .step.red .it{color:#c0202a}
- .step .tt{font-size:28px;line-height:1.45;color:#333;margin-top:14px}
- /* stat grid */
- .statgrid{display:flex;gap:60px;width:100%}
- .stat{flex:1;border-top:4px solid #0b4a8f;padding-top:24px}
- .stat .h{font-size:34px;font-weight:800;margin-bottom:14px}
- .stat .d{font-size:28px;line-height:1.55;color:#333}
- /* DP content: textbook small + text, impl full width */
- .dpc{flex:1;display:flex;flex-direction:column;gap:18px;min-height:0;width:100%}
- .dpc-top{flex:0 0 34%;display:flex;gap:50px;min-height:0}
- .dpc-tb{flex:0 0 440px;display:flex;flex-direction:column;align-items:center;min-height:0}
- .dpc-tb figcaption{font-size:21px;color:#5a6472;margin-bottom:8px;font-weight:600;flex:0 0 auto}
+ /* DP content */
+ .dpc{flex:1;display:flex;flex-direction:column;gap:16px;min-height:0;width:100%}
+ .dpc-top{flex:0 0 34%;display:flex;gap:48px;min-height:0}
+ .dpc-tb{flex:0 0 430px;display:flex;flex-direction:column;align-items:center;min-height:0}
+ .dpc-tb figcaption{font-size:20px;color:#5a6472;margin-bottom:7px;font-weight:600;flex:0 0 auto}
  .dpc-tb img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
  .dpc-txt{flex:1;display:flex;flex-direction:column;justify-content:center}
- .dpc-txt .role{font-size:28px;line-height:1.5;color:#333;margin-bottom:16px}
- .dpc-txt .role .em{color:#0b4a8f;font-weight:700}
- .dpc-txt ul li{font-size:28px;margin:0 0 12px;padding-left:36px} .dpc-txt ul li::before{top:13px;width:12px;height:12px}
+ .dpc-txt .role{font-size:27px;line-height:1.5;color:#333;margin-bottom:14px} .dpc-txt .role .em{color:#0b4a8f;font-weight:700}
+ .dpc-txt ul li{font-size:27px;margin:0 0 11px;padding-left:34px} .dpc-txt ul li::before{top:12px;width:12px;height:12px}
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
- .dpc-impl figcaption{font-size:21px;color:#5a6472;margin-bottom:6px;font-weight:600;flex:0 0 auto}
+ .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
- /* compare: pure two images, no chrome */
- .compare{width:1920px;height:1080px;display:flex;gap:48px;align-items:center;justify-content:center;padding:54px 64px;background:#ffffff}
- .compare img{max-width:50%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
- /* cover */
- .cover{justify-content:center;align-items:flex-start}
- .cover h1{font-size:104px;line-height:1.04} .cover .sub{font-size:42px;margin-top:26px}
- .cover .meta{font-size:29px;color:#5a6472;margin-top:50px}
-</style></head><body><div class="slide"><h1><span class="emoji">🚀</span>확장 아이디어</h1><div class="rule"></div><div class="body"><div class="twocol"><div class="c"><div class="colhd ">기존 패턴 재사용</div><ul><li class="">이메일 / SMS 통지 — DP#2 Observer</li><li class="">결제 수단 추가 — DP#5 Factory Method</li><li class="">좌석 추천 · 등급 할인 — DP#1 Strategy</li><li class="">외부 PG 연동 — DP#7 Adapter</li></ul></div><div class="c"><div class="colhd ">리팩토링 동반</div><ul><li class="">다국어 UI — DP#4 Singleton 설정 + 리소스 번들 추출</li><li class="">예약 이력 검색 — Repository 추출</li><li class="">로깅 / 감사 추적 — Decorator 또는 Proxy</li></ul></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>6 / 31</span></div></div></body></html>
+</style></head><body><div class="slide"><h1><span class="emoji">🚀</span>Extension Feature 표</h1><div class="rule"></div><div class="body"><div class="tbwrap"><table><thead><tr><th>기본 기능</th><th>확장 기능</th><th>비고</th></tr></thead><tbody><tr><td class="">예약 생애주기</td><td class="">취소 및 변경 흐름</td><td class="">Refactoring required: 상태 전이 책임 분리 (상태 관리 리팩토링, DP 미번호)</td></tr><tr><td class="">알림</td><td class="">이메일 / SMS 알림</td><td class="">DP#2 Observer 재사용; EmailListener, SmsListener 추가 (리팩토링 불필요)</td></tr><tr><td class="">결제</td><td class="">추가 수단(PayPal, 암호화폐)</td><td class="">DP#5 Factory Method 재사용; ConcreteCreator/ConcreteProduct 추가</td></tr><tr><td class="">환불</td><td class="">운임 등급별 정책 자동 선택</td><td class="">DP#1 Strategy 재사용; Refactoring required: 정책 resolver 추가</td></tr><tr><td class="">좌석</td><td class="">좌석 추천 엔진</td><td class="">Reuse DP#1 (랭킹용 Strategy) + 서비스 클래스</td></tr><tr><td class="">할인</td><td class="">회원 등급 할인</td><td class="">Reuse DP#1 (가격 Strategy)</td></tr><tr><td class="">관리</td><td class="">예약 통계 대시보드</td><td class="">새 read-model 서비스; 실시간 집계에 DP#2 Observer 가능</td></tr><tr><td class="">검색</td><td class="">예약 이력 검색</td><td class="">Refactoring required: Repository / Specification 추출; 신규 DP 불필요</td></tr><tr><td class="">결제 연동</td><td class="">외부 결제대행(PG) API</td><td class="">DP#7 Adapter 재사용; PG마다 Adapter 하나</td></tr><tr><td class="">국제화</td><td class="">다국어 UI</td><td class="">Refactoring required: 리소스 번들 추출; 로캘에 DP#4 설정 싱글턴 재사용</td></tr><tr><td class="">관측성</td><td class="">로깅 / 감사 추적</td><td class="">Expected Decorator(DP#8) 또는 Proxy 후보</td></tr><tr><td class="">신뢰성</td><td class="">강화된 예외 처리</td><td class="">Refactoring required: 횡단 관심사 오류 처리; 신규 DP 불필요</td></tr></tbody></table></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>6 / 42</span></div></div></body></html>
