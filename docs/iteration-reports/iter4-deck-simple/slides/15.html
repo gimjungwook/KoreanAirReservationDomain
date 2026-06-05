@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>State 비교</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>상태 머신 (집중)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -50,6 +50,13 @@
  .cover .meta{font-size:28px;color:#5a6472;margin-top:46px}
  .statgrid{display:flex;gap:56px;width:100%} .stat{flex:1;border-top:4px solid #0b4a8f;padding-top:22px}
  .stat .h{font-size:33px;font-weight:800;margin-bottom:12px} .stat .d{font-size:27px;line-height:1.55;color:#333}
+ .sgrid{display:flex;gap:42px;width:100%}
+ .scell{flex:1;border-top:4px solid #0b4a8f;padding-top:22px;display:flex;flex-direction:column}
+ .scell .sh{font-size:32px;font-weight:800;margin-bottom:14px;color:#1a1a1a} .scell .sd{font-size:25px;line-height:1.5;color:#2a2a2a;margin-bottom:20px}
+ .scell .sx{font-size:21px;line-height:1.5;color:#0b4a8f;border-left:3px solid #d7dde5;padding-left:15px;margin-top:auto}
+ .dpband{display:flex;gap:13px;width:100%}
+ .dpchip{flex:1;background:#f2f5f9;border:1px solid #d7dde5;border-radius:11px;padding:15px 6px;text-align:center}
+ .dpchip b{display:block;font-size:23px;color:#0b4a8f;font-weight:800;font-family:'JetBrains Mono',monospace} .dpchip span{display:block;font-size:16px;color:#566;margin-top:5px}
  .twocol{display:flex;gap:72px;width:100%} .twocol .c{flex:1;min-width:0}
  .colhd{font-size:29px;font-weight:800;color:#0b4a8f;margin-bottom:16px;padding-bottom:9px;border-bottom:2px solid #d7dde5}
  .colhd.red{color:#c0202a}
@@ -65,4 +72,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="compare"><img src="../assets/tb-state.jpg"><img src="../assets/dg-state-impl.png"></div></body></html>
+</style></head><body><div class="focusonly"><img src="../assets/dg-state-focus.png"></div></body></html>

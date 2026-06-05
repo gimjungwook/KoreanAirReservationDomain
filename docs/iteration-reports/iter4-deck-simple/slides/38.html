@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#8 Decorator 비교</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#7 Adapter — 코드</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -50,6 +50,13 @@
  .cover .meta{font-size:28px;color:#5a6472;margin-top:46px}
  .statgrid{display:flex;gap:56px;width:100%} .stat{flex:1;border-top:4px solid #0b4a8f;padding-top:22px}
  .stat .h{font-size:33px;font-weight:800;margin-bottom:12px} .stat .d{font-size:27px;line-height:1.55;color:#333}
+ .sgrid{display:flex;gap:42px;width:100%}
+ .scell{flex:1;border-top:4px solid #0b4a8f;padding-top:22px;display:flex;flex-direction:column}
+ .scell .sh{font-size:32px;font-weight:800;margin-bottom:14px;color:#1a1a1a} .scell .sd{font-size:25px;line-height:1.5;color:#2a2a2a;margin-bottom:20px}
+ .scell .sx{font-size:21px;line-height:1.5;color:#0b4a8f;border-left:3px solid #d7dde5;padding-left:15px;margin-top:auto}
+ .dpband{display:flex;gap:13px;width:100%}
+ .dpchip{flex:1;background:#f2f5f9;border:1px solid #d7dde5;border-radius:11px;padding:15px 6px;text-align:center}
+ .dpchip b{display:block;font-size:23px;color:#0b4a8f;font-weight:800;font-family:'JetBrains Mono',monospace} .dpchip span{display:block;font-size:16px;color:#566;margin-top:5px}
  .twocol{display:flex;gap:72px;width:100%} .twocol .c{flex:1;min-width:0}
  .colhd{font-size:29px;font-weight:800;color:#0b4a8f;margin-bottom:16px;padding-bottom:9px;border-bottom:2px solid #d7dde5}
  .colhd.red{color:#c0202a}
@@ -65,4 +72,8 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="compare"><img src="../assets/tb-decorator.jpg"><img src="../assets/dg-dp8.png"></div></body></html>
+</style></head><body><div class="slide"><h1><span class="emoji">🔌</span>DP#7 Adapter — 코드</h1><div class="sub">SkypassAdapter.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">SkypassAdapter.java</div><div class="codebox"><pre><span class="cm">// Adapter: 외부 Adaptee 호출을 우리 Target 인터페이스로 변환</span>
+<span class="kw">public</span> <span class="kw">boolean</span> deductMileage(<span class="ty">String</span> skypassNumber, <span class="kw">int</span> amount) {
+    <span class="ty">Map</span>&lt;<span class="ty">String</span>, <span class="ty">Object</span>&gt; res = adaptee.postDeduct(skypassNumber, amount);
+    <span class="kw">return</span> Boolean.TRUE.equals(res.get(<span class="st">&quot;success&quot;</span>));   <span class="cm">// Map -&gt; boolean 변환</span>
+}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>38 / 44</span></div></div></body></html>

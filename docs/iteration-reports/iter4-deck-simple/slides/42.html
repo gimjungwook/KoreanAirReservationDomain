@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>질문 있나요?</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>디자인 패턴 적용 강도</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -50,6 +50,13 @@
  .cover .meta{font-size:28px;color:#5a6472;margin-top:46px}
  .statgrid{display:flex;gap:56px;width:100%} .stat{flex:1;border-top:4px solid #0b4a8f;padding-top:22px}
  .stat .h{font-size:33px;font-weight:800;margin-bottom:12px} .stat .d{font-size:27px;line-height:1.55;color:#333}
+ .sgrid{display:flex;gap:42px;width:100%}
+ .scell{flex:1;border-top:4px solid #0b4a8f;padding-top:22px;display:flex;flex-direction:column}
+ .scell .sh{font-size:32px;font-weight:800;margin-bottom:14px;color:#1a1a1a} .scell .sd{font-size:25px;line-height:1.5;color:#2a2a2a;margin-bottom:20px}
+ .scell .sx{font-size:21px;line-height:1.5;color:#0b4a8f;border-left:3px solid #d7dde5;padding-left:15px;margin-top:auto}
+ .dpband{display:flex;gap:13px;width:100%}
+ .dpchip{flex:1;background:#f2f5f9;border:1px solid #d7dde5;border-radius:11px;padding:15px 6px;text-align:center}
+ .dpchip b{display:block;font-size:23px;color:#0b4a8f;font-weight:800;font-family:'JetBrains Mono',monospace} .dpchip span{display:block;font-size:16px;color:#566;margin-top:5px}
  .twocol{display:flex;gap:72px;width:100%} .twocol .c{flex:1;min-width:0}
  .colhd{font-size:29px;font-weight:800;color:#0b4a8f;margin-bottom:16px;padding-bottom:9px;border-bottom:2px solid #d7dde5}
  .colhd.red{color:#c0202a}
@@ -65,4 +72,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide cover"><div class="kicker">🙋  감사합니다</div><h1>질문 있나요?</h1><div class="sub">대한항공 예약 시스템 — OODP Iteration 4</div><div class="meta">DP#1 Strategy … DP#8 Decorator  ·  그리고 State 구현</div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>42 / 42</span></div></div></body></html>
+</style></head><body><div class="slide"><h1><span class="emoji">🏁</span>디자인 패턴 적용 강도</h1><div class="sub">여덟 패턴이 하나의 실행 가능한 흐름에서 함께 동작한다</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:40px;align-items:stretch;justify-content:center"><div class="sgrid"><div class="scell"><div class="sh">기능 완결도</div><div class="sd">여덟 패턴 모두 end-to-end 흐름에서 실제 동작.</div><div class="sx">예: 결제는 Factory Method, 환불은 Strategy, 발권 통지는 Observer, 좌석은 Decorator로 한 예약에서 연쇄 동작</div></div><div class="scell"><div class="sh">재사용성</div><div class="sd">호출부를 고치지 않고 클래스 하나를 더해 확장.</div><div class="sx">예: 새 결제 수단 = ConcreteCreator 하나 추가, 새 알림 = Listener 하나 추가 (개방-폐쇄 원칙)</div></div><div class="scell"><div class="sh">테스트 적합성</div><div class="sd">역할 경계가 또렷해 단위별 독립 검증 가능.</div><div class="sx">예: Adapter는 가짜 외부 시스템으로 교체, State는 허용되지 않는 전이를 결정적으로 거부</div></div></div><div class="dpband"><div class="dpchip"><b>DP#1</b><span>Strategy</span></div><div class="dpchip"><b>DP#2</b><span>Observer</span></div><div class="dpchip"><b>DP#3</b><span>Composite</span></div><div class="dpchip"><b>DP#4</b><span>Singleton</span></div><div class="dpchip"><b>DP#5</b><span>Factory Method</span></div><div class="dpchip"><b>DP#6</b><span>Template Method</span></div><div class="dpchip"><b>DP#7</b><span>Adapter</span></div><div class="dpchip"><b>DP#8</b><span>Decorator</span></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>42 / 44</span></div></div></body></html>

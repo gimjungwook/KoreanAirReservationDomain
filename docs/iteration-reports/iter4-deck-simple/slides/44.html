@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#8 Decorator — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>질문 있나요?</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -72,11 +72,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🎁</span>DP#8 Decorator — 코드</h1><div class="sub">AbstractSeatDecorator.java  /  ExtraLegroomDecorator.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">AbstractSeatDecorator.java  /  ExtraLegroomDecorator.java</div><div class="codebox"><pre><span class="cm">// Decorator: 감싼 Component 로 위임</span>
-<span class="kw">public</span> <span class="ty">BigDecimal</span> getSurcharge() {
-    <span class="kw">return</span> component.getSurcharge();
-}
-<span class="cm">// ConcreteDecorator: super 결과에 자기 요금 누적</span>
-@Override <span class="kw">public</span> <span class="ty">BigDecimal</span> getSurcharge() {
-    <span class="kw">return</span> <span class="kw">super</span>.getSurcharge().add(SURCHARGE);      <span class="cm">// +50,000</span>
-}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>41 / 44</span></div></div></body></html>
+</style></head><body><div class="slide cover"><div class="kicker">🙋  감사합니다</div><h1>질문 있나요?</h1><div class="sub">대한항공 예약 시스템 — OODP Iteration 4</div><div class="meta">DP#1 Strategy … DP#8 Decorator  ·  그리고 State 구현</div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>44 / 44</span></div></div></body></html>
