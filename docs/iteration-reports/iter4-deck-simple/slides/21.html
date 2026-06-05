@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Status &amp; Next Steps</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Helvetica Neue', 'Segoe UI', system-ui, -apple-system, sans-serif;overflow:hidden}
+  .slide{width:1920px;height:1080px;padding:70px 120px 48px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .kicker{font-size:26px;letter-spacing:.18em;text-transform:uppercase;color:#0b4a8f;font-weight:700;margin-bottom:18px}
+  h1{font-size:74px;line-height:1.08;font-weight:800;letter-spacing:-0.5px}
+  .sub{font-size:36px;color:#5a6472;margin-top:18px;font-weight:400}
+  .rule{height:5px;width:120px;background:#0b4a8f;margin:30px 0 36px;border-radius:3px}
+  ul{list-style:none;margin-top:8px}
+  li{font-size:34px;line-height:1.5;margin:0 0 22px;padding-left:46px;position:relative;color:#222;max-width:1680px}
+  li::before{content:"";position:absolute;left:8px;top:18px;width:14px;height:14px;background:#0b4a8f;border-radius:3px}
+  li b{font-weight:700;color:#1a1a1a}
+  .red{color:#c0202a}
+  .red::before{background:#c0202a}
+  .body{flex:1;display:flex;gap:64px;align-items:flex-start;min-height:0}
+  .col{flex:1;min-width:0}
+  .imgwrap{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;height:100%}
+  .imgwrap img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px;background:#fff}
+  .twoimg{display:flex;gap:40px;align-items:stretch;justify-content:center;width:100%;flex:1;min-height:0}
+  .twoimg figure{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;min-height:0}
+  .twoimg figcaption{font-size:24px;color:#5a6472;margin-bottom:10px;font-weight:600;flex:0 0 auto}
+  .twoimg img{max-width:100%;min-height:0;flex:1;object-fit:contain;object-position:center;border:1px solid #d7dde5;border-radius:8px}
+  .twoimg-bullets{display:flex;gap:48px;flex:0 0 auto;margin-top:24px}
+  .twoimg-bullets li{font-size:27px;line-height:1.34;margin:0;padding-left:38px}
+  .twoimg-bullets li::before{top:14px}
+  .footer{margin-top:18px;flex:0 0 auto;align-self:stretch;display:flex;justify-content:space-between;font-size:22px;color:#9aa3ad;border-top:1px solid #d7dde5;padding-top:14px}
+  /* DP compare layout: textbook small top-left + bullets top-right + impl full-width bottom */
+  .dpc{flex:1;display:flex;flex-direction:column;gap:18px;min-height:0;width:100%}
+  .dpc-top{flex:0 0 36%;display:flex;gap:52px;min-height:0}
+  .dpc-tb{flex:0 0 470px;display:flex;flex-direction:column;align-items:center;min-height:0}
+  .dpc-tb figcaption,.dpc-impl figcaption{font-size:22px;color:#5a6472;margin-bottom:8px;font-weight:600;flex:0 0 auto}
+  .dpc-tb img{max-width:100%;min-height:0;flex:1;object-fit:contain;object-position:center;border:1px solid #d7dde5;border-radius:8px}
+  .dpc-bul{flex:1;display:flex;flex-direction:column;justify-content:center;list-style:none}
+  .dpc-bul li{font-size:30px;line-height:1.4;margin:0 0 18px;padding-left:42px;position:relative}
+  .dpc-bul li::before{content:"";position:absolute;left:8px;top:15px;width:14px;height:14px;background:#0b4a8f;border-radius:3px}
+  .dpc-bul li.red::before{background:#c0202a}
+  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
+  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
+  /* cover */
+  .cover{align-items:flex-start;justify-content:center}
+  .cover h1{font-size:110px;line-height:1.02}
+  .cover .sub{font-size:44px;margin-top:30px}
+  .cover .meta{font-size:30px;color:#5a6472;margin-top:54px}
+  .emoji{font-size:64px;margin-right:18px;vertical-align:-6px}
+</style></head><body><div class="slide"><h1><span class="emoji">📋</span>Status &amp; Next Steps</h1><div class="sub">Submitted vs. to refine</div><div class="rule"></div><div class="body"><div class="col"><ul><li class=""><b>Done</b> — lookup, cancel / refund, payment + mileage, seat decorator, e-Ticket, observer, state machine, same-screen errors</li><li class="red">To refine — bus add-on failure not surfaced on screen; post-booking seat change reuses the forward screen</li><li class="red">Next — Extract Class to fully split BookingController's seven responsibilities</li></ul></div></div><div class="footer"><span>OODP · Iteration 4 · Korean Air Reservation System</span><span>21 / 22</span></div></body></html></div>
