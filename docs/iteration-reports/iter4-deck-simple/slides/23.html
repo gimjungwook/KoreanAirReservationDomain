@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#2 Observer — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#2 Observer 비교</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -72,15 +72,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">📡</span>DP#2 Observer — 코드</h1><div class="sub">EventPublisher.java  /  BusTicketPurchaseListener.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">EventPublisher.java  /  BusTicketPurchaseListener.java</div><div class="codebox"><pre><span class="cm">// Subject: 무인자 통지 — 각 옵서버의 update() 만 호출 (push 아님)</span>
-<span class="kw">public</span> <span class="kw">void</span> notifyObservers() {
-    <span class="kw">for</span> (<span class="ty">EventListener</span> observer : <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(observers)) {
-        observer.update();
-    }
-}
-<span class="cm">// Observer: 무인자 update() — subject.getState() 로 상태를 직접 pull</span>
-<span class="kw">public</span> <span class="kw">void</span> update() {
-    <span class="ty">TicketIssuedEvent</span> ev = subject.getState();      <span class="cm">// pull</span>
-    busTicketingService.issuePremiumTicket(ev.getReservation(),
-            ev.getTicket(), ...);
-}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>23 / 44</span></div></div></body></html>
+</style></head><body><div class="compare"><img src="../assets/tb-observer.jpg"><img src="../assets/dg-dp2.png"></div></body></html>

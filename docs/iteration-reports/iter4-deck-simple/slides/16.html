@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>State 구현</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>상태 머신 (집중)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -72,4 +72,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🧱</span>State 구현</h1><div class="sub">Context = Reservation (번호 없는 패턴)</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="dpc"><div class="dpc-top"><figure class="dpc-tb"><figcaption>교과서 (그림 7-5)</figcaption><img src="../assets/tb-state.jpg"></figure><div class="dpc-txt"><div class="role"><span class="em">Context</span> = Reservation, <span class="em">State</span> = ReservationState 인터페이스 → 8개 ConcreteState (중간 추상 계층 없음).</div><ul><li class="">Replace Conditional with Polymorphism 리팩토링</li><li class="red">교과서 규칙상 State는 DP 번호 미부여(초기 DP#1 → 추후 수정)</li></ul></div></div><figure class="dpc-impl"><figcaption>구현</figcaption><img src="../assets/dg-state-impl.png"></figure></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>16 / 44</span></div></div></body></html>
+</style></head><body><div class="focusonly"><img src="../assets/dg-state-focus.png"></div></body></html>

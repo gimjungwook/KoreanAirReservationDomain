@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#6 Template Method — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#6 Template Method 비교</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -72,14 +72,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">📄</span>DP#6 Template Method — 코드</h1><div class="sub">TicketRenderer.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">TicketRenderer.java</div><div class="codebox"><pre><span class="cm">// 템플릿 메서드 — 골격 고정(final), 단계는 서브클래스가 override</span>
-<span class="kw">public</span> <span class="kw">final</span> <span class="ty">String</span> render(<span class="ty">Reservation</span> reservation, <span class="ty">Ticket</span> ticket) {
-    StringBuilder sb = <span class="kw">new</span> StringBuilder();
-    sb.append(header(reservation, ticket));
-    sb.append(separator());
-    sb.append(body(reservation, ticket));
-    sb.append(separator());
-    sb.append(footer(reservation, ticket));
-    <span class="kw">return</span> sb.toString();
-}
-<span class="kw">protected</span> <span class="kw">abstract</span> <span class="ty">String</span> header(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t);   <span class="cm">// primitive</span></pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>35 / 44</span></div></div></body></html>
+</style></head><body><div class="compare"><img src="../assets/tb-template-method.jpg"><img src="../assets/dg-dp6.png"></div></body></html>

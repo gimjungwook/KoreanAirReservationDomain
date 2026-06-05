@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#2 Observer</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#1 Strategy — 코드</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -72,4 +72,14 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">📡</span>DP#2 Observer</h1><div class="sub">이벤트 발생원과 반응의 분리 (pull)</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="dpc"><div class="dpc-top"><figure class="dpc-tb"><figcaption>교과서</figcaption><img src="../assets/tb-observer.jpg"></figure><div class="dpc-txt"><div class="role"><span class="em">Subject</span>=EventPublisher, <span class="em">Observer</span>=EventListener. ConcreteSubject 4 + ConcreteObserver 4.</div><ul><li class="">pull — 무인자 notifyObservers / update 후 subject.getState</li></ul></div></div><figure class="dpc-impl"><figcaption>구현 다이어그램</figcaption><img src="../assets/dg-dp2.png"></figure></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>21 / 44</span></div></div></body></html>
+</style></head><body><div class="slide"><h1><span class="emoji">🧮</span>DP#1 Strategy — 코드</h1><div class="sub">RefundPolicyResolver.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">RefundPolicyResolver.java</div><div class="codebox"><pre><span class="kw">public</span> <span class="ty">RefundPolicy</span> resolve(<span class="ty">FareRule</span> fareRule) {
+    <span class="cm">// 운임 규칙으로 ConcreteStrategy 선택 (RefundHandler 는 선택 책임 없음)</span>
+    <span class="kw">if</span> (fareRule == <span class="kw">null</span> || !fareRule.isRefundable()) {
+        <span class="kw">return</span> <span class="kw">new</span> <span class="ty">NoRefundPolicy</span>();
+    }
+    <span class="ty">String</span> fareClass = fareRule.getFareClass();
+    <span class="kw">if</span> (<span class="st">&quot;Y&quot;</span>.equals(fareClass) || <span class="st">&quot;B&quot;</span>.equals(fareClass)) {
+        <span class="kw">return</span> <span class="kw">new</span> <span class="ty">FullRefundPolicy</span>();
+    }
+    <span class="kw">return</span> <span class="kw">new</span> <span class="ty">PartialRefundPolicy</span>();
+}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>21 / 45</span></div></div></body></html>

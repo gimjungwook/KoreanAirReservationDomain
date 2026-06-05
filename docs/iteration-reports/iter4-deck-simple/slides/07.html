@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>Use Case 다이어그램</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>Extension Feature 표 ② 향후 확장 가능성</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -34,9 +34,9 @@
  .person .ro{font-size:26px;color:#0b4a8f;margin:8px 0 16px;font-weight:700}
  .person .ct{font-size:25px;line-height:1.45;color:#333}
  /* table */
- table{border-collapse:collapse;width:100%;font-size:26px}
- th,td{border:1px solid #c9d2dc;padding:13px 16px;text-align:left;vertical-align:top;line-height:1.35}
- th{background:#eef2f7;color:#0b4a8f;font-weight:800;font-size:calc(26px + 1px)}
+ table{border-collapse:collapse;width:100%;font-size:19px}
+ th,td{border:1px solid #c9d2dc;padding:4px 16px;text-align:left;vertical-align:top;line-height:1.35}
+ th{background:#eef2f7;color:#0b4a8f;font-weight:800;font-size:calc(19px + 1px)}
  td.red{color:#c0202a} .tmuted{color:#9aa3af}
  .tbwrap{flex:1;min-height:0;display:flex;align-items:flex-start;overflow:hidden}
  /* code */
@@ -72,4 +72,4 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🗺️</span>Use Case 다이어그램</h1><div class="sub">시스템 범위 (Iteration 1~4 누적)</div><div class="rule"></div><div class="body"><div class="imgwrap" style="flex:1.5"><img src="../assets/dg-usecase.png"></div><div class="col"><div class="cap">액터는 <span class="em">Customer</span>(Skypass Member / Guest), Administrator, 외부 Payment Gateway · Skypass System. <span style="color:#c0202a">빨간색 유스케이스 = Iteration 4 신규</span>.</div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>7 / 44</span></div></div></body></html>
+</style></head><body><div class="slide"><h1><span class="emoji">🧭</span>Extension Feature 표 ② 향후 확장 가능성</h1><div class="sub">아직 미구현 · 기존 디자인 패턴을 재사용하거나 추가 리팩토링이 필요한 확장 후보 (Refactoring required)</div><div class="rule"></div><div class="body"><div class="tbwrap"><table><thead><tr><th><span class="">기본 기능</span></th><th><span class="">확장 기능</span></th><th><span class="">비고</span></th></tr></thead><tbody><tr><td><span class="">예약 생애주기</span></td><td><span class="">취소 및 변경 흐름</span></td><td><span class="">Refactoring required: 상태 전이 책임 분리 (상태 관리 리팩토링, DP 미번호)</span></td></tr><tr><td><span class="">알림</span></td><td><span class="">이메일 / SMS 알림</span></td><td><span class="">DP#2 Observer 재사용; EmailListener, SmsListener 추가 (리팩토링 불필요)</span></td></tr><tr><td><span class="">결제</span></td><td><span class="">추가 수단 (PayPal, 암호화폐)</span></td><td><span class="">DP#5 Factory Method 재사용; ConcreteCreator/ConcreteProduct 추가</span></td></tr><tr><td><span class="">좌석</span></td><td><span class="">좌석 추천 엔진</span></td><td><span class="">Reuse DP#1 (랭킹용 Strategy) + 서비스 클래스</span></td></tr><tr><td><span class="">할인</span></td><td><span class="">회원 등급 할인</span></td><td><span class="">Reuse DP#1 (가격 Strategy)</span></td></tr><tr><td><span class="">관리</span></td><td><span class="">예약 통계 대시보드</span></td><td><span class="">새 read-model 서비스; 실시간 집계에 DP#2 Observer 가능</span></td></tr><tr><td><span class="">검색</span></td><td><span class="">예약 이력 검색</span></td><td><span class="">Refactoring required: Repository / Specification 추출; 신규 DP 불필요</span></td></tr><tr><td><span class="">결제 연동</span></td><td><span class="">외부 결제대행(PG) API</span></td><td><span class="">DP#7 Adapter 재사용; PG마다 Adapter 하나</span></td></tr><tr><td><span class="">국제화</span></td><td><span class="">다국어 UI</span></td><td><span class="">Refactoring required: 리소스 번들 추출; 로캘에 DP#4 설정 싱글턴 재사용</span></td></tr><tr><td><span class="">관측성</span></td><td><span class="">로깅 / 감사 추적</span></td><td><span class="">Expected Decorator(DP#8) 또는 Proxy 후보</span></td></tr><tr><td><span class="">신뢰성</span></td><td><span class="">강화된 예외 처리</span></td><td><span class="">Refactoring required: 횡단 관심사 오류 처리; 신규 DP 불필요</span></td></tr></tbody></table></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>7 / 45</span></div></div></body></html>
