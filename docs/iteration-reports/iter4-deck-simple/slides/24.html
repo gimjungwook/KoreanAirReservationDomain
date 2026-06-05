@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#2 Observer — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#2 Observer — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -44,6 +44,13 @@
  .codebox{background:#1e1e22;border-radius:0 0 10px 10px;padding:26px 30px;flex:1;min-height:0;overflow:hidden;display:flex}
  pre{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:27px;line-height:1.55;color:#d4d4d4;white-space:pre;margin:auto 0;width:100%}
  .kw{color:#569cd6} .ty{color:#4ec9b0} .st{color:#ce9178} .cm{color:#6a9955} .nu{color:#b5cea8}
+ .cmgrid{display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-auto-rows:1fr;gap:15px;width:100%;flex:1;min-height:0}
+ .ccard{display:flex;flex-direction:column;min-height:0;min-width:0;background:#1e1e22;border-radius:10px;overflow:hidden;border:1px solid #34343c}
+ .cchd{background:#2d2d33;padding:9px 15px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex:0 0 auto}
+ .cchd .ccfn{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cchd .ccrole{font-size:13px;color:#8fb6e6;white-space:nowrap;flex:0 0 auto}
+ .ccbody{flex:1;min-height:0;overflow:hidden;padding:10px 15px;display:flex}
+ .ccbody pre{font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;margin:0;width:100%}
  /* team-table iter4 red handled by td.red */
  .cover{justify-content:center;align-items:flex-start}
  .cover h1{font-size:100px;line-height:1.04} .cover .sub{font-size:40px;margin-top:24px}
@@ -72,15 +79,28 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">📡</span>DP#2 Observer — 코드</h1><div class="sub">EventPublisher.java  /  BusTicketPurchaseListener.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">EventPublisher.java  /  BusTicketPurchaseListener.java</div><div class="codebox"><pre><span class="cm">// Subject: 무인자 통지 — 각 옵서버의 update() 만 호출 (push 아님)</span>
-<span class="kw">public</span> <span class="kw">void</span> notifyObservers() {
-    <span class="kw">for</span> (<span class="ty">EventListener</span> observer : <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(observers)) {
-        observer.update();
-    }
+</style></head><body><div class="slide"><h1><span class="emoji">📡</span>DP#2 Observer — 코드 (관련 클래스 전부)</h1><div class="sub">Subject=EventPublisher, Observer=EventListener. ConcreteSubject 4 + ConcreteObserver 4.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">EventListener.java</span><span class="ccrole">Observer · 반응 인터페이스</span></div><div class="ccbody"><pre><span class="cm">// 통지를 받는 쪽의 공통 타입. 인자 없는 update() 하나뿐(pull 방식).</span>
+<span class="kw">public</span> <span class="kw">interface</span> <span class="ty">EventListener</span> {
+    <span class="kw">void</span> update();
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">EventPublisher.java</span><span class="ccrole">Subject · 발생원 기반 클래스</span></div><div class="ccbody"><pre><span class="kw">private</span> <span class="kw">final</span> <span class="ty">List</span>&lt;<span class="ty">EventListener</span>&gt; observers = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
+<span class="kw">public</span> <span class="kw">void</span> attach(<span class="ty">EventListener</span> o) {              <span class="cm">// 구독 등록</span>
+    <span class="kw">if</span> (o != <span class="kw">null</span> &amp;&amp; !observers.contains(o)) observers.add(o);
 }
-<span class="cm">// Observer: 무인자 update() — subject.getState() 로 상태를 직접 pull</span>
-<span class="kw">public</span> <span class="kw">void</span> update() {
-    <span class="ty">TicketIssuedEvent</span> ev = subject.getState();      <span class="cm">// pull</span>
-    busTicketingService.issuePremiumTicket(ev.getReservation(),
-            ev.getTicket(), ...);
-}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>24 / 45</span></div></div></body></html>
+<span class="cm">// push 아님 — 인자 없이 update()만 호출, 상태는 옵서버가 직접 pull</span>
+<span class="kw">public</span> <span class="kw">void</span> notifyObservers() {
+    <span class="kw">for</span> (<span class="ty">EventListener</span> o : <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;(observers)) {
+        <span class="kw">try</span> { o.update(); }                        <span class="cm">// 한 옵서버 예외가 전체를 막지 않음</span>
+        <span class="kw">catch</span> (<span class="ty">RuntimeException</span> e) { /* 로그만 */ }
+    }
+}</pre></div></div><div class="ccard" style="grid-column:1/-1"><div class="cchd"><span class="ccfn">BusTicketPurchaseListener.java</span><span class="ccrole">ConcreteObserver · 교수님 지시로 추가</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">class</span> BusTicketPurchaseListener <span class="kw">implements</span> <span class="ty">EventListener</span> {
+    <span class="kw">private</span> TicketPurchasePublisher subject;
+    <span class="kw">public</span> <span class="kw">void</span> update() {                         <span class="cm">// 통지 수신</span>
+        <span class="ty">TicketIssuedEvent</span> ev = subject != <span class="kw">null</span> ? subject.getState() : <span class="kw">null</span>;  <span class="cm">// 상태 pull</span>
+        <span class="kw">if</span> (ev == <span class="kw">null</span>) <span class="kw">return</span>;
+        <span class="ty">BusTicketRequest</span> req = ev.getBusTicketRequest();
+        <span class="kw">if</span> (req == <span class="kw">null</span> || req.getOriginCity() == <span class="kw">null</span>) <span class="kw">return</span>;
+        <span class="cm">// 항공 발권 완료 이벤트 → 연계 버스 티켓 자동 발권</span>
+        busTicketingService.issuePremiumTicket(ev.getReservation(),
+                ev.getTicket(), req.getOriginCity(), req.getSchedule(), req.getSeat());
+    }
+}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>24 / 45</span></div></div></body></html>

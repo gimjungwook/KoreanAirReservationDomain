@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#5 Factory Method — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#5 Factory Method — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -44,6 +44,13 @@
  .codebox{background:#1e1e22;border-radius:0 0 10px 10px;padding:26px 30px;flex:1;min-height:0;overflow:hidden;display:flex}
  pre{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:27px;line-height:1.55;color:#d4d4d4;white-space:pre;margin:auto 0;width:100%}
  .kw{color:#569cd6} .ty{color:#4ec9b0} .st{color:#ce9178} .cm{color:#6a9955} .nu{color:#b5cea8}
+ .cmgrid{display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-auto-rows:1fr;gap:15px;width:100%;flex:1;min-height:0}
+ .ccard{display:flex;flex-direction:column;min-height:0;min-width:0;background:#1e1e22;border-radius:10px;overflow:hidden;border:1px solid #34343c}
+ .cchd{background:#2d2d33;padding:9px 15px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex:0 0 auto}
+ .cchd .ccfn{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cchd .ccrole{font-size:13px;color:#8fb6e6;white-space:nowrap;flex:0 0 auto}
+ .ccbody{flex:1;min-height:0;overflow:hidden;padding:10px 15px;display:flex}
+ .ccbody pre{font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;margin:0;width:100%}
  /* team-table iter4 red handled by td.red */
  .cover{justify-content:center;align-items:flex-start}
  .cover h1{font-size:100px;line-height:1.04} .cover .sub{font-size:40px;margin-top:24px}
@@ -72,15 +79,25 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🏭</span>DP#5 Factory Method — 코드</h1><div class="sub">PaymentMethodProcessor.java  /  CreditCardPaymentProcessor.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">PaymentMethodProcessor.java  /  CreditCardPaymentProcessor.java</div><div class="codebox"><pre><span class="cm">// Creator 템플릿: factoryMethod() 로 ConcreteProduct 생성</span>
-<span class="kw">public</span> <span class="ty">Payment</span> processCharge(<span class="kw">long</span> amount, <span class="ty">String</span> pnr) {
-    <span class="ty">Payment</span> payment = stamp(createPayment(), amount);
-    <span class="kw">if</span> (authorize(payment)) payment.pay(); <span class="kw">else</span> payment.fail();
-    <span class="kw">return</span> payment;
+</style></head><body><div class="slide"><h1><span class="emoji">🏭</span>DP#5 Factory Method — 코드 (관련 클래스 전부)</h1><div class="sub">Creator=PaymentMethodProcessor, Product=Payment.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">PaymentMethodProcessor.java</span><span class="ccrole">Creator · 템플릿 + 팩토리 메서드</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> PaymentMethodProcessor {
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">Payment</span> createPayment();       <span class="cm">// 팩토리 메서드(무인자)</span>
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">PaymentMethod</span> method();
+    <span class="cm">// anOperation: 제품 &#x27;생성&#x27;은 서브클래스에 위임, 공통 흐름은 여기서 고정</span>
+    <span class="kw">public</span> <span class="ty">Payment</span> processCharge(<span class="kw">long</span> amount, <span class="ty">String</span> pnr) {
+        <span class="ty">Payment</span> payment = stamp(createPayment(), amount);  <span class="cm">// createPayment()로 생성</span>
+        <span class="kw">if</span> (authorize(payment)) payment.pay(); <span class="kw">else</span> payment.fail();
+        <span class="kw">return</span> payment;
+    }
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">CreditCardPaymentProcessor.java</span><span class="ccrole">ConcreteCreator · 5종 중 1</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">class</span> CreditCardPaymentProcessor <span class="kw">extends</span> PaymentMethodProcessor {
+    <span class="kw">public</span> <span class="ty">Payment</span> createPayment() { <span class="kw">return</span> <span class="kw">new</span> CreditCardPayment(); }  <span class="cm">// 자기 제품</span>
+    <span class="kw">public</span> <span class="ty">PaymentMethod</span> method() { <span class="kw">return</span> <span class="ty">PaymentMethod</span>.CREDIT_CARD; }
 }
-<span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">Payment</span> createPayment();             <span class="cm">// 무인자 factory method</span>
-
-<span class="cm">// ConcreteCreator: 자기 ConcreteProduct 생성</span>
-@Override <span class="kw">public</span> <span class="ty">Payment</span> createPayment() {
-    <span class="kw">return</span> <span class="kw">new</span> CreditCardPayment();
-}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>33 / 45</span></div></div></body></html>
+<span class="cm">// ApplePay / KakaoPay / BankTransfer / Mileage 도 동일 — 새 수단 = ConcreteCreator 추가(OCP)</span></pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">Payment.java</span><span class="ccrole">Product · 제품 추상 타입</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> <span class="ty">Payment</span> {
+    <span class="kw">private</span> <span class="ty">BigDecimal</span> amount;
+    <span class="kw">private</span> PaymentStatus status;
+    <span class="kw">protected</span> <span class="ty">Payment</span>(<span class="ty">PaymentMethod</span> method) { <span class="kw">this</span>.paymentMethod = method; }
+    <span class="kw">public</span> <span class="kw">void</span> pay()  { /* 상태 전이 → PAID   */ }
+    <span class="kw">public</span> <span class="kw">void</span> fail() { /* 상태 전이 → FAILED */ }
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">CreditCardPayment.java</span><span class="ccrole">ConcreteProduct</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">class</span> CreditCardPayment <span class="kw">extends</span> <span class="ty">Payment</span> {
+    <span class="kw">public</span> CreditCardPayment() { <span class="kw">super</span>(<span class="ty">PaymentMethod</span>.CREDIT_CARD); }
+}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>33 / 45</span></div></div></body></html>

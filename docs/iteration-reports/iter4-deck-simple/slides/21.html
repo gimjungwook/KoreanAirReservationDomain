@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#1 Strategy — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#1 Strategy — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -44,6 +44,13 @@
  .codebox{background:#1e1e22;border-radius:0 0 10px 10px;padding:26px 30px;flex:1;min-height:0;overflow:hidden;display:flex}
  pre{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:27px;line-height:1.55;color:#d4d4d4;white-space:pre;margin:auto 0;width:100%}
  .kw{color:#569cd6} .ty{color:#4ec9b0} .st{color:#ce9178} .cm{color:#6a9955} .nu{color:#b5cea8}
+ .cmgrid{display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-auto-rows:1fr;gap:15px;width:100%;flex:1;min-height:0}
+ .ccard{display:flex;flex-direction:column;min-height:0;min-width:0;background:#1e1e22;border-radius:10px;overflow:hidden;border:1px solid #34343c}
+ .cchd{background:#2d2d33;padding:9px 15px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex:0 0 auto}
+ .cchd .ccfn{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cchd .ccrole{font-size:13px;color:#8fb6e6;white-space:nowrap;flex:0 0 auto}
+ .ccbody{flex:1;min-height:0;overflow:hidden;padding:10px 15px;display:flex}
+ .ccbody pre{font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;margin:0;width:100%}
  /* team-table iter4 red handled by td.red */
  .cover{justify-content:center;align-items:flex-start}
  .cover h1{font-size:100px;line-height:1.04} .cover .sub{font-size:40px;margin-top:24px}
@@ -72,14 +79,36 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🧮</span>DP#1 Strategy — 코드</h1><div class="sub">RefundPolicyResolver.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">RefundPolicyResolver.java</div><div class="codebox"><pre><span class="kw">public</span> <span class="ty">RefundPolicy</span> resolve(<span class="ty">FareRule</span> fareRule) {
-    <span class="cm">// 운임 규칙으로 ConcreteStrategy 선택 (RefundHandler 는 선택 책임 없음)</span>
-    <span class="kw">if</span> (fareRule == <span class="kw">null</span> || !fareRule.isRefundable()) {
-        <span class="kw">return</span> <span class="kw">new</span> <span class="ty">NoRefundPolicy</span>();
+</style></head><body><div class="slide"><h1><span class="emoji">🧮</span>DP#1 Strategy — 코드 (관련 클래스 전부)</h1><div class="sub">Context=RefundHandler, Strategy=RefundPolicy (No/Partial/Full).</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">RefundPolicy.java</span><span class="ccrole">Strategy · 전략 인터페이스</span></div><div class="ccbody"><pre><span class="cm">// 모든 환불 정책이 구현하는 공통 알고리즘 타입.</span>
+<span class="cm">// Context(RefundHandler)는 이 타입에만 의존하고 구체 정책은 모른다.</span>
+<span class="kw">public</span> <span class="kw">interface</span> <span class="ty">RefundPolicy</span> {
+    <span class="ty">BigDecimal</span> calculateRefundAmount(<span class="ty">BigDecimal</span> baseAmount);
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">No / Partial / FullRefundPolicy.java</span><span class="ccrole">ConcreteStrategy · 교체 가능한 3개 알고리즘</span></div><div class="ccbody"><pre><span class="cm">// 환불 불가 — 항상 0원</span>
+<span class="kw">public</span> <span class="kw">class</span> <span class="ty">NoRefundPolicy</span> <span class="kw">implements</span> <span class="ty">RefundPolicy</span> {
+    <span class="kw">public</span> <span class="ty">BigDecimal</span> calculateRefundAmount(<span class="ty">BigDecimal</span> base) { <span class="kw">return</span> <span class="ty">BigDecimal</span>.ZERO; }
+}
+<span class="cm">// 부분 환불 — 결제액의 50%</span>
+<span class="kw">public</span> <span class="kw">class</span> <span class="ty">PartialRefundPolicy</span> <span class="kw">implements</span> <span class="ty">RefundPolicy</span> {
+    <span class="kw">public</span> <span class="ty">BigDecimal</span> calculateRefundAmount(<span class="ty">BigDecimal</span> base) {
+        <span class="kw">return</span> base.multiply(HALF).setScale(<span class="nu">0</span>, RoundingMode.HALF_UP);  <span class="cm">// ×0.5</span>
     }
-    <span class="ty">String</span> fareClass = fareRule.getFareClass();
-    <span class="kw">if</span> (<span class="st">&quot;Y&quot;</span>.equals(fareClass) || <span class="st">&quot;B&quot;</span>.equals(fareClass)) {
-        <span class="kw">return</span> <span class="kw">new</span> <span class="ty">FullRefundPolicy</span>();
-    }
-    <span class="kw">return</span> <span class="kw">new</span> <span class="ty">PartialRefundPolicy</span>();
-}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>21 / 45</span></div></div></body></html>
+}
+<span class="cm">// 전액 환불 — 100%</span>
+<span class="kw">public</span> <span class="kw">class</span> <span class="ty">FullRefundPolicy</span> <span class="kw">implements</span> <span class="ty">RefundPolicy</span> {
+    <span class="kw">public</span> <span class="ty">BigDecimal</span> calculateRefundAmount(<span class="ty">BigDecimal</span> base) { <span class="kw">return</span> base; }
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">RefundHandler.java</span><span class="ccrole">Context · 전략 보유, 위임만 수행</span></div><div class="ccbody"><pre><span class="cm">// 현재 전략을 필드로 보유(-strategy). 디폴트 NoRefundPolicy.</span>
+<span class="kw">private</span> <span class="ty">RefundPolicy</span> strategy = <span class="kw">new</span> <span class="ty">NoRefundPolicy</span>();
+<span class="kw">private</span> <span class="kw">final</span> RefundPolicyResolver policyResolver = <span class="kw">new</span> RefundPolicyResolver();
+
+<span class="kw">public</span> <span class="kw">void</span> setStrategy(<span class="ty">RefundPolicy</span> strategy) {   <span class="cm">// 런타임 교체</span>
+    <span class="kw">this</span>.strategy = strategy;
+}
+<span class="cm">// 선택은 Resolver에, 계산은 보유 전략에 위임 — Context엔 정책 분기 없음</span>
+setStrategy(policyResolver.resolve(fareRule));
+<span class="ty">BigDecimal</span> refund = <span class="kw">this</span>.strategy.calculateRefundAmount(paid);</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">RefundPolicyResolver.java</span><span class="ccrole">Selector · 정책 선택 책임 분리</span></div><div class="ccbody"><pre><span class="cm">// 원래 RefundHandler 의 if/else 였던 &#x27;선택&#x27; 책임을 추출(SRP).</span>
+<span class="kw">public</span> <span class="ty">RefundPolicy</span> resolve(<span class="ty">FareRule</span> fareRule) {
+    <span class="kw">if</span> (fareRule == <span class="kw">null</span> || !fareRule.isRefundable()) <span class="kw">return</span> <span class="kw">new</span> <span class="ty">NoRefundPolicy</span>();
+    <span class="ty">String</span> fc = fareRule.getFareClass();
+    <span class="kw">if</span> (<span class="st">&quot;Y&quot;</span>.equals(fc) || <span class="st">&quot;B&quot;</span>.equals(fc)) <span class="kw">return</span> <span class="kw">new</span> <span class="ty">FullRefundPolicy</span>();
+    <span class="kw">return</span> <span class="kw">new</span> <span class="ty">PartialRefundPolicy</span>();              <span class="cm">// 새 정책 추가 시 여기만 확장(OCP)</span>
+}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>21 / 45</span></div></div></body></html>

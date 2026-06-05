@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#4 Singleton — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#4 Singleton — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -44,6 +44,13 @@
  .codebox{background:#1e1e22;border-radius:0 0 10px 10px;padding:26px 30px;flex:1;min-height:0;overflow:hidden;display:flex}
  pre{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:27px;line-height:1.55;color:#d4d4d4;white-space:pre;margin:auto 0;width:100%}
  .kw{color:#569cd6} .ty{color:#4ec9b0} .st{color:#ce9178} .cm{color:#6a9955} .nu{color:#b5cea8}
+ .cmgrid{display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-auto-rows:1fr;gap:15px;width:100%;flex:1;min-height:0}
+ .ccard{display:flex;flex-direction:column;min-height:0;min-width:0;background:#1e1e22;border-radius:10px;overflow:hidden;border:1px solid #34343c}
+ .cchd{background:#2d2d33;padding:9px 15px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex:0 0 auto}
+ .cchd .ccfn{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cchd .ccrole{font-size:13px;color:#8fb6e6;white-space:nowrap;flex:0 0 auto}
+ .ccbody{flex:1;min-height:0;overflow:hidden;padding:10px 15px;display:flex}
+ .ccbody pre{font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;margin:0;width:100%}
  /* team-table iter4 red handled by td.red */
  .cover{justify-content:center;align-items:flex-start}
  .cover h1{font-size:100px;line-height:1.04} .cover .sub{font-size:40px;margin-top:24px}
@@ -72,19 +79,24 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">⚙️</span>DP#4 Singleton — 코드</h1><div class="sub">AppConfig.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">AppConfig.java</div><div class="codebox"><pre><span class="kw">private</span> <span class="kw">static</span> <span class="kw">volatile</span> <span class="ty">AppConfig</span> instance;
-<span class="kw">private</span> <span class="ty">AppConfig</span>() { }                              <span class="cm">// 외부 생성 차단</span>
-
-<span class="kw">public</span> <span class="kw">static</span> <span class="ty">AppConfig</span> getInstance() {              <span class="cm">// double-checked locking</span>
-    <span class="ty">AppConfig</span> local = instance;
-    <span class="kw">if</span> (local == <span class="kw">null</span>) {
-        <span class="kw">synchronized</span> (<span class="ty">AppConfig</span>.<span class="kw">class</span>) {
-            local = instance;
-            <span class="kw">if</span> (local == <span class="kw">null</span>) {
-                local = <span class="kw">new</span> <span class="ty">AppConfig</span>();
-                instance = local;
+</style></head><body><div class="slide"><h1><span class="emoji">⚙️</span>DP#4 Singleton — 코드 (관련 클래스 전부)</h1><div class="sub">AppConfig — private 생성자, static getInstance.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">AppConfig.java</span><span class="ccrole">Singleton · 유일 인스턴스 보장</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">final</span> <span class="kw">class</span> <span class="ty">AppConfig</span> {
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">volatile</span> <span class="ty">AppConfig</span> instance;    <span class="cm">// volatile — 가시성 보장</span>
+    <span class="kw">private</span> <span class="ty">AppConfig</span>() { }                        <span class="cm">// private 생성자 — 외부 new 차단</span>
+    <span class="kw">public</span> <span class="kw">static</span> <span class="ty">AppConfig</span> getInstance() {        <span class="cm">// double-checked locking</span>
+        <span class="ty">AppConfig</span> local = instance;
+        <span class="kw">if</span> (local == <span class="kw">null</span>) {
+            <span class="kw">synchronized</span> (<span class="ty">AppConfig</span>.<span class="kw">class</span>) {
+                local = instance;
+                <span class="kw">if</span> (local == <span class="kw">null</span>) instance = local = <span class="kw">new</span> <span class="ty">AppConfig</span>();
             }
         }
+        <span class="kw">return</span> local;
     }
-    <span class="kw">return</span> local;
-}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>30 / 45</span></div></div></body></html>
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">AppConfig.java</span><span class="ccrole">공유 전역 상태 + 변경 통지</span></div><div class="ccbody"><pre><span class="kw">private</span> <span class="ty">String</span> fontFamily = <span class="st">&quot;Pretendard&quot;</span>;
+<span class="kw">private</span> Locale displayLocale = Locale.KOREA;
+<span class="kw">private</span> Currency currency = Currency.getInstance(<span class="st">&quot;KRW&quot;</span>);
+<span class="cm">// 모든 화면이 같은 인스턴스를 읽으므로 설정이 한 곳에서 권위를 가진다.</span>
+<span class="kw">public</span> <span class="kw">void</span> setFontFamily(<span class="ty">String</span> f) {
+    <span class="kw">this</span>.fontFamily = f;
+    notifyListeners();                             <span class="cm">// 구독 화면들에 갱신 통지</span>
+}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>30 / 45</span></div></div></body></html>

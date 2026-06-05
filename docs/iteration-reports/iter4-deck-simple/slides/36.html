@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#6 Template Method — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#6 Template Method — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -44,6 +44,13 @@
  .codebox{background:#1e1e22;border-radius:0 0 10px 10px;padding:26px 30px;flex:1;min-height:0;overflow:hidden;display:flex}
  pre{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:27px;line-height:1.55;color:#d4d4d4;white-space:pre;margin:auto 0;width:100%}
  .kw{color:#569cd6} .ty{color:#4ec9b0} .st{color:#ce9178} .cm{color:#6a9955} .nu{color:#b5cea8}
+ .cmgrid{display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-auto-rows:1fr;gap:15px;width:100%;flex:1;min-height:0}
+ .ccard{display:flex;flex-direction:column;min-height:0;min-width:0;background:#1e1e22;border-radius:10px;overflow:hidden;border:1px solid #34343c}
+ .cchd{background:#2d2d33;padding:9px 15px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex:0 0 auto}
+ .cchd .ccfn{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cchd .ccrole{font-size:13px;color:#8fb6e6;white-space:nowrap;flex:0 0 auto}
+ .ccbody{flex:1;min-height:0;overflow:hidden;padding:10px 15px;display:flex}
+ .ccbody pre{font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;margin:0;width:100%}
  /* team-table iter4 red handled by td.red */
  .cover{justify-content:center;align-items:flex-start}
  .cover h1{font-size:100px;line-height:1.04} .cover .sub{font-size:40px;margin-top:24px}
@@ -72,14 +79,24 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">📄</span>DP#6 Template Method — 코드</h1><div class="sub">TicketRenderer.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">TicketRenderer.java</div><div class="codebox"><pre><span class="cm">// 템플릿 메서드 — 골격 고정(final), 단계는 서브클래스가 override</span>
-<span class="kw">public</span> <span class="kw">final</span> <span class="ty">String</span> render(<span class="ty">Reservation</span> reservation, <span class="ty">Ticket</span> ticket) {
-    StringBuilder sb = <span class="kw">new</span> StringBuilder();
-    sb.append(header(reservation, ticket));
-    sb.append(separator());
-    sb.append(body(reservation, ticket));
-    sb.append(separator());
-    sb.append(footer(reservation, ticket));
-    <span class="kw">return</span> sb.toString();
+</style></head><body><div class="slide"><h1><span class="emoji">📄</span>DP#6 Template Method — 코드 (관련 클래스 전부)</h1><div class="sub">AbstractClass=TicketRenderer, final render().</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">TicketRenderer.java</span><span class="ccrole">AbstractClass · 골격 고정(final)</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> TicketRenderer {
+    <span class="cm">// 템플릿 메서드 — final 로 호출 순서 고정, 서브클래스가 못 바꿈</span>
+    <span class="kw">public</span> <span class="kw">final</span> <span class="ty">String</span> render(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t) {
+        StringBuilder sb = <span class="kw">new</span> StringBuilder();
+        sb.append(header(r, t)).append(separator())
+          .append(body(r, t)).append(separator()).append(footer(r, t));
+        <span class="kw">return</span> sb.toString();
+    }
+    <span class="kw">protected</span> <span class="kw">abstract</span> <span class="ty">String</span> header(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t);  <span class="cm">// primitive 단계</span>
+    <span class="kw">protected</span> <span class="kw">abstract</span> <span class="ty">String</span> body(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t);
+    <span class="kw">protected</span> <span class="kw">abstract</span> <span class="ty">String</span> footer(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t);
+    <span class="kw">protected</span> <span class="ty">String</span> separator() { <span class="kw">return</span> <span class="st">&quot;\n&quot;</span>; }              <span class="cm">// hook — override 선택</span>
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">PlainTextTicketRenderer.java</span><span class="ccrole">ConcreteClass · 단계만 구현</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">class</span> PlainTextTicketRenderer <span class="kw">extends</span> TicketRenderer {
+    <span class="kw">protected</span> <span class="ty">String</span> header(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t) {
+        <span class="kw">return</span> <span class="st">&quot;=== KOREAN AIR e-TICKET ===&quot;</span> + safe(t.getTicketNumber());
+    }
+    <span class="kw">protected</span> <span class="ty">String</span> body(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t)   { /* 승객·발권시각 */ }
+    <span class="kw">protected</span> <span class="ty">String</span> footer(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t) { /* 게이트 안내 문구 */ }
+    <span class="kw">protected</span> <span class="ty">String</span> separator() { <span class="kw">return</span> <span class="st">&quot;----------------------------&quot;</span>; }  <span class="cm">// hook 재정의</span>
 }
-<span class="kw">protected</span> <span class="kw">abstract</span> <span class="ty">String</span> header(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t);   <span class="cm">// primitive</span></pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>36 / 45</span></div></div></body></html>
+<span class="cm">// HTML / BoardingPass 렌더러도 동일하게 단계만 교체</span></pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>36 / 45</span></div></div></body></html>

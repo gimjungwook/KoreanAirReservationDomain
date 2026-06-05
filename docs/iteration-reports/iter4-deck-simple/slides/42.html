@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#8 Decorator — 코드</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#8 Decorator — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -44,6 +44,13 @@
  .codebox{background:#1e1e22;border-radius:0 0 10px 10px;padding:26px 30px;flex:1;min-height:0;overflow:hidden;display:flex}
  pre{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:27px;line-height:1.55;color:#d4d4d4;white-space:pre;margin:auto 0;width:100%}
  .kw{color:#569cd6} .ty{color:#4ec9b0} .st{color:#ce9178} .cm{color:#6a9955} .nu{color:#b5cea8}
+ .cmgrid{display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-auto-rows:1fr;gap:15px;width:100%;flex:1;min-height:0}
+ .ccard{display:flex;flex-direction:column;min-height:0;min-width:0;background:#1e1e22;border-radius:10px;overflow:hidden;border:1px solid #34343c}
+ .cchd{background:#2d2d33;padding:9px 15px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex:0 0 auto}
+ .cchd .ccfn{font-family:'SF Mono','JetBrains Mono','D2Coding','Menlo',monospace;font-size:16px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .cchd .ccrole{font-size:13px;color:#8fb6e6;white-space:nowrap;flex:0 0 auto}
+ .ccbody{flex:1;min-height:0;overflow:hidden;padding:10px 15px;display:flex}
+ .ccbody pre{font-size:13.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;margin:0;width:100%}
  /* team-table iter4 red handled by td.red */
  .cover{justify-content:center;align-items:flex-start}
  .cover h1{font-size:100px;line-height:1.04} .cover .sub{font-size:40px;margin-top:24px}
@@ -72,11 +79,24 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🎁</span>DP#8 Decorator — 코드</h1><div class="sub">AbstractSeatDecorator.java  /  ExtraLegroomDecorator.java</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="codehd">AbstractSeatDecorator.java  /  ExtraLegroomDecorator.java</div><div class="codebox"><pre><span class="cm">// Decorator: 감싼 Component 로 위임</span>
-<span class="kw">public</span> <span class="ty">BigDecimal</span> getSurcharge() {
-    <span class="kw">return</span> component.getSurcharge();
+</style></head><body><div class="slide"><h1><span class="emoji">🎁</span>DP#8 Decorator — 코드 (관련 클래스 전부)</h1><div class="sub">Component=SeatView, Decorator=AbstractSeatDecorator.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">SeatView.java</span><span class="ccrole">Component · 공통 추상 타입</span></div><div class="ccbody"><pre><span class="cm">// 기본 좌석과 데코레이터가 똑같이 구현하는 타입.</span>
+<span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> SeatView {
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">BigDecimal</span> getSurcharge();     <span class="cm">// 추가 요금</span>
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">String</span> getDescription();
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">List</span>&lt;<span class="ty">String</span>&gt; getMetadataLabels();
+}</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">AbstractSeatDecorator.java</span><span class="ccrole">Decorator · 감싼 객체로 위임</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> AbstractSeatDecorator <span class="kw">extends</span> SeatView {
+    <span class="kw">protected</span> <span class="kw">final</span> SeatView component;            <span class="cm">// 감싼 대상(같은 타입)</span>
+    <span class="kw">protected</span> AbstractSeatDecorator(SeatView c) { <span class="kw">this</span>.component = c; }
+    <span class="cm">// 기본 동작은 그대로 위임 — 서브클래스가 필요한 메서드만 덧붙인다</span>
+    <span class="kw">public</span> <span class="ty">BigDecimal</span> getSurcharge()  { <span class="kw">return</span> component.getSurcharge(); }
+    <span class="kw">public</span> <span class="ty">String</span> getDescription()    { <span class="kw">return</span> component.getDescription(); }
+}</pre></div></div><div class="ccard" style="grid-column:1/-1"><div class="cchd"><span class="ccfn">ExtraLegroomDecorator.java</span><span class="ccrole">ConcreteDecorator · 요금 누적</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">class</span> ExtraLegroomDecorator <span class="kw">extends</span> AbstractSeatDecorator {
+    <span class="kw">private</span> <span class="kw">static</span> <span class="kw">final</span> <span class="ty">BigDecimal</span> SURCHARGE = <span class="kw">new</span> <span class="ty">BigDecimal</span>(<span class="st">&quot;50000&quot;</span>);
+    <span class="kw">public</span> <span class="ty">BigDecimal</span> getSurcharge() {
+        <span class="kw">return</span> <span class="kw">super</span>.getSurcharge().add(SURCHARGE);   <span class="cm">// 감싼 결과 + 자기 요금(+50,000)</span>
+    }
+    <span class="kw">public</span> <span class="ty">String</span> getDescription() {
+        <span class="kw">return</span> <span class="kw">super</span>.getDescription() + <span class="st">&quot; · 프리미엄 레그룸 (+50,000)&quot;</span>;
+    }
 }
-<span class="cm">// ConcreteDecorator: super 결과에 자기 요금 누적</span>
-@Override <span class="kw">public</span> <span class="ty">BigDecimal</span> getSurcharge() {
-    <span class="kw">return</span> <span class="kw">super</span>.getSurcharge().add(SURCHARGE);      <span class="cm">// +50,000</span>
-}</pre></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>42 / 45</span></div></div></body></html>
+<span class="cm">// Lounge(+80,000) 등도 동일 — 조합마다 클래스 안 만들고 런타임에 겹쳐 씀(OCP)</span></pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>42 / 45</span></div></div></body></html>
