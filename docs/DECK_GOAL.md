@@ -98,6 +98,7 @@
 - DP 번호는 Scheme B 고정: DP#1 Strategy, DP#2 Observer, DP#3 Composite, DP#4 Singleton, DP#5 Factory Method, DP#6 Template Method, DP#7 Adapter, DP#8 Decorator. State는 DP 번호 미부여.
 - iteration 4 신규/변경 항목은 보고서처럼 빨강으로 표시해도 되지만, 디자인 최소 원칙상 빨강 텍스트 정도로만(테두리/박스 불필요).
 - 보고서에 있는 사실만 사용. 새 클래스/메서드/숫자 창작 금지. 불확실하면 보고서 본문/부록(A1-A11)을 출처로 확인.
+- 행동 다이어그램(Use Case, Sequence, State)과 표(핵심 본문 표 3개 + Team Contribution)는 각각 "그것만" 크게 집중해서 보여주는 독립 장표를 둔다(DP 비교 전용 장표와 같은 원리). 그 집중 장표에서는 다이어그램이나 표 자체를 화면 가득 크게 배치하고, 군더더기 설명은 빼거나 최소화한다. 설명이 필요하면 앞이나 뒤에 별도 설명 장표를 둔다(설명 + 집중 2단 구성도 좋다).
 - 장표 수는 DP당 3장(설명 + 비교 + 코드) + 표 3개 + Team Contribution 표 + 행동 다이어그램 + State + 결론 기준 약 38-40장. DP#1-8과 표 3개는 빠짐없이 포함.
 - 산출물 형식은 단순 HTML 덱(각 장표 독립 HTML + index.html 집계, 브라우저에서 방향키로 넘김). 각 장표를 PNG로 렌더해 오버플로우, 잘림, 과밀, 가독성을 눈으로 검증한다.
 
