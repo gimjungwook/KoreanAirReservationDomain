@@ -1,46 +1,66 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Use Case Diagram</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>Use Case 다이어그램</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Helvetica Neue', 'Segoe UI', system-ui, -apple-system, sans-serif;overflow:hidden}
-  .slide{width:1920px;height:1080px;padding:70px 120px 48px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-  .kicker{font-size:26px;letter-spacing:.18em;text-transform:uppercase;color:#0b4a8f;font-weight:700;margin-bottom:18px}
-  h1{font-size:74px;line-height:1.08;font-weight:800;letter-spacing:-0.5px}
-  .sub{font-size:36px;color:#5a6472;margin-top:18px;font-weight:400}
-  .rule{height:5px;width:120px;background:#0b4a8f;margin:30px 0 36px;border-radius:3px}
-  ul{list-style:none;margin-top:8px}
-  li{font-size:34px;line-height:1.5;margin:0 0 22px;padding-left:46px;position:relative;color:#222;max-width:1680px}
-  li::before{content:"";position:absolute;left:8px;top:18px;width:14px;height:14px;background:#0b4a8f;border-radius:3px}
-  li b{font-weight:700;color:#1a1a1a}
-  .red{color:#c0202a}
-  .red::before{background:#c0202a}
-  .body{flex:1;display:flex;gap:64px;align-items:flex-start;min-height:0}
-  .col{flex:1;min-width:0}
-  .imgwrap{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;height:100%}
-  .imgwrap img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px;background:#fff}
-  .twoimg{display:flex;gap:40px;align-items:stretch;justify-content:center;width:100%;flex:1;min-height:0}
-  .twoimg figure{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;min-height:0}
-  .twoimg figcaption{font-size:24px;color:#5a6472;margin-bottom:10px;font-weight:600;flex:0 0 auto}
-  .twoimg img{max-width:100%;min-height:0;flex:1;object-fit:contain;object-position:center;border:1px solid #d7dde5;border-radius:8px}
-  .twoimg-bullets{display:flex;gap:48px;flex:0 0 auto;margin-top:24px}
-  .twoimg-bullets li{font-size:27px;line-height:1.34;margin:0;padding-left:38px}
-  .twoimg-bullets li::before{top:14px}
-  .footer{margin-top:18px;flex:0 0 auto;align-self:stretch;display:flex;justify-content:space-between;font-size:22px;color:#9aa3ad;border-top:1px solid #d7dde5;padding-top:14px}
-  /* DP compare layout: textbook small top-left + bullets top-right + impl full-width bottom */
-  .dpc{flex:1;display:flex;flex-direction:column;gap:18px;min-height:0;width:100%}
-  .dpc-top{flex:0 0 36%;display:flex;gap:52px;min-height:0}
-  .dpc-tb{flex:0 0 470px;display:flex;flex-direction:column;align-items:center;min-height:0}
-  .dpc-tb figcaption,.dpc-impl figcaption{font-size:22px;color:#5a6472;margin-bottom:8px;font-weight:600;flex:0 0 auto}
-  .dpc-tb img{max-width:100%;min-height:0;flex:1;object-fit:contain;object-position:center;border:1px solid #d7dde5;border-radius:8px}
-  .dpc-bul{flex:1;display:flex;flex-direction:column;justify-content:center;list-style:none}
-  .dpc-bul li{font-size:30px;line-height:1.4;margin:0 0 18px;padding-left:42px;position:relative}
-  .dpc-bul li::before{content:"";position:absolute;left:8px;top:15px;width:14px;height:14px;background:#0b4a8f;border-radius:3px}
-  .dpc-bul li.red::before{background:#c0202a}
-  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
-  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-  /* cover */
-  .cover{align-items:flex-start;justify-content:center}
-  .cover h1{font-size:110px;line-height:1.02}
-  .cover .sub{font-size:44px;margin-top:30px}
-  .cover .meta{font-size:30px;color:#5a6472;margin-top:54px}
-  .emoji{font-size:64px;margin-right:18px;vertical-align:-6px}
-</style></head><body><div class="slide"><h1><span class="emoji">🗺️</span>Use Case Diagram</h1><div class="sub">System scope, cumulative Iteration 1–4</div><div class="rule"></div><div class="body"><div class="imgwrap"><img src="../assets/dg-usecase.png"></div><div class="col"><ul><li class="">Actors: Customer (Skypass Member / Guest), Administrator, Payment Gateway, Skypass System</li><li class="">Member and Guest specialize the Customer actor</li><li class="red">Red use cases were added in Iteration 4 (seat options, mileage pay, e-Ticket render, linked bus ticket, …)</li></ul></div></div><div class="footer"><span>OODP · Iteration 4 · Korean Air Reservation System</span><span>7 / 22</span></div></body></html></div>
+ *{box-sizing:border-box;margin:0;padding:0}
+ html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
+ .slide{width:1920px;height:1080px;padding:72px 120px 46px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+ .kicker{font-size:26px;letter-spacing:.16em;color:#0b4a8f;font-weight:700;margin-bottom:16px}
+ h1{font-size:68px;line-height:1.1;font-weight:800;letter-spacing:-1px}
+ .sub{font-size:34px;color:#5a6472;margin-top:14px;font-weight:400}
+ .rule{height:5px;width:110px;background:#0b4a8f;margin:26px 0 30px;border-radius:3px;flex:0 0 auto}
+ .emoji{font-size:60px;margin-right:16px;vertical-align:-6px}
+ .body{flex:1;min-height:0;display:flex;gap:60px;align-items:flex-start}
+ .footer{margin-top:16px;flex:0 0 auto;align-self:stretch;display:flex;justify-content:space-between;font-size:21px;color:#9aa3ad;border-top:1px solid #d7dde5;padding-top:12px}
+ ul{list-style:none}
+ li{font-size:33px;line-height:1.5;margin:0 0 20px;padding-left:42px;position:relative;color:#222}
+ li::before{content:"";position:absolute;left:8px;top:17px;width:13px;height:13px;background:#0b4a8f;border-radius:3px}
+ li.red,.red{color:#c0202a} li.red::before{background:#c0202a}
+ b{font-weight:700;color:#1a1a1a}
+ .lead{font-size:40px;line-height:1.45;color:#222;max-width:1500px}
+ .prose{font-size:34px;line-height:1.6;color:#333;max-width:1500px}
+ /* image + caption */
+ .imgwrap{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;height:100%}
+ .imgwrap img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
+ .col{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;height:100%}
+ .cap{font-size:32px;line-height:1.5;color:#333} .cap .em{color:#0b4a8f;font-weight:700}
+ /* two columns */
+ .twocol{display:flex;gap:80px;width:100%} .twocol .c{flex:1;min-width:0}
+ .colhd{font-size:30px;font-weight:800;color:#0b4a8f;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid #d7dde5}
+ .colhd.red{color:#c0202a}
+ /* team row */
+ .teamrow{display:flex;gap:64px;width:100%;align-items:stretch}
+ .person{flex:1;min-width:0;border-top:4px solid #0b4a8f;padding-top:22px}
+ .person .nm{font-size:38px;font-weight:800} .person .ro{font-size:27px;color:#0b4a8f;margin:6px 0 16px;font-weight:700}
+ .person .ct{font-size:28px;line-height:1.5;color:#333}
+ /* timeline */
+ .timeline{display:flex;gap:0;width:100%;align-items:stretch}
+ .step{flex:1;padding:0 28px;position:relative}
+ .step:not(:last-child)::after{content:"›";position:absolute;right:-12px;top:8px;font-size:46px;color:#d7dde5}
+ .step .it{font-size:30px;font-weight:800;color:#0b4a8f}
+ .step.red .it{color:#c0202a}
+ .step .tt{font-size:28px;line-height:1.45;color:#333;margin-top:14px}
+ /* stat grid */
+ .statgrid{display:flex;gap:60px;width:100%}
+ .stat{flex:1;border-top:4px solid #0b4a8f;padding-top:24px}
+ .stat .h{font-size:34px;font-weight:800;margin-bottom:14px}
+ .stat .d{font-size:28px;line-height:1.55;color:#333}
+ /* DP content: textbook small + text, impl full width */
+ .dpc{flex:1;display:flex;flex-direction:column;gap:18px;min-height:0;width:100%}
+ .dpc-top{flex:0 0 34%;display:flex;gap:50px;min-height:0}
+ .dpc-tb{flex:0 0 440px;display:flex;flex-direction:column;align-items:center;min-height:0}
+ .dpc-tb figcaption{font-size:21px;color:#5a6472;margin-bottom:8px;font-weight:600;flex:0 0 auto}
+ .dpc-tb img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
+ .dpc-txt{flex:1;display:flex;flex-direction:column;justify-content:center}
+ .dpc-txt .role{font-size:28px;line-height:1.5;color:#333;margin-bottom:16px}
+ .dpc-txt .role .em{color:#0b4a8f;font-weight:700}
+ .dpc-txt ul li{font-size:28px;margin:0 0 12px;padding-left:36px} .dpc-txt ul li::before{top:13px;width:12px;height:12px}
+ .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
+ .dpc-impl figcaption{font-size:21px;color:#5a6472;margin-bottom:6px;font-weight:600;flex:0 0 auto}
+ .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
+ /* compare: pure two images, no chrome */
+ .compare{width:1920px;height:1080px;display:flex;gap:48px;align-items:center;justify-content:center;padding:54px 64px;background:#ffffff}
+ .compare img{max-width:50%;max-height:100%;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
+ /* cover */
+ .cover{justify-content:center;align-items:flex-start}
+ .cover h1{font-size:104px;line-height:1.04} .cover .sub{font-size:42px;margin-top:26px}
+ .cover .meta{font-size:29px;color:#5a6472;margin-top:50px}
+</style></head><body><div class="slide"><h1><span class="emoji">🗺️</span>Use Case 다이어그램</h1><div class="sub">시스템 범위 (Iteration 1~4 누적)</div><div class="rule"></div><div class="body"><div class="imgwrap" style="flex:1.4"><img src="../assets/dg-usecase.png"></div><div class="col"><div class="cap">액터는 <span class="em">Customer</span>(Skypass Member / Guest), Administrator, 그리고 외부 시스템 Payment Gateway · Skypass System. <span style="color:#c0202a">빨간색 유스케이스는 Iteration 4에서 추가된 것</span>(좌석 옵션, 마일리지 결제, e-Ticket 렌더, 연계 버스 발권 등).</div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>7 / 31</span></div></div></body></html>

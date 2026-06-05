@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>대한항공 예약 시스템</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#7 Adapter</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -63,4 +63,4 @@
  .cover{justify-content:center;align-items:flex-start}
  .cover h1{font-size:104px;line-height:1.04} .cover .sub{font-size:42px;margin-top:26px}
  .cover .meta{font-size:29px;color:#5a6472;margin-top:50px}
-</style></head><body><div class="slide cover"><div class="kicker">✈️  객체지향 설계 패턴</div><h1>대한항공 예약 시스템</h1><div class="sub">Iteration 4 — 디자인 패턴 보고서</div><div class="meta">Team A · 김정욱 · 이재호 · 김경동</div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>1 / 31</span></div></div></body></html>
+</style></head><body><div class="slide"><h1><span class="emoji">🔌</span>DP#7 Adapter</h1><div class="sub">외부 Skypass 마일리지 API 감싸기</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:0"><div class="dpc"><div class="dpc-top"><figure class="dpc-tb"><figcaption>교과서</figcaption><img src="../assets/tb-adapter.jpg"></figure><div class="dpc-txt"><div class="role"><span class="em">Target</span> = SkypassInterface, <span class="em">Adapter</span> = SkypassAdapter, <span class="em">Adaptee</span> = RemoteSkypassApi.</div><ul><li class="">deductMileage가 adaptee.postDeduct의 Map을 boolean으로 변환</li><li class="">애플리케이션은 우리 인터페이스에만 의존 (DIP)</li></ul></div></div><figure class="dpc-impl"><figcaption>구현 다이어그램</figcaption><img src="../assets/dg-dp7.png"></figure></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>25 / 31</span></div></div></body></html>
