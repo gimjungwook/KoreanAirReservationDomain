@@ -260,29 +260,56 @@
   function resetZoom() { zCur = 1; panX = 0; panY = 0; applyCur(); }
   window.addEventListener('resize', fitAll);
 
-  // 현재 슬라이드 박스: 휠=확대 · 드래그=이동 · 더블클릭=리셋
+  // 현재 슬라이드 박스: 버튼 ＋/－/⤢ · 휠=확대 · 드래그=이동 · 더블클릭=리셋
   const curBox = scalerCur.parentElement;
+  // iframe 이 휠/드래그 이벤트를 가로채지 못하게 (미리보기는 상호작용 불필요)
+  frameCur.style.pointerEvents = 'none';
+
+  // 박스 중심(또는 임의 지점) 기준 줌
+  function zoomAt(nz, cx, cy) {
+    nz = Math.min(8, Math.max(1, nz));
+    const k = nz / zCur;
+    const Tx = curBase.x + panX, Ty = curBase.y + panY;
+    panX = cx - (cx - Tx) * k - curBase.x;
+    panY = cy - (cy - Ty) * k - curBase.y;
+    zCur = nz;
+    if (zCur <= 1) { zCur = 1; panX = 0; panY = 0; }
+    applyCur();
+  }
+  function zoomByButton(f) {
+    const r = curBox.getBoundingClientRect();
+    zoomAt(zCur * f, r.width / 2, r.height / 2);
+  }
+
+  // 줌 버튼 패널 (좌상단)
+  const zoomCtl = document.createElement('div');
+  zoomCtl.style.cssText = 'position:absolute;top:8px;left:8px;z-index:7;display:flex;gap:4px';
+  const mkBtn = (txt, title, fn) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = txt; b.title = title;
+    b.style.cssText = 'width:30px;height:30px;border:0;border-radius:6px;background:rgba(20,28,46,.82);color:#e8eefc;font-size:17px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center';
+    b.addEventListener('click', (e) => { e.stopPropagation(); fn(); });
+    return b;
+  };
+  zoomCtl.appendChild(mkBtn('＋', '확대', () => zoomByButton(1.4)));
+  zoomCtl.appendChild(mkBtn('－', '축소', () => zoomByButton(1 / 1.4)));
+  zoomCtl.appendChild(mkBtn('⤢', '리셋', resetZoom));
+  curBox.appendChild(zoomCtl);
+
   const zoomBadge = document.createElement('div');
   zoomBadge.style.cssText = 'position:absolute;bottom:8px;right:10px;z-index:6;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px 9px;border-radius:6px;pointer-events:none;font-variant-numeric:tabular-nums';
   zoomBadge.textContent = '🔍 100%';
   curBox.appendChild(zoomBadge);
   const zoomHint = document.createElement('div');
   zoomHint.style.cssText = 'position:absolute;bottom:8px;left:10px;z-index:6;background:rgba(0,0,0,.5);color:#cbd5e1;font-size:11px;padding:3px 9px;border-radius:6px;pointer-events:none';
-  zoomHint.textContent = '휠 확대 · 드래그 이동 · 더블클릭 리셋';
+  zoomHint.textContent = '＋/－ 버튼 · 휠 확대 · 드래그 이동';
   curBox.appendChild(zoomHint);
+
   curBox.addEventListener('wheel', (e) => {
     e.preventDefault();
     const rect = curBox.getBoundingClientRect();
     const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    const ds = Math.exp(-e.deltaY * 0.0015);
-    const nz = Math.min(8, Math.max(1, zCur * ds));
-    const k = nz / zCur;
-    const Tx = curBase.x + panX, Ty = curBase.y + panY;
-    panX = mx - (mx - Tx) * k - curBase.x;
-    panY = my - (my - Ty) * k - curBase.y;
-    zCur = nz;
-    if (zCur === 1) { panX = 0; panY = 0; }
-    applyCur();
+    zoomAt(zCur * Math.exp(-e.deltaY * 0.0015), mx, my);
   }, { passive: false });
   let zdrag = false, zsx = 0, zsy = 0;
   curBox.addEventListener('mousedown', (e) => {
