@@ -39,12 +39,14 @@ window.DECK_NOTES = {
 
 7: `이건 반대로, **아직 구현하지 않았지만 앞으로 확장 가능한** 후보들입니다.
 
-예약 취소나 변경 흐름, 이메일·SMS 알림은 **Observer를 재사용**하면 되고, PayPal이나 암호화폐 결제는 **Factory Method에 ConcreteCreator만 추가**하면 됩니다. 좌석 추천이나 등급 할인은 **Strategy**, 외부 PG 연동은 **Adapter**, 로깅은 **Decorator나 Proxy**로 확장할 수 있습니다.
+예약 취소나 변경 흐름, 이메일·SMS 알림은 **Observer를 재사용**하면 되고, PayPal이나 암호화폐 결제는 **Factory Method에 ConcreteCreator만 추가**하면 됩니다. 좌석 추천이나 등급 할인은 **Strategy**, 외부 PG나 다른 **legacy system 연동은 Adapter를 그대로 재사용**하면 되고, 로깅은 **Decorator나 Proxy**로 확장할 수 있습니다.
 중요한 건, 이미 깔아둔 패턴 구조 덕분에 *호출부를 거의 건드리지 않고* 새 기능을 붙일 수 있다는 청사진이 선다는 점입니다.`,
 
 8: `이제 시스템의 **행동 다이어그램**으로 넘어갑니다. 먼저 전체 **Use Case 다이어그램**입니다.
 
-Iteration 1부터 4까지 누적된 전체 범위를 보여 줍니다. 액터는 Skypass 회원과 Guest를 포함한 **Customer**, **Administrator**, 그리고 외부의 **Payment Gateway와 Skypass System**이 있습니다. **빨간색 유스케이스가 Iteration 4에서 새로 들어온 것**이고요. 시스템의 경계가 어디까지인지를 이 그림 한 장으로 정리했습니다.`,
+Iteration 1부터 4까지 누적된 전체 범위를 보여 줍니다. 액터는 Skypass 회원과 Guest를 포함한 **Customer**, **Administrator**, 그리고 외부의 **Payment Gateway와 Skypass System**이 있습니다.
+여기서 이 **Payment Gateway와 Skypass System은 우리가 만들거나 고칠 수 없는 legacy 외부 시스템**입니다. 그래서 시스템 경계 *바깥*에 두고, 뒤에 나올 Adapter 패턴으로 연동합니다.
+**빨간색 유스케이스가 Iteration 4에서 새로 들어온 것**이고요. 시스템의 경계가 어디까지인지를 이 그림 한 장으로 정리했습니다.`,
 
 9: `방금 그 Use Case 다이어그램을 **크게 확대**한 화면입니다.
 
@@ -60,13 +62,13 @@ Iteration 1부터 4까지 누적된 전체 범위를 보여 줍니다. 액터는
 
 12: `이번엔 Iteration 4의 두 흐름을 **나란히** 놓았습니다.
 
-왼쪽은 **마일리지 Adapter** 시퀀스입니다. SkypassAdapter가 외부 API인 adaptee의 postDeduct가 돌려주는 **Map을 boolean으로 변환**해 줍니다.
+왼쪽은 **마일리지 Adapter** 시퀀스입니다. SkypassAdapter가 **legacy 외부 시스템**인 adaptee의 postDeduct가 돌려주는 **Map을 boolean으로 변환**해 줍니다. legacy 쪽 호출이 우리 도메인으로 넘어오는 *경계 지점*이 바로 여기입니다.
 오른쪽은 **좌석 Decorator** 시퀀스입니다. 각 옵션이 super에 위임한 뒤 자기 요금을 더하는 식으로 **요금이 누적**됩니다.
 두 패턴 모두 *기존 객체를 감싸서* 일을 처리한다는 공통점이 있습니다.`,
 
 13: `왼쪽 **Adapter 시퀀스를 확대**한 화면입니다.
 
-외부 API의 Map 응답이 어떻게 우리 도메인이 쓰는 boolean으로 변환되는지, 그 호출 흐름을 자세히 보겠습니다. 애플리케이션은 외부 시스템의 Map 구조를 전혀 몰라도 됩니다.`,
+**legacy 외부 시스템**의 Map 응답이 어떻게 우리 도메인이 쓰는 boolean으로 변환되는지, 그 호출 흐름을 자세히 보겠습니다. 애플리케이션은 이 legacy system의 Map 구조를 전혀 몰라도 됩니다.`,
 
 14: `이쪽은 **Decorator 시퀀스 확대판**입니다.
 
@@ -167,18 +169,20 @@ AbstractClass는 **TicketRenderer**이고, final render가 전체 순서를 묶�
 **TicketRenderer**의 final render가 header → separator → body → separator → footer 순서를 *고정*합니다. 서브클래스가 이 순서를 못 바꿉니다. 각 단계는 추상 primitive고, separator만 선택적으로 바꿀 수 있는 hook입니다.
 **PlainTextTicketRenderer**는 ConcreteClass로, header, body, footer 단계만 구현하고 separator hook을 재정의했습니다. HTML이나 BoardingPass도 *단계만 갈아끼우면* 됩니다.`,
 
-37: `**DP#7, Adapter**입니다. **외부 Skypass 마일리지 API를 감싸기** 위해 썼습니다.
+37: `**DP#7, Adapter**입니다. 이 패턴의 핵심 동기는 바로 **legacy system 통합**입니다. *우리가 수정할 수 없는* 외부 Skypass 마일리지 시스템을 감싸려고 썼습니다.
 
-Target은 **SkypassInterface**, Adapter는 **SkypassAdapter**, Adaptee는 외부 시스템인 **RemoteSkypassApi**입니다. deductMileage가 adaptee의 postDeduct가 주는 Map을 boolean으로 변환해 줍니다. 덕분에 우리 애플리케이션은 *우리 인터페이스에만 의존*합니다. DIP, 의존 역전이죠.`,
+Adaptee인 **RemoteSkypassApi**가 바로 그 **legacy system**입니다. 외부 회원사가 운영하는 시스템이라 우리가 코드를 고칠 수 없고, 인터페이스도 우리 도메인과 맞지 않습니다. 반환값이 Map이죠.
+그래서 Target인 **SkypassInterface**를 *우리가 원하는 모양*으로 정의하고, **SkypassAdapter**가 그 사이에서 변환을 맡습니다. deductMileage가 legacy API의 Map 응답을 boolean으로 바꿔 줍니다.
+핵심은, **legacy system을 한 줄도 건드리지 않고** 우리 애플리케이션은 우리 인터페이스에만 의존하게 만들었다는 점입니다. DIP, 의존 역전입니다.`,
 
 38: `Adapter 교과서 구조와 SkypassAdapter 구현을 비교한 화면입니다. Target, Adapter, Adaptee의 대응을 보겠습니다.`,
 
 39: `Adapter 코드입니다.
 
 **SkypassInterface**가 Target인데, boolean이나 int 같은 *도메인 친화적인 타입*을 돌려줍니다.
-**SkypassAdapter**가 Adapter로, adaptee를 들고 있다가 deductMileage에서 외부의 Map 응답을 Boolean.TRUE.equals로 boolean으로 변환합니다.
-**RemoteSkypassApi**가 Adaptee인데, *우리가 수정할 수 없는 외부 시스템*이라고 가정하고, postDeduct가 success, remaining 같은 키를 가진 Map을 돌려줍니다.
-결국 호출부는 그 Map 구조를 전혀 몰라도 됩니다.`,
+**SkypassAdapter**가 Adapter로, adaptee를 들고 있다가 deductMileage에서 legacy API의 Map 응답을 Boolean.TRUE.equals로 boolean으로 변환합니다.
+**RemoteSkypassApi**가 바로 그 **legacy system**, 즉 Adaptee입니다. *우리가 수정할 수 없는 외부 시스템*이라고 가정하고, postDeduct가 success, remaining 같은 키를 가진 Map을 돌려줍니다. 보시면 시그니처도, 반환 타입도 우리 도메인과 전혀 다르죠.
+결국 호출부는 이 legacy system의 Map 구조를 전혀 몰라도 됩니다. Adapter가 그 차이를 모두 흡수하니까요.`,
 
 40: `**DP#8, Decorator**입니다. **런타임에 좌석 옵션을 누적**하려고 썼습니다.
 
@@ -197,7 +201,7 @@ Component는 **SeatView**, Decorator는 **AbstractSeatDecorator**입니다. Extr
 
 첫째 **기능 완결도**입니다. 결제는 Factory Method, 환불은 Strategy, 발권 통지는 Observer, 좌석은 Decorator 연쇄로 *end-to-end*가 다 이어집니다.
 둘째 **재사용성**입니다. 호출부를 안 고치고 클래스 하나만 추가하면 기능이 늘어나는, OCP가 실제로 작동합니다.
-셋째 **테스트 적합성**입니다. 역할 경계가 또렷해서, Adapter는 가짜 외부로 바꿔치울 수 있고 State는 잘못된 전이를 결정적으로 거부합니다.`,
+셋째 **테스트 적합성**입니다. 역할 경계가 또렷해서, Adapter 덕분에 **legacy 외부 시스템을 가짜 stub으로 바꿔치워** 테스트할 수 있고, State는 잘못된 전이를 결정적으로 거부합니다.`,
 
 44: `**현황과 다음 단계**입니다. 솔직하게 완료된 것과 보완할 것을 나눴습니다.
 
