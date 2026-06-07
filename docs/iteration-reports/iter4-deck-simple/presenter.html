@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>발표자 모드 · 대한항공 예약 시스템</title>
+<script src="manifest.js"></script>
+<script src="notes.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f12;
+    --panel: #16191e;
+    --panel2: #1c2128;
+    --line: #2a2f37;
+    --txt: #e8eaed;
+    --muted: #9aa3ad;
+    --accent: #4a9eff;
+    --accent2: #0b4a8f;
+    --red: #ff5b66;
+    --note-size: 30px;
+  }
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', -apple-system, system-ui, sans-serif;
+    overflow: hidden;
+  }
+  #app { display: flex; flex-direction: column; height: 100vh; }
+
+  /* ── 상단바 ── */
+  .topbar {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 18px;
+    padding: 10px 18px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar .slidenum { font-size: 20px; font-weight: 800; letter-spacing: .02em; }
+  .topbar .slidenum .tot { color: var(--muted); font-weight: 600; }
+  .topbar .label { font-size: 16px; color: var(--muted); max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .spacer { flex: 1; }
+  .timer {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 8px 6px 16px;
+  }
+  .timer .t { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .04em; min-width: 92px; }
+  .timer.over .t { color: var(--red); }
+  .timer button, .topbar .btn {
+    background: var(--panel2); color: var(--txt);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 12px; font-size: 15px; cursor: pointer;
+    font-family: inherit;
+  }
+  .timer button { padding: 6px 10px; border-radius: 999px; }
+  .topbar .btn:hover, .timer button:hover { background: #2a3138; border-color: #3a424c; }
+  .clock { font-size: 20px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .topbar .btn.primary { background: var(--accent2); border-color: var(--accent2); color: #fff; font-weight: 700; }
+  .topbar .btn.primary:hover { background: #0e5aab; }
+
+  /* ── 본문 ── */
+  .main { flex: 1; min-height: 0; display: flex; gap: 14px; padding: 14px; }
+  .left  { flex: 0 0 56%; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .stagebox {
+    background: #000; border: 1px solid var(--line); border-radius: 10px;
+    position: relative; overflow: hidden;
+  }
+  .stagebox.cur  { flex: 1; min-height: 0; }
+  .stagebox.nxt  { flex: 0 0 32%; min-height: 0; }
+  .stagebox .tag {
+    position: absolute; top: 8px; left: 10px; z-index: 5;
+    font-size: 12px; font-weight: 800; letter-spacing: .12em;
+    color: #fff; background: rgba(0,0,0,.55);
+    padding: 3px 9px; border-radius: 6px; pointer-events: none;
+  }
+  .scaler { position: absolute; top: 0; left: 0; transform-origin: top left; }
+  .scaler iframe { width: 1920px; height: 1080px; border: 0; display: block; background: #fff; }
+
+  /* ── 대본 패널 ── */
+  .noteshd {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 12px;
+    padding: 4px 4px 12px;
+  }
+  .noteshd .h { font-size: 17px; font-weight: 800; letter-spacing: .08em; color: var(--muted); }
+  .noteshd .sz { margin-left: auto; display: flex; gap: 6px; }
+  .noteshd .sz button {
+    background: var(--panel2); color: var(--txt); border: 1px solid var(--line);
+    border-radius: 8px; width: 36px; height: 32px; cursor: pointer; font-size: 16px; font-family: inherit;
+  }
+  .noteshd .sz button:hover { background: #2a3138; }
+  .notes {
+    flex: 1; min-height: 0; overflow-y: auto;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 28px 34px;
+    font-size: var(--note-size); line-height: 1.65; color: var(--txt);
+    white-space: pre-wrap; word-break: break-word;
+    scroll-behavior: smooth;
+  }
+  .notes.empty { color: var(--muted); font-style: italic; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .notes b, .notes strong { color: #fff; font-weight: 800; }
+  .notes em { color: var(--accent); font-style: normal; font-weight: 700; }
+  .notes::-webkit-scrollbar { width: 12px; }
+  .notes::-webkit-scrollbar-thumb { background: #333a43; border-radius: 999px; border: 3px solid var(--panel); }
+
+  /* ── 하단 네비 ── */
+  .navbar {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 18px; background: var(--panel); border-top: 1px solid var(--line);
+  }
+  .navbar button.nav {
+    background: var(--panel2); color: var(--txt); border: 1px solid var(--line);
+    border-radius: 10px; padding: 11px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .navbar button.nav:hover { background: #2a3138; }
+  .navbar button.nav:disabled { opacity: .35; cursor: default; }
+  .progress { flex: 1; height: 8px; background: var(--panel2); border-radius: 999px; overflow: hidden; }
+  .progress > span { display: block; height: 100%; background: var(--accent); width: 0; transition: width .15s; }
+  .hint { font-size: 13px; color: var(--muted); }
+  .hint kbd {
+    background: var(--panel2); border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 6px; font-size: 12px; font-family: inherit;
+  }
+  .linkstatus { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .linkstatus .dot { width: 9px; height: 9px; border-radius: 999px; background: #555; }
+  .linkstatus.on .dot { background: #36d399; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="slidenum"><span id="curNum">1</span><span class="tot"> / <span id="totNum">45</span></span></div>
+    <div class="label" id="curLabel">—</div>
+    <div class="spacer"></div>
+    <div class="timer" id="timerWrap">
+      <span class="t" id="timer">00:00</span>
+      <button id="btnPause" title="시작/일시정지 (T)">⏸</button>
+      <button id="btnReset" title="리셋 (R)">↺</button>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+    <button class="btn primary" id="btnAudience" title="청중 화면 새 창 (F)">🖥 청중 화면 열기</button>
+    <button class="btn" id="btnFull" title="이 창 전체화면">⛶</button>
+  </div>
+
+  <div class="main">
+    <div class="left">
+      <div class="stagebox cur">
+        <div class="tag">현재</div>
+        <div class="scaler" id="scalerCur"><iframe id="frameCur" src="about:blank"></iframe></div>
+      </div>
+      <div class="stagebox nxt">
+        <div class="tag" id="nextTag">다음 ▸</div>
+        <div class="scaler" id="scalerNxt"><iframe id="frameNxt" src="about:blank"></iframe></div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="noteshd">
+        <span class="h">발표 대본</span>
+        <div class="sz">
+          <button id="szDown" title="글자 작게">A−</button>
+          <button id="szUp" title="글자 크게">A+</button>
+        </div>
+      </div>
+      <div class="notes" id="notes">대본 로딩 중…</div>
+    </div>
+  </div>
+
+  <div class="navbar">
+    <button class="nav" id="btnPrev">‹ 이전</button>
+    <div class="progress"><span id="progBar"></span></div>
+    <button class="nav" id="btnNext">다음 ›</button>
+    <div class="linkstatus" id="linkStatus"><span class="dot"></span><span class="t">청중창 미연결</span></div>
+    <div class="hint"><kbd>←</kbd><kbd>→</kbd> 이동 · <kbd>T</kbd> 타이머 · <kbd>F</kbd> 청중창</div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const deck = window.DECK_MANIFEST || [];
+  const NOTES = window.DECK_NOTES || {};
+  const W = window.DECK_WIDTH || 1920;
+  const H = window.DECK_HEIGHT || 1080;
+  const N = deck.length;
+
+  const frameCur = document.getElementById('frameCur');
+  const frameNxt = document.getElementById('frameNxt');
+  const scalerCur = document.getElementById('scalerCur');
+  const scalerNxt = document.getElementById('scalerNxt');
+  const notesEl = document.getElementById('notes');
+  const curNum = document.getElementById('curNum');
+  const totNum = document.getElementById('totNum');
+  const curLabel = document.getElementById('curLabel');
+  const nextTag = document.getElementById('nextTag');
+  const progBar = document.getElementById('progBar');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const linkStatus = document.getElementById('linkStatus');
+
+  let current = 0;
+  let audienceWin = null;
+
+  totNum.textContent = N;
+
+  // ── 동기화 채널 ──
+  let syncChan = null;
+  try { syncChan = new BroadcastChannel('deck-sync'); } catch (_) {}
+  if (syncChan) {
+    syncChan.onmessage = (e) => {
+      const d = e.data || {};
+      if (d.type === 'goto' && typeof d.idx === 'number' && d.idx !== current) {
+        setIdx(d.idx, true);
+        markLinked();
+      }
+    };
+    // 이미 열려있는 청중창 위치 물어보기
+    try { syncChan.postMessage({ type: 'whereto' }); } catch (_) {}
+  }
+  function broadcast(idx) {
+    if (syncChan) { try { syncChan.postMessage({ type: 'goto', idx }); } catch (_) {} }
+  }
+  let linkTimer = null;
+  function markLinked() {
+    linkStatus.classList.add('on');
+    linkStatus.querySelector('.t').textContent = '청중창 연결됨';
+    clearTimeout(linkTimer);
+    linkTimer = setTimeout(() => {
+      linkStatus.classList.remove('on');
+      linkStatus.querySelector('.t').textContent = '청중창 미연결';
+    }, 4000);
+  }
+
+  // ── iframe 스케일 맞춤 ──
+  function fitOne(box, scaler) {
+    const rect = box.getBoundingClientRect();
+    const s = Math.min(rect.width / W, rect.height / H);
+    const x = (rect.width  - W * s) / 2;
+    const y = (rect.height - H * s) / 2;
+    scaler.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+  }
+  function fitAll() {
+    fitOne(scalerCur.parentElement, scalerCur);
+    fitOne(scalerNxt.parentElement, scalerNxt);
+  }
+  window.addEventListener('resize', fitAll);
+
+  // ── 대본 렌더 ──
+  function renderNotes(idx) {
+    const n = idx + 1;
+    let raw = NOTES[n] != null ? NOTES[n] : NOTES[String(n)];
+    if (raw == null || String(raw).trim() === '') {
+      notesEl.classList.add('empty');
+      notesEl.textContent = '(이 슬라이드 대본 준비 중)';
+      return;
+    }
+    notesEl.classList.remove('empty');
+    // **bold** / *em* 가벼운 마크업 지원
+    let html = String(raw)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    notesEl.innerHTML = html;
+    notesEl.scrollTop = 0;
+  }
+
+  // ── 슬라이드 전환 ──
+  function setIdx(idx, fromSync) {
+    idx = Math.max(0, Math.min(idx, N - 1));
+    current = idx;
+    frameCur.src = deck[idx].file;
+    if (idx + 1 < N) {
+      frameNxt.src = deck[idx + 1].file;
+      nextTag.textContent = '다음 ▸ ' + ((idx + 2)) + '. ' + (deck[idx + 1].label || '');
+      scalerNxt.style.visibility = 'visible';
+    } else {
+      frameNxt.src = 'about:blank';
+      nextTag.textContent = '— 마지막 슬라이드 —';
+      scalerNxt.style.visibility = 'hidden';
+    }
+    curNum.textContent = idx + 1;
+    curLabel.textContent = deck[idx].label || '';
+    progBar.style.width = ((idx + 1) / N * 100) + '%';
+    btnPrev.disabled = idx === 0;
+    btnNext.disabled = idx === N - 1;
+    renderNotes(idx);
+    fitAll();
+    try { localStorage.setItem('presenter-idx', String(idx)); } catch (_) {}
+    if (!fromSync) broadcast(idx);
+  }
+  function next() { if (current < N - 1) setIdx(current + 1); }
+  function prev() { if (current > 0) setIdx(current - 1); }
+
+  btnPrev.addEventListener('click', prev);
+  btnNext.addEventListener('click', next);
+
+  // ── 청중 화면 열기 ──
+  document.getElementById('btnAudience').addEventListener('click', () => {
+    audienceWin = window.open('index.html#' + (current + 1), 'deck-audience');
+    setTimeout(() => broadcast(current), 600); // 로드 후 현재 위치로 맞춤
+    markLinked();
+  });
+  document.getElementById('btnFull').addEventListener('click', () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+
+  // ── 대본 글자 크기 ──
+  let noteSize = 30;
+  try { const v = parseInt(localStorage.getItem('presenter-notesize'), 10); if (!isNaN(v)) noteSize = v; } catch (_) {}
+  function applySize() {
+    document.documentElement.style.setProperty('--note-size', noteSize + 'px');
+    try { localStorage.setItem('presenter-notesize', String(noteSize)); } catch (_) {}
+  }
+  document.getElementById('szUp').addEventListener('click', () => { noteSize = Math.min(noteSize + 2, 60); applySize(); });
+  document.getElementById('szDown').addEventListener('click', () => { noteSize = Math.max(noteSize - 2, 16); applySize(); });
+  applySize();
+
+  // ── 타이머 ──
+  const timerEl = document.getElementById('timer');
+  const timerWrap = document.getElementById('timerWrap');
+  const btnPause = document.getElementById('btnPause');
+  let elapsed = 0, running = true, lastTick = Date.now();
+  const TARGET = 0; // 0이면 초과 경고 없음. 목표 분 설정 시 *60
+  function fmt(sec) {
+    const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  }
+  function tickTimer() {
+    const now = Date.now();
+    if (running) { elapsed += (now - lastTick) / 1000; }
+    lastTick = now;
+    timerEl.textContent = fmt(elapsed);
+    if (TARGET && elapsed > TARGET) timerWrap.classList.add('over');
+  }
+  btnPause.addEventListener('click', () => {
+    running = !running; lastTick = Date.now();
+    btnPause.textContent = running ? '⏸' : '▶';
+  });
+  document.getElementById('btnReset').addEventListener('click', () => {
+    elapsed = 0; lastTick = Date.now(); timerWrap.classList.remove('over');
+  });
+  setInterval(tickTimer, 250);
+
+  // ── 시계 ──
+  const clockEl = document.getElementById('clock');
+  function tickClock() {
+    const d = new Date();
+    clockEl.textContent = String(d.getHours()).padStart(2, '0') + ':' +
+                          String(d.getMinutes()).padStart(2, '0') + ':' +
+                          String(d.getSeconds()).padStart(2, '0');
+  }
+  setInterval(tickClock, 1000); tickClock();
+
+  // ── 키보드 ──
+  document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowRight': case ' ': case 'PageDown': e.preventDefault(); next(); break;
+      case 'ArrowLeft':  case 'PageUp':             e.preventDefault(); prev(); break;
+      case 'Home': e.preventDefault(); setIdx(0); break;
+      case 'End':  e.preventDefault(); setIdx(N - 1); break;
+      case 't': case 'T': btnPause.click(); break;
+      case 'r': case 'R': document.getElementById('btnReset').click(); break;
+      case 'f': case 'F': document.getElementById('btnAudience').click(); break;
+      case '+': case '=': document.getElementById('szUp').click(); break;
+      case '-': case '_': document.getElementById('szDown').click(); break;
+      default:
+        if (e.key >= '1' && e.key <= '9') {
+          // 두 자리 입력 지원: 누적 버퍼
+          jumpBuf += e.key; clearTimeout(jumpTimer);
+          jumpTimer = setTimeout(() => {
+            const t = parseInt(jumpBuf, 10); jumpBuf = '';
+            if (!isNaN(t) && t >= 1 && t <= N) setIdx(t - 1);
+          }, 500);
+        }
+    }
+  });
+  let jumpBuf = '', jumpTimer = null;
+
+  // ── 초기화 ──
+  let start = 0;
+  const hashMatch = location.hash.match(/^#(\d+)$/);
+  if (hashMatch) start = Math.min(parseInt(hashMatch[1], 10) - 1, N - 1);
+  else { try { const v = parseInt(localStorage.getItem('presenter-idx'), 10); if (!isNaN(v) && v >= 0 && v < N) start = v; } catch (_) {} }
+  setIdx(start);
+  window.addEventListener('load', fitAll);
+  setTimeout(fitAll, 300);
+})();
+</script>
+</body>
+</html>
