@@ -148,13 +148,14 @@ volatile instance, 외부 new를 막는 private 생성자, 그리고 getInstance
 
 31: `**DP#5, Factory Method**입니다. **종류마다 자기 제품을 직접 생성**하게 했습니다.
 
-Creator는 **PaymentMethodProcessor**, Product는 **Payment**입니다. 다섯 개의 ConcreteCreator가 인자 없는 createPayment를 override합니다. 같은 구조를 ItineraryFactory에도 적용했고요. 결제 수단마다 자기 결제 객체를 만드는 책임을 *서브클래스로 내린* 형태입니다.`,
+Creator는 **PaymentMethodProcessor**, Product는 **Payment**입니다. 다섯 개의 ConcreteCreator가 인자 없는 createPayment를 override합니다. 같은 구조를 ItineraryFactory에도 적용했고요. 결제 수단마다 자기 결제 객체를 만드는 책임을 *서브클래스로 내린* 형태입니다.
+한 가지 더 짚자면, 이렇게 만든 Payment를 *실제로 승인하는 단계*에서는 외부 **결제대행사 PG가 또 하나의 legacy system**입니다. 우리가 만든 게 아니라 외부 회사 시스템이라, **PaymentGatewayInterface**라는 boundary로 격리하고, 지금은 **MockPaymentGateway**로 대체해 두었습니다. 실제 PG사 연동은 다음 단계 과제입니다.`,
 
 32: `Factory Method 교과서 구조와 결제 처리기 구현을 비교한 화면입니다. Creator, Product, ConcreteCreator의 대응을 보겠습니다.`,
 
 33: `Factory Method 코드입니다.
 
-**PaymentMethodProcessor**가 Creator인데, 추상 createPayment가 팩토리 메서드입니다. 그리고 processCharge가 *createPayment로 객체를 만든 뒤 authorize, pay로 이어지는 공통 흐름을 고정*합니다.
+**PaymentMethodProcessor**가 Creator인데, 추상 createPayment가 팩토리 메서드입니다. 그리고 processCharge가 *createPayment로 객체를 만든 뒤 authorize, pay로 이어지는 공통 흐름을 고정*합니다. 이때 authorize는 **외부 PG legacy system**을 직접 부르지 않고 PaymentGatewayInterface를 거치게 해서, 도메인이 외부 시스템에 직접 묶이지 않게 했습니다.
 **CreditCardPaymentProcessor**가 ConcreteCreator 다섯 종 중 하나인데, createPayment에서 new CreditCardPayment를 돌려줍니다. **새 결제 수단이 생기면 ConcreteCreator만 추가**하면 되니 OCP를 지킵니다.
 **Payment**는 추상 Product로 pay, fail 상태 전이를 갖고, CreditCardPayment가 그 구현체입니다.`,
 
@@ -173,7 +174,8 @@ AbstractClass는 **TicketRenderer**이고, final render가 전체 순서를 묶�
 
 Adaptee인 **RemoteSkypassApi**가 바로 그 **legacy system**입니다. 외부 회원사가 운영하는 시스템이라 우리가 코드를 고칠 수 없고, 인터페이스도 우리 도메인과 맞지 않습니다. 반환값이 Map이죠.
 그래서 Target인 **SkypassInterface**를 *우리가 원하는 모양*으로 정의하고, **SkypassAdapter**가 그 사이에서 변환을 맡습니다. deductMileage가 legacy API의 Map 응답을 boolean으로 바꿔 줍니다.
-핵심은, **legacy system을 한 줄도 건드리지 않고** 우리 애플리케이션은 우리 인터페이스에만 의존하게 만들었다는 점입니다. DIP, 의존 역전입니다.`,
+핵심은, **legacy system을 한 줄도 건드리지 않고** 우리 애플리케이션은 우리 인터페이스에만 의존하게 만들었다는 점입니다. DIP, 의존 역전입니다.
+참고로 외부 legacy system을 격리하는 자리는 여기뿐이 아닙니다. 저희는 외부 시스템을 전부 **boundary 계층**에 모아 뒀는데요. 결제대행사 PG는 PaymentGatewayInterface로, 타 항공사 연동인 GDS는 별도 인터페이스로 분리해 뒀습니다. **Adapter는 그 격리 방식 중에서 인터페이스가 가장 안 맞는 Skypass에 쓴 한 가지 방법**입니다.`,
 
 38: `Adapter 교과서 구조와 SkypassAdapter 구현을 비교한 화면입니다. Target, Adapter, Adaptee의 대응을 보겠습니다.`,
 
