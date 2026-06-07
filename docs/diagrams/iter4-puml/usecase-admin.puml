@@ -1,0 +1,31 @@
+@startuml usecase-admin
+title Use Case (Actor Cut 2/3) — Administrator\nred = Iteration 4
+left to right direction
+skinparam linetype polyline
+skinparam ranksep 60
+skinparam nodesep 45
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam dpi 130
+
+actor "Administrator" as Admin
+
+rectangle "Korean Air Reservation System  (admin scope)" {
+  package "Core booking (iter1-2)" {
+    usecase "Cancel / Refund" as UC_Cancel
+  }
+  package "Iteration 4 additions" #FFF0F0 {
+    usecase "Review Refund Queue\n(approve / reject pending refunds)" as UC_Refund #FFCCCC
+  }
+}
+
+Admin --> UC_Refund
+UC_Refund .[#CC0000].> UC_Cancel : <<extend>>
+
+note bottom of UC_Refund
+  Iteration 4 에서 환불 승인 흐름을
+  관리자 액터로 분리.
+  기존 Cancel / Refund 유스케이스를
+  <<extend>> 하여 검토 단계 추가.
+end note
+@enduml
