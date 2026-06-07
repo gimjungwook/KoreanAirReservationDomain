@@ -130,19 +130,31 @@
 
   // 발표자창에서 동기화되는 줌 상태 (슬라이드 좌표 기준 초점 cx,cy + 배율 z)
   let zz = 1, zcx = W / 2, zcy = H / 2;
+  // stage 는 창에 맞추는 fit 만 담당 (줌과 분리)
   function fit() {
-    const s0 = Math.min(window.innerWidth / W, window.innerHeight / H);
-    const scale = s0 * zz;
+    const s = Math.min(window.innerWidth / W, window.innerHeight / H);
     stage.style.transform =
-      `translate(${window.innerWidth / 2 - zcx * scale}px, ${window.innerHeight / 2 - zcy * scale}px) scale(${scale})`;
+      `translate(${(window.innerWidth - W * s) / 2}px, ${(window.innerHeight - H * s) / 2}px) scale(${s})`;
     stage.style.top = '0';
     stage.style.left = '0';
   }
+  // 줌은 iframe "안쪽" 슬라이드 body 에 적용 → iframe 이 1920×1080 해상도로 재렌더되어
+  // SVG(벡터)가 선명하게 다시 래스터된다. (stage 를 transform 으로 키우면 비트맵 확대라 깨짐)
+  function applyZoom() {
+    const doc = frame.contentDocument;
+    if (doc && doc.body) {
+      if (doc.documentElement) doc.documentElement.style.overflow = 'hidden';
+      doc.body.style.transformOrigin = '0 0';
+      doc.body.style.transform =
+        `translate(${W / 2 - zcx * zz}px, ${H / 2 - zcy * zz}px) scale(${zz})`;
+    }
+  }
+  frame.addEventListener('load', applyZoom);
 
   function show(idx, fromSync) {
     if (idx < 0 || idx >= deck.length) return;
     current = idx;
-    zz = 1; zcx = W / 2; zcy = H / 2; fit();   // 슬라이드 전환 시 줌 초기화
+    zz = 1; zcx = W / 2; zcy = H / 2;   // 슬라이드 전환 시 줌 초기화 (load 시 applyZoom 재적용)
     frame.src = deck[idx].file;
     counter.innerHTML = `${idx + 1} / ${deck.length} <span class="label">${deck[idx].label || ''}</span>`;
     try { localStorage.setItem(storageKey, String(idx)); } catch (_) {}
@@ -166,7 +178,7 @@
         zz = d.z;
         zcx = (typeof d.cx === 'number') ? d.cx : W / 2;
         zcy = (typeof d.cy === 'number') ? d.cy : H / 2;
-        fit();
+        applyZoom();
       } else if (d.type === 'whereto' && syncChan) {
         // 발표자창이 현재 위치를 물어보면 응답
         try { syncChan.postMessage({ type: 'goto', idx: current }); } catch (_) {}

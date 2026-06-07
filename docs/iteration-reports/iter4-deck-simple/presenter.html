@@ -237,36 +237,45 @@
   }
 
   // ── iframe 스케일 맞춤 + 현재 슬라이드 줌/팬 ──
-  // 줌은 "슬라이드 좌표(0..W, 0..H) 기준 초점 + 배율"로 모델링한다.
-  // → 청중 화면(index.html)이 박스 크기가 달라도 동일 영역을 그대로 재현할 수 있다.
-  let curBase = { s: 1, bw: 0, bh: 0 }, zCur = 1, fcx = W / 2, fcy = H / 2;
-  // 박스(bw,bh) 안에서 (z 배율, 슬라이드 초점 cx,cy)를 박스 중앙에 두는 transform
-  function viewTransform(s0, bw, bh, z, cx, cy) {
-    const scale = s0 * z;
-    return `translate(${bw / 2 - cx * scale}px, ${bh / 2 - cy * scale}px) scale(${scale})`;
-  }
+  // 핵심: 줌을 스케일러(iframe 바깥)에 걸면 iframe 레이어를 비트맵으로 떠서 확대 → 깨짐.
+  // → 줌은 iframe "안쪽" 슬라이드 body 에 transform 으로 적용한다. 그러면 iframe 이
+  //   1920×1080 해상도로 다시 렌더되어 SVG(벡터)가 선명하게 재래스터된다.
+  // 줌 상태는 슬라이드 좌표(0..W, 0..H) 기준 초점(fcx,fcy) + 배율(zCur). 청중 화면도 동일.
+  let curBase = { s: 1, tx: 0, ty: 0 }, zCur = 1, fcx = W / 2, fcy = H / 2;
   function fitOne(box, scaler) {
     const r = box.getBoundingClientRect();
     const s = Math.min(r.width / W, r.height / H);
-    scaler.style.transform = `translate(${(r.width - W * s) / 2}px, ${(r.height - H * s) / 2}px) scale(${s})`;
+    const tx = (r.width - W * s) / 2, ty = (r.height - H * s) / 2;
+    scaler.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+    return { s, tx, ty };
   }
-  function applyCur() {
-    scalerCur.style.transform = viewTransform(curBase.s, curBase.bw, curBase.bh, zCur, fcx, fcy);
+  // 슬라이드 좌표계(1920×1080)에서 초점을 가운데 두는 내부 body transform
+  function innerTransform(z, cx, cy) {
+    return `translate(${W / 2 - cx * z}px, ${H / 2 - cy * z}px) scale(${z})`;
+  }
+  function applyZoom() {
+    const doc = frameCur.contentDocument;
+    if (doc && doc.body) {
+      if (doc.documentElement) doc.documentElement.style.overflow = 'hidden';
+      doc.body.style.transformOrigin = '0 0';
+      doc.body.style.transform = innerTransform(zCur, fcx, fcy);
+    }
     if (typeof zoomBadge !== 'undefined' && zoomBadge) zoomBadge.textContent = '🔍 ' + Math.round(zCur * 100) + '%';
     if (typeof curBox !== 'undefined' && curBox) curBox.style.cursor = zCur > 1 ? 'grab' : 'zoom-in';
     broadcastZoom();
   }
   function fitAll() {
-    const r = scalerCur.parentElement.getBoundingClientRect();
-    curBase = { s: Math.min(r.width / W, r.height / H), bw: r.width, bh: r.height };
-    applyCur();
+    curBase = fitOne(scalerCur.parentElement, scalerCur);
     fitOne(scalerNxt.parentElement, scalerNxt);
+    applyZoom();
   }
-  function resetZoom() { zCur = 1; fcx = W / 2; fcy = H / 2; applyCur(); }
+  function resetZoom() { zCur = 1; fcx = W / 2; fcy = H / 2; applyZoom(); }
   function broadcastZoom() {
     if (syncChan) { try { syncChan.postMessage({ type: 'zoom', z: zCur, cx: fcx, cy: fcy }); } catch (_) {} }
   }
   window.addEventListener('resize', fitAll);
+  // 슬라이드 전환으로 iframe 이 새로 로드되면 줌 다시 적용
+  frameCur.addEventListener('load', applyZoom);
 
   // 현재 슬라이드 박스: 버튼 ＋/－/⤢ · 휠=확대 · 드래그=이동 · 더블클릭=리셋
   const curBox = scalerCur.parentElement;
@@ -274,24 +283,25 @@
   frameCur.style.pointerEvents = 'none';
 
   const clampZ = (z) => Math.min(20, Math.max(1, z));
-  // 박스 지점 (mx,my)에 해당하는 슬라이드 좌표
+  // 박스 지점(mx,my) → iframe 내부 슬라이드 좌표(현재 줌 반영)
   function slideAt(mx, my) {
-    const scale = curBase.s * zCur;
-    return { x: (mx - (curBase.bw / 2 - fcx * scale)) / scale,
-             y: (my - (curBase.bh / 2 - fcy * scale)) / scale };
+    const ix = (mx - curBase.tx) / curBase.s, iy = (my - curBase.ty) / curBase.s; // iframe(슬라이드 surface) 픽셀
+    return { x: (ix - (W / 2 - fcx * zCur)) / zCur, y: (iy - (H / 2 - fcy * zCur)) / zCur };
   }
   // (mx,my) 지점을 고정한 채 배율을 nz 로
   function zoomAt(nz, mx, my) {
-    nz = clampZ(nz);
+    const ix = (mx - curBase.tx) / curBase.s, iy = (my - curBase.ty) / curBase.s;
     const sp = slideAt(mx, my);
-    const scale2 = curBase.s * nz;
-    fcx = sp.x - (mx - curBase.bw / 2) / scale2;
-    fcy = sp.y - (my - curBase.bh / 2) / scale2;
-    zCur = nz;
+    zCur = clampZ(nz);
+    fcx = sp.x - (ix - W / 2) / zCur;
+    fcy = sp.y - (iy - H / 2) / zCur;
     if (zCur <= 1) { zCur = 1; fcx = W / 2; fcy = H / 2; }
-    applyCur();
+    applyZoom();
   }
-  function zoomByButton(f) { zoomAt(zCur * f, curBase.bw / 2, curBase.bh / 2); }
+  function zoomByButton(f) {
+    const r = curBox.getBoundingClientRect();
+    zoomAt(zCur * f, r.width / 2, r.height / 2);
+  }
 
   // 줌 버튼 패널 (좌상단)
   const zoomCtl = document.createElement('div');
@@ -333,9 +343,9 @@
     const scale = curBase.s * zCur;
     fcx = zsf.x - (e.clientX - zsm.x) / scale;
     fcy = zsf.y - (e.clientY - zsm.y) / scale;
-    applyCur();
+    applyZoom();
   });
-  window.addEventListener('mouseup', () => { if (zdrag) { zdrag = false; applyCur(); } });
+  window.addEventListener('mouseup', () => { if (zdrag) { zdrag = false; applyZoom(); } });
   curBox.addEventListener('dblclick', resetZoom);
 
   // ── 대본 렌더 ──
