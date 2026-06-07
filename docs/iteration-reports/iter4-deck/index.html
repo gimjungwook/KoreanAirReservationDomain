@@ -77,13 +77,6 @@
   let idx = parseInt(localStorage.getItem('oodp4-idx') || '0', 10);
   if (idx < 0 || idx >= manifest.length) idx = 0;
 
-  function slideUrl(slide, replayTs) {
-    const query = DECK_VER ? `?v=${DECK_VER}` : '?v=0';
-    const replay = replayTs ? `&r=${Date.now()}` : '';
-    const page = slide && slide.page ? `#page=${slide.page}` : '';
-    return `${slide.file}${query}${replay}${page}`;
-  }
-
   function resize() {
     const sw = window.innerWidth, sh = window.innerHeight;
     const scale = Math.min(sw / window.DECK_WIDTH, sh / window.DECK_HEIGHT);
@@ -92,7 +85,7 @@
     stage.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
   }
   function render() {
-    frame.src = slideUrl(manifest[idx], false);
+    frame.src = manifest[idx].file + '?v=' + DECK_VER;
     ntLabel.innerHTML = `notes — <b>${idx + 1} / ${manifest.length}</b> · ${manifest[idx].label}`;
     ntBody.textContent = manifest[idx].notes || '(no notes)';
   }
@@ -100,7 +93,7 @@
   function goTo(n) { idx = Math.max(0, Math.min(manifest.length - 1, n)); render(); publish(); }
   function next() { goTo(idx + 1); }
   function prev() { goTo(idx - 1); }
-  function replay() { frame.src = slideUrl(manifest[idx], true); }
+  function replay() { frame.src = manifest[idx].file + '?v=' + DECK_VER + '&r=' + Date.now(); }
   function openPresenter() { window.open('presenter.html', 'oodp4presenter', 'width=1180,height=820'); }
 
   function handleNavKey(e) {
