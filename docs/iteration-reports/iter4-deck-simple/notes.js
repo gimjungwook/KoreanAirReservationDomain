@@ -81,122 +81,151 @@ Iteration 1부터 4까지 누적된 전체 범위를 보여 줍니다. 액터는
 
 9개 디자인 패턴에 쓰인 **클래스 80개**를, 패턴별로 묶어 **속성과 메서드까지 전부** 그렸습니다. 상속·실체화·연관 관계도 모두 표시돼 있어서, 패턴들이 서로 어떻게 연결되는지 *전체 그림*을 먼저 잡고, 이어서 State부터 하나씩 확대해서 보겠습니다.`,
 
-17: `여기서부터 패턴 구현입니다. 먼저 **State 패턴**인데요. 왼쪽이 교과서 그림 7-5, 오른쪽이 저희 구현입니다.
+17: `이제 패턴 구현입니다. 첫 번째 **State 패턴, DP#1**. 왼쪽이 교과서 그림 7-5, 오른쪽이 저희 구현입니다.
 
-Context는 **Reservation**, State는 **ReservationState 인터페이스**이고, 그 아래 **8개의 ConcreteState**가 중간 추상 계층 없이 바로 붙습니다. 조건문 분기를 다형성으로 바꾼, *Replace Conditional with Polymorphism*의 전형입니다.
-한 가지 짚을 점은, State는 **DP#1**이라는 겁니다. 교과서 규칙상 처음엔 디자인 패턴에서 제외했다가, 팀 결정으로 **DP#1로 재지정**한 변경 이력이 있습니다.`,
+*왜* 썼냐면 — 예약은 **Initiated → PendingPayment → Confirmed → Ticketed → (Cancellation/Refund) → Refunded**, 8개 상태를 거칩니다. 처음엔 status enum + 거대한 if/switch로 처리했는데 상태가 늘 때마다 분기가 폭발했습니다. 그래서 *Replace Conditional with Polymorphism* 리팩토링으로 각 상태를 클래스로 캡슐화했습니다.
 
-18: `이 슬라이드는 교과서 그림과 구현 다이어그램을 **그대로 나란히** 놓은 것입니다.
+구조는, Context가 **Reservation**(currentState 필드 하나로 현재 상태 보유), State 역할이 **ReservationState 인터페이스**입니다. 이 인터페이스가 enterPassengerInfo·processPayment·issueTicket·requestCancellation·confirmCancellation·requestRefund·processRefundDecision·handlePaymentFailure **8개 생애주기 메서드**를 선언하는데, 핵심은 **default 구현이 전부 InvalidStateTransitionException을 던진다**는 점입니다. 즉 *허용 안 된 전이는 기본 거부*. 각 ConcreteState는 *자기가 허용하는 전이만* override합니다. 예: PendingPaymentState는 processPayment(→Confirmed)와 handlePaymentFailure(→Cancelled)만 구현.
 
-왼쪽 교과서의 Context, State, ConcreteState 구조가, 오른쪽 저희 구현에서 Reservation, ReservationState, 8개 상태 클래스로 **1대 1 대응**되는 걸 비교해서 보여 드립니다.`,
+동작은, Reservation.processPayment()가 그냥 **currentState.processPayment(this)** 로 위임하고, 상태 객체가 setState로 다음 상태로 바꿉니다. 덕분에 새 상태는 *기존 코드 수정 없이 클래스만 추가* — 전형적 OCP입니다.
 
-19: `이제 **DP#2, Strategy**입니다. 교체 가능한 **환불 금액 알고리즘**에 썼습니다.
+마지막으로 State는 **DP#1**입니다. 교과서 규칙상 처음엔 제외했다가 팀 결정으로 DP#1로 재지정한 변경 이력이 있습니다.`,
 
-Context는 **RefundHandler**, Strategy는 **RefundPolicy**이고, 구현체로 No, Partial, Full 세 가지 환불 정책이 있습니다. 어떤 정책을 쓸지는 **RefundPolicyResolver**가 정하고, RefundHandler는 setStrategy로 정책을 받아 *위임*만 합니다.
-그래서 새로운 환불 정책이 생겨도 **RefundHandler를 고칠 필요가 없습니다**. 전형적인 OCP, 개방-폐쇄 원칙입니다.`,
+18: `이 슬라이드는 교과서 그림과 구현 다이어그램을 **그대로 좌우로** 놓고 1:1 대응을 보는 화면입니다.
 
-20: `Strategy의 교과서 구조와 저희 구현을 비교한 화면입니다.
+왼쪽 교과서의 **Context**가 오른쪽 **Reservation**, **State** 추상이 **ReservationState 인터페이스**, **ConcreteState**들이 저희 **8개 상태 클래스**(InitiatedState…RefundedState)에 정확히 대응됩니다. 교과서가 보여 주는 *Context가 State에 위임하고, ConcreteState가 전이를 처리한다*는 구조가 그대로 재현된 걸 짚어 주시면 됩니다. 추가로, 허용 안 된 전이에서 던지는 **InvalidStateTransitionException**까지 다이어그램에 드러나 있습니다.`,
 
-왼쪽 교과서의 Context, Strategy, ConcreteStrategy가 오른쪽에서 RefundHandler, RefundPolicy, 그리고 세 개의 환불 정책으로 대응되는 걸 보실 수 있습니다.`,
+19: `**DP#2, Strategy**입니다. 교체 가능한 **환불 금액 알고리즘**에 썼습니다.
 
-21: `이건 Strategy 관련 **클래스 전부를 코드로** 본 화면입니다. 네 개입니다.
+문제는, 환불 정책이 운임 규칙에 따라 *무환불 / 부분환불 / 전액환불* 세 가지인데, 이걸 핸들러 안에 if로 박으면 정책 추가마다 핸들러를 고쳐야 합니다. 그래서 알고리즘을 전략 객체로 분리했습니다.
 
-**RefundPolicy**는 calculateRefundAmount 하나를 가진 Strategy 인터페이스고요. **No / Partial / Full RefundPolicy**가 각각 0원, 절반, 전액을 돌려주는 ConcreteStrategy 세 개입니다.
-**RefundHandler**가 Context인데, strategy 필드를 들고 있다가 setStrategy로 *런타임에 교체*하고 위임합니다.
-마지막 **RefundPolicyResolver**가 핵심입니다. 어떤 정책을 고를지 결정하는 책임만 SRP로 떼어낸 것이라, 새 정책이 생겨도 *여기 한 곳만* 확장하면 됩니다.`,
+역할 매핑은 — **Strategy** 인터페이스가 **RefundPolicy**(calculateRefundAmount 하나), **ConcreteStrategy**가 **NoRefundPolicy / PartialRefundPolicy / FullRefundPolicy** 셋, **Context**가 **RefundHandler**입니다. RefundHandler는 strategy 필드를 들고 setStrategy로 받아 **위임만** 합니다. 여기에 저희가 하나 더 둔 게 **RefundPolicyResolver**인데, FareRule(운임 규칙)을 보고 *어떤 정책을 쓸지 결정하는 책임*만 따로 뗀 Selector입니다.
 
-22: `**DP#3, Observer**입니다. 이벤트가 생기는 곳과 그에 반응하는 곳을 분리했고, **pull 방식**을 썼습니다.
+이득은 명확합니다. 새 환불 정책이 생겨도 **RefundHandler는 안 고치고** ConcreteStrategy 하나만 추가, 선택 로직이 바뀌면 **Resolver 한 곳만** 손보면 됩니다. OCP + SRP죠.`,
 
-Subject는 **EventPublisher**, Observer는 **EventListener**입니다. 구현 Subject 네 개와 구현 Observer 네 개가 있고요. 인자 없는 notifyObservers와 update가 호출된 뒤, 옵서버가 **subject.getState로 필요한 데이터를 직접 당겨** 갑니다. 데이터를 밀어 주는 게 아니라 당겨 가는 구조라는 점이 포인트입니다.`,
+20: `Strategy 교과서 구조와 저희 구현을 비교한 화면입니다.
+
+왼쪽 교과서의 **Context → Strategy → ConcreteStrategy** 삼각 구조가, 오른쪽에서 **RefundHandler → RefundPolicy → No/Partial/FullRefundPolicy**로 그대로 대응됩니다. 교과서가 *Context가 Strategy 참조를 들고 런타임에 교체한다*고 하는 부분이, 저희 RefundHandler의 strategy 필드 + setStrategy로 구현돼 있다는 걸 짚어 주시면 됩니다.`,
+
+21: `Strategy 관련 **클래스 전부를 코드로** 본 화면입니다. 네 개입니다.
+
+**RefundPolicy** — calculateRefundAmount(baseAmount) 하나를 가진 Strategy 인터페이스. **No / Partial / Full RefundPolicy** — 각각 0원·절반·전액을 돌려주는 ConcreteStrategy 세 개. **RefundHandler** — Context인데, strategy 필드를 들고 있다가 setStrategy로 *런타임 교체* 후 calculateRefundAmount에 위임합니다. 마지막 **RefundPolicyResolver** — resolve(FareRule)로 운임 등급(환불 가능 여부·수수료)을 보고 적절한 ConcreteStrategy를 골라 주는 핵심 클래스입니다. 새 정책이 생기면 *여기 한 곳*만 확장하면 됩니다.`,
+
+22: `**DP#3, Observer**입니다. 이벤트가 *생기는 곳*과 *반응하는 곳*을 분리했고, **pull 방식**을 썼습니다.
+
+역할은 — **Subject** 추상이 **EventPublisher**(observers 리스트 + attach·detach·notifyObservers), **Observer** 인터페이스가 **EventListener**(update() 하나). ConcreteSubject가 **TicketPurchasePublisher·PaymentProcessor·SeatHoldMonitor·FlightSchedule** 넷, ConcreteObserver가 **BusTicketPurchaseListener·ReservationAutoCancelListener·ReservationHoldListener·AffectedReservationListener** 넷입니다. 이벤트 객체는 DomainEvent를 상속한 TicketIssuedEvent·PaymentFailedEvent 등 다섯입니다.
+
+핵심은 **pull 모델**입니다. Subject가 setState로 상태를 저장하고 **인자 없는 notifyObservers()** 를 부르면, **인자 없는 update()** 가 호출되고, 옵서버가 다시 **subject.getState()** 로 필요한 데이터를 *직접 당겨* 갑니다. 데이터를 밀어 주는 push가 아니라 당겨 가는 구조라는 게 포인트고요. 한 옵서버에서 예외가 나도 *나머지에 번지지 않게* 격리했습니다.
+
+대표 흐름이 버스 연계인데, 항공권 발권이 끝나면 TicketPurchasePublisher가 통지하고 **BusTicketPurchaseListener**가 받아 **BusTicketingService**로 **연계 버스 티켓을 자동 발권**합니다.`,
 
 23: `Observer 교과서 구조와 구현을 비교한 화면입니다.
 
-왼쪽 교과서의 Subject, Observer 구조가 오른쪽 EventPublisher와 EventListener 구현으로 대응됩니다.`,
+왼쪽 교과서의 **Subject ↔ Observer** 관계(Subject가 Observer 리스트를 들고 notify, Observer가 update)가, 오른쪽 **EventPublisher ↔ EventListener**로 대응됩니다. 교과서가 ConcreteSubject가 상태를 들고 ConcreteObserver가 그걸 참조한다고 하는 부분이, 저희 구현에서 ConcreteSubject의 getState()와 옵서버의 subject 역참조로 구현된 *pull 구조*라는 걸 짚어 주시면 됩니다.`,
 
 24: `Observer 코드입니다.
 
-**EventListener**는 인자가 없는 update 하나만 갖고요. **EventPublisher**는 observers 리스트를 두고, attach로 구독을 받고, notifyObservers가 인자 없이 update만 호출합니다. 이때 한 옵서버에서 예외가 나도 *나머지에 번지지 않게* 격리했습니다.
-대표 옵서버가 **BusTicketPurchaseListener**입니다. 교수님 지시로 추가한 건데, update에서 subject의 상태를 pull해서, **항공권 발권이 끝나면 연계 버스 티켓을 자동으로 발권**합니다.`,
+**EventListener**는 인자 없는 update() 하나. **EventPublisher**는 observers 리스트 + attach()로 구독 받고, notifyObservers()가 *인자 없이* update만 호출 — 이때 try/catch로 한 옵서버 예외를 격리합니다. **TicketPurchasePublisher**는 ConcreteSubject로 subjectState(TicketIssuedEvent)를 들고 setState→notify 하고요.
+
+대표 옵서버 **BusTicketPurchaseListener** — 교수님 지시로 추가했는데, update()에서 subject.getState()로 발권 이벤트를 pull한 뒤, busTicketingService.issuePremiumTicket(...)으로 **연계 버스 티켓을 자동 발권**합니다. e-Ticket 발권 → 버스 발권으로 *이벤트가 1대N 전파*되는 걸 코드로 보여 줍니다.`,
 
 25: `**DP#4, Composite**입니다. **공항 하나와 여러 공항을 가진 도시**를 똑같이 다루려고 썼습니다.
 
-Component는 **AirportLocation**, Leaf는 **Airport**, Composite는 **AirportCity**입니다. AirportCity의 getAirports가 자식을 *재귀적으로* 순회합니다.
-핵심은, 클라이언트 코드가 *이게 단일 공항인지 도시인지 타입으로 분기하지 않는다*는 점입니다.`,
+문제는, 검색에서 출발/도착이 *단일 공항*일 수도, *여러 공항을 가진 도시*(예: 도쿄=하네다+나리타)일 수도 있는데, 이걸 클라이언트가 타입으로 분기하면 지저분해집니다.
+
+역할은 — **Component** 추상이 **AirportLocation**(getAirports() 선언), **Leaf**가 **Airport**, **Composite**가 **AirportCity**입니다. AirportCity는 자식 리스트를 들고 getAirports()에서 *재귀적으로 평탄화*하고, Airport는 자기 자신 하나만 담아 돌려줍니다(재귀 종료점).
+
+이득은, 클라이언트가 *공항이든 도시든 구분 없이 같은 AirportLocation 타입* 하나만 다루면 된다는 겁니다. matchesDirect 같은 검색이 단일/다중 공항을 동일하게 처리합니다.`,
 
 26: `Composite 교과서 트리 구조와 저희 공항 계층 구현을 비교한 화면입니다.
 
-왼쪽 교과서의 Component, Leaf, Composite가 오른쪽 AirportLocation, Airport, AirportCity로 대응됩니다.`,
+왼쪽 교과서의 **Component / Leaf / Composite** 삼각이, 오른쪽 **AirportLocation / Airport / AirportCity**로 대응됩니다. 교과서가 *Composite가 자식들을 들고 재귀 순회한다*는 부분이, AirportCity.getAirports()의 재귀 평탄화로 구현된 걸 짚어 주시면 됩니다.`,
 
 27: `Composite 코드입니다.
 
-**AirportLocation**은 추상 Component인데, getAirports가 *항상 공항 목록을 반환*하도록 통일했습니다.
-**Airport**는 Leaf라서, getAirports가 자기 자신 하나만 담아 돌려줍니다. 재귀의 종료점이죠.
-**AirportCity**는 Composite로, 자식 리스트를 들고 있다가 getAirports에서 자식 전체를 재귀적으로 *평탄화*합니다.
-덕분에 클라이언트는 공항이든 도시든 구분 없이 *같은 타입* 하나만 다루면 됩니다.`,
+**AirportLocation** — 추상 Component인데, getAirports()가 *항상 공항 목록을 반환*하도록 통일했습니다. **Airport** — Leaf라서 getAirports()가 자기 자신 하나만 담아 돌려줍니다(재귀 종료점). **AirportCity** — Composite로, 자식 AirportLocation 리스트를 들고 getAirports()에서 자식 전체를 재귀적으로 평탄화합니다. 덕분에 클라이언트는 단일/다중 구분 없이 *같은 타입* 하나만 다룹니다.`,
 
 28: `**DP#5, Singleton**입니다. **전역 설정을 하나만 공유**하려고 썼습니다.
 
-**AppConfig**가 그 대상인데요. private 생성자로 외부 생성을 막고, static getInstance로 접근하며, volatile 인스턴스에 **double-checked locking**을 적용했습니다. 모든 화면이 *단 하나의 권위 있는 설정*을 바라보게 한 것입니다.`,
+대상은 **AppConfig** — 글꼴, 로캘, 통화, 테마, 좌석 메타 표시 같은 전역 설정입니다. 모든 화면이 *서로 다른 설정 인스턴스*를 보면 일관성이 깨지므로 단일 인스턴스를 강제했습니다.
 
-29: `Singleton 교과서 구조와 AppConfig 구현을 비교한 화면입니다. 단일 인스턴스를 보장하는 구조가 어떻게 대응되는지 보겠습니다.`,
+구현은 교과서 정석대로 — **private 생성자**로 외부 new를 막고, **static getInstance()** 로만 접근하며, **volatile instance + double-checked locking**으로 지연 초기화 + 스레드 안전을 보장합니다. 추가로 설정 변경 시 리스너에게 통지하는 addChangeListener/notifyListeners도 뒀습니다.
+
+이득은, 어느 화면에서든 *단 하나의 권위 있는 설정*을 바라보게 한 것입니다.`,
+
+29: `Singleton 교과서 구조와 AppConfig 구현을 비교한 화면입니다.
+
+교과서의 *private 생성자 + static instance + getInstance* 구조가 AppConfig에 그대로 대응됩니다. 특히 volatile + double-checked locking으로 *지연 초기화하면서도 멀티스레드에서 인스턴스가 둘 생기지 않게* 한 부분을 짚어 주시면 됩니다.`,
 
 30: `Singleton 코드입니다. **AppConfig** 한 클래스입니다.
 
-volatile instance, 외부 new를 막는 private 생성자, 그리고 getInstance의 double-checked locking이 보입니다.
-이 안에 공유 전역 상태가 들어 있는데, 폰트는 Pretendard, locale은 KOREA, 통화는 KRW입니다. 그리고 setFontFamily 같은 변경이 일어나면 **notifyListeners로 구독 중인 화면들에 알려** 줍니다. 즉 *설정의 권위가 한 곳에 모여 있다*는 게 핵심입니다.`,
+volatile instance 필드, 외부 new를 막는 **private AppConfig()** 생성자, 그리고 getInstance()의 **double-checked locking**(instance==null 두 번 검사 + synchronized)이 핵심입니다. 여기에 fontFamily·displayLocale·currency·modernTheme 같은 공유 상태와, 변경 통지용 listeners·notifyListeners까지 한 클래스에 모았습니다.`,
 
-31: `**DP#6, Factory Method**입니다. **종류마다 자기 제품을 직접 생성**하게 했습니다.
+31: `**DP#6, Factory Method**입니다. **결제와 여정 생성**에 썼고, Extract Class 리팩토링도 함께 했습니다.
 
-Creator는 **PaymentMethodProcessor**, Product는 **Payment**입니다. 다섯 개의 ConcreteCreator가 인자 없는 createPayment를 override합니다. 같은 구조를 ItineraryFactory에도 적용했고요. 결제 수단마다 자기 결제 객체를 만드는 책임을 *서브클래스로 내린* 형태입니다.
-한 가지 더 짚자면, 이렇게 만든 Payment를 *실제로 승인하는 단계*에서는 외부 **결제대행사 PG가 또 하나의 legacy system**입니다. 우리가 만든 게 아니라 외부 회사 시스템이라, **PaymentGatewayInterface**라는 boundary로 격리하고, 지금은 **MockPaymentGateway**로 대체해 두었습니다. 실제 PG사 연동은 다음 단계 과제입니다.`,
+문제는, 결제 수단이 카드·ApplePay·KakaoPay·계좌이체·마일리지 다섯인데, 호출부에서 *타입 분기로 객체를 생성*하면 수단 추가마다 분기를 고쳐야 합니다.
 
-32: `Factory Method 교과서 구조와 결제 처리기 구현을 비교한 화면입니다. Creator, Product, ConcreteCreator의 대응을 보겠습니다.`,
+역할은 — **Creator** 추상이 **PaymentMethodProcessor**, **ConcreteCreator**가 다섯 개 Processor(CreditCard/KakaoPay/ApplePay/BankTransfer/Mileage), **Product** 추상이 **Payment**, **ConcreteProduct**가 다섯 개 Payment입니다. 각 ConcreteCreator가 **팩토리 메서드를 override해 자기 ConcreteProduct를 생성**합니다. 같은 구조를 **ItineraryFactory → Direct/Connecting/MultiCity**(여정 생성)에도 적용했습니다.
+
+이득은, 새 결제 수단 = *ConcreteCreator + ConcreteProduct 한 쌍 추가*면 끝, 호출부 타입 분기가 사라집니다.`,
+
+32: `Factory Method 교과서 구조와 구현을 비교한 화면입니다.
+
+교과서의 **Creator / ConcreteCreator / Product / ConcreteProduct** 네 역할이, 저희 **PaymentMethodProcessor → 5 Processor / Payment → 5 Payment** 두 평행 계층으로 대응됩니다. 교과서가 *Creator가 팩토리 메서드를 선언하고 ConcreteCreator가 ConcreteProduct를 만든다*는 부분이 그대로 재현된 걸 짚으시면 됩니다.`,
 
 33: `Factory Method 코드입니다.
 
-**PaymentMethodProcessor**가 Creator인데, 추상 createPayment가 팩토리 메서드입니다. 그리고 processCharge가 *createPayment로 객체를 만든 뒤 authorize, pay로 이어지는 공통 흐름을 고정*합니다. 이때 authorize는 **외부 PG legacy system**을 직접 부르지 않고 PaymentGatewayInterface를 거치게 해서, 도메인이 외부 시스템에 직접 묶이지 않게 했습니다.
-**CreditCardPaymentProcessor**가 ConcreteCreator 다섯 종 중 하나인데, createPayment에서 new CreditCardPayment를 돌려줍니다. **새 결제 수단이 생기면 ConcreteCreator만 추가**하면 되니 OCP를 지킵니다.
-**Payment**는 추상 Product로 pay, fail 상태 전이를 갖고, CreditCardPayment가 그 구현체입니다.`,
+**PaymentMethodProcessor** — Creator 추상으로, 결제 처리 템플릿 안에서 팩토리 메서드로 Payment를 만들게 합니다. **CreditCardPaymentProcessor** — ConcreteCreator 다섯 중 하나로, 팩토리 메서드를 override해 **CreditCardPayment**(ConcreteProduct)를 생성합니다. **Payment** — Product 추상 타입. 호출부는 *어떤 ConcreteProduct가 만들어지는지 몰라도* 되고, 수단 추가는 한 쌍만 더하면 됩니다.`,
 
-34: `**DP#7, Template Method**입니다. **티켓을 그리는 골격은 고정**하고 세부만 바꾸게 했습니다.
+34: `**DP#7, Template Method**입니다. **e-Ticket 렌더링**에 썼습니다.
 
-AbstractClass는 **TicketRenderer**이고, final render가 전체 순서를 묶습니다. header, body, footer는 추상 단계로 두고, separator는 hook으로 뒀습니다. Plain, HTML, BoardingPass 렌더러가 각자 단계만 override합니다.`,
+문제는, 티켓 포맷이 *평문 / HTML / 탑승권* 셋인데, **렌더 순서(header → body → footer)** 는 똑같고 *각 단계 내용만* 다릅니다.
 
-35: `Template Method 교과서 구조와 TicketRenderer 구현을 비교한 화면입니다. 골격을 고정하고 단계를 위임하는 구조의 대응을 보겠습니다.`,
+역할은 — **AbstractClass**가 **TicketRenderer**인데, **render()를 final 템플릿 메서드**로 두어 header→body→footer→separator 순서를 *고정*하고, header/body/footer를 **abstract hook**으로 선언합니다. **ConcreteClass**가 PlainTextTicketRenderer·HtmlTicketRenderer·BoardingPassRenderer 셋으로, *훅만 override*합니다.
+
+이득은, *렌더 골격(순서)은 한 곳에 고정*하고 포맷별 차이는 훅으로만 표현 — 새 포맷이 생겨도 순서 로직은 건드리지 않습니다.`,
+
+35: `Template Method 교과서 구조와 구현을 비교한 화면입니다.
+
+교과서의 *AbstractClass가 templateMethod에서 primitiveOperation들을 호출하고, ConcreteClass가 그것만 구현한다*는 구조가, 저희 **TicketRenderer.render()(final) → header/body/footer(abstract) → 3개 렌더러**로 대응됩니다. render가 final이라 *순서를 하위에서 못 바꾼다*는 점을 짚으시면 됩니다.`,
 
 36: `Template Method 코드입니다.
 
-**TicketRenderer**의 final render가 header → separator → body → separator → footer 순서를 *고정*합니다. 서브클래스가 이 순서를 못 바꿉니다. 각 단계는 추상 primitive고, separator만 선택적으로 바꿀 수 있는 hook입니다.
-**PlainTextTicketRenderer**는 ConcreteClass로, header, body, footer 단계만 구현하고 separator hook을 재정의했습니다. HTML이나 BoardingPass도 *단계만 갈아끼우면* 됩니다.`,
+**TicketRenderer** — AbstractClass. **public final String render()** 가 템플릿 메서드로, header()→body()→footer()를 *정해진 순서로* 호출하고 그 사이 separator를 끼웁니다. final이라 하위가 순서를 못 바꿉니다. **PlainTextTicketRenderer** — ConcreteClass로, header/body/footer 훅만 평문용으로 구현합니다. HTML·탑승권 렌더러도 같은 골격에 내용만 다릅니다.`,
 
-37: `**DP#8, Adapter**입니다. 이 패턴의 핵심 동기는 바로 **legacy system 통합**입니다. *우리가 수정할 수 없는* 외부 Skypass 마일리지 시스템을 감싸려고 썼습니다.
+37: `**DP#8, Adapter**입니다. **외부 Skypass 마일리지 API 연동**에 썼습니다.
 
-Adaptee인 **RemoteSkypassApi**가 바로 그 **legacy system**입니다. 외부 회원사가 운영하는 시스템이라 우리가 코드를 고칠 수 없고, 인터페이스도 우리 도메인과 맞지 않습니다. 반환값이 Map이죠.
-그래서 Target인 **SkypassInterface**를 *우리가 원하는 모양*으로 정의하고, **SkypassAdapter**가 그 사이에서 변환을 맡습니다. deductMileage가 legacy API의 Map 응답을 boolean으로 바꿔 줍니다.
-핵심은, **legacy system을 한 줄도 건드리지 않고** 우리 애플리케이션은 우리 인터페이스에만 의존하게 만들었다는 점입니다. DIP, 의존 역전입니다.
-참고로 외부 legacy system을 격리하는 자리는 여기뿐이 아닙니다. 저희는 외부 시스템을 전부 **boundary 계층**에 모아 뒀는데요. 결제대행사 PG는 PaymentGatewayInterface로, 타 항공사 연동인 GDS는 별도 인터페이스로 분리해 뒀습니다. **Adapter는 그 격리 방식 중에서 인터페이스가 가장 안 맞는 Skypass에 쓴 한 가지 방법**입니다.`,
+문제는, Skypass는 **우리가 만들거나 고칠 수 없는 legacy 외부 시스템**이고, 응답이 우리 도메인과 다른 형식(예: Map)으로 옵니다. 이걸 우리 코드가 직접 쓰면 외부 형식에 오염됩니다.
 
-38: `Adapter 교과서 구조와 SkypassAdapter 구현을 비교한 화면입니다. Target, Adapter, Adaptee의 대응을 보겠습니다.`,
+역할은 — **Target**(우리가 원하는 인터페이스)이 **SkypassInterface**, **Adapter**가 **SkypassAdapter**, **Adaptee**(수정 불가 legacy)가 **RemoteSkypassApi**입니다. SkypassAdapter는 SkypassInterface를 implements하면서 내부에 adaptee 필드로 RemoteSkypassApi를 들고, 클라이언트 호출을 *adaptee 호출로 변환* — 예를 들어 외부의 **Map 응답을 도메인 boolean으로** 바꿔 줍니다.
+
+이득은, 애플리케이션이 *legacy의 Map 구조를 전혀 몰라도* 되고, 외부 API가 바뀌어도 *Adapter 한 곳만* 고치면 됩니다. legacy 격리죠.`,
+
+38: `Adapter 교과서 구조와 구현을 비교한 화면입니다.
+
+교과서의 **Target / Adapter / Adaptee** 삼각이, 저희 **SkypassInterface / SkypassAdapter / RemoteSkypassApi**로 대응됩니다. 교과서가 *Adapter가 Target을 구현하면서 Adaptee를 감싸 호출을 변환한다*고 하는 부분이, SkypassAdapter의 adaptee 필드 + Map→boolean 변환으로 구현된 걸 짚으시면 됩니다.`,
 
 39: `Adapter 코드입니다.
 
-**SkypassInterface**가 Target인데, boolean이나 int 같은 *도메인 친화적인 타입*을 돌려줍니다.
-**SkypassAdapter**가 Adapter로, adaptee를 들고 있다가 deductMileage에서 legacy API의 Map 응답을 Boolean.TRUE.equals로 boolean으로 변환합니다.
-**RemoteSkypassApi**가 바로 그 **legacy system**, 즉 Adaptee입니다. *우리가 수정할 수 없는 외부 시스템*이라고 가정하고, postDeduct가 success, remaining 같은 키를 가진 Map을 돌려줍니다. 보시면 시그니처도, 반환 타입도 우리 도메인과 전혀 다르죠.
-결국 호출부는 이 legacy system의 Map 구조를 전혀 몰라도 됩니다. Adapter가 그 차이를 모두 흡수하니까요.`,
+**SkypassInterface** — 우리가 원하는 Target 인터페이스(verifyMembership·getMileageBalance·deductMileage·verifyAndDeduct). **RemoteSkypassApi** — 수정 불가한 **legacy 외부 시스템**(Adaptee). **SkypassAdapter** — SkypassInterface를 implements하면서 adaptee로 RemoteSkypassApi를 들고, 클라이언트 호출을 adaptee 호출로 **변환**합니다(외부 Map 응답 → 도메인 boolean). 애플리케이션은 이 변환 덕에 외부 형식을 몰라도 됩니다.`,
 
-40: `**DP#9, Decorator**입니다. **런타임에 좌석 옵션을 누적**하려고 썼습니다.
+40: `**DP#9, Decorator**입니다. **좌석 부가옵션을 런타임에 누적**하려고 썼습니다.
 
-Component는 **SeatView**, Decorator는 **AbstractSeatDecorator**입니다. ExtraLegroom은 5만 원, Lounge는 8만 원을 super 요금에 더하고, Window나 Aisle은 라벨만 붙입니다.
-조합마다 새 클래스를 만들지 않고, *옵션을 겹쳐서* 표현한다는 게 핵심입니다. 역시 OCP를 지킵니다.`,
+문제는, 좌석에 *창측 / 통로 / 추가 레그룸 / 라운지* 같은 옵션을 *자유롭게 겹쳐* 붙이고 그때마다 요금·설명이 누적돼야 하는데, 조합을 클래스로 다 만들면 폭발합니다.
 
-41: `Decorator 교과서 구조와 좌석 데코레이터 구현을 비교한 화면입니다. Component, Decorator, ConcreteDecorator의 대응을 보겠습니다.`,
+역할은 — **Component** 추상이 **SeatView**(getSurcharge·getDescription 등), **ConcreteComponent**가 **BaseSeatView**, **Decorator** 추상이 **AbstractSeatDecorator**(감싼 component를 들고 위임), **ConcreteDecorator**가 WindowSeatDecorator·AisleSeatDecorator·ExtraLegroomDecorator·LoungeAccessDecorator 넷입니다.
+
+동작은, 각 데코레이터가 **super(감싼 객체)에 먼저 위임해 안쪽 결과를 받은 뒤** 자기 요금/라벨을 *더합니다*. 그래서 옵션을 겹칠수록 요금이 자연스럽게 누적됩니다.
+
+이득은, 정적 상속 폭발 없이 *런타임에 옵션을 조립* — 창측+레그룸+라운지 같은 임의 조합을 객체를 감싸는 것만으로 표현합니다.`,
+
+41: `Decorator 교과서 구조와 구현을 비교한 화면입니다.
+
+교과서의 **Component / ConcreteComponent / Decorator / ConcreteDecorator** 네 역할이, 저희 **SeatView / BaseSeatView / AbstractSeatDecorator / 4개 좌석 데코레이터**로 대응됩니다. 교과서가 *Decorator가 Component를 감싸고 같은 인터페이스로 위임 후 동작을 더한다*는 부분이, AbstractSeatDecorator의 component 위임 + 각 데코의 요금 누적으로 구현된 걸 짚으시면 됩니다.`,
 
 42: `Decorator 코드입니다.
 
-**SeatView**가 추상 Component로 getSurcharge, getDescription, getMetadataLabels를 갖습니다.
-**AbstractSeatDecorator**가 Decorator인데, 감싼 component를 들고 기본 동작을 위임합니다.
-**ExtraLegroomDecorator**가 ConcreteDecorator인데, getSurcharge가 super.getSurcharge에 5만 원을 더하는 식으로 *요금을 누적*하고, getDescription에는 라벨을 덧붙입니다. Lounge 8만 원도 똑같은 방식이고요. 이렇게 *런타임에 옵션을 겹쳐* 쓰면서 OCP를 지킵니다.`,
+**SeatView** — Component 추상(getSeat·getSurcharge·getDescription·getMetadataLabels). **AbstractSeatDecorator** — Decorator로, 감싼 component를 들고 *기본은 그대로 위임*합니다. **ExtraLegroomDecorator** 같은 ConcreteDecorator는 getDescription·getSurcharge를 override해서 **super 결과에 자기 요금(예 +5만)과 라벨을 누적**합니다. ConcreteComponent는 **BaseSeatView**고요. 옵션을 겹쳐 감쌀수록 요금·설명이 쌓이는 구조입니다.`,
 
 43: `이제 종합입니다. 이 슬라이드는 **9개 패턴(State 포함)이 따로 노는 게 아니라, 하나의 실행 가능한 흐름 안에서 함께 동작한다**는 걸 세 가지 축으로 정리한 것입니다.
 
