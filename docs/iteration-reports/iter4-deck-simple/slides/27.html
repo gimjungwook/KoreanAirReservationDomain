@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#3 Composite — 코드 (관련 클래스 전부)</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#4 Composite — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -79,7 +79,7 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🌳</span>DP#3 Composite — 코드 (관련 클래스 전부)</h1><div class="sub">Component=AirportLocation, Leaf=Airport, Composite=AirportCity.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">AirportLocation.java</span><span class="ccrole">Component · 공통 추상 타입</span></div><div class="ccbody"><pre><span class="cm">// Leaf(Airport)와 Composite(AirportCity)가 똑같이 구현.</span>
+</style></head><body><div class="slide"><h1><span class="emoji">🌳</span>DP#4 Composite — 코드 (관련 클래스 전부)</h1><div class="sub">Component=AirportLocation, Leaf=Airport, Composite=AirportCity.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">AirportLocation.java</span><span class="ccrole">Component · 공통 추상 타입</span></div><div class="ccbody"><pre><span class="cm">// Leaf(Airport)와 Composite(AirportCity)가 똑같이 구현.</span>
 <span class="cm">// 클라이언트는 단일 공항인지 도시인지 구분 없이 이 타입만 다룬다.</span>
 <span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> <span class="ty">AirportLocation</span> {
     <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">String</span> getCode();
@@ -103,4 +103,4 @@
         <span class="kw">return</span> <span class="ty">Collections</span>.unmodifiableList(all);
     }
     <span class="kw">public</span> <span class="kw">boolean</span> isComposite() { <span class="kw">return</span> <span class="kw">true</span>; }
-}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>27 / 45</span></div></div></body></html>
+}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>27 / 46</span></div></div></body></html>

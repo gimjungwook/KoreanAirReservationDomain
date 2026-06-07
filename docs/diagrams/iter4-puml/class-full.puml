@@ -1,110 +1,475 @@
 @startuml class-full
 !include _style.puml
-title 대한항공 예약 시스템 - 전체 클래스 다이어그램 (ECB + 9 GoF 패턴)
-' ortho 는 6개 패키지/대형 박스에서 가로 폭이 과도하게 퍼져 한 페이지를 넘기므로
-' _style.puml 의 polyline 을 유지하고 명시적 방향 힌트로 무교차 배치한다.
-skinparam linetype polyline
-skinparam nodesep 25
-skinparam ranksep 55
+title 대한항공 예약 시스템 — 전체 클래스 다이어그램 (146 classes · ECB + 9 GoF · 빨강=패턴역할)
+skinparam dpi 100
+skinparam nodesep 12
+skinparam ranksep 45
+skinparam classFontSize 13
+skinparam classAttributeFontSize 11
 left to right direction
-package "Boundary (JavaFX)" {
-  class FxApp {
-    +start(): void
-    +main(): void {static}
+package "app" {
+  class App {
+    +main()
   }
-  class Navigator {
-    +STEP_SEARCH: int
-    +STEP_PASSENGER: int
-    +STEP_SEAT: int
-    +STEP_PAYMENT: int
-    +STEP_DONE: int
-    -ctx: AppContext
-    -shell: ShellController
+  class AppConfig #FFCCCC {
+    -instance: volatileAppConfig
+    -fontFamily: String
+    -fontSize: int
+    -displayLocale: Locale
+    -currency: Currency
+    -modernTheme: boolean
+    -showSeatMetadata: boolean
+    -listeners: java.util.List<java.util.function.Consumer<AppConfig>>
     --
-    -load(): Loaded<T>
-    +updateState(): void
-    +showLogin(): void
-    +showSearch(): void
-    +showPassenger(): void
-    +showPassengerRoundTrip(): void
-    +showPassengerMultiCity(): void
-    +showPassengerConnecting(): void
-    +showPassengerExisting(): void
-    +showSeat(): void
-    +showPayment(): void
-    +showConfirmation(): void
-    +showLookup(): void
-    +showCancellation(): void
-    +showRefund(): void
-    +showRefundReview(): void
-    +showRegistration(): void
-    +showSettings(): void
-    +onLoginSuccess(): void
-    +requireSignIn(): void
-    +doLogout(): void
-    +startNewBooking(): void
-    +registerReservationToMember(): void
-    +noop(): List<FlightSchedule>
+    +getInstance()
+    +getFontFamily()
+    +setFontFamily()
+    +getFontSize()
+    +setFontSize()
+    +getDisplayLocale()
+    +setDisplayLocale()
+    +getCurrency()
+    +setCurrency()
+    +isModernTheme()
+    +setModernTheme()
+    +isShowSeatMetadata()
+    +setShowSeatMetadata()
+    +addChangeListener()
   }
-  interface SkypassInterface <<Target>> #FFCCCC {
-    +verifyMembership(): Object
-    +getMileageBalance(): int
-    +deductMileage(): boolean
-    +verifyAndDeduct(): Object
+  class ConsoleReservationUI {
+    +displaySearchResults()
+    +displaySeatMap()
+    +displayItineraryDetail()
+    +displayBookingConfirmation()
   }
-  class SkypassAdapter <<Adapter>> #FFCCCC {
-    -adaptee: RemoteSkypassApi
+  class Iter3DemoRunner {
+    -monitor: SeatHoldMonitor
+    -payProc: PaymentProcessor
+    -failingGateway: FailingGateway
+    -ticketPublisher: TicketPurchasePublisher
+    -busTicketingService: BusTicketingService
     --
-    +verifyMembership(): Object
-    +getMileageBalance(): int
-    +deductMileage(): boolean
-    +verifyAndDeduct(): Object
+    +main()
+    +bootSubscribers()
+    +demoSeatHoldExpiry()
+    +demoPaymentFailureAutoCancel()
+    +demoFlightStatusPropagation()
+    +demoLinkedBusTicketIssue()
+    +demoMileagePayment()
+    +demoConnectingItinerary()
+    +newReservation()
+    +leg()
+    +newSkypassMock()
+    +forceHoldExpiry()
+    +forceField()
+    +sendAuthorizationRequest()
   }
-  class RemoteSkypassApi <<Adaptee>> #FFCCCC {
-    -balances: Map<String,Integer>
-    -tokens: Map<String,String>
-    --
-    +registerAccount(): void
-    +postAuth(): Map<String,Object>
-    +getMileage(): Map<String,Object>
-    +postDeduct(): Map<String,Object>
+  class MockPaymentGateway {
+    +sendAuthorizationRequest()
+    +receiveTransactionResult()
+    +sendRefund()
+    +authorize()
+    +refund()
   }
 }
-package "Control" {
-  class BookingController {
-    -authService: AuthService
-    -flightSearch: FlightSearchService
+package "app.fx" {
+  class AirportLabels {
+    +display()
+  }
+  class AppContext {
+    -auth: AuthService
+    -search: FlightSearchService
     -paymentProcessor: PaymentProcessor
     -refundHandler: RefundHandler
     -lookupService: ReservationLookupService
+    -booking: BookingController
+    -ticketPublisher: TicketPurchasePublisher
+    -busTicketingService: BusTicketingService
+    -seed: SeedResult
+    -gateway: com.koreanair.reservation.boundary.PaymentGatewayInterface
+    -sessionMileage: com.koreanair.reservation.domain.passenger.MileageAccount
+    -skypass: com.koreanair.reservation.boundary.SkypassInterface
     --
-    +processSearch(criteria): Object
-    +initiateBooking(flightId, fareClass): Reservation
-    +setPassengerInfo(): void
-    +confirmInfo(): void
-    +assignSeat(): void
-    +assignSeat(): SeatAssignment
-    -resolveBookingClass(): BookingClass
-    +processCancellation(): void
-    -resolveFareClass(): String
-    +changeFlightStatus(): void
-    +createSchedule(): FlightSchedule
-    +authenticateAdmin(): boolean
-    +authenticateMember(): Object
-    +getBookingHistory(): Object
-    +getTicketDetail(): Object
-    +verifyGuestIdentity(): boolean
-    +reconfirmGuestIdentity(): boolean
-    +processSearch(from, to, date): List<FlightSchedule>
-    +getAllSchedules(): List<FlightSchedule>
-    +initiateMultiCityBooking(): Reservation
-    +initiateConnectingBooking(): Reservation
-    +initiateRoundTripBooking(): Reservation
-    +confirmPayment(): Payment
-    +confirmPaymentWith(): Payment
-    +confirmMileagePayment(): Payment
-    +currentMember(): Member
-    +airport(): Airport {static}
+    +loggedInMember()
+    +setLoggedInMember()
+    +isSignedIn()
+    +currentReservation()
+    +setCurrentReservation()
+    +isContinueFromLookup()
+    +setContinueFromLookup()
+    +pendingSchedule()
+    +setPendingSchedule()
+    +seatSurcharge()
+    +setSeatSurcharge()
+    +logout()
+    +issueLinkedBusTicket()
+  }
+  class FxApp {
+    +start()
+    +main()
+  }
+  class Navigator {
+    -ctx: AppContext
+    -shell: ShellController
+    --
+    +updateState()
+    +showLogin()
+    +showSearch()
+    +showPassenger()
+    +showPassengerRoundTrip()
+    +showPassengerMultiCity()
+    +showPassengerConnecting()
+    +showPassengerResume()
+    +showPassengerExisting()
+    +showSeat()
+    +showSeatFromExisting()
+    +showPayment()
+    +showConfirmation()
+    +showReservationDetail()
+  }
+  class ShellController {
+    -stateBadge: Label
+    -stepBar: HBox
+    -content: StackPane
+    -homeBtn: Button
+    -lookupBtn: Button
+    -loginBtn: Button
+    -logoutBtn: Button
+    -settingsBtn: Button
+    -nav: Navigator
+    --
+    +initialize()
+    +buildSteps()
+    +onHome()
+    +onLookup()
+    +onLogin()
+    +onLogout()
+    +onSettings()
+    +onPatternGuide()
+    +setContent()
+    +refreshAuth()
+    +showStep()
+    +setStep()
+    +setStateBadge()
+  }
+}
+package "app.fx.screen" {
+  class CancellationController {
+    -pnrLabel: Label
+    -stateLabel: Label
+    -previewLabel: Label
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    -reservation: Reservation
+    --
+    +bind()
+    +prepare()
+    +onCopyPnr()
+    +fareClass()
+    +onPreview()
+    +onCancel()
+    +onRequestReview()
+    +onBack()
+  }
+  class ConfirmationController {
+    -pnrLabel: Label
+    -stateLabel: Label
+    -amountLabel: Label
+    -busLabel: Label
+    -busCityCombo: ComboBox<BusCity>
+    -ticketFormatCombo: ComboBox<String>
+    -ticketArea: TextArea
+    -lookupBtn: Button
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    -reservation: Reservation
+    --
+    +bind()
+    +prepare()
+    +onCopyPnr()
+    +showBus()
+    +onIssueTicket()
+    +renderTicket()
+    +onLinkBus()
+    +onLookup()
+    +onNew()
+  }
+  class LoginController {
+    -nameField: TextField
+    -passwordField: PasswordField
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    --
+    +bind()
+    +onLogin()
+    +onGuest()
+    +onSignup()
+  }
+  class LookupController {
+    -memberList: VBox
+    -pnrField: TextField
+    -nameField: TextField
+    -emailField: TextField
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    --
+    +bind()
+    +refresh()
+    +row()
+    +formatStateName()
+    +stateClass()
+    +copyPnr()
+    +routeSummary()
+    +onGuestLookup()
+    +txt()
+  }
+  class PassengerController {
+    -flightInfo: Label
+    -nameField: TextField
+    -passportField: TextField
+    -birthField: TextField
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    -reservation: Reservation
+    -fromLookupFlow: boolean
+    --
+    +bind()
+    +code()
+    +afterCreate()
+    +prepare()
+    +prepareRoundTrip()
+    +prepareConnecting()
+    +prepareMultiCity()
+    +prepareExisting()
+    +onNext()
+    +onBack()
+    +setFromLookupFlow()
+  }
+  class PatternGuideController {
+    -patternList: VBox
+    -nav: Navigator
+    -ctx: AppContext
+    -currentState: ReservationState
+    -airports: List<Airport>
+    -instance: volatileAppConfig
+    -listeners: List<Consumer<AppConfig>>
+    -remote: RemoteSkypassApi
+    --
+    +bind()
+    +render()
+    +card()
+    +kv()
+    +notes()
+    +update()
+    +getInstance()
+    +createPayment()
+    +createItinerary()
+    +header()
+    +body()
+    +footer()
+  }
+  class PaymentController {
+    -pnrLabel: Label
+    -totalLabel: Label
+    -methodCombo: ComboBox<String>
+    -mileageLabel: Label
+    -projectedMileageLabel: Label
+    -payBtn: Button
+    -busAddon: CheckBox
+    -busCityCombo: ComboBox<BusCity>
+    -busScheduleCombo: ComboBox<BusSchedule>
+    -busSeatCombo: ComboBox<BusSeat>
+    -busHelpLabel: Label
+    -message: Label
+    --
+    +segmentCount()
+    +baseFare()
+    +tax()
+    +totalAmount()
+    +bind()
+    +prepare()
+    +bindKeyboardShortcuts()
+    +refreshMileageLabel()
+    +refreshBusOptions()
+    +refreshBusSeats()
+    +onPay()
+    +methodOf()
+    +onBack()
+    +setContinueFromLookup()
+  }
+  class RefundController {
+    -pnrLabel: Label
+    -policyLabel: Label
+    -amountLabel: Label
+    -nav: Navigator
+    -ctx: AppContext
+    --
+    +bind()
+    +prepare()
+    +onLookup()
+    +onReview()
+    +onNew()
+  }
+  class RefundReviewController {
+    -queue: VBox
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    --
+    +bind()
+    +refresh()
+    +row()
+    +onBack()
+  }
+  class RegistrationController {
+    -nameField: TextField
+    -emailField: TextField
+    -passwordField: PasswordField
+    -confirmField: PasswordField
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    --
+    +bind()
+    +onRegister()
+    +onBackToLogin()
+    +err()
+    +txt()
+  }
+  class SearchController {
+    -heroImage: ImageView
+    -tripTabs: HBox
+    -simpleFields: HBox
+    -fromField: TextField
+    -toField: TextField
+    -datePicker: DatePicker
+    -returnDateBox: VBox
+    -returnDate: DatePicker
+    -passengersCombo: ComboBox<String>
+    -multiBox: VBox
+    -legsBox: VBox
+    -connectingCheck: javafx.scene.control.CheckBox
+    --
+    +bind()
+    +ensureDefaultLegs()
+    +makeLeg()
+    +onTripTab()
+    +setMode()
+    +applyMode()
+    +toggle()
+    +onSearch()
+    +searchOneWay()
+    +searchConnecting()
+    +itineraryCard()
+    +searchRoundOutbound()
+    +pickOutbound()
+    +searchMulti()
+  }
+  class SeatController {
+    -seatGrid: GridPane
+    -selectedLabel: Label
+    -seatDescLabel: Label
+    -seatMetaLabel: Label
+    -surchargeLabel: Label
+    -legroomCheck: CheckBox
+    -loungeCheck: CheckBox
+    -nextBtn: Button
+    -message: Label
+    -nav: Navigator
+    -ctx: AppContext
+    -reservation: Reservation
+    --
+    +bind()
+    +prepare()
+    +bindShortcuts()
+    +setContinueFromLookup()
+    +buildGrid()
+    +choose()
+    +refreshSeatView()
+    +onNext()
+    +onBack()
+  }
+  class SettingsController {
+    -fontSizeCombo: ComboBox<Integer>
+    -currencyCombo: ComboBox<String>
+    -modernThemeCheck: CheckBox
+    -seatMetaCheck: CheckBox
+    -message: Label
+    -nav: Navigator
+    --
+    +bind()
+    +onApply()
+    +onClose()
+  }
+}
+package "app.sample" {
+  class SampleData {
+    -member: Member
+    -firstSchedule: FlightSchedule
+    -defaultFareRule: FareRule
+    --
+    +airport()
+    +fareRule()
+    +fare()
+    +flight()
+    +schedule()
+    +member()
+    +seedAll()
+    +setField()
+    +findField()
+  }
+}
+package "boundary" {
+  interface GDSInterface {
+  }
+  class MockSkypassInterface {
+    -balances: Map<String,Integer>
+    -passwords: Map<String,String>
+    --
+    +seed()
+    +verifyMembership()
+    +getMileageBalance()
+    +deductMileage()
+    +verifyAndDeduct()
+  }
+  interface PaymentGatewayInterface {
+  }
+  class RemoteSkypassApi #FFCCCC {
+    -balances: Map<String,Integer>
+    -tokens: Map<String,String>
+    --
+    +registerAccount()
+    +postAuth()
+    +getMileage()
+    +postDeduct()
+  }
+  interface ReservationUI {
+  }
+  class SkypassAdapter #FFCCCC {
+    -adaptee: RemoteSkypassApi
+    --
+    +verifyMembership()
+    +getMileageBalance()
+    +deductMileage()
+    +verifyAndDeduct()
+  }
+  interface SkypassInterface #FFCCCC {
+  }
+}
+package "control" {
+  class AffectedReservationListener {
+    -registry: ReservationRegistry
+    -subject: FlightSchedule
+    --
+    +setSubject()
+    +getSubject()
+    +update()
+    +findAffected()
   }
   class AuthService {
     -memberBySkypass: Map<String,Member>
@@ -115,89 +480,830 @@ package "Control" {
     -memberSequence: int
     -current: Member
     --
-    +registerSample(): void
-    +registerMember(): Member
-    +generateSkypassNumber(): String
-    +loginByName(): Member
-    +login(): Member
-    +loginWithHash(): Member
-    +verifyGuest(): boolean
-    +logout(): void
-    +currentMember(): Member
-    -hashPassword(): String
-    -generateSalt(): String
+    +registerSample()
+    +registerMember()
+    +generateSkypassNumber()
+    +loginByName()
+    +login()
+    +loginWithHash()
+    +verifyGuest()
+    +logout()
+    +currentMember()
+    +hashPassword()
+    +generateSalt()
+  }
+  class BookingController {
+    -authService: AuthService
+    -flightSearch: FlightSearchService
+    -paymentProcessor: PaymentProcessor
+    -refundHandler: RefundHandler
+    -lookupService: ReservationLookupService
+    --
+    +processSearch()
+    +initiateBooking()
+    +setPassengerInfo()
+    +confirmInfo()
+    +assignSeat()
+    +resolveBookingClass()
+    +processCancellation()
+    +resolveFareClass()
+    +changeFlightStatus()
+    +createSchedule()
+    +authenticateAdmin()
+    +authenticateMember()
+    +getBookingHistory()
+    +getTicketDetail()
+  }
+  class BusTicketPurchaseListener #FFCCCC {
+    -busTicketingService: BusTicketingService
+    -subject: TicketPurchasePublisher
+    --
+    +setSubject()
+    +getSubject()
+    +update()
+  }
+  class BusTicketingService #FFCCCC {
+    -schedulesByCity: Map<BusCity,List<BusSchedule>>
+    -issuedTickets: List<BusTicket>
+    --
+    +seedDefaultSchedules()
+    +travelHours()
+    +supportedCities()
+    +schedulesFor()
+    +issuePremiumTicket()
+    +getIssuedTickets()
   }
   class FlightSearchService {
     -catalog: List<FlightSchedule>
     -airportCatalog: AirportCatalog
     --
-    +getAirportCatalog(): AirportCatalog
-    +addSchedule(): void
-    +search(): List<FlightSchedule>
-    +searchByLocation(): List<FlightSchedule>
-    +getCatalog(): List<FlightSchedule>
+    +getAirportCatalog()
+    +addSchedule()
+    +search()
+    +searchByLocation()
+    +getCatalog()
   }
-  class RefundHandler {
+  class ItinerarySearchService {
+    -flightSearch: FlightSearchService
+    --
+    +searchDirect()
+    +searchConnecting()
+    +searchMultiCity()
+    +searchDemoMultiCity()
+    +buildMultiCityCombinations()
+    +canFollow()
+    +isFirstLegOf()
+    +destinationCode()
+    +originCode()
+  }
+  class PaymentProcessor {
+    -gateway: PaymentGatewayInterface
+    -paymentSequence: long
+    -subjectState: PaymentFailedEvent
+    --
+    +getState()
+    +setState()
+    +processPayment()
+    +validateFareRule()
+    +calculateTotal()
+    +applyMileage()
+    +calculateTotalAmount()
+    +processPaymentCharge()
+    +processMileagePayment()
+  }
+  class RefundHandler #FFCCCC {
     -pending: Map<String,RefundRequest>
     -completed: Map<String,Refund>
     -requestToPnr: Map<String,String>
     -gateway: PaymentGatewayInterface
     -strategy: RefundPolicy
-    -requestSeq: int {static}
-    -refundSeq: int {static}
-    -REFUND_YYMM: DateTimeFormatter {static}
+    -policyResolver: RefundPolicyResolver
+    -requestSeq: int
+    -refundSeq: int
     --
-    +setStrategy(): void
-    +getStrategy(): RefundPolicy
-    +evaluateRefund(): RefundRequest
-    +processRefund(): void
-    +denyRefund(): void
-    +getRefundDetail(): RefundRequest
-    +getPendingRequests(): List<RefundRequest>
-    +previewRefund(): BigDecimal
-    +previewPolicyName(): String
-    -resolvePolicy(): RefundPolicy
-    -resolveFareRuleFrom(): FareRule
-    -synthesize(): FareRule
+    +setStrategy()
+    +getStrategy()
+    +evaluateRefund()
+    +processRefund()
+    +denyRefund()
+    +getRefundDetail()
+    +getPendingRequests()
+    +previewRefund()
+    +previewPolicyName()
+    +resolveFareRuleFrom()
+    +synthesize()
   }
-  class PaymentProcessorFactory <<Factory>> #FFCCCC {
-    +forMethod(): PaymentMethodProcessor {static}
-  }
-  abstract class PaymentMethodProcessor #FFCCCC {
-    -paymentSequence: long {static}
-    -gateway: PaymentGatewayInterface
+  class ReservationAutoCancelListener {
+    -subject: PaymentProcessor
     --
-    +createPayment(): Payment {abstract}
-    +method(): PaymentMethod
-    +processCharge(): Payment
-    #authorize(): boolean
-    #declineReason(): String
-    #nextPaymentId(): long
-    #stamp(): Payment
+    +setSubject()
+    +getSubject()
+    +update()
   }
-  abstract class ItineraryFactory <<Factory>> #FFCCCC {
-    +build(): Itinerary {final}
-    #createItinerary(): Itinerary {abstract}
-    #validate(): void {abstract}
-    #postCheck(): void
+  class ReservationHoldListener {
+    -subject: SeatHoldMonitor
+    --
+    +setSubject()
+    +getSubject()
+    +update()
   }
-  abstract class TicketRenderer <<Template>> #FFCCCC {
-    +render(): String {final}
-    #header(): String {abstract}
-    #body(): String {abstract}
-    #footer(): String {abstract}
-    #separator(): String
+  class ReservationLookupService {
+    -authService: AuthService
+    --
+    +findByMember()
+    +findByGuestPnr()
   }
-  class TicketPurchasePublisher <<ConcreteSubject>> {
+  class ReservationRegistry {
+    -map: Map<String,Reservation>
+    -byFlightId: Map<String,Set<String>>
+    --
+    +register()
+    +findByPnr()
+    +all()
+    +findByFlightId()
+    +clear()
+    +size()
+    +addToFlightIndex()
+    +removeFromFlightIndex()
+    +extractFlightIds()
+  }
+  class SeatHoldMonitor {
+    -tracked: List<HeldSeat>
+    -subjectState: SeatHoldExpiredEvent
+    --
+    +getState()
+    +setState()
+    +track()
+    +trackedCount()
+    +sweep()
+  }
+  class TicketPurchasePublisher #FFCCCC {
     -subjectState: TicketIssuedEvent
     --
-    +getState(): TicketIssuedEvent
-    +setState(): void
-    +publishTicketIssued(): void
+    +getState()
+    +setState()
+    +publishTicketIssued()
   }
 }
-package "Domain :: reservation" {
-  class Reservation <<Context>> {
+package "control.itinerary" {
+  class ConnectingItineraryFactory #FFCCCC {
+    -mct: Duration
+    --
+    +createItinerary()
+    +validate()
+    +postCheck()
+  }
+  class DirectItineraryFactory #FFCCCC {
+    +createItinerary()
+    +validate()
+  }
+  class ItineraryFactory #FFCCCC {
+    +build()
+    +createItinerary()
+    +validate()
+    +postCheck()
+  }
+  class MultiCityItineraryFactory #FFCCCC {
+    +createItinerary()
+    +validate()
+  }
+}
+package "control.payment" {
+  class ApplePayPaymentProcessor #FFCCCC {
+    +createPayment()
+    +method()
+    +declineReason()
+  }
+  class BankTransferPaymentProcessor #FFCCCC {
+    +createPayment()
+    +method()
+    +declineReason()
+  }
+  class CreditCardPaymentProcessor #FFCCCC {
+    +createPayment()
+    +method()
+  }
+  class KakaoPayPaymentProcessor #FFCCCC {
+    +createPayment()
+    +method()
+    +declineReason()
+  }
+  class MileagePaymentProcessor #FFCCCC {
+    -account: MileageAccount
+    --
+    +createPayment()
+    +method()
+    +authorize()
+  }
+  class PaymentMethodProcessor #FFCCCC {
+    -paymentSequence: long
+    -gateway: PaymentGatewayInterface
+    --
+    +createPayment()
+    +method()
+    +processCharge()
+    +authorize()
+    +declineReason()
+    +nextPaymentId()
+    +stamp()
+  }
+  class PaymentProcessorFactory {
+    +forMethod()
+    +method()
+  }
+  class RefundPolicyResolver #FFCCCC {
+    +resolve()
+  }
+}
+package "control.render" {
+  class BoardingPassRenderer #FFCCCC {
+    +header()
+    +body()
+    +footer()
+    +separator()
+    +safe()
+  }
+  class HtmlTicketRenderer #FFCCCC {
+    +header()
+    +body()
+    +footer()
+    +separator()
+    +safe()
+  }
+  class PlainTextTicketRenderer #FFCCCC {
+    +header()
+    +body()
+    +footer()
+    +separator()
+    +safe()
+  }
+  class TicketRenderer #FFCCCC {
+    +render()
+    +header()
+    +body()
+    +footer()
+    +separator()
+  }
+}
+package "domain.bus" {
+  enum BusCity {
+    -displayName: String
+    -cityCode: String
+    -premiumFare: long
+    --
+    +getDisplayName()
+    +getCityCode()
+    +getPremiumFare()
+    +toString()
+  }
+  class BusSchedule {
+    -scheduleId: String
+    -originCity: BusCity
+    -departureDateTime: LocalDateTime
+    -arrivalDateTime: LocalDateTime
+    -seats: List<BusSeat>
+    --
+    +getScheduleId()
+    +getOriginCity()
+    +getDepartureDateTime()
+    +getArrivalDateTime()
+    +getSeats()
+    +availableSeats()
+    +findSeat()
+    +toString()
+  }
+  class BusSeat {
+    -seatNumber: String
+    -windowSeat: boolean
+    -aisleSeat: boolean
+    -occupied: boolean
+    -heldByPnr: String
+    --
+    +getSeatNumber()
+    +isWindowSeat()
+    +isAisleSeat()
+    +isOccupied()
+    +getHeldByPnr()
+    +isAvailable()
+    +occupy()
+    +release()
+    +toString()
+  }
+  class BusSeatLayout {
+    +standardPremium()
+  }
+  class BusTicket #FFCCCC {
+    -busTicketSequence: int
+    -ticketNumber: String
+    -reservationPnr: String
+    -airTicketNumber: String
+    -passengerName: String
+    -originCity: BusCity
+    -schedule: BusSchedule
+    -seat: BusSeat
+    -fare: long
+    -issuedAt: LocalDateTime
+    --
+    +issue()
+    +getTicketNumber()
+    +getReservationPnr()
+    +getAirTicketNumber()
+    +getPassengerName()
+    +getOriginCity()
+    +getSchedule()
+    +getSeat()
+    +getFare()
+    +getIssuedAt()
+  }
+  class BusTicketRequest {
+    -originCity: BusCity
+    -schedule: BusSchedule
+    -seat: BusSeat
+    --
+    +getOriginCity()
+    +getSchedule()
+    +getSeat()
+    +hasSeatSelection()
+  }
+}
+package "domain.event" {
+  class DomainEvent {
+    -occurredAt: LocalDateTime
+    -sourceId: String
+    --
+    +getOccurredAt()
+    +getSourceId()
+    +getEventType()
+  }
+  interface EventListener #FFCCCC {
+  }
+  class EventPublisher #FFCCCC {
+    -observers: List<EventListener>
+    --
+    +attach()
+    +detach()
+    +subscriberCount()
+    +notifyObservers()
+  }
+  class FlightStatusChangedEvent {
+    -schedule: FlightSchedule
+    -previousStatus: FlightStatus
+    -newStatus: FlightStatus
+    --
+    +getSchedule()
+    +getPreviousStatus()
+    +getNewStatus()
+  }
+  class PaymentFailedEvent {
+    -payment: Payment
+    -reservationPnr: String
+    -reason: String
+    --
+    +getPayment()
+    +getReservationPnr()
+    +getReason()
+  }
+  class ReservationStateChangedEvent {
+    -pnr: String
+    -previousState: String
+    -newState: String
+    --
+    +getPnr()
+    +getPreviousState()
+    +getNewState()
+  }
+  class SeatHoldExpiredEvent {
+    -seat: Seat
+    -reservationPnr: String
+    --
+    +getSeat()
+    +getReservationPnr()
+  }
+  class TicketIssuedEvent {
+    -reservation: Reservation
+    -ticket: Ticket
+    -busTicketRequest: BusTicketRequest
+    --
+    +getReservation()
+    +getTicket()
+    +getBusTicketRequest()
+    +getRequestedBusCity()
+  }
+}
+package "domain.flight" {
+  class AircraftType {
+    -aircraftTypeCode: String
+    -modelName: String
+    -manufacturer: String
+    -seatLayout: List<Seat>
+    --
+    +getAircraftTypeCode()
+    +getTypeCode()
+    +getModelName()
+    +getSeatLayout()
+    +findSeat()
+    +addSeat()
+  }
+  class Airport #FFCCCC {
+    -airportCode: String
+    -airportName: String
+    -city: String
+    -country: String
+    --
+    +getAirportCode()
+    +getAirportName()
+    +getCity()
+    +getCountry()
+    +getCode()
+    +getDisplayName()
+    +getAirports()
+    +matches()
+    +isComposite()
+  }
+  class AirportCatalog {
+    -airportsByCode: Map<String,Airport>
+    -citiesByCode: Map<String,AirportCity>
+    --
+    +registerAirport()
+    +registerCity()
+    +lookup()
+    +getMultiAirportCities()
+    +getAllAirports()
+  }
+  class AirportCity #FFCCCC {
+    -cityCode: String
+    -cityName: String
+    -country: String
+    -components: List<AirportLocation>
+    --
+    +addComponent()
+    +removeComponent()
+    +getCityCode()
+    +getCityName()
+    +getCountry()
+    +getCode()
+    +getDisplayName()
+    +getAirports()
+    +matches()
+    +isComposite()
+  }
+  class AirportLocation #FFCCCC {
+    +getCode()
+    +getDisplayName()
+    +getAirports()
+    +matches()
+    +isComposite()
+  }
+  enum BookingClass {
+  }
+  enum CabinClass {
+  }
+  class Fare {
+    -fareId: Long
+    -bookingClass: BookingClass
+    -cabinClass: CabinClass
+    -basePrice: BigDecimal
+    -refundable: boolean
+    -changeable: boolean
+    --
+    +getFareId()
+    +getBookingClass()
+    +getCabinClass()
+    +getBasePrice()
+    +isRefundable()
+  }
+  class FareRule {
+    -fareRuleId: Long
+    -fareClass: String
+    -refundable: boolean
+    -changeFee: BigDecimal
+    -cancellationPenalty: BigDecimal
+    --
+    +getFareClass()
+    +isRefundable()
+    +getChangeFee()
+    +getCancellationPenalty()
+    +checkRefundPolicy()
+  }
+  class Flight {
+    -flightId: Long
+    -flightNumber: String
+    -route: Route
+    -fares: List<Fare>
+    --
+    +getFlightId()
+    +getFlightNumber()
+    +setFlightNumber()
+    +getRoute()
+    +setRoute()
+    +getFares()
+    +addFare()
+    +findFare()
+  }
+  class FlightSchedule {
+    -scheduleId: Long
+    -flight: Flight
+    -aircraftType: AircraftType
+    -departureDateTime: LocalDateTime
+    -arrivalDateTime: LocalDateTime
+    -status: FlightStatus
+    -fareRule: FareRule
+    -seatInventories: List<SeatInventory>
+    -subjectState: FlightStatusChangedEvent
+    --
+    +getScheduleId()
+    +getFlight()
+    +setFlight()
+    +setStatus()
+    +getFlightNumber()
+    +getDuration()
+    +getDepartureDateTime()
+    +getArrivalDateTime()
+    +getAircraftType()
+    +getStatus()
+    +getFareRule()
+    +setFareRule()
+    +getSeatInventories()
+    +isAvailableForBooking()
+  }
+  enum FlightStatus {
+  }
+  class Route {
+    -routeCode: String
+    -origin: Airport
+    -destination: Airport
+    -internationalRoute: boolean
+    --
+    +getOrigin()
+    +setOrigin()
+    +getDestination()
+    +setDestination()
+    +isInternationalRoute()
+  }
+  class Seat {
+    -seatNumber: String
+    -cabinClass: CabinClass
+    -status: SeatStatus
+    -windowSeat: boolean
+    -aisleSeat: boolean
+    -extraLegroom: boolean
+    -holdExpiresAt: LocalDateTime
+    -heldByPnr: String
+    --
+    +getSeatNumber()
+    +getCabinClass()
+    +getStatus()
+    +isWindowSeat()
+    +isAisleSeat()
+    +isExtraLegroom()
+    +isAvailable()
+    +hold()
+    +getHoldExpiresAt()
+    +getHeldByPnr()
+    +isHoldExpired()
+    +isHoldExpiredAt()
+    +updateStatus()
+    +release()
+  }
+  class SeatInventory {
+    -idSequence: long
+    -inventoryId: Long
+    -bookingClass: BookingClass
+    -totalSeats: int
+    -availableSeats: int
+    --
+    +getInventoryId()
+    +getBookingClass()
+    +getTotalSeats()
+    +getAvailableSeats()
+    +canReserve()
+    +reserve()
+    +release()
+    +adjustTotalSeats()
+  }
+  enum SeatStatus {
+  }
+}
+package "domain.flight.seatview" {
+  class AbstractSeatDecorator #FFCCCC {
+    -component: SeatView
+    --
+    +getSeat()
+    +getDescription()
+    +getSurcharge()
+    +getMetadataLabels()
+  }
+  class AisleSeatDecorator #FFCCCC {
+    +getDescription()
+    +getMetadataLabels()
+    +addedBehavior()
+  }
+  class BaseSeatView #FFCCCC {
+    -seat: Seat
+    --
+    +getSeat()
+    +getDescription()
+    +getSurcharge()
+    +getMetadataLabels()
+  }
+  class ExtraLegroomDecorator #FFCCCC {
+    +getDescription()
+    +getSurcharge()
+    +getMetadataLabels()
+    +addedBehavior()
+  }
+  class LoungeAccessDecorator #FFCCCC {
+    +getDescription()
+    +getSurcharge()
+    +getMetadataLabels()
+    +addedBehavior()
+  }
+  class SeatView #FFCCCC {
+    +getSeat()
+    +getDescription()
+    +getSurcharge()
+    +getMetadataLabels()
+  }
+  class SeatViewBuilder {
+    +decorate()
+  }
+  class WindowSeatDecorator #FFCCCC {
+    +getDescription()
+    +getMetadataLabels()
+    +addedBehavior()
+  }
+}
+package "domain.passenger" {
+  class Guest {
+    -guestSessionId: String
+    -pnr: String
+    -name: String
+    -email: String
+    --
+    +getGuestSessionId()
+    +setGuestSessionId()
+    +getPnr()
+    +setPnr()
+    +getName()
+    +setName()
+    +getEmail()
+    +setEmail()
+    +verifyIdentity()
+  }
+  class MileageAccount {
+    -accountId: Long
+    -balance: BigDecimal
+    --
+    +getAccountId()
+    +getBalance()
+    +updateBalance()
+    +deposit()
+    +withdraw()
+  }
+  class Passenger {
+    -passengerId: Long
+    -name: String
+    -contactInfo: String
+    -firstName: String
+    -lastName: String
+    -dateOfBirth: LocalDate
+    -nationality: String
+    -passportNumber: String
+    -passengerType: PassengerType
+    --
+    +create()
+    +getPassengerId()
+    +getName()
+    +getContactInfo()
+    +getFullName()
+    +getPassengerType()
+    +getDateOfBirth()
+    +getPassportNumber()
+    +updatePassportNumber()
+  }
+  enum PassengerType {
+  }
+  class SkypassMember {
+    -skypassNumber: String
+    -tier: String
+    -mileageAccount: MileageAccount
+    --
+    +getSkypassNumber()
+    +setSkypassNumber()
+    +getTier()
+    +setTier()
+    +getMileageAccount()
+    +getMileageBalance()
+  }
+}
+package "domain.payment" {
+  class ApplePayPayment {
+  }
+  class BankTransferPayment {
+  }
+  class CreditCardPayment {
+  }
+  class FullRefundPolicy #FFCCCC {
+    +calculateRefundAmount()
+  }
+  class KakaoPayPayment {
+  }
+  class MileagePayment {
+  }
+  class NoRefundPolicy #FFCCCC {
+    +calculateRefundAmount()
+  }
+  class PartialRefundPolicy #FFCCCC {
+    +calculateRefundAmount()
+  }
+  class Payment {
+    -paymentId: Long
+    -amount: BigDecimal
+    -paymentMethod: PaymentMethod
+    -status: PaymentStatus
+    -paidAt: LocalDateTime
+    -refunds: List<Refund>
+    --
+    +getAmount()
+    +setAmount()
+    +getPaymentMethod()
+    +getPaymentId()
+    +setPaymentId()
+    +getStatus()
+    +getRefunds()
+    +pay()
+    +fail()
+    +addRefund()
+    +isRefundable()
+  }
+  enum PaymentMethod {
+  }
+  enum PaymentStatus {
+  }
+  class Refund {
+    -refundIdSequence: long
+    -refundId: Long
+    -refundIdString: String
+    -refundAmount: BigDecimal
+    -status: RefundStatus
+    -reason: String
+    -requestedAt: LocalDateTime
+    -completedAt: LocalDateTime
+    --
+    +getRefundId()
+    +getRefundIdString()
+    +getRefundAmount()
+    +getStatus()
+    +getReason()
+    +getRequestedAt()
+    +getCompletedAt()
+    +approve()
+    +reject()
+    +complete()
+  }
+  interface RefundPolicy #FFCCCC {
+  }
+  class RefundRequest {
+    -requestId: String
+    -requestDate: LocalDateTime
+    -refundAmount: BigDecimal
+    -status: RefundStatus
+    -reason: String
+    --
+    +getRequestId()
+    +getRequestDate()
+    +getRefundAmount()
+    +getStatus()
+    +getReason()
+    +queryByStatus()
+    +getDetail()
+    +updateStatus()
+  }
+  enum RefundStatus {
+  }
+}
+package "domain.reservation" {
+  class ConnectingItinerary {
+  }
+  class DirectItinerary {
+  }
+  class Itinerary {
+    -tripType: String
+    -segments: List<Segment>
+    --
+    +getTripType()
+    +setTripType()
+    +getSegments()
+    +addSegment()
+    +isConnectionTimeValid()
+    +getTotalDuration()
+    +direct()
+    +connecting()
+    +multiCity()
+  }
+  class MultiCityItinerary {
+  }
+  class Reservation #FFCCCC {
     -reservationId: Long
     -reservationNumber: String
     -requester: User
@@ -211,235 +1317,337 @@ package "Domain :: reservation" {
     -tickets: List<Ticket>
     -currentState: ReservationState
     --
-    +getReservationId(): Long
-    +getReservationNumber(): String
-    +getRequester(): User
-    +getStatus(): ReservationStatus
-    +getPassengers(): List<Passenger>
-    +getReservationItems(): List<ReservationItem>
-    +getPayments(): List<Payment>
-    +getTickets(): List<Ticket>
-    +getItinerary(): Itinerary
-    +addPassenger(): void
-    +addReservationItem(): void
-    +addPayment(): void
-    +addTicket(): void
-    +confirmReservation(): void
-    +issueTickets(): void
-    +cancelReservation(): void
-    +canBeCancelled(): boolean
-    +requestRefund(payment, reason): Refund
-    +evaluateImpactOfFlightStatusChange(): void
-    +updateStatus(): void
-    +findByPnr(): Reservation
-    +setState(): void
-    +getCurrentState(): ReservationState
-    +getStateName(): String
-    +enterPassengerInfo(): void
-    +processPayment(): void
-    +handlePaymentFailure(): void
-    +issueTicket(): void
-    +requestCancellation(): void
-    +confirmCancellation(): void
-    +requestRefund(): void
-    +processRefundDecision(): void
-    +setReservationNumber(): void
-    +setRequester(): void
-    +getPnrNumber(): String
-    +getCreatedAt(): LocalDateTime
-    +getReservationDate(): LocalDateTime
+    +getReservationId()
+    +getReservationNumber()
+    +getRequester()
+    +getStatus()
+    +getPassengers()
+    +getReservationItems()
+    +getPayments()
+    +getTickets()
+    +getItinerary()
+    +addPassenger()
+    +addReservationItem()
+    +addPayment()
+    +addTicket()
+    +canBeCancelled()
   }
-  interface ReservationState <<State>> {
-    +name(): String
-    +enterPassengerInfo(): void
-    +processPayment(): void
-    +handlePaymentFailure(): void
-    +issueTicket(): void
-    +requestCancellation(): void
-    +confirmCancellation(): void
-    +requestRefund(): void
-    +processRefundDecision(): void
-  }
-  abstract class Itinerary {
-    +DOMESTIC_MCT: Duration {static}
-    +INTERNATIONAL_MCT: Duration {static}
-    -tripType: String
-    -segments: List<Segment>
+  class ReservationItem {
+    -reservationItemId: Long
+    -flightSchedule: FlightSchedule
+    -selectedFare: Fare
+    -tickets: List<Ticket>
     --
-    +getTripType(): String
-    +setTripType(): void
-    +getSegments(): List<Segment>
-    +addSegment(): void
-    +isConnectionTimeValid(): boolean
-    +getTotalDuration(): Duration
-    +direct(): Itinerary {static}
-    +connecting(): Itinerary {static}
-    +multiCity(): Itinerary {static}
+    +getFlightSchedule()
+    +getSelectedFare()
+    +getTickets()
+    +addTicket()
+  }
+  enum ReservationStatus {
+  }
+  class SeatAssignment {
+    -idSequence: long
+    -seatAssignmentId: Long
+    -flightSchedule: FlightSchedule
+    -seat: Seat
+    -status: SeatAssignmentStatus
+    --
+    +getSeatAssignmentId()
+    +getFlightSchedule()
+    +getSeat()
+    +getStatus()
+    +changeSeat()
+    +cancel()
+  }
+  enum SeatAssignmentStatus {
+  }
+  class Segment {
+    -sequenceNumber: int
+    -departureTime: LocalDateTime
+    -arrivalTime: LocalDateTime
+    -connectionTime: Duration
+    -flightSchedule: FlightSchedule
+    -airport: Airport
+    --
+    +setFlightSchedule()
+    +getSequenceNumber()
+    +getDepartureTime()
+    +getArrivalTime()
+    +getConnectionTime()
+    +getFlightSchedule()
+    +getAirport()
+  }
+  class Ticket {
+    -ticketIdSequence: long
+    -ticketNumberSequence: int
+    -ticketId: Long
+    -ticketNumber: String
+    -passenger: Passenger
+    -status: TicketStatus
+    -issuedAt: LocalDateTime
+    -seatAssignment: SeatAssignment
+    --
+    +getTicketId()
+    +getTicketNumber()
+    +getPassenger()
+    +getStatus()
+    +getIssuedAt()
+    +getSeatAssignment()
+    +assignSeat()
+    +issue()
+    +cancel()
+    +generate()
+    +getByReservation()
+  }
+  enum TicketStatus {
   }
 }
-package "Domain :: payment" {
-  interface RefundPolicy <<Strategy>> {
-    +calculateRefundAmount(): BigDecimal
+package "domain.reservation.state" {
+  class CancellationRequestedState #FFCCCC {
+    +name()
+    +confirmCancellation()
   }
-  abstract class Payment {
-    -paymentId: Long
-    -amount: BigDecimal
-    -paymentMethod: PaymentMethod
-    -status: PaymentStatus
-    -paidAt: LocalDateTime
-    -refunds: List<Refund>
-    --
-    +getAmount(): BigDecimal
-    +setAmount(): void
-    +getPaymentMethod(): PaymentMethod
-    +getPaymentId(): Long
-    +setPaymentId(): void
-    +getStatus(): PaymentStatus
-    +getRefunds(): List<Refund>
-    +pay(): void
-    +fail(): void
-    +addRefund(): void
-    +isRefundable(): boolean
+  class CancelledState #FFCCCC {
+    +name()
+    +requestRefund()
+    +resolveFareRule()
   }
-}
-package "Domain :: flight" {
-  abstract class AirportLocation <<Composite>> #FFCCCC {
-    +getCode(): String
-    +getDisplayName(): String
-    +getAirports(): List<Airport>
-    +matches(): boolean
-    +isComposite(): boolean
+  class ConfirmedState #FFCCCC {
+    +name()
+    +issueTicket()
+    +requestCancellation()
   }
-  class AirportCity #FFCCCC {
-    -cityCode: String
-    -cityName: String
-    -country: String
-    -components: List<AirportLocation>
-    --
-    +addComponent(): void
-    +removeComponent(): void
-    +getCityCode(): String
-    +getCityName(): String
-    +getCountry(): String
-    +getCode(): String
-    +getDisplayName(): String
-    +getAirports(): List<Airport>
-    +matches(): boolean
-    +isComposite(): boolean
+  class InitiatedState #FFCCCC {
+    +name()
+    +enterPassengerInfo()
+    +requestCancellation()
   }
-  class Airport #FFCCCC {
-    -airportCode: String
-    -airportName: String
-    -city: String
-    -country: String
-    --
-    +getAirportCode(): String
-    +getAirportName(): String
-    +getCity(): String
-    +getCountry(): String
-    +getCode(): String
-    +getDisplayName(): String
-    +getAirports(): List<Airport>
-    +matches(): boolean
-    +isComposite(): boolean
+  class InvalidStateTransitionException {
+    -serialVersionUID: long
   }
-  abstract class SeatView <<Decorator>> #FFCCCC {
-    +getSeat(): Seat
-    +getDescription(): String
-    +getSurcharge(): BigDecimal
-    +getMetadataLabels(): List<String>
+  class PendingPaymentState #FFCCCC {
+    +name()
+    +processPayment()
+    +requestCancellation()
+    +handlePaymentFailure()
+  }
+  class RefundRequestedState #FFCCCC {
+    +name()
+    +processRefundDecision()
+  }
+  class RefundedState #FFCCCC {
+    +name()
+  }
+  interface ReservationState #FFCCCC {
+  }
+  class TicketedState #FFCCCC {
+    +name()
+    +requestCancellation()
   }
 }
-package "Domain :: event" {
-  class EventPublisher <<Subject>> {
-    -observers: List<EventListener>
+package "domain.user" {
+  class Admin {
+    -employeeId: String
+    -department: String
     --
-    +attach(): void
-    +detach(): void
-    +subscriberCount(): int
-    +notifyObservers(): void
+    +createSchedule()
+    +changeFlightStatus()
   }
-  interface EventListener {
-    +update(): void
-  }
-  abstract class DomainEvent {
-    -occurredAt: LocalDateTime
-    -sourceId: String
+  class GuestBookingRequester {
+    -guestRequestId: String
+    -verificationCode: String
     --
-    +getOccurredAt(): LocalDateTime
-    +getSourceId(): String
-    +getEventType(): String
+    +getGuestRequestId()
+    +setGuestRequestId()
+    +getVerificationCode()
+    +setVerificationCode()
+    +verifyReservationAccess()
+  }
+  class Member {
+    -memberNumber: String
+    -reservations: List<Reservation>
+    --
+    +getMemberNumber()
+    +setMemberNumber()
+    +getReservations()
+    +addReservation()
+  }
+  class User {
+    -userId: Long
+    -name: String
+    -email: String
+    -phoneNumber: String
+    -registeredAt: LocalDateTime
+    --
+    +getUserId()
+    +getName()
+    +setName()
+    +getEmail()
+    +setEmail()
   }
 }
-package "app" {
-  class AppConfig <<Singleton>> #FFCCCC {
-    -instance: AppConfig {static}
-    -fontFamily: String
-    -fontSize: int
-    -displayLocale: Locale
-    -currency: Currency
-    -modernTheme: boolean
-    -showSeatMetadata: boolean
-    -listeners: List<Consumer<AppConfig>>
-    --
-    +getInstance(): AppConfig {static}
-    +getFontFamily(): String
-    +setFontFamily(): void
-    +getFontSize(): int
-    +setFontSize(): void
-    +getDisplayLocale(): Locale
-    +setDisplayLocale(): void
-    +getCurrency(): Currency
-    +setCurrency(): void
-    +isModernTheme(): boolean
-    +setModernTheme(): void
-    +isShowSeatMetadata(): boolean
-    +setShowSeatMetadata(): void
-    +addChangeListener(): void
-    +removeChangeListener(): void
-    -notifyListeners(): void
-  }
-}
-
-' ============================================================
-'  레이아웃 (무교차): top->bottom 방향으로 Boundary -> Control -> Domain
-'  세로 스파인을 만든다. 모든 패키지간 의존을 아래 방향으로 통일하고,
-'  Adapter/Composite/Observer 의 내부 상속은 같은 패키지 안에서 짧게 닫는다.
-' ============================================================
-' === ECB 핵심 흐름: FxApp -> Navigator -> BookingController -> Reservation ===
-FxApp --> Navigator
-FxApp ..> AppConfig
-Navigator ..> BookingController
-BookingController --> Reservation
-BookingController ..> PaymentProcessorFactory
-BookingController ..> ItineraryFactory
-
-' === Factory Method / Strategy / Template ===
-PaymentProcessorFactory ..> PaymentMethodProcessor
-RefundHandler ..> RefundPolicy
-TicketRenderer ..> Reservation
-
-' === State ===
-Reservation o--> ReservationState
-Reservation --> Itinerary
-
-' === Composite (flight): Component <- Leaf/Composite + Composite o--> Component ===
-FlightSearchService ..> AirportLocation
-Airport --|> AirportLocation
-AirportCity --|> AirportLocation
-AirportCity o--> "0..*" AirportLocation : components
-
-' === Adapter (Boundary 내부) ===
+ReservationUI <|.. ConsoleReservationUI
+PaymentGatewayInterface <|.. MockPaymentGateway
 SkypassInterface <|.. SkypassAdapter
-SkypassAdapter --> RemoteSkypassApi
-
-' === Observer (Subject 베이스 <- ConcreteSubject, aggregation 은 Subject 가 보유) ===
-TicketPurchasePublisher --|> EventPublisher
-EventPublisher o--> "0..*" EventListener
-
-legend bottom
-|= 색 |= 의미 |
-|<#FFCCCC>    | iter4 신규 적용 패턴 (Composite/Singleton/Factory Method/Template Method/Adapter/Decorator) |
-|<#FFFFCE>    | iter1-3 기존 패턴 (State/Strategy/Observer) + 인프라 |
-endlegend
+SkypassInterface <|.. MockSkypassInterface
+RefundPolicy <|.. PartialRefundPolicy
+Payment <|-- ApplePayPayment
+Payment <|-- BankTransferPayment
+RefundPolicy <|.. FullRefundPolicy
+RefundPolicy <|.. NoRefundPolicy
+Payment <|-- MileagePayment
+Payment <|-- CreditCardPayment
+Payment <|-- KakaoPayPayment
+EventPublisher <|-- FlightSchedule
+AirportLocation <|-- AirportCity
+AirportLocation <|-- Airport
+SeatView <|-- AbstractSeatDecorator
+SeatView <|-- BaseSeatView
+AbstractSeatDecorator <|-- ExtraLegroomDecorator
+AbstractSeatDecorator <|-- WindowSeatDecorator
+AbstractSeatDecorator <|-- LoungeAccessDecorator
+AbstractSeatDecorator <|-- AisleSeatDecorator
+Itinerary <|-- MultiCityItinerary
+Itinerary <|-- DirectItinerary
+Itinerary <|-- ConnectingItinerary
+ReservationState <|.. CancelledState
+ReservationState <|.. CancellationRequestedState
+ReservationState <|.. RefundedState
+ReservationState <|.. InitiatedState
+ReservationState <|.. ConfirmedState
+ReservationState <|.. PendingPaymentState
+ReservationState <|.. RefundRequestedState
+ReservationState <|.. TicketedState
+User <|-- Admin
+User <|-- GuestBookingRequester
+User <|-- Member
+Passenger <|-- SkypassMember
+Passenger <|-- Guest
+DomainEvent <|-- SeatHoldExpiredEvent
+DomainEvent <|-- PaymentFailedEvent
+DomainEvent <|-- FlightStatusChangedEvent
+DomainEvent <|-- ReservationStateChangedEvent
+DomainEvent <|-- TicketIssuedEvent
+EventPublisher <|-- TicketPurchasePublisher
+EventPublisher <|-- SeatHoldMonitor
+EventPublisher <|-- PaymentProcessor
+EventListener <|.. ReservationHoldListener
+EventListener <|.. ReservationAutoCancelListener
+EventListener <|.. BusTicketPurchaseListener
+EventListener <|.. AffectedReservationListener
+PaymentMethodProcessor <|-- KakaoPayPaymentProcessor
+PaymentMethodProcessor <|-- MileagePaymentProcessor
+PaymentMethodProcessor <|-- ApplePayPaymentProcessor
+PaymentMethodProcessor <|-- CreditCardPaymentProcessor
+PaymentMethodProcessor <|-- BankTransferPaymentProcessor
+TicketRenderer <|-- HtmlTicketRenderer
+TicketRenderer <|-- BoardingPassRenderer
+TicketRenderer <|-- PlainTextTicketRenderer
+ItineraryFactory <|-- ConnectingItineraryFactory
+ItineraryFactory <|-- MultiCityItineraryFactory
+ItineraryFactory <|-- DirectItineraryFactory
+AffectedReservationListener ..> FlightSchedule
+AffectedReservationListener ..> ReservationRegistry
+AircraftType ..> Seat
+AirportCatalog ..> Airport
+AirportCatalog ..> AirportCity
+AppContext ..> AuthService
+AppContext ..> FlightSearchService
+AuthService ..> Member
+BaseSeatView ..> Seat
+BookingController ..> AuthService
+BookingController ..> FlightSearchService
+BusSchedule ..> BusCity
+BusSchedule ..> BusSeat
+BusTicket ..> BusCity
+BusTicket ..> BusSchedule
+BusTicketPurchaseListener ..> BusTicketingService
+BusTicketPurchaseListener ..> TicketPurchasePublisher
+BusTicketRequest ..> BusCity
+BusTicketRequest ..> BusSchedule
+BusTicketingService ..> BusCity
+BusTicketingService ..> BusSchedule
+CancellationController ..> Navigator
+CancellationController ..> Reservation
+ConfirmationController ..> BusCity
+ConfirmationController ..> Reservation
+EventPublisher ..> EventListener
+Fare ..> BookingClass
+Fare ..> CabinClass
+Flight ..> Fare
+Flight ..> Route
+FlightSchedule ..> AircraftType
+FlightSchedule ..> Flight
+FlightSearchService ..> AirportCatalog
+FlightSearchService ..> FlightSchedule
+FlightStatusChangedEvent ..> FlightSchedule
+FlightStatusChangedEvent ..> FlightStatus
+Iter3DemoRunner ..> PaymentProcessor
+Iter3DemoRunner ..> SeatHoldMonitor
+Itinerary ..> Segment
+ItinerarySearchService ..> FlightSearchService
+LoginController ..> AppContext
+LoginController ..> Navigator
+LookupController ..> AppContext
+LookupController ..> Navigator
+Member ..> Reservation
+MileagePaymentProcessor ..> MileageAccount
+Navigator ..> AppContext
+Navigator ..> ShellController
+Passenger ..> PassengerType
+PassengerController ..> Navigator
+PassengerController ..> Reservation
+PatternGuideController ..> Airport
+PatternGuideController ..> ReservationState
+Payment ..> PaymentMethod
+Payment ..> PaymentStatus
+PaymentController ..> BusCity
+PaymentController ..> BusSchedule
+PaymentFailedEvent ..> Payment
+PaymentMethodProcessor ..> PaymentGatewayInterface
+PaymentProcessor ..> PaymentFailedEvent
+PaymentProcessor ..> PaymentGatewayInterface
+Refund ..> RefundStatus
+RefundController ..> AppContext
+RefundController ..> Navigator
+RefundHandler ..> Refund
+RefundHandler ..> RefundRequest
+RefundRequest ..> RefundStatus
+RefundReviewController ..> AppContext
+RefundReviewController ..> Navigator
+RegistrationController ..> AppContext
+RegistrationController ..> Navigator
+Reservation ..> ReservationStatus
+Reservation ..> User
+ReservationAutoCancelListener ..> PaymentProcessor
+ReservationHoldListener ..> SeatHoldMonitor
+ReservationItem ..> Fare
+ReservationItem ..> FlightSchedule
+ReservationLookupService ..> AuthService
+ReservationRegistry ..> Reservation
+Route ..> Airport
+SampleData ..> FlightSchedule
+SampleData ..> Member
+SearchController ..> FlightSchedule
+SearchController ..> Navigator
+Seat ..> CabinClass
+Seat ..> SeatStatus
+SeatAssignment ..> FlightSchedule
+SeatAssignment ..> Seat
+SeatController ..> Navigator
+SeatController ..> Reservation
+SeatHoldExpiredEvent ..> Seat
+SeatHoldMonitor ..> SeatHoldExpiredEvent
+SeatInventory ..> BookingClass
+Segment ..> Airport
+Segment ..> FlightSchedule
+SettingsController ..> Navigator
+ShellController ..> Navigator
+SkypassAdapter ..> RemoteSkypassApi
+SkypassMember ..> MileageAccount
+Ticket ..> Passenger
+Ticket ..> TicketStatus
+TicketIssuedEvent ..> Reservation
+TicketIssuedEvent ..> Ticket
+TicketPurchasePublisher ..> TicketIssuedEvent
 @enduml

@@ -10,7 +10,6 @@ import com.koreanair.reservation.domain.passenger.MileageAccount;
 import com.koreanair.reservation.domain.payment.CreditCardPayment;
 import com.koreanair.reservation.domain.payment.MileagePayment;
 import com.koreanair.reservation.domain.payment.Payment;
-import com.koreanair.reservation.domain.payment.PaymentMethod;
 
 /**
  * PaymentProcessor — Control 계층.

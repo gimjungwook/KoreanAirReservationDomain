@@ -7,7 +7,7 @@ abstract class SeatView <<Component>> #FFCCCC {
   +getSurcharge(): BigDecimal
   +getMetadataLabels(): List<String>
 }
-class SeatViewAdapter <<ConcreteComponent>> #FFCCCC {
+class BaseSeatView <<ConcreteComponent>> #FFCCCC {
   -seat: Seat
   --
   +getSeat(): Seat
@@ -49,7 +49,7 @@ class LoungeAccessDecorator #FFCCCC {
   +getMetadataLabels(): List<String>
   -addedLabel(): String
 }
-SeatView <|-- SeatViewAdapter
+SeatView <|-- BaseSeatView
 SeatView <|-- AbstractSeatDecorator
 AbstractSeatDecorator o--> SeatView : component
 AbstractSeatDecorator <|-- WindowSeatDecorator

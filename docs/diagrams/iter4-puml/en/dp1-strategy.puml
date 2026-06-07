@@ -26,7 +26,7 @@ skinparam note {
   FontColor #000000
 }
 
-title DP#1 Strategy Pattern - Context = RefundHandler
+title DP#2 Strategy Pattern - Context = RefundHandler
 interface RefundPolicy <<Strategy>> {
   +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
 }

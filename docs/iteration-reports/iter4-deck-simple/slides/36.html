@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#6 Template Method — 코드 (관련 클래스 전부)</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#7 Template Method — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -79,7 +79,7 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">📄</span>DP#6 Template Method — 코드 (관련 클래스 전부)</h1><div class="sub">AbstractClass=TicketRenderer, final render().</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">TicketRenderer.java</span><span class="ccrole">AbstractClass · 골격 고정(final)</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> TicketRenderer {
+</style></head><body><div class="slide"><h1><span class="emoji">📄</span>DP#7 Template Method — 코드 (관련 클래스 전부)</h1><div class="sub">AbstractClass=TicketRenderer, final render().</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">TicketRenderer.java</span><span class="ccrole">AbstractClass · 골격 고정(final)</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> TicketRenderer {
     <span class="cm">// 템플릿 메서드 — final 로 호출 순서 고정, 서브클래스가 못 바꿈</span>
     <span class="kw">public</span> <span class="kw">final</span> <span class="ty">String</span> render(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t) {
         StringBuilder sb = <span class="kw">new</span> StringBuilder();
@@ -99,4 +99,4 @@
     <span class="kw">protected</span> <span class="ty">String</span> footer(<span class="ty">Reservation</span> r, <span class="ty">Ticket</span> t) { /* 게이트 안내 문구 */ }
     <span class="kw">protected</span> <span class="ty">String</span> separator() { <span class="kw">return</span> <span class="st">&quot;----------------------------&quot;</span>; }  <span class="cm">// hook 재정의</span>
 }
-<span class="cm">// HTML / BoardingPass 렌더러도 동일하게 단계만 교체</span></pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>36 / 45</span></div></div></body></html>
+<span class="cm">// HTML / BoardingPass 렌더러도 동일하게 단계만 교체</span></pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>36 / 46</span></div></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#8 Decorator — 코드 (관련 클래스 전부)</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#9 Decorator — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -79,7 +79,7 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🎁</span>DP#8 Decorator — 코드 (관련 클래스 전부)</h1><div class="sub">Component=SeatView, Decorator=AbstractSeatDecorator.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">SeatView.java</span><span class="ccrole">Component · 공통 추상 타입</span></div><div class="ccbody"><pre><span class="cm">// 기본 좌석과 데코레이터가 똑같이 구현하는 타입.</span>
+</style></head><body><div class="slide"><h1><span class="emoji">🎁</span>DP#9 Decorator — 코드 (관련 클래스 전부)</h1><div class="sub">Component=SeatView, Decorator=AbstractSeatDecorator.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">SeatView.java</span><span class="ccrole">Component · 공통 추상 타입</span></div><div class="ccbody"><pre><span class="cm">// 기본 좌석과 데코레이터가 똑같이 구현하는 타입.</span>
 <span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> SeatView {
     <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">BigDecimal</span> getSurcharge();     <span class="cm">// 추가 요금</span>
     <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">String</span> getDescription();
@@ -99,4 +99,4 @@
         <span class="kw">return</span> <span class="kw">super</span>.getDescription() + <span class="st">&quot; · 프리미엄 레그룸 (+50,000)&quot;</span>;
     }
 }
-<span class="cm">// Lounge(+80,000) 등도 동일 — 조합마다 클래스 안 만들고 런타임에 겹쳐 씀(OCP)</span></pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>42 / 45</span></div></div></body></html>
+<span class="cm">// Lounge(+80,000) 등도 동일 — 조합마다 클래스 안 만들고 런타임에 겹쳐 씀(OCP)</span></pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>42 / 46</span></div></div></body></html>

@@ -26,7 +26,7 @@ skinparam note {
   FontColor #000000
 }
 
-title State Pattern (implementation, not numbered as DP) - Context = Reservation
+title DP#1 State Pattern - Context = Reservation
 
 class Reservation <<Context>> {
   -reservationId: Long
@@ -56,11 +56,7 @@ class Reservation <<Context>> {
   +addReservationItem(reservationItem: ReservationItem): void
   +addPayment(payment: Payment): void
   +addTicket(ticket: Ticket): void
-  +confirmReservation(): void
-  +issueTickets(): void
-  +cancelReservation(): void
   +canBeCancelled(): boolean
-  +requestRefund(payment: Payment, reason: String): Refund
   +evaluateImpactOfFlightStatusChange(): void
   +updateStatus(newStatus: ReservationStatus): void
   +findByPnr(pnr: String): Reservation {static}

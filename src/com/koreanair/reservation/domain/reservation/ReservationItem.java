@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.koreanair.reservation.domain.flight.Fare;
 import com.koreanair.reservation.domain.flight.FlightSchedule;
-import com.koreanair.reservation.domain.passenger.Passenger;
 
 public class ReservationItem {
 
@@ -26,14 +25,7 @@ public class ReservationItem {
         return tickets;
     }
 
-    public Ticket createTicket(Passenger passenger) {
-        return null;
-    }
-
     public void addTicket(Ticket ticket) {
         tickets.add(ticket);
-    }
-
-    public void cancelItem() {
     }
 }

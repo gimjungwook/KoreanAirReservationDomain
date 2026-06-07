@@ -26,7 +26,7 @@ skinparam note {
   FontColor #000000
 }
 
-title DP#2 Observer Pattern (pull) - Subject = EventPublisher
+title DP#3 Observer Pattern (pull) - Subject = EventPublisher
 class EventPublisher <<Subject>> {
   -observers: List<EventListener>
   --
@@ -55,10 +55,62 @@ class BusTicketPurchaseListener <<ConcreteObserver>> {
   +getSubject(): TicketPurchasePublisher
   +update(): void
 }
+' ── linked bus shuttle issuance domain (BusTicketPurchaseListener collaboration) ──
+class BusTicketingService {
+  -schedulesByCity: Map<BusCity, List<BusSchedule>>
+  -issuedTickets: List<BusTicket>
+  --
+  +issuePremiumTicket(reservation: Reservation, ticket: Ticket, city: BusCity, schedule: BusSchedule, seat: BusSeat): BusTicket
+  +supportedCities(): List<BusCity>
+  +schedulesFor(city: BusCity): List<BusSchedule>
+}
+class BusTicket {
+  -ticketNumber: String
+  -originCity: BusCity
+  -schedule: BusSchedule
+  -seat: BusSeat
+  -fare: long
+  --
+  +issue(reservationPnr, airTicketNumber, passengerName, originCity, schedule, seat): BusTicket
+}
+class BusTicketRequest {
+  -originCity: BusCity
+  -schedule: BusSchedule
+  -seat: BusSeat
+  --
+  +getOriginCity(): BusCity
+  +getSchedule(): BusSchedule
+  +getSeat(): BusSeat
+}
+class BusCity {
+  -displayName: String
+  -cityCode: String
+  -premiumFare: long
+}
+class BusSchedule {
+  -scheduleId: String
+  -originCity: BusCity
+  --
+  +availableSeats(): List<BusSeat>
+}
+class BusSeat {
+  -seatNumber: String
+  -windowSeat: boolean
+  -aisleSeat: boolean
+}
+
 EventPublisher <|-- TicketPurchasePublisher
 EventListener <|.. BusTicketPurchaseListener
 EventPublisher o--> "*" EventListener : -observers
 BusTicketPurchaseListener -right-> TicketPurchasePublisher : -subject
+' bus issuance chain: e-Ticket issued event → linked shuttle ticket
+BusTicketPurchaseListener --> BusTicketingService : -busTicketingService
+BusTicketingService ..> BusTicket : <<create>>
+TicketPurchasePublisher ..> BusTicketRequest : carried in TicketIssuedEvent
+BusTicketRequest --> BusSchedule
+BusTicketRequest --> BusSeat
+BusTicket --> BusCity
+BusSchedule --> BusCity
 note bottom
   4 ConcreteSubjects (TicketPurchasePublisher, FlightSchedule, SeatHoldMonitor,
   PaymentProcessor) and 4 ConcreteObservers (BusTicketPurchaseListener,

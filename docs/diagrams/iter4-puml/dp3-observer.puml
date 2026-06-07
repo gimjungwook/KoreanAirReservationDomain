@@ -1,6 +1,6 @@
 @startuml dp3-observer
 !include _style.puml
-title DP#3 Observer - 이벤트 1대N 전파
+title DP#3 Observer - 이벤트 1대N 전파 + 버스 연계 발권
 abstract class EventPublisher <<Subject>> {
   -observers: List<EventListener>
   --
@@ -20,6 +20,7 @@ abstract class DomainEvent {
   +getSourceId(): String
   +getEventType(): String
 }
+' ── ConcreteSubject (publisher) ──
 class TicketPurchasePublisher {
   -subjectState: TicketIssuedEvent
   --
@@ -27,6 +28,29 @@ class TicketPurchasePublisher {
   +setState(): void
   +publishTicketIssued(): void
 }
+class PaymentProcessor {
+  -subjectState: PaymentFailedEvent
+  --
+  +getState(): PaymentFailedEvent
+  +setState(): void
+  +process(): Payment
+}
+class SeatHoldMonitor {
+  -subjectState: SeatHoldExpiredEvent
+  --
+  +getState(): SeatHoldExpiredEvent
+  +setState(): void
+  +track(): void
+  +sweep(): int
+}
+class FlightSchedule {
+  -subjectState: FlightStatusChangedEvent
+  --
+  +getState(): FlightStatusChangedEvent
+  +setState(): void
+  +changeStatus(): void
+}
+' ── ConcreteObserver (listener) ──
 class BusTicketPurchaseListener {
   -busTicketingService: BusTicketingService
   -subject: TicketPurchasePublisher
@@ -42,6 +66,21 @@ class ReservationAutoCancelListener {
   +getSubject(): PaymentProcessor
   +update(): void
 }
+class ReservationHoldListener {
+  -subject: SeatHoldMonitor
+  --
+  +setSubject(): void
+  +getSubject(): SeatHoldMonitor
+  +update(): void
+}
+class AffectedReservationListener {
+  -subject: FlightSchedule
+  --
+  +setSubject(): void
+  +getSubject(): FlightSchedule
+  +update(): void
+}
+' ── ConcreteEvent ──
 class TicketIssuedEvent {
   -reservation: Reservation
   -ticket: Ticket
@@ -50,7 +89,6 @@ class TicketIssuedEvent {
   +getReservation(): Reservation
   +getTicket(): Ticket
   +getBusTicketRequest(): BusTicketRequest
-  +getRequestedBusCity(): BusCity
 }
 class PaymentFailedEvent {
   -payment: Payment
@@ -61,11 +99,101 @@ class PaymentFailedEvent {
   +getReservationPnr(): String
   +getReason(): String
 }
+class ReservationStateChangedEvent {
+  -pnr: String
+  -previousState: String
+  -newState: String
+  --
+  +getPnr(): String
+  +getPreviousState(): String
+  +getNewState(): String
+}
+class FlightStatusChangedEvent {
+  -schedule: FlightSchedule
+  -previousStatus: FlightStatus
+  -newStatus: FlightStatus
+  --
+  +getSchedule(): FlightSchedule
+  +getPreviousStatus(): FlightStatus
+  +getNewStatus(): FlightStatus
+}
+class SeatHoldExpiredEvent {
+  -seat: Seat
+  -reservationPnr: String
+  --
+  +getSeat(): Seat
+  +getReservationPnr(): String
+}
+' ── 버스 연계 발권 도메인 ──
+class BusTicketingService {
+  -schedulesByCity: Map<BusCity,List<BusSchedule>>
+  -issuedTickets: List<BusTicket>
+  --
+  +issuePremiumTicket(): BusTicket
+  +supportedCities(): List<BusCity>
+  +schedulesFor(): List<BusSchedule>
+}
+class BusTicket {
+  -ticketNumber: String
+  -originCity: BusCity
+  -schedule: BusSchedule
+  -seat: BusSeat
+  -fare: long
+  --
+  +issue(): BusTicket
+}
+class BusTicketRequest {
+  -originCity: BusCity
+  -schedule: BusSchedule
+  -seat: BusSeat
+  --
+  +getOriginCity(): BusCity
+  +getSchedule(): BusSchedule
+  +getSeat(): BusSeat
+}
+class BusCity {
+  -displayName: String
+  -cityCode: String
+  -premiumFare: long
+}
+class BusSchedule {
+  -scheduleId: String
+  -originCity: BusCity
+  --
+  +availableSeats(): List<BusSeat>
+}
+class BusSeat {
+  -seatNumber: String
+  -windowSeat: boolean
+  -aisleSeat: boolean
+}
+' ── 상속 / 구현 ──
 EventPublisher <|-- TicketPurchasePublisher
+EventPublisher <|-- PaymentProcessor
+EventPublisher <|-- SeatHoldMonitor
+EventPublisher <|-- FlightSchedule
 EventListener <|.. BusTicketPurchaseListener
 EventListener <|.. ReservationAutoCancelListener
+EventListener <|.. ReservationHoldListener
+EventListener <|.. AffectedReservationListener
 DomainEvent <|-- TicketIssuedEvent
 DomainEvent <|-- PaymentFailedEvent
+DomainEvent <|-- ReservationStateChangedEvent
+DomainEvent <|-- FlightStatusChangedEvent
+DomainEvent <|-- SeatHoldExpiredEvent
+' ── 통지 + Subject 역참조 ──
 EventPublisher o--> EventListener : notifies
-note bottom : e-Ticket 발권 to 버스티켓 자동 발매
+BusTicketPurchaseListener --> TicketPurchasePublisher : subject
+ReservationAutoCancelListener --> PaymentProcessor : subject
+ReservationHoldListener --> SeatHoldMonitor : subject
+AffectedReservationListener --> FlightSchedule : subject
+' ── 버스 발권 체인 ──
+BusTicketPurchaseListener --> BusTicketingService : issues
+BusTicketingService ..> BusTicket : creates
+TicketIssuedEvent --> BusTicketRequest
+BusTicketRequest --> BusSchedule
+BusTicketRequest --> BusSeat
+BusTicket --> BusCity
+BusSchedule --> BusCity
+note bottom of BusTicketingService : e-Ticket 발권 → 연계 버스티켓 자동 발매
 @enduml

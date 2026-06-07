@@ -55,10 +55,15 @@ class FareRule {
   +getCancellationPenalty(): BigDecimal
   +checkRefundPolicy(): RefundPolicy
 }
+class RefundPolicyResolver <<Selector>> {
+  +resolve(): RefundPolicy
+}
 RefundPolicy <|.. FullRefundPolicy
 RefundPolicy <|.. PartialRefundPolicy
 RefundPolicy <|.. NoRefundPolicy
 RefundHandler o--> RefundPolicy : strategy
+RefundHandler ..> RefundPolicyResolver : 정책 선택 위임
+RefundPolicyResolver ..> RefundPolicy : FareRule 기반 선택
 FareRule ..> RefundPolicy : 등급이 정책 결정
 note bottom of RefundHandler : 운임 추가시 핸들러 수정 불필요
 @enduml

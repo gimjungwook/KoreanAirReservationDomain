@@ -26,7 +26,7 @@ skinparam note {
   FontColor #000000
 }
 
-title DP#8 Decorator Pattern - SeatView
+title DP#9 Decorator Pattern - SeatView
 abstract class SeatView <<Component>> {
   +getSeat(): Seat
   +getDescription(): String

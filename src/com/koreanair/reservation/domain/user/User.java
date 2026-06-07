@@ -2,9 +2,6 @@ package com.koreanair.reservation.domain.user;
 
 import java.time.LocalDateTime;
 
-import com.koreanair.reservation.domain.flight.Route;
-import com.koreanair.reservation.domain.reservation.Reservation;
-
 public abstract class User {
 
     protected Long userId;
@@ -33,13 +30,4 @@ public abstract class User {
         this.email = email;
     }
 
-    public Reservation createReservation() {
-        return null;
-    }
-
-    public void viewReservation(String reservationNumber) {
-    }
-
-    public void searchFlights(Route route) {
-    }
 }

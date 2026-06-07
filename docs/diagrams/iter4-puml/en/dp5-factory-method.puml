@@ -26,7 +26,7 @@ skinparam note {
   FontColor #000000
 }
 
-title DP#5 Factory Method Pattern - Creator = PaymentMethodProcessor
+title DP#6 Factory Method Pattern - Creator = PaymentMethodProcessor
 
 abstract class PaymentMethodProcessor <<Creator>> {
   -paymentSequence: long {static}

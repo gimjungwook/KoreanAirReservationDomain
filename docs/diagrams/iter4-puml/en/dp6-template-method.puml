@@ -26,7 +26,7 @@ skinparam note {
   FontColor #000000
 }
 
-title DP#6 Template Method Pattern - TicketRenderer
+title DP#7 Template Method Pattern - TicketRenderer
 
 abstract class TicketRenderer <<AbstractClass>> {
   +render(reservation: Reservation, ticket: Ticket): String {final}

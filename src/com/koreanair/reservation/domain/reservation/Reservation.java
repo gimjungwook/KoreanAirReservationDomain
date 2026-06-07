@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.koreanair.reservation.domain.flight.FlightStatus;
 import com.koreanair.reservation.domain.passenger.Passenger;
 import com.koreanair.reservation.domain.payment.Payment;
-import com.koreanair.reservation.domain.payment.Refund;
 import com.koreanair.reservation.domain.reservation.state.InitiatedState;
 import com.koreanair.reservation.domain.reservation.state.ReservationState;
 import com.koreanair.reservation.domain.user.User;
@@ -105,41 +105,24 @@ public class Reservation {
         tickets.add(ticket);
     }
 
-    /**
-     * 기존 빈 메서드 → State 위임으로 채움. processPayment 경로의 최종 단계.
-     * 외부 호출자는 결제가 실제 성공한 뒤 이 메서드를 통해 상태 전이를 트리거한다.
-     */
-    public void confirmReservation() {
-        currentState.processPayment(this);
-    }
-
-    /**
-     * 기존 빈 메서드 → State 위임으로 채움.
-     * TODO(iter2): Ticket 도메인 객체 실제 발급 로직은 ConfirmedState.issueTicket 에서 수행.
-     */
-    public void issueTickets() {
-        currentState.issueTicket(this);
-    }
-
-    /**
-     * 기존 빈 메서드 → State 위임으로 채움.
-     * TODO(iter2): Confirmed → CancellationRequested → Cancelled 2-step 확정 흐름으로 분리.
-     */
-    public void cancelReservation() {
-        currentState.requestCancellation(this);
-    }
-
     public boolean canBeCancelled() {
         return status == ReservationStatus.CONFIRMED || status == ReservationStatus.TICKETED;
     }
 
-    public Refund requestRefund(Payment payment, String reason) {
-        // TODO(iter2): CancelledState 에서 requestRefund 전이 후 RefundHandler 호출.
-        currentState.requestRefund(this);
-        return null;
-    }
-
     public void evaluateImpactOfFlightStatusChange() {
+        if (itinerary == null) {
+            return;
+        }
+        for (Segment segment : itinerary.getSegments()) {
+            if (segment == null || segment.getFlightSchedule() == null) {
+                continue;
+            }
+            FlightStatus flightStatus = segment.getFlightSchedule().getStatus();
+            if (flightStatus == FlightStatus.CANCELLED || flightStatus == FlightStatus.DELAYED) {
+                System.out.printf("[IMPACT] PNR=%s flight=%s status=%s%n",
+                        getPnrNumber(), segment.getFlightSchedule().getFlightNumber(), flightStatus);
+            }
+        }
     }
 
     /**

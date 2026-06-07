@@ -43,7 +43,8 @@
 14. **Decorator Sequence 집중(순수)** — Decorator 시퀀스만 화면 가득.
 15. Behavioral — Reservation State Machine (설명).
 16. State **집중(순수)**.
-17. State Implementation (교과서 사진 + 구현 다이어그램 비교) — State는 DP 번호 미부여.
+17. State Implementation (교과서 사진 + 구현 다이어그램 비교) — **State = DP#1**(초기 제외 → 재지정).
+17-2. **전체 클래스 다이어그램 (full) — 덱·보고서 둘 다 1장 필수**: ECB(Boundary/Control/Domain) 3계층 + 9 GoF 를 담되 **"전체"는 실제 소스의 모든 클래스를 의미한다 — `tools/`(빌드 제외)만 빼고 146개 클래스 전부**를 패키지별로 그린다(큐레이션 27박스는 "전체"가 아니다). `class-full.puml`(소스 파싱 자동 생성) → `dg-class-full.png`. 박스가 많아 크므로(세로 김) 집중(순수) 풀폭. Amateras UML 스타일, 박스에 실제 필드/메서드, **코드와 1:1**(유령 클래스/메서드 금지). 위치는 구조 개관용으로 State Implementation 다음, DP 상세 앞. 보고서(GWS 3탭)에도 같은 도면을 동일 위치에 넣는다.
 18-41. **DP#1 - DP#8 (패턴당 3장)**:
     - (a) 설명 장표: DP#n PatternName, "무엇을 위해 적용했나" 한 줄 + 역할 대응(교과서 role → 구현 클래스) + 적용 이득(SOLID). 교과서 사진 + 구현 다이어그램(가로로 길면 풀폭).
     - (b) 비교 전용 장표(순수): 교과서 사진과 구현 다이어그램만 좌우로 크게. 타이틀/설명/캡션/푸터 없음.
@@ -51,17 +52,23 @@
 42. **DP Application Strength (적용 강도, 보강형)** — 단조로운 3열 나열이 아니라: 요약 한 줄(sub) + 3개 강도(기능 완결도/재사용성/테스트 적합성, 각 설명 + 구체 예시) + 하단 8개 DP 칩 밴드.
 43. Status & Next Steps (현황과 다음) — 구현 완료 / 보완 필요(빨강) / 다음 단계(Extract Class). **이 장표는 "현황" 뷰이며 Extension 표(미래 확장)와 목적이 다르다 — 둘을 섞지 않는다.**
 44. Closing / Q&A.
+45. **(부록, Closing 이후) Reservation 설계 방어(Defense) 장표** — "왜 `Reservation` 이 비대한가"에 대한 예상 질문 대비용 backup 슬라이드. Q&A(Closing) **다음**에 둔다. 내용은 8번 섹션 기준: Aggregate Root + State Context 겸임은 의도된 설계(DDD/GoF 정석)이고 God class 가 아니라는 방어 + 영속 책임은 `ReservationRegistry` Extract Class 로 이미 분리(완료) + 잔여(이중 상태 단일화·중복 API 정리)는 향후. 한 장에 "정당한 이유 / 이미 한 것 / 향후" 3블록으로 구성하고 과장(전면 분해) 표현 금지.
 
 > 장표 번호는 편집에 따라 바뀐다. 덱 산출물의 푸터 페이지 번호(`n / total`)는 자동 생성이라 항상 정확하다(따로 안 채워도 됨). 보고서 표의 페이지/섹션 참조는 별도 — 6번 참고.
 
 ## 3. 글로벌 규칙
 
-- DP 번호는 Scheme B 고정: DP#1 Strategy, DP#2 Observer, DP#3 Composite, DP#4 Singleton, DP#5 Factory Method, DP#6 Template Method, DP#7 Adapter, DP#8 Decorator. State는 DP 번호 미부여.
+- **DP 번호(확정): State=DP#1 / DP#2 Strategy / DP#3 Observer / DP#4 Composite / DP#5 Singleton / DP#6 Factory Method / DP#7 Template Method / DP#8 Adapter / DP#9 Decorator (총 9).** State는 초기 교과서 규칙상 제외했다가 팀 결정으로 DP#1 재지정(변경이력 표기). 덱·로컬 md·GWS 3탭 모두 이 스킴.
 - iteration 4 신규/변경 항목은 보고서처럼 빨강 텍스트로 표시(테두리/박스 불필요). 이전 iteration 누적분은 검정.
 - 보고서에 있는 사실만 사용. 새 클래스/메서드/숫자 창작 금지. 불확실하면 보고서 본문/부록(A1-A11)과 실제 소스를 출처로 확인. **소스 grep 단독 판정 금지 — 무엇이 어느 iteration에 추가/구현됐는지는 iteration 보고서 문서(`docs/iteration-reports/iteration-1~4-ko.md`)로 확인한다.**
 - 행동 다이어그램(Use Case, Sequence(예약/결제/발권, Adapter, Decorator), State)과 표는 각각 "그것만" 크게 집중해서 보여주는 독립 장표를 둔다. Sequence는 메인 흐름뿐 아니라 **Adapter, Decorator도 각각** 독립 집중 장표를 갖는다.
 - **집중(순수) 장표 규칙: 타이틀, 서브타이틀, 설명, 헤더, 푸터를 전부 제거하고 다이어그램(또는 표)만 화면 가득.** 다이어그램 이미지에 박힌 PlantUML title 줄도 제거한 버전을 쓴다(title 없는 렌더본).
 - 표는 보고서(docs) 구성과 정확히 일치시킨다 — 모든 컬럼 포함, 셀 안 줄별 부분 빨강 보존, 임의로 열을 빼지 않는다.
+- **클래스 다이어그램 완전성(필수): 패턴별 구현 클래스 다이어그램은 실제 소스의 해당 패턴 역할 클래스를 빠짐없이 포함하고, 클래스 개수가 소스와 일치해야 한다.** 다이어그램 박스에 쓰인 클래스명은 실제 소스 타입명과 정확히 같아야 한다(존재하지 않는 클래스명 금지). 누락/오타 점검 대상:
+  - DP#2 Observer: EventListener 구현 전부(`BusTicketPurchaseListener`, `ReservationAutoCancelListener`, `ReservationHoldListener`, `AffectedReservationListener`), EventPublisher 서브클래스 전부(`TicketPurchasePublisher`, `PaymentProcessor`, `SeatHoldMonitor`, `FlightSchedule`), DomainEvent 서브클래스 전부(`TicketIssuedEvent`, `PaymentFailedEvent`, `ReservationStateChangedEvent`, `FlightStatusChangedEvent`, `SeatHoldExpiredEvent`).
+  - **버스 연계 도메인 포함(필수): `BusTicket`, `BusTicketingService`, `BusTicketRequest`, `BusCity`, `BusSchedule`, `BusSeat` 를 Observer 클래스 다이어그램(또는 버스 도메인 전용 보조 다이어그램)에 박스로 그린다.** 현재 `BusTicketPurchaseListener` 만 보이고 발권 결과물(`BusTicket`)·요청·도시·스케줄·좌석 구조가 다이어그램에 없다 — `BusTicketPurchaseListener → BusTicketingService → BusTicket` 연계를 보이게 한다.
+  - DP#8 Decorator: ConcreteComponent 박스명은 실제 소스인 `BaseSeatView` 다(`SeatViewAdapter` 는 소스에 없는 잘못된 이름 — 정정).
+  - DP#1 Strategy 다이어그램에 `RefundPolicyResolver` 포함(코드 장표에는 이미 있음).
 - **이미지 렌더(PNG)는 시각 검증용으로만 쓴다** — 오버플로우, 잘림, 과밀, 사진 회전, 레이아웃 확인용. 코드/표/텍스트의 내용 대조는 이미지가 아니라 텍스트·소스로 한다(이미지 대조는 오버헤드).
 - 산출물 형식은 단순 HTML 덱(각 장표 독립 HTML + index.html 집계, 방향키로 넘김). 빌드 도구(`build.py`, `decktables.json`)는 작업용이며 repo에는 생성된 슬라이드/assets/index만 둔다.
 - 학교 제출 repo이므로 커밋/푸시에 Claude/AI 흔적을 남기지 않는다(Co-Author·문구·README 어디에도). 커밋 메시지는 변경 목적만 담는다.
@@ -70,7 +77,7 @@
 
 - **패턴당 한 클래스만 보여주지 않는다 — 그 패턴을 이루는 관련 역할 클래스를 전부 보여준다.** 인터페이스/추상(역할 타입), 구상 클래스, Context, Adaptee 등 패턴 역할에 해당하는 클래스를 모두 카드로 둔다.
   - DP#1 Strategy: RefundPolicy «Strategy» / No·Partial·FullRefundPolicy «ConcreteStrategy» / RefundHandler «Context» / RefundPolicyResolver «Selector»
-  - DP#2 Observer: EventListener «Observer» / EventPublisher «Subject» / BusTicketPurchaseListener «ConcreteObserver»
+  - DP#2 Observer: EventListener «Observer» / EventPublisher «Subject» / BusTicketPurchaseListener «ConcreteObserver» / BusTicketingService «연계 발권 서비스» / BusTicket «발권 결과물» (버스 발권 체인 BusTicketPurchaseListener → BusTicketingService → BusTicket 가 보이게)
   - DP#3 Composite: AirportLocation «Component» / Airport «Leaf» / AirportCity «Composite»
   - DP#4 Singleton: AppConfig «골격» / AppConfig «공유 상태 + 변경 통지»
   - DP#5 Factory Method: PaymentMethodProcessor «Creator» / CreditCardPaymentProcessor «ConcreteCreator» / Payment «Product» / CreditCardPayment «ConcreteProduct»
@@ -112,9 +119,41 @@
 - Feature 표의 DP 번호는 `DP#n (PatternName)` 으로 패턴명을 병기한다.
 - Extension Feature 표가 ① 적용 완료 / ② 향후 확장 두 장으로 나뉘고, 계획 외 추가분(Composite/Template Method/Adapter/Decorator/버스티켓/환불 resolver)이 정확히 반영됐으며 iter4 추가분만 빨강이다.
 - 각 디자인 패턴이 설명 장표 + 비교 전용 장표 + **관련 역할 클래스 전부를 담은 multi-class 코드 장표**(상세 주석 포함)를 갖는다.
+- **패턴별 클래스 다이어그램의 클래스 개수·이름이 실제 소스와 일치한다(3번 클래스 다이어그램 완전성 규칙 통과): Observer 다이어그램에 listener 4 / publisher 4 / event 5 + 버스 도메인(BusTicket 등)이 들어가고, Decorator ConcreteComponent 가 `BaseSeatView` 로 정정됐으며, 소스에 없는 클래스명(`SeatViewAdapter` 등)이 없다.**
 - 행동 다이어그램 집중 장표가 Use Case / Sequence(메인) / **Sequence Adapter / Sequence Decorator** / State 각각 존재하고, 전부 순수(타이틀/헤더/푸터/설명 제거)다.
 - 적용 강도 장표가 단조롭지 않게 보강됐다(요약 + 강도별 예시 + DP 칩 밴드).
 - 슬라이드 텍스트는 한국어다(코드·식별자·패턴명은 영어). 교과서 사진은 모두 올바른 방향(회전 없음).
 - 덱과 보고서(GWS 3탭)가 같은 사실을 담고 서로 모순되지 않는다. 보고서 표의 페이지·섹션 참조가 채워져 있고 실제 위치와 일치한다.
 - 각 장표를 PNG로 렌더해 오버플로우/잘림/과밀/사진 회전/가독성을 눈으로 검증해 통과했다.
 - 커밋/푸시에 Claude/AI 흔적이 없다.
+
+## 8. Reservation 책임(SRP) 입장 + 정리 계획
+
+`Reservation`(253줄)의 책임이 많다는 지적에 대한 팀 입장과 발표/보고서 narrative 기준. 덱 슬라이드 44("Reservation SRP 분리(Extract Class)") 및 보고서가 이 입장과 일치해야 한다.
+
+### 책임 분석 (현재 소스 기준)
+- **(1) Aggregate Root** — `passengers`/`reservationItems`/`payments`/`tickets`/`itinerary` 보유 + `addX()`. → DDD Aggregate Root 의 정당한 책임. 한 예약 트리의 일관성 경계.
+- **(2) State Context** — `currentState` + `setState()` + 생애주기 위임 메서드(`processPayment`/`issueTicket`/`requestCancellation`/`confirmCancellation`/`requestRefund`/`processRefundDecision`/`handlePaymentFailure` 등). → GoF State 의 Context 역할. State 구현체가 `Reservation` 을 인자로 받으므로 Context = `Reservation` 이 자연스럽다.
+- **(3) 영속/조회** — `findByPnr`. → **이미 해소됨**: iteration 4 에서 `ReservationRegistry` 로 Extract Class 완료, `Reservation.findByPnr` 는 호환용 얇은 위임 shim 으로만 남음. (가장 큰 SRP 위반이었고 이미 분리됨.)
+
+### 입장: "지금 상태가 대체로 좋다 — God class 아님, 단 잔여 정리 권장"
+- Aggregate Root + State Context 를 한 클래스가 겸하는 것은 DDD/GoF 정석이며 응집적이다. 데이터-보유와 행위를 강제로 분리하면 anemic domain model(안티패턴)이 된다. **공격적 분해는 하지 않는다.**
+- 가장 큰 책임(영속)은 iter4 에서 이미 `ReservationRegistry` 로 분리했다 — 발표/보고서의 핵심 SRP 근거로 쓴다.
+
+### 잔여 smell (저위험 정리 — 향후 확장 후보로 기재, 강행 아님)
+- **이중 상태 표현**: `status`(ReservationStatus enum) 와 `currentState`(ReservationState 객체) 동시 보유 → 동기화 위험. 정리 방향: `getStatus()` 를 `currentState` 에서 파생(매핑)해 단일 진실원으로.
+- **중복 레거시 위임 쌍**: `confirmReservation`↔`processPayment`, `issueTickets`↔`issueTicket`, `cancelReservation`↔`requestCancellation` 등 같은 State 호출을 하는 중복 API → 하나로 단일화.
+- **dead/empty code**: `requestRefund(Payment, String)`(항상 null 반환), `evaluateImpactOfFlightStatusChange()`(빈 메서드) → 제거 또는 구현.
+
+### 덱/보고서 반영 기준
+- 슬라이드 44 및 보고서 "보완 필요/다음 단계" 에: **"Reservation 영속 책임은 `ReservationRegistry` Extract Class 로 이미 분리(완료), 잔여로 이중 상태 표현 단일화 + 중복 생애주기 API 정리는 향후"** 로 정확히 표기한다 (이미 한 것과 향후 할 것을 구분).
+- "God class 라서 전면 분해" 식 과장 금지. Aggregate Root + State Context 는 의도된 설계임을 명시한다.
+- 6번 동기화 규칙대로 보고서(GWS 3탭)에도 같은 입장을 반영한다.
+
+### 부록 방어 장표 (Closing 이후, 필수)
+- Closing/Q&A **다음**에 `Reservation` 설계 방어 backup 슬라이드를 1장 둔다(2번 장표 구성 45 항목). 예상 질문 "왜 `Reservation` 이 이렇게 비대한가?" 에 즉답하기 위한 용도.
+- 한 장 3블록 구성:
+  1. **정당한 이유** — Aggregate Root(예약 트리 일관성 경계) + State Context(State 구현체가 `Reservation` 을 인자로 받음) 겸임은 DDD/GoF 정석. 데이터-행위 강제 분리 = anemic model 안티패턴. → God class 아님.
+  2. **이미 한 것** — 영속/조회 책임을 `ReservationRegistry` 로 Extract Class(iter4 완료). `findByPnr` 는 호환 shim.
+  3. **향후** — 이중 상태(`status` enum vs `currentState`) 단일화, 중복 생애주기 API/ dead code 정리(저위험, 선택).
+- 톤: 방어적이되 과장 없이. "전면 분해" 같은 표현 쓰지 않는다.

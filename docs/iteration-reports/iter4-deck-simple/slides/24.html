@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#2 Observer — 코드 (관련 클래스 전부)</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#3 Observer — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -79,7 +79,7 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">📡</span>DP#2 Observer — 코드 (관련 클래스 전부)</h1><div class="sub">Subject=EventPublisher, Observer=EventListener. ConcreteSubject 4 + ConcreteObserver 4.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">EventListener.java</span><span class="ccrole">Observer · 반응 인터페이스</span></div><div class="ccbody"><pre><span class="cm">// 통지를 받는 쪽의 공통 타입. 인자 없는 update() 하나뿐(pull 방식).</span>
+</style></head><body><div class="slide"><h1><span class="emoji">📡</span>DP#3 Observer — 코드 (관련 클래스 전부)</h1><div class="sub">Subject=EventPublisher, Observer=EventListener. ConcreteSubject 4 + ConcreteObserver 4.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">EventListener.java</span><span class="ccrole">Observer · 반응 인터페이스</span></div><div class="ccbody"><pre><span class="cm">// 통지를 받는 쪽의 공통 타입. 인자 없는 update() 하나뿐(pull 방식).</span>
 <span class="kw">public</span> <span class="kw">interface</span> <span class="ty">EventListener</span> {
     <span class="kw">void</span> update();
 }</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">EventPublisher.java</span><span class="ccrole">Subject · 발생원 기반 클래스</span></div><div class="ccbody"><pre><span class="kw">private</span> <span class="kw">final</span> <span class="ty">List</span>&lt;<span class="ty">EventListener</span>&gt; observers = <span class="kw">new</span> <span class="ty">ArrayList</span>&lt;&gt;();
@@ -103,4 +103,4 @@
         busTicketingService.issuePremiumTicket(ev.getReservation(),
                 ev.getTicket(), req.getOriginCity(), req.getSchedule(), req.getSeat());
     }
-}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>24 / 45</span></div></div></body></html>
+}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>24 / 46</span></div></div></body></html>

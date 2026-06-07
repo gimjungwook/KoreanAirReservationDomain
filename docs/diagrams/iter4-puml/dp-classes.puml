@@ -1,0 +1,1054 @@
+@startuml dp-classes
+!include _style.puml
+title 디자인 패턴 클래스 다이어그램 (9 patterns · 80 classes · 전체 멤버)
+skinparam nodesep 14
+skinparam ranksep 40
+left to right direction
+package "DP#1 State" {
+  interface ReservationState #FFCCCC {
+    +name(): String
+    +enterPassengerInfo(ctx: Reservation): void
+    +processPayment(ctx: Reservation): void
+    +handlePaymentFailure(ctx: Reservation): void
+    +issueTicket(ctx: Reservation): void
+    +requestCancellation(ctx: Reservation): void
+    +confirmCancellation(ctx: Reservation): void
+    +requestRefund(ctx: Reservation): void
+    +processRefundDecision(ctx: Reservation, approved: boolean): void
+  }
+  class CancellationRequestedState #FFCCCC {
+    +name(): String
+    +confirmCancellation(ctx: Reservation): void
+  }
+  class CancelledState #FFCCCC {
+    -fareRule: FareRule
+    -itinerary: Itinerary
+    -first: Segment
+    -schedule: FlightSchedule
+    --
+    +name(): String
+    +requestRefund(ctx: Reservation): void
+    +resolveFareRule(ctx: Reservation): FareRule
+  }
+  class ConfirmedState #FFCCCC {
+    -ticket: Ticket
+    -passengerName: String
+    --
+    +name(): String
+    +issueTicket(ctx: Reservation): void
+    +requestCancellation(ctx: Reservation): void
+  }
+  class InitiatedState #FFCCCC {
+    +name(): String
+    +enterPassengerInfo(ctx: Reservation): void
+    +requestCancellation(ctx: Reservation): void
+  }
+  class InvalidStateTransitionException {
+    -serialVersionUID: long
+    --
+    +InvalidStateTransitionException(currentState: String, action: String)
+  }
+  class PendingPaymentState #FFCCCC {
+    +name(): String
+    +processPayment(ctx: Reservation): void
+    +requestCancellation(ctx: Reservation): void
+    +handlePaymentFailure(ctx: Reservation): void
+  }
+  class RefundRequestedState #FFCCCC {
+    +name(): String
+    +processRefundDecision(ctx: Reservation, approved: boolean): void
+  }
+  class RefundedState #FFCCCC {
+    +name(): String
+  }
+  class Reservation #FFCCCC {
+    -reservationId: Long
+    -reservationNumber: String
+    -requester: User
+    -status: ReservationStatus
+    -createdAt: LocalDateTime
+    -reservationDate: LocalDateTime
+    -itinerary: Itinerary
+    -passengers: List<Passenger>
+    -reservationItems: List<ReservationItem>
+    -payments: List<Payment>
+    -tickets: List<Ticket>
+    -currentState: ReservationState
+    -flightStatus: FlightStatus
+    --
+    +Reservation()
+    +getReservationId(): Long
+    +getReservationNumber(): String
+    +getRequester(): User
+    +getStatus(): ReservationStatus
+    +getPassengers(): List<Passenger>
+    +getReservationItems(): List<ReservationItem>
+    +getPayments(): List<Payment>
+    +getTickets(): List<Ticket>
+    +getItinerary(): Itinerary
+    +addPassenger(passenger: Passenger): void
+    +addReservationItem(reservationItem: ReservationItem): void
+    +addPayment(payment: Payment): void
+    +addTicket(ticket: Ticket): void
+    +canBeCancelled(): boolean
+    +evaluateImpactOfFlightStatusChange(): void
+    +updateStatus(newStatus: ReservationStatus): void
+    +findByPnr(pnr: String): Reservation
+    +setState(next: ReservationState): void
+    +getCurrentState(): ReservationState
+    +getStateName(): String
+    +enterPassengerInfo(p: Passenger): void
+    +addPassenger(p)
+    +enterPassengerInfo(): void
+    +enterPassengerInfo(null)
+    +processPayment(): void
+    +handlePaymentFailure(): void
+    +issueTicket(): void
+    +requestCancellation(): void
+    +confirmCancellation(): void
+    +requestRefund(): void
+    +processRefundDecision(approved: boolean): void
+    +setReservationNumber(reservationNumber: String): void
+    +setRequester(requester: User): void
+    +getPnrNumber(): String
+    +getCreatedAt(): LocalDateTime
+    +getReservationDate(): LocalDateTime
+  }
+  class TicketedState #FFCCCC {
+    +name(): String
+    +requestCancellation(ctx: Reservation): void
+  }
+}
+package "DP#2 Strategy" {
+  interface RefundPolicy #FFCCCC {
+    +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+  }
+  class FareRule {
+    -fareRuleId: Long
+    -fareClass: String
+    -refundable: boolean
+    -changeFee: BigDecimal
+    -cancellationPenalty: BigDecimal
+    --
+    +getFareClass(): String
+    +isRefundable(): boolean
+    +getChangeFee(): BigDecimal
+    +getCancellationPenalty(): BigDecimal
+    +checkRefundPolicy(): RefundPolicy
+    +NoRefundPolicy(): returnnew
+    +FullRefundPolicy(): returnnew
+    +PartialRefundPolicy(): returnnew
+  }
+  class FullRefundPolicy #FFCCCC {
+    +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+  }
+  class NoRefundPolicy #FFCCCC {
+    +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+  }
+  class PartialRefundPolicy #FFCCCC {
+    +calculateRefundAmount(baseAmount: BigDecimal): BigDecimal
+  }
+  class RefundHandler #FFCCCC {
+    -pending: Map<String,RefundRequest>
+    -completed: Map<String,Refund>
+    -requestToPnr: Map<String,String>
+    -gateway: PaymentGatewayInterface
+    -strategy: RefundPolicy
+    -policyResolver: RefundPolicyResolver
+    -requestSeq: int
+    -refundSeq: int
+    -reservation: Reservation
+    -fareRule: FareRule
+    -paid: BigDecimal
+    -refundAmount: BigDecimal
+    -requestId: String
+    -request: RefundRequest
+    -refundId: String
+    -refund: Refund
+    -pnr: String
+    -payment: Payment
+    -amount: BigDecimal
+    -itinerary: Itinerary
+    -first: Segment
+    -schedule: FlightSchedule
+    --
+    +RefundHandler()
+    +RefundHandler(gateway: PaymentGatewayInterface)
+    +setStrategy(strategy: RefundPolicy): void
+    +getStrategy(): RefundPolicy
+    +evaluateRefund(pnr: String, fareClass: String): RefundRequest
+    +processRefund(requestId: String, approvedAmount: BigDecimal): void
+    +IllegalArgumentException(requestId: "환불요청을찾을수없습니다:"+): thrownew
+    +denyRefund(requestId: String, reason: String): void
+    +getRefundDetail(requestId: String): RefundRequest
+    +getPendingRequests(): List<RefundRequest>
+    +previewRefund(pnr: String, fareClass: String): BigDecimal
+    +previewPolicyName(pnr: String, fareClass: String): String
+    +resolveFareRuleFrom(reservation: Reservation): FareRule
+    +synthesize(fareClass: String): FareRule
+    +FareRule(): returnnew
+  }
+  class RefundPolicyResolver #FFCCCC {
+    -fareClass: String
+    --
+    +resolve(fareRule: FareRule): RefundPolicy
+    +NoRefundPolicy(): returnnew
+    +FullRefundPolicy(): returnnew
+    +PartialRefundPolicy(): returnnew
+  }
+}
+package "DP#3 Observer" {
+  interface EventListener #FFCCCC {
+    +update(): void
+  }
+  class AffectedReservationListener {
+    -registry: ReservationRegistry
+    -subject: FlightSchedule
+    -e: FlightStatusChangedEvent
+    -schedule: FlightSchedule
+    -affected: List<Reservation>
+    -tag: String
+    -flightId: String
+    -indexed: List<Reservation>
+    -result: List<Reservation>
+    --
+    +AffectedReservationListener()
+    +this(DEFAULT)
+    +AffectedReservationListener(registry: ReservationRegistry)
+    +setSubject(subject: FlightSchedule): void
+    +getSubject(): FlightSchedule
+    +update(): void
+    +findAffected(schedule: FlightSchedule): List<Reservation>
+  }
+  enum BusCity {
+    SEOUL
+    SEL
+    BUSAN
+    PUS
+    DAEGU
+    TAE
+    GWANGJU
+    KWJ
+    DAEJEON
+    DJE
+    INCHEON
+    ICN
+    -displayName: String
+    -cityCode: String
+    -premiumFare: long
+    --
+    +INCHEON("인천", "ICN", 17000L)
+    +BusCity(displayName: String, cityCode: String, premiumFare: long)
+    +getDisplayName(): String
+    +getCityCode(): String
+    +getPremiumFare(): long
+    +toString(): String
+  }
+  class BusSchedule {
+    -scheduleId: String
+    -originCity: BusCity
+    -departureDateTime: LocalDateTime
+    -arrivalDateTime: LocalDateTime
+    -seats: List<BusSeat>
+    -result: List<BusSeat>
+    --
+    +BusSchedule(scheduleId: String, originCity: BusCity, departureDateTime: LocalDateTime, arrivalDateTime: LocalDateTime, seats: List<BusSeat>)
+    +getScheduleId(): String
+    +getOriginCity(): BusCity
+    +getDepartureDateTime(): LocalDateTime
+    +getArrivalDateTime(): LocalDateTime
+    +getSeats(): List<BusSeat>
+    +availableSeats(): List<BusSeat>
+    +findSeat(seatNumber: String): BusSeat
+    +toString(): String
+  }
+  class BusSeat {
+    -seatNumber: String
+    -windowSeat: boolean
+    -aisleSeat: boolean
+    -occupied: boolean
+    -heldByPnr: String
+    --
+    +BusSeat(seatNumber: String, windowSeat: boolean, aisleSeat: boolean)
+    +getSeatNumber(): String
+    +isWindowSeat(): boolean
+    +isAisleSeat(): boolean
+    +isOccupied(): boolean
+    +getHeldByPnr(): String
+    +isAvailable(): boolean
+    +occupy(pnr: String): void
+    +IllegalStateException(seatNumber: "Busseatalreadyoccupied:"+): thrownew
+    +release(): void
+    +toString(): String
+  }
+  class BusTicket #FFCCCC {
+    -busTicketSequence: int
+    -ticketNumber: String
+    -reservationPnr: String
+    -airTicketNumber: String
+    -passengerName: String
+    -originCity: BusCity
+    -schedule: BusSchedule
+    -seat: BusSeat
+    -fare: long
+    -issuedAt: LocalDateTime
+    --
+    +BusTicket(ticketNumber: String, reservationPnr: String, airTicketNumber: String, passengerName: String, originCity: BusCity, schedule: BusSchedule, seat: BusSeat, fare: long)
+    +issue(reservationPnr: String, airTicketNumber: String, passengerName: String, originCity: BusCity, schedule: BusSchedule, seat: BusSeat): BusTicket
+    +IllegalArgumentException("): thrownew
+    +getTicketNumber(): String
+    +getReservationPnr(): String
+    +getAirTicketNumber(): String
+    +getPassengerName(): String
+    +getOriginCity(): BusCity
+    +getSchedule(): BusSchedule
+    +getSeat(): BusSeat
+    +getFare(): long
+    +getIssuedAt(): LocalDateTime
+  }
+  class BusTicketPurchaseListener #FFCCCC {
+    -busTicketingService: BusTicketingService
+    -subject: TicketPurchasePublisher
+    -ticketIssued: TicketIssuedEvent
+    -req: BusTicketRequest
+    --
+    +BusTicketPurchaseListener(busTicketingService: BusTicketingService)
+    +setSubject(subject: TicketPurchasePublisher): void
+    +getSubject(): TicketPurchasePublisher
+    +update(): void
+  }
+  class BusTicketRequest {
+    -originCity: BusCity
+    -schedule: BusSchedule
+    -seat: BusSeat
+    --
+    +BusTicketRequest(originCity: BusCity, schedule: BusSchedule, seat: BusSeat)
+    +getOriginCity(): BusCity
+    +getSchedule(): BusSchedule
+    +getSeat(): BusSeat
+    +hasSeatSelection(): boolean
+  }
+  class BusTicketingService #FFCCCC {
+    -schedulesByCity: Map<BusCity,List<BusSchedule>>
+    -issuedTickets: List<BusTicket>
+    -today: LocalDateTime
+    -scheduleSeq: int
+    -list: List<BusSchedule>
+    -hours: int[]
+    -dep: LocalDateTime
+    -arr: LocalDateTime
+    -id: String
+    -chosen: BusSchedule
+    -chosenSeat: BusSeat
+    -avail: List<BusSeat>
+    -passenger: Passenger
+    -passengerName: String
+    -busTicket: BusTicket
+    --
+    +BusTicketingService()
+    +seedDefaultSchedules()
+    +seedDefaultSchedules(): void
+    +travelHours(city: BusCity): int
+    +supportedCities(): List<BusCity>
+    +schedulesFor(city: BusCity): List<BusSchedule>
+    +issuePremiumTicket(reservation: Reservation, airTicket: Ticket, originCity: BusCity, schedule: BusSchedule, seat: BusSeat): BusTicket
+    +IllegalArgumentException("Reservation, airTicket, "): thrownew
+    +getIssuedTickets(): List<BusTicket>
+  }
+  class DomainEvent {
+    -occurredAt: LocalDateTime
+    -sourceId: String
+    --
+    +DomainEvent(sourceId: String)
+    +getOccurredAt(): LocalDateTime
+    +getSourceId(): String
+    +getEventType(): String
+  }
+  class EventPublisher #FFCCCC {
+    -observers: List<EventListener>
+    --
+    +attach(observer: EventListener): void
+    +detach(observer: EventListener): void
+    +subscriberCount(): int
+    +notifyObservers(): void
+  }
+  class FlightSchedule {
+    -scheduleId: Long
+    -flight: Flight
+    -aircraftType: AircraftType
+    -departureDateTime: LocalDateTime
+    -arrivalDateTime: LocalDateTime
+    -status: FlightStatus
+    -fareRule: FareRule
+    -seatInventories: List<SeatInventory>
+    -subjectState: FlightStatusChangedEvent
+    -previous: FlightStatus
+    -schedule: FlightSchedule
+    -route: Route
+    -createdFlight: Flight
+    -origin: Airport
+    -destination: Airport
+    --
+    +getScheduleId(): Long
+    +getFlight(): Flight
+    +setFlight(flight: Flight): void
+    +setStatus(status: FlightStatus): void
+    +getFlightNumber(): String
+    +getDuration(): Duration
+    +getDepartureDateTime(): LocalDateTime
+    +getArrivalDateTime(): LocalDateTime
+    +getAircraftType(): AircraftType
+    +getStatus(): FlightStatus
+    +getFareRule(): FareRule
+    +setFareRule(fareRule: FareRule): void
+    +getSeatInventories(): List<SeatInventory>
+    +isAvailableForBooking(): boolean
+    +findSeatInventory(bookingClass: BookingClass): SeatInventory
+    +getState(): FlightStatusChangedEvent
+    +setState(event: FlightStatusChangedEvent): void
+    +notifyObservers()
+    +changeStatus(status: FlightStatus): void
+    +addSeatInventory(seatInventory: SeatInventory): void
+    +create(flightNumber: String, departure: Airport, arrival: Airport, aircraftType: AircraftType): FlightSchedule
+    +matchesDirect(fromAirportCode: String, toAirportCode: String, date: LocalDate): boolean
+    +matchesDirect(from: AirportLocation, to: AirportLocation, date: LocalDate): boolean
+    +updateStatus(newStatus: FlightStatus): void
+    +changeStatus(newStatus)
+  }
+  class FlightStatusChangedEvent {
+    -schedule: FlightSchedule
+    -previousStatus: FlightStatus
+    -newStatus: FlightStatus
+    --
+    +FlightStatusChangedEvent(schedule: FlightSchedule, previousStatus: FlightStatus, newStatus: FlightStatus)
+    +getSchedule(): FlightSchedule
+    +getPreviousStatus(): FlightStatus
+    +getNewStatus(): FlightStatus
+  }
+  class PaymentFailedEvent {
+    -payment: Payment
+    -reservationPnr: String
+    -reason: String
+    --
+    +PaymentFailedEvent(payment: Payment, reservationPnr: String, reason: String)
+    +getPayment(): Payment
+    +getReservationPnr(): String
+    +getReason(): String
+  }
+  class PaymentProcessor {
+    -gateway: PaymentGatewayInterface
+    -paymentSequence: long
+    -subjectState: PaymentFailedEvent
+    -payment: Payment
+    -authorized: boolean
+    -charged: boolean
+    --
+    +getState(): PaymentFailedEvent
+    +setState(event: PaymentFailedEvent): void
+    +notifyObservers()
+    +PaymentProcessor()
+    +PaymentProcessor(gateway: PaymentGatewayInterface)
+    +processPayment(reservationId: Long, paymentInfo: Object): boolean
+    +validateFareRule(fareClass: String): boolean
+    +calculateTotal(fare: BigDecimal, tax: BigDecimal, seatSurcharge: BigDecimal): BigDecimal
+    +applyMileage(reservationId: Long, mileageAmount: int): boolean
+    +validateFareRule(rule: FareRule): boolean
+    +calculateTotalAmount(baseFare: long, tax: long): long
+    +IllegalArgumentException("): thrownew
+    +processPaymentCharge(amount: long): Payment
+    +processPaymentCharge(amount, null): return
+    +processPaymentCharge(amount: long, reservationPnr: String): Payment
+    +processMileagePayment(account: MileageAccount, mileageCost: long, pnr: String): Payment
+  }
+  class ReservationAutoCancelListener {
+    -subject: PaymentProcessor
+    -e: PaymentFailedEvent
+    -pnr: String
+    -r: Reservation
+    --
+    +setSubject(subject: PaymentProcessor): void
+    +getSubject(): PaymentProcessor
+    +update(): void
+  }
+  class ReservationHoldListener {
+    -subject: SeatHoldMonitor
+    -e: SeatHoldExpiredEvent
+    -seat: Seat
+    -pnr: String
+    -r: Reservation
+    --
+    +setSubject(subject: SeatHoldMonitor): void
+    +getSubject(): SeatHoldMonitor
+    +update(): void
+  }
+  class ReservationStateChangedEvent {
+    -pnr: String
+    -previousState: String
+    -newState: String
+    --
+    +ReservationStateChangedEvent(pnr: String, previousState: String, newState: String)
+    +super(pnr)
+    +getPnr(): String
+    +getPreviousState(): String
+    +getNewState(): String
+  }
+  class SeatHoldExpiredEvent {
+    -seat: Seat
+    -reservationPnr: String
+    --
+    +SeatHoldExpiredEvent(seat: Seat, reservationPnr: String)
+    +getSeat(): Seat
+    +getReservationPnr(): String
+  }
+  class SeatHoldMonitor {
+    -tracked: List<HeldSeat>
+    -subjectState: SeatHoldExpiredEvent
+    -fired: int
+    -snapshot: List<HeldSeat>
+    -seat: Seat
+    -reservationPnr: String
+    --
+    +getState(): SeatHoldExpiredEvent
+    +setState(event: SeatHoldExpiredEvent): void
+    +notifyObservers()
+    +track(seat: Seat, reservationPnr: String): void
+    +trackedCount(): int
+    +sweep(): int
+    +sweep(now: LocalDateTime): int
+    +HeldSeat(seat: Seat, pnr: String)
+  }
+  class TicketIssuedEvent {
+    -reservation: Reservation
+    -ticket: Ticket
+    -busTicketRequest: BusTicketRequest
+    --
+    +TicketIssuedEvent(reservation: Reservation, ticket: Ticket, busTicketRequest: BusTicketRequest)
+    +TicketIssuedEvent(reservation: Reservation, ticket: Ticket, requestedBusCity: BusCity)
+    +getReservation(): Reservation
+    +getTicket(): Ticket
+    +getBusTicketRequest(): BusTicketRequest
+    +getRequestedBusCity(): BusCity
+  }
+  class TicketPurchasePublisher #FFCCCC {
+    -subjectState: TicketIssuedEvent
+    --
+    +getState(): TicketIssuedEvent
+    +setState(event: TicketIssuedEvent): void
+    +notifyObservers()
+    +publishTicketIssued(reservation: Reservation, ticket: Ticket, req: BusTicketRequest): void
+    +publishTicketIssued(reservation: Reservation, ticket: Ticket, busCity: BusCity): void
+  }
+}
+package "DP#4 Composite" {
+  class Airport #FFCCCC {
+    -airportCode: String
+    -airportName: String
+    -city: String
+    -country: String
+    --
+    +getAirportCode(): String
+    +getAirportName(): String
+    +getCity(): String
+    +getCountry(): String
+    +getCode(): String
+    +getDisplayName(): String
+    +getAirports(): List<Airport>
+    +matches(code: String): boolean
+    +isComposite(): boolean
+  }
+  class AirportCatalog {
+    -airportsByCode: Map<String,Airport>
+    -citiesByCode: Map<String,AirportCity>
+    -key: String
+    -city: AirportCity
+    -result: List<AirportCity>
+    --
+    +registerAirport(airport: Airport): AirportCatalog
+    +registerCity(city: AirportCity): AirportCatalog
+    +registerAirport(a)
+    +lookup(code: String): AirportLocation
+    +getMultiAirportCities(): List<AirportCity>
+    +getAllAirports(): List<Airport>
+  }
+  class AirportCity #FFCCCC {
+    -cityCode: String
+    -cityName: String
+    -country: String
+    -components: List<AirportLocation>
+    -all: List<Airport>
+    --
+    +AirportCity(cityCode: String, cityName: String, country: String)
+    +addComponent(component: AirportLocation): void
+    +IllegalArgumentException("component must not be null"): thrownew
+    +removeComponent(component: AirportLocation): void
+    +getCityCode(): String
+    +getCityName(): String
+    +getCountry(): String
+    +getCode(): String
+    +getDisplayName(): String
+    +getAirports(): List<Airport>
+    +matches(code: String): boolean
+    +isComposite(): boolean
+  }
+  class AirportLocation #FFCCCC {
+    +getCode(): String
+    +getDisplayName(): String
+    +getAirports(): List<Airport>
+    +matches(code: String): boolean
+    +isComposite(): boolean
+  }
+}
+package "DP#5 Singleton" {
+  class AppConfig #FFCCCC {
+    -instance: AppConfig
+    -fontFamily: String
+    -fontSize: int
+    -displayLocale: Locale
+    -currency: Currency
+    -modernTheme: boolean
+    -showSeatMetadata: boolean
+    -listeners: Consumer<AppConfig>>
+    -local: AppConfig
+    --
+    +AppConfig()
+    +getInstance(): AppConfig
+    +getFontFamily(): String
+    +setFontFamily(fontFamily: String): void
+    +notifyListeners()
+    +getFontSize(): int
+    +setFontSize(fontSize: int): void
+    +getDisplayLocale(): Locale
+    +setDisplayLocale(displayLocale: Locale): void
+    +getCurrency(): Currency
+    +setCurrency(currency: Currency): void
+    +isModernTheme(): boolean
+    +setModernTheme(modernTheme: boolean): void
+    +isShowSeatMetadata(): boolean
+    +setShowSeatMetadata(showSeatMetadata: boolean): void
+    +addChangeListener(listener: Consumer<AppConfig>): void
+    +removeChangeListener(listener: Consumer<AppConfig>): void
+    +notifyListeners(): void
+  }
+}
+package "DP#6 Factory Method" {
+  class ApplePayPayment {
+    +ApplePayPayment()
+    +super(APPLE_PAY)
+  }
+  class ApplePayPaymentProcessor #FFCCCC {
+    +ApplePayPaymentProcessor(gateway: PaymentGatewayInterface)
+    +super(gateway)
+    +createPayment(): Payment
+    +ApplePayPayment(): returnnew
+    +method(): PaymentMethod
+    +declineReason(): String
+  }
+  class BankTransferPayment {
+    +BankTransferPayment()
+    +super(BANK_TRANSFER)
+  }
+  class BankTransferPaymentProcessor #FFCCCC {
+    +BankTransferPaymentProcessor(gateway: PaymentGatewayInterface)
+    +super(gateway)
+    +createPayment(): Payment
+    +BankTransferPayment(): returnnew
+    +method(): PaymentMethod
+    +declineReason(): String
+  }
+  class ConnectingItinerary {
+    +ConnectingItinerary()
+    +super("CONNECTING")
+  }
+  class ConnectingItineraryFactory #FFCCCC {
+    -mct: Duration
+    -a: FlightSchedule
+    -b: FlightSchedule
+    -aArr: String
+    -bDep: String
+    --
+    +ConnectingItineraryFactory()
+    +this(INTERNATIONAL_MCT)
+    +ConnectingItineraryFactory(mct: Duration)
+    +createItinerary(): Itinerary
+    +ConnectingItinerary(): returnnew
+    +validate(schedules: List<FlightSchedule>): void
+    +IllegalArgumentException("Connecting itinerary requires 2+ segments"): thrownew
+    +IllegalArgumentException("Segment " + i + " arrival " + aArr
+                        + " != next departure " + bDep): thrownew
+    +postCheck(itinerary: Itinerary): void
+  }
+  class CreditCardPayment {
+    +CreditCardPayment()
+    +super(CREDIT_CARD)
+  }
+  class CreditCardPaymentProcessor #FFCCCC {
+    +CreditCardPaymentProcessor(gateway: PaymentGatewayInterface)
+    +super(gateway)
+    +createPayment(): Payment
+    +CreditCardPayment(): returnnew
+    +method(): PaymentMethod
+  }
+  class DirectItinerary {
+    +DirectItinerary()
+    +super("DIRECT")
+  }
+  class DirectItineraryFactory #FFCCCC {
+    +createItinerary(): Itinerary
+    +DirectItinerary(): returnnew
+    +validate(schedules: List<FlightSchedule>): void
+    +IllegalArgumentException("Direct itinerary requires exactly 1 segment"): thrownew
+  }
+  class Itinerary {
+    -tripType: String
+    -segments: List<Segment>
+    -a: Segment
+    -b: Segment
+    -layover: Duration
+    -first: Segment
+    -last: Segment
+    -it: Itinerary
+    --
+    +Itinerary(tripType: String)
+    +getTripType(): String
+    +setTripType(tripType: String): void
+    +getSegments(): List<Segment>
+    +addSegment(segment: Segment): void
+    +isConnectionTimeValid(minimumConnectionTime: Duration): boolean
+    +getTotalDuration(): Duration
+    +direct(schedule: FlightSchedule): Itinerary
+    +connecting(first: FlightSchedule, second: FlightSchedule): Itinerary
+    +multiCity(schedules: List<FlightSchedule>): Itinerary
+  }
+  class ItineraryFactory #FFCCCC {
+    -itinerary: Itinerary
+    --
+    +build(schedules: List<FlightSchedule>): Itinerary
+    +IllegalArgumentException("schedules must not be empty"): thrownew
+    +validate(schedules)
+    +postCheck(itinerary)
+    +createItinerary(): Itinerary
+    +validate(schedules: List<FlightSchedule>): void
+    +postCheck(itinerary: Itinerary): void
+  }
+  class KakaoPayPayment {
+    +KakaoPayPayment()
+    +super(KAKAO_PAY)
+  }
+  class KakaoPayPaymentProcessor #FFCCCC {
+    +KakaoPayPaymentProcessor(gateway: PaymentGatewayInterface)
+    +super(gateway)
+    +createPayment(): Payment
+    +KakaoPayPayment(): returnnew
+    +method(): PaymentMethod
+    +declineReason(): String
+  }
+  class MileagePayment {
+    +MileagePayment()
+    +super(MILEAGE)
+  }
+  class MileagePaymentProcessor #FFCCCC {
+    -account: MileageAccount
+    --
+    +MileagePaymentProcessor(account: MileageAccount)
+    +super(null)
+    +createPayment(): Payment
+    +MileagePayment(): returnnew
+    +method(): PaymentMethod
+    +authorize(payment: Payment): boolean
+    +IllegalStateException("): thrownew
+  }
+  class MultiCityItinerary {
+    +MultiCityItinerary()
+    +super("MULTI_CITY")
+  }
+  class MultiCityItineraryFactory #FFCCCC {
+    +createItinerary(): Itinerary
+    +MultiCityItinerary(): returnnew
+    +validate(schedules: List<FlightSchedule>): void
+    +IllegalArgumentException("Multi-city itinerary requires 2+ segments"): thrownew
+  }
+  class Payment {
+    -paymentId: Long
+    -amount: BigDecimal
+    -paymentMethod: PaymentMethod
+    -status: PaymentStatus
+    -paidAt: LocalDateTime
+    -refunds: List<Refund>
+    --
+    +Payment(paymentMethod: PaymentMethod)
+    +getAmount(): BigDecimal
+    +setAmount(amount: BigDecimal): void
+    +getPaymentMethod(): PaymentMethod
+    +getPaymentId(): Long
+    +setPaymentId(paymentId: Long): void
+    +getStatus(): PaymentStatus
+    +getRefunds(): List<Refund>
+    +pay(): void
+    +fail(): void
+    +addRefund(refund: Refund): void
+    +isRefundable(): boolean
+  }
+  class PaymentMethodProcessor #FFCCCC {
+    -paymentSequence: long
+    -gateway: PaymentGatewayInterface
+    -payment: Payment
+    -authorized: boolean
+    --
+    +PaymentMethodProcessor(gateway: PaymentGatewayInterface)
+    +createPayment(): Payment
+    +method(): PaymentMethod
+    +processCharge(amount: long, reservationPnr: String): Payment
+    +IllegalArgumentException("): thrownew
+    +authorize(payment: Payment): boolean
+    +declineReason(): String
+    +nextPaymentId(): long
+    +stamp(payment: Payment, amount: long): Payment
+  }
+  class PaymentProcessorFactory {
+    +PaymentProcessorFactory()
+    +forMethod(method: PaymentMethod, gateway: PaymentGatewayInterface, mileageAccount: MileageAccount): PaymentMethodProcessor
+    +IllegalArgumentException("PaymentMethod is required"): thrownew
+    +CreditCardPaymentProcessor(gateway): returnnew
+    +method(): PaymentMethod
+    +BankTransferPaymentProcessor(gateway): returnnew
+    +ApplePayPaymentProcessor(gateway): returnnew
+    +KakaoPayPaymentProcessor(gateway): returnnew
+    +MileagePaymentProcessor(mileageAccount): returnnew
+    +IllegalArgumentException(method: "Unsupportedmethod:"+): thrownew
+  }
+}
+package "DP#7 Template Method" {
+  class BoardingPassRenderer #FFCCCC {
+    +header(reservation: Reservation, ticket: Ticket): String
+    +body(reservation: Reservation, ticket: Ticket): String
+    +footer(reservation: Reservation, ticket: Ticket): String
+    +separator(): String
+    +safe(s: String): String
+  }
+  class HtmlTicketRenderer #FFCCCC {
+    +header(reservation: Reservation, ticket: Ticket): String
+    +body(reservation: Reservation, ticket: Ticket): String
+    +footer(reservation: Reservation, ticket: Ticket): String
+    +separator(): String
+    +safe(s: String): String
+  }
+  class PlainTextTicketRenderer #FFCCCC {
+    +header(reservation: Reservation, ticket: Ticket): String
+    +body(reservation: Reservation, ticket: Ticket): String
+    +footer(reservation: Reservation, ticket: Ticket): String
+    +separator(): String
+    +safe(s: String): String
+  }
+  class TicketRenderer #FFCCCC {
+    -sb: StringBuilder
+    --
+    +render(reservation: Reservation, ticket: Ticket): String
+    +header(reservation: Reservation, ticket: Ticket): String
+    +body(reservation: Reservation, ticket: Ticket): String
+    +footer(reservation: Reservation, ticket: Ticket): String
+    +separator(): String
+  }
+}
+package "DP#8 Adapter" {
+  interface SkypassInterface #FFCCCC {
+    +verifyMembership(skypassNumber: String, password: String): Object
+    +getMileageBalance(skypassNumber: String): int
+    +deductMileage(skypassNumber: String, amount: int): boolean
+    +verifyAndDeduct(skypassNumber: String, amount: int): Object
+  }
+  class RemoteSkypassApi #FFCCCC {
+    -balances: Map<String,Integer>
+    -tokens: Map<String,String>
+    -res: Map<String,Object>
+    -expected: String
+    -ok: boolean
+    -member: Map<String,Object>
+    -bal: Integer
+    -remaining: int
+    --
+    +registerAccount(memberCode: String, token: String, mileage: int): void
+    +postAuth(memberCode: String, token: String): Map<String,Object>
+    +getMileage(memberCode: String): Map<String,Object>
+    +postDeduct(memberCode: String, amount: int): Map<String,Object>
+  }
+  class SkypassAdapter #FFCCCC {
+    -adaptee: RemoteSkypassApi
+    -res: Map<String,Object>
+    -bal: Object
+    -check: Map<String,Object>
+    -status: Object
+    --
+    +SkypassAdapter(adaptee: RemoteSkypassApi)
+    +verifyMembership(skypassNumber: String, password: String): Object
+    +getMileageBalance(skypassNumber: String): int
+    +deductMileage(skypassNumber: String, amount: int): boolean
+    +verifyAndDeduct(skypassNumber: String, amount: int): Object
+  }
+}
+package "DP#9 Decorator" {
+  class AbstractSeatDecorator #FFCCCC {
+    -component: SeatView
+    --
+    +AbstractSeatDecorator(component: SeatView)
+    +getSeat(): Seat
+    +getDescription(): String
+    +getSurcharge(): BigDecimal
+    +getMetadataLabels(): List<String>
+  }
+  class AisleSeatDecorator #FFCCCC {
+    -labels: List<String>
+    --
+    +AisleSeatDecorator(component: SeatView)
+    +super(component)
+    +getDescription(): String
+    +getMetadataLabels(): List<String>
+    +addedBehavior(): String
+  }
+  class BaseSeatView #FFCCCC {
+    -seat: Seat
+    --
+    +BaseSeatView(seat: Seat)
+    +getSeat(): Seat
+    +getDescription(): String
+    +getSurcharge(): BigDecimal
+    +getMetadataLabels(): List<String>
+  }
+  class ExtraLegroomDecorator #FFCCCC {
+    -labels: List<String>
+    --
+    +ExtraLegroomDecorator(component: SeatView)
+    +super(component)
+    +getDescription(): String
+    +getSurcharge(): BigDecimal
+    +getMetadataLabels(): List<String>
+    +addedBehavior(): String
+  }
+  class LoungeAccessDecorator #FFCCCC {
+    -labels: List<String>
+    --
+    +LoungeAccessDecorator(component: SeatView)
+    +super(component)
+    +getDescription(): String
+    +getSurcharge(): BigDecimal
+    +getMetadataLabels(): List<String>
+    +addedBehavior(): String
+  }
+  class SeatView #FFCCCC {
+    +getSeat(): Seat
+    +getDescription(): String
+    +getSurcharge(): BigDecimal
+    +getMetadataLabels(): List<String>
+  }
+  class WindowSeatDecorator #FFCCCC {
+    -labels: List<String>
+    --
+    +WindowSeatDecorator(component: SeatView)
+    +super(component)
+    +getDescription(): String
+    +getMetadataLabels(): List<String>
+    +addedBehavior(): String
+  }
+}
+ReservationState <|.. InitiatedState
+ReservationState <|.. PendingPaymentState
+ReservationState <|.. ConfirmedState
+ReservationState <|.. TicketedState
+ReservationState <|.. CancellationRequestedState
+ReservationState <|.. CancelledState
+ReservationState <|.. RefundRequestedState
+ReservationState <|.. RefundedState
+RefundPolicy <|.. NoRefundPolicy
+RefundPolicy <|.. PartialRefundPolicy
+RefundPolicy <|.. FullRefundPolicy
+EventPublisher <|-- TicketPurchasePublisher
+EventPublisher <|-- PaymentProcessor
+EventPublisher <|-- SeatHoldMonitor
+EventPublisher <|-- FlightSchedule
+EventListener <|.. BusTicketPurchaseListener
+EventListener <|.. ReservationAutoCancelListener
+EventListener <|.. ReservationHoldListener
+EventListener <|.. AffectedReservationListener
+DomainEvent <|-- TicketIssuedEvent
+DomainEvent <|-- PaymentFailedEvent
+DomainEvent <|-- ReservationStateChangedEvent
+DomainEvent <|-- FlightStatusChangedEvent
+DomainEvent <|-- SeatHoldExpiredEvent
+AirportLocation <|-- Airport
+AirportLocation <|-- AirportCity
+PaymentMethodProcessor <|-- CreditCardPaymentProcessor
+PaymentMethodProcessor <|-- KakaoPayPaymentProcessor
+PaymentMethodProcessor <|-- ApplePayPaymentProcessor
+PaymentMethodProcessor <|-- BankTransferPaymentProcessor
+PaymentMethodProcessor <|-- MileagePaymentProcessor
+Payment <|-- CreditCardPayment
+Payment <|-- KakaoPayPayment
+Payment <|-- ApplePayPayment
+Payment <|-- BankTransferPayment
+Payment <|-- MileagePayment
+ItineraryFactory <|-- DirectItineraryFactory
+ItineraryFactory <|-- ConnectingItineraryFactory
+ItineraryFactory <|-- MultiCityItineraryFactory
+Itinerary <|-- DirectItinerary
+Itinerary <|-- ConnectingItinerary
+Itinerary <|-- MultiCityItinerary
+TicketRenderer <|-- PlainTextTicketRenderer
+TicketRenderer <|-- HtmlTicketRenderer
+TicketRenderer <|-- BoardingPassRenderer
+SkypassInterface <|.. SkypassAdapter
+SeatView <|-- BaseSeatView
+SeatView <|-- AbstractSeatDecorator
+AbstractSeatDecorator <|-- WindowSeatDecorator
+AbstractSeatDecorator <|-- AisleSeatDecorator
+AbstractSeatDecorator <|-- ExtraLegroomDecorator
+AbstractSeatDecorator <|-- LoungeAccessDecorator
+Reservation --> Itinerary
+Reservation --> ReservationState
+CancelledState --> FareRule
+CancelledState --> Itinerary
+CancelledState --> FlightSchedule
+RefundHandler --> RefundPolicy
+RefundHandler --> RefundPolicyResolver
+RefundHandler --> Reservation
+RefundHandler --> FareRule
+RefundHandler --> Payment
+RefundHandler --> Itinerary
+RefundHandler --> FlightSchedule
+TicketPurchasePublisher --> TicketIssuedEvent
+PaymentProcessor --> PaymentFailedEvent
+PaymentProcessor --> Payment
+SeatHoldMonitor --> SeatHoldExpiredEvent
+FlightSchedule --> FareRule
+FlightSchedule --> FlightStatusChangedEvent
+FlightSchedule --> Airport
+BusTicketPurchaseListener --> BusTicketingService
+BusTicketPurchaseListener --> TicketPurchasePublisher
+BusTicketPurchaseListener --> TicketIssuedEvent
+BusTicketPurchaseListener --> BusTicketRequest
+ReservationAutoCancelListener --> PaymentProcessor
+ReservationAutoCancelListener --> PaymentFailedEvent
+ReservationAutoCancelListener --> Reservation
+ReservationHoldListener --> SeatHoldMonitor
+ReservationHoldListener --> SeatHoldExpiredEvent
+ReservationHoldListener --> Reservation
+AffectedReservationListener --> FlightSchedule
+AffectedReservationListener --> FlightStatusChangedEvent
+TicketIssuedEvent --> Reservation
+TicketIssuedEvent --> BusTicketRequest
+PaymentFailedEvent --> Payment
+FlightStatusChangedEvent --> FlightSchedule
+BusTicketingService --> BusSchedule
+BusTicketingService --> BusSeat
+BusTicketingService --> BusTicket
+BusTicket --> BusCity
+BusTicket --> BusSchedule
+BusTicket --> BusSeat
+BusTicketRequest --> BusCity
+BusTicketRequest --> BusSchedule
+BusTicketRequest --> BusSeat
+BusSchedule --> BusCity
+AirportCatalog --> AirportCity
+PaymentMethodProcessor --> Payment
+ItineraryFactory --> Itinerary
+ConnectingItineraryFactory --> FlightSchedule
+SkypassAdapter --> RemoteSkypassApi
+@enduml

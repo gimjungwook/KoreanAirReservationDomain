@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#5 Factory Method — 코드 (관련 클래스 전부)</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>DP#6 Factory Method — 코드 (관련 클래스 전부)</title>
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  html,body{width:1920px;height:1080px;background:#ffffff;color:#1a1a1a;font-family:'Apple SD Gothic Neo','Malgun Gothic','Helvetica Neue',system-ui,sans-serif;overflow:hidden}
@@ -79,7 +79,7 @@
  .dpc-impl{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0;width:100%}
  .dpc-impl figcaption{font-size:20px;color:#5a6472;margin-bottom:5px;font-weight:600;flex:0 0 auto}
  .dpc-impl img{max-width:100%;min-height:0;flex:1;object-fit:contain;border:1px solid #d7dde5;border-radius:8px}
-</style></head><body><div class="slide"><h1><span class="emoji">🏭</span>DP#5 Factory Method — 코드 (관련 클래스 전부)</h1><div class="sub">Creator=PaymentMethodProcessor, Product=Payment.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">PaymentMethodProcessor.java</span><span class="ccrole">Creator · 템플릿 + 팩토리 메서드</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> PaymentMethodProcessor {
+</style></head><body><div class="slide"><h1><span class="emoji">🏭</span>DP#6 Factory Method — 코드 (관련 클래스 전부)</h1><div class="sub">Creator=PaymentMethodProcessor, Product=Payment.</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="cmgrid" style="--cols:2"><div class="ccard"><div class="cchd"><span class="ccfn">PaymentMethodProcessor.java</span><span class="ccrole">Creator · 템플릿 + 팩토리 메서드</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">class</span> PaymentMethodProcessor {
     <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">Payment</span> createPayment();       <span class="cm">// 팩토리 메서드(무인자)</span>
     <span class="kw">public</span> <span class="kw">abstract</span> <span class="ty">PaymentMethod</span> method();
     <span class="cm">// anOperation: 제품 &#x27;생성&#x27;은 서브클래스에 위임, 공통 흐름은 여기서 고정</span>
@@ -100,4 +100,4 @@
     <span class="kw">public</span> <span class="kw">void</span> fail() { /* 상태 전이 → FAILED */ }
 }</pre></div></div><div class="ccard"><div class="cchd"><span class="ccfn">CreditCardPayment.java</span><span class="ccrole">ConcreteProduct</span></div><div class="ccbody"><pre><span class="kw">public</span> <span class="kw">class</span> CreditCardPayment <span class="kw">extends</span> <span class="ty">Payment</span> {
     <span class="kw">public</span> CreditCardPayment() { <span class="kw">super</span>(<span class="ty">PaymentMethod</span>.CREDIT_CARD); }
-}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>33 / 45</span></div></div></body></html>
+}</pre></div></div></div></div><div class="footer"><span>OODP · Iteration 4 · 대한항공 예약 시스템</span><span>33 / 46</span></div></div></body></html>

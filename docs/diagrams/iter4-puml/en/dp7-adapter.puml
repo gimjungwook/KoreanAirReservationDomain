@@ -26,7 +26,7 @@ skinparam note {
   FontColor #000000
 }
 
-title DP#7 Adapter Pattern - SkypassAdapter
+title DP#8 Adapter Pattern - SkypassAdapter
 class AppContext <<Client>> {
   +skypass: SkypassInterface
 }

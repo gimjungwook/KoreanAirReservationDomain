@@ -16,7 +16,6 @@ class Reservation <<Context>> {
   -reservationItems: List<ReservationItem>
   -payments: List<Payment>
   -tickets: List<Ticket>
-  -REGISTRY: Map<String,Reservation>
   -currentState: ReservationState
   --
   +getReservationId(): Long
@@ -32,18 +31,10 @@ class Reservation <<Context>> {
   +addReservationItem(): void
   +addPayment(): void
   +addTicket(): void
-  +confirmReservation(): void
-  +issueTickets(): void
-  +cancelReservation(): void
   +canBeCancelled(): boolean
-  +requestRefund(): Refund
   +evaluateImpactOfFlightStatusChange(): void
-  +create(): Reservation
-  +updatePassengerInfo(): void
   +updateStatus(): void
   +findByPnr(): Reservation
-  +getContactEmail(): String
-  +getReservationDetail(): Reservation
   +setState(): void
   +getCurrentState(): ReservationState
   +getStateName(): String

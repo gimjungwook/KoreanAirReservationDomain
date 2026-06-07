@@ -32,6 +32,15 @@ public class FlightSchedule extends EventPublisher {
         return flight;
     }
 
+    public void setFlight(Flight flight) {
+        this.flight = flight;
+    }
+
+    /** 초기 상태 설정용(통지 없음). 상태 전이 발행은 {@link #changeStatus(FlightStatus)} 사용. */
+    public void setStatus(FlightStatus status) {
+        this.status = status;
+    }
+
     public String getFlightNumber() {
         return flight != null ? flight.getFlightNumber() : null;
     }
