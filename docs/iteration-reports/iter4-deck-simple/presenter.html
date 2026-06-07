@@ -236,19 +236,65 @@
     }, 4000);
   }
 
-  // ── iframe 스케일 맞춤 ──
+  // ── iframe 스케일 맞춤 + 현재 슬라이드 줌/팬 ──
+  let curBase = { s: 1, x: 0, y: 0 }, zCur = 1, panX = 0, panY = 0;
   function fitOne(box, scaler) {
     const rect = box.getBoundingClientRect();
     const s = Math.min(rect.width / W, rect.height / H);
     const x = (rect.width  - W * s) / 2;
     const y = (rect.height - H * s) / 2;
     scaler.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+    return { s, x, y };
+  }
+  function applyCur() {
+    scalerCur.style.transform =
+      `translate(${curBase.x + panX}px, ${curBase.y + panY}px) scale(${curBase.s * zCur})`;
+    if (zoomBadge) zoomBadge.textContent = '🔍 ' + Math.round(zCur * 100) + '%';
+    curBox.style.cursor = zCur > 1 ? 'grab' : 'zoom-in';
   }
   function fitAll() {
-    fitOne(scalerCur.parentElement, scalerCur);
+    curBase = fitOne(scalerCur.parentElement, scalerCur);
+    applyCur();
     fitOne(scalerNxt.parentElement, scalerNxt);
   }
+  function resetZoom() { zCur = 1; panX = 0; panY = 0; applyCur(); }
   window.addEventListener('resize', fitAll);
+
+  // 현재 슬라이드 박스: 휠=확대 · 드래그=이동 · 더블클릭=리셋
+  const curBox = scalerCur.parentElement;
+  const zoomBadge = document.createElement('div');
+  zoomBadge.style.cssText = 'position:absolute;bottom:8px;right:10px;z-index:6;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px 9px;border-radius:6px;pointer-events:none;font-variant-numeric:tabular-nums';
+  zoomBadge.textContent = '🔍 100%';
+  curBox.appendChild(zoomBadge);
+  const zoomHint = document.createElement('div');
+  zoomHint.style.cssText = 'position:absolute;bottom:8px;left:10px;z-index:6;background:rgba(0,0,0,.5);color:#cbd5e1;font-size:11px;padding:3px 9px;border-radius:6px;pointer-events:none';
+  zoomHint.textContent = '휠 확대 · 드래그 이동 · 더블클릭 리셋';
+  curBox.appendChild(zoomHint);
+  curBox.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = curBox.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const ds = Math.exp(-e.deltaY * 0.0015);
+    const nz = Math.min(8, Math.max(1, zCur * ds));
+    const k = nz / zCur;
+    const Tx = curBase.x + panX, Ty = curBase.y + panY;
+    panX = mx - (mx - Tx) * k - curBase.x;
+    panY = my - (my - Ty) * k - curBase.y;
+    zCur = nz;
+    if (zCur === 1) { panX = 0; panY = 0; }
+    applyCur();
+  }, { passive: false });
+  let zdrag = false, zsx = 0, zsy = 0;
+  curBox.addEventListener('mousedown', (e) => {
+    if (zCur <= 1) return;
+    zdrag = true; zsx = e.clientX - panX; zsy = e.clientY - panY;
+    curBox.style.cursor = 'grabbing'; e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!zdrag) return; panX = e.clientX - zsx; panY = e.clientY - zsy; applyCur();
+  });
+  window.addEventListener('mouseup', () => { if (zdrag) { zdrag = false; applyCur(); } });
+  curBox.addEventListener('dblclick', resetZoom);
 
   // ── 대본 렌더 ──
   function renderNotes(idx) {
@@ -289,6 +335,7 @@
     btnPrev.disabled = idx === 0;
     btnNext.disabled = idx === N - 1;
     renderNotes(idx);
+    zCur = 1; panX = 0; panY = 0;   // 슬라이드 전환 시 줌 초기화
     fitAll();
     try { localStorage.setItem('presenter-idx', String(idx)); } catch (_) {}
     if (!fromSync) broadcast(idx);
