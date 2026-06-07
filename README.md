@@ -135,7 +135,7 @@ src/com/koreanair/reservation/
 │                           # PaymentProcessor, RefundHandler
 ├── domain/
 │   ├── reservation/        # Reservation 애그리거트 (State 패턴의 Context)
-│   │   └── state/          # ReservationState + 8개 concrete state
+│   │   └── state/          # 8개 *State + AbstractReservationState
 │   │                       # + InvalidStateTransitionException
 │   ├── flight/             # Flight, FlightSchedule, FareRule, Seat, SeatInventory, ...
 │   ├── passenger/          # Passenger, MileageAccount (iter3), PassengerType
@@ -223,16 +223,8 @@ mvnw.cmd javafx:run        # Windows
 ### B) 콘솔 드라이버
 
 ```bash
-cd /Users/lee/Documents/Codex/KoreanAirReservationDomain
 ./mvnw -q compile
 java -cp target/classes com.koreanair.reservation.app.App
-```
-
-> 중요: `java -cp target/classes ...`는 **프로젝트 루트에서 실행**해야 `target/classes`를 찾습니다.  
-> 다른 위치에서 실행할 경우 절대경로를 사용하세요.
-
-```bash
-java -cp /Users/lee/Documents/Codex/KoreanAirReservationDomain/target/classes com.koreanair.reservation.app.App
 ```
 
 ### C) Eclipse

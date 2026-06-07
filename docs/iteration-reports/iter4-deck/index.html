@@ -36,27 +36,6 @@
   .help-hint b { color: #ff7eb6; font-weight: 700; }
   .help-hint.show { opacity: 1; }
 
-  .flowbar {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    display: inline-flex;
-    gap: 8px;
-    z-index: 120;
-  }
-  .flowbar .pill {
-    background: rgba(20,20,22,0.88);
-    color: rgba(255,255,255,0.93);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 999px;
-    padding: 7px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: 0.2s ease;
-  }
-  .flowbar .pill:hover { background: rgba(255,255,255,0.18); }
-  .flowbar .pill.active { border-color: #ff7eb6; color: #ff7eb6; font-weight: 700; }
-
   #notes {
     position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 100%);
     width: min(1100px, 92vw); background: rgba(20,20,22,0.95); color: #f2f2f4;
@@ -72,13 +51,12 @@
 </head>
 <body>
 <div id="stage"><iframe id="frame" src="" loading="eager"></iframe></div>
-  <div id="navLeft"  title="prev (←)" style="position:fixed;top:0;bottom:0;left:0;width:9%;z-index:60;cursor:w-resize;"></div>
+<div id="navLeft"  title="prev (←)" style="position:fixed;top:0;bottom:0;left:0;width:9%;z-index:60;cursor:w-resize;"></div>
 <div id="navRight" title="next (→)" style="position:fixed;top:0;bottom:0;right:0;width:9%;z-index:60;cursor:e-resize;"></div>
 
 <button class="pv-btn" id="pvBtn">🖥️ Presenter view</button>
-<div class="flowbar" id="flowbar" title="앱형 데모 플로우 바로가기"></div>
 <div class="help-hint" id="help">
-  <b>1~6</b> 앱형 흐름 점프 &nbsp;·&nbsp; <b>← →</b> 이동 &nbsp;·&nbsp; <b>V</b> 발표자뷰 &nbsp;·&nbsp; <b>S</b> 노트 &nbsp;·&nbsp; <b>R</b> 재생 &nbsp;·&nbsp; <b>F</b> 전체화면 &nbsp;·&nbsp; <b>?</b> 도움말
+  <b>← →</b> 이동 &nbsp;·&nbsp; <b>V</b> 발표자뷰 &nbsp;·&nbsp; <b>S</b> 노트 &nbsp;·&nbsp; <b>R</b> 재생 &nbsp;·&nbsp; <b>F</b> 전체화면 &nbsp;·&nbsp; <b>?</b> 도움말
 </div>
 
 <div id="notes">
@@ -95,9 +73,7 @@
   const notes = document.getElementById('notes');
   const ntLabel = document.getElementById('nt-label');
   const ntBody = document.getElementById('nt-body');
-  const flowbar = document.getElementById('flowbar');
 
-  const FLOW = window.DECK_APP_FLOW || [];
   let idx = parseInt(localStorage.getItem('oodp4-idx') || '0', 10);
   if (idx < 0 || idx >= manifest.length) idx = 0;
 
@@ -119,16 +95,6 @@
     frame.src = slideUrl(manifest[idx], false);
     ntLabel.innerHTML = `notes — <b>${idx + 1} / ${manifest.length}</b> · ${manifest[idx].label}`;
     ntBody.textContent = manifest[idx].notes || '(no notes)';
-    if (FLOW.length) {
-      const best = FLOW.reduce((acc, step, i) => {
-        const d = Math.abs(idx - step.idx);
-        return d < acc.d ? { d, i } : acc;
-      }, { d: Number.MAX_SAFE_INTEGER, i: -1 });
-      const active = Math.max(0, best.i);
-      Array.from(flowbar.children).forEach((btn, i) => {
-        btn.classList.toggle('active', i === active);
-      });
-    }
   }
   function publish() { localStorage.setItem('oodp4-idx', String(idx)); localStorage.setItem('oodp4-idx-ts', String(Date.now())); }
   function goTo(n) { idx = Math.max(0, Math.min(manifest.length - 1, n)); render(); publish(); }
@@ -148,7 +114,6 @@
     else if (k === 'v' || k === 'V') { e.preventDefault(); openPresenter(); }
     else if (k === 'f' || k === 'F') { e.preventDefault(); if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
     else if (k === '?' || k === 'h' || k === 'H') { e.preventDefault(); help.classList.toggle('show'); }
-    else if (k >= '1' && k <= '6' && FLOW[k - 1]) { e.preventDefault(); goTo(FLOW[k - 1].idx); }
   }
   window.addEventListener('keydown', handleNavKey, true);
 
@@ -169,20 +134,7 @@
     }
   }, 180);
 
-  FLOW.forEach((step, i) => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'pill';
-    b.dataset.idx = String(step.idx);
-    b.textContent = step.label;
-    b.title = step.note || '';
-    b.onclick = () => goTo(Math.max(0, Math.min(manifest.length - 1, step.idx)));
-    flowbar.appendChild(b);
-  });
-  window.addEventListener('load', () => {
-    help.classList.add('show');
-    setTimeout(() => help.classList.remove('show'), 5000);
-  });
+  window.addEventListener('load', () => { help.classList.add('show'); setTimeout(() => help.classList.remove('show'), 5000); });
   window.addEventListener('resize', resize);
   resize(); render(); publish();
 </script>

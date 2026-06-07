@@ -99,8 +99,8 @@ public final class PatternGuideController {
                 new PatternNote(
                         "State - Reservation lifecycle",
                         "예약 객체가 상태명을 enum으로 검사하지 않고, 현재 State 객체에게 가능한 전이를 위임한다.",
-                        "Context = Reservation, State = ReservationState, ConcreteState = 8개 상태",
-                        "Reservation.currentState, setState(), processPayment(), issueTicket(), ReservationState default 메서드",
+                        "Context = Reservation, State = ReservationState, Default = AbstractReservationState, ConcreteState = 8개 상태",
+                        "Reservation.currentState, setState(), requestPayment(), issueTicket(), AbstractReservationState 기본 거부",
                         "UI 버튼 -> Reservation 메서드 -> 현재 State가 검증 -> setState(next)",
                         """
                         class Reservation {
@@ -112,12 +112,12 @@ public final class PatternGuideController {
                                 currentState = next;
                             }
                         }
-                        interface ReservationState {
-                            default void processPayment(Reservation r) {
+                        abstract class AbstractReservationState implements ReservationState {
+                            void processPayment(Reservation r) {
                                 throw new InvalidStateTransitionException(...);
                             }
                         }
-                        class PendingPaymentState implements ReservationState {
+                        class PendingPaymentState extends AbstractReservationState {
                             void processPayment(Reservation r) {
                                 r.setState(new ConfirmedState());
                             }

@@ -107,13 +107,7 @@ public final class SearchController {
 
     @FXML
     private void onTripTab(MouseEvent e) {
-        Object raw = e != null ? e.getSource() : null;
-        String m = raw instanceof javafx.scene.control.Label l ? String.valueOf(l.getUserData())
-                : raw instanceof javafx.scene.Node n ? String.valueOf(n.getUserData())
-                : null;
-        if (m == null || "null".equals(m)) {
-            return;
-        }
+        Object m = ((Label) e.getSource()).getUserData();
         setMode("round".equals(m) ? Mode.ROUND_TRIP : "multi".equals(m) ? Mode.MULTI_CITY : Mode.ONE_WAY);
     }
 

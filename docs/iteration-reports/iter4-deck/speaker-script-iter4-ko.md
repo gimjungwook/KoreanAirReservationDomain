@@ -26,31 +26,8 @@ Use Case, Class, Sequence, State Diagram 요구를 본편 흐름에 맞춰 압�
 ## 08. 시연 순서
 시연은 기능 흐름 중심으로 진행합니다. Search, Seat, Payment, Confirmation, Lookup/Refund, Settings/Guide 순서로 가면 9개 DP가 모두 지나갑니다.
 
-## 08-1. 앱형 페이지 분할 제안
-앱처럼 보이게 하려면 한 덩어리 데모보다 화면 단위를 나눠서 진행하는 게 확실히 낫습니다.
-
-- **1화면: 홈 + 기능 선택 허브**  
-  목적: 이번 iteration 핵심(디자인 패턴+JavaFX 전환)만 짧게 소개.
-
-- **2화면: 검색/항공편 선택**  
-  보여줄 DP: `Composite`(도시-공항), `Factory Method`(경로 생성)
-
-- **3화면: 좌석 + 결제 준비**  
-  보여줄 DP: `Decorator`(좌석 옵션), `Template Method`(영수증/티켓 뼈대), `Adapter`(마일리지 연동)
-
-- **4화면: 결제/확정 + 상태 전환**  
-  보여줄 DP: `State`(예약 상태), `Strategy`(환불 정책), `Observer`(실시간 추적/자동 취소)
-
-- **5화면: 조회/환불 + 버스 연계**  
-  보여줄 DP: `Observer`(버스 연계 리스너), `Strategy`(환불 정책)
-
-- **6화면: 설정 + 패턴 가이드**  
-  보여줄 DP: `Singleton`(AppConfig), 패턴 코드 맵/역할 정합성 확인
-
-이 구조로 가면 페이지가 훨씬 "앱"처럼 보여지고, 청중이 길을 잃지 않습니다.
-
 ## 09. DP#1 State 비교
-교과서의 Context는 우리 코드의 `Reservation`, State는 `ReservationState`입니다. 실제 구현은 `ReservationState` 인터페이스의 기본 메서드에서 기본 거부 전이를 공통 처리하고, 구체 상태가 허용 전이만 override 합니다.
+교과서의 Context는 우리 코드의 `Reservation`, State는 `ReservationState`입니다. 실제 구현에는 기본 거부 전이를 모은 `AbstractReservationState`가 있습니다.
 
 ## 10. DP#1 State 코드
 `currentState.processPayment(this)`가 핵심입니다. 현재 상태 객체가 동작 가능 여부를 판단하고, 허용되면 `setState(next)`로 전이합니다.
@@ -62,10 +39,10 @@ Use Case, Class, Sequence, State Diagram 요구를 본편 흐름에 맞춰 압�
 환불 금액 계산은 handler의 if문이 아니라 `policy.calculateRefundAmount(paid)`로 위임됩니다.
 
 ## 13. DP#3 Observer 비교
-`EventPublisher`가 Subject, `EventListener`가 Observer입니다. 발권 완료 시 `TicketPurchasePublisher`가 이벤트를 보관하고 `notifyObservers()`로 통지하면 `BusTicketPurchaseListener`가 `update()`에서 상태를 읽어 후속 동작을 처리합니다.
+`EventPublisher`가 Subject, `EventListener`가 Observer입니다. 발권 이벤트를 발행하면 버스티켓 listener가 후속 동작을 처리합니다.
 
 ## 14. DP#3 Observer 코드
-publisher는 listener의 구체 동작을 모르고 `publishTicketIssued(...)`로 이벤트를 보관하고 `notifyObservers()`만 호출합니다. 버스 연계는 listener 추가로 확장됩니다.
+publisher는 listener의 구체 동작을 모르고 `publish(event)`만 호출합니다. 버스 연계는 listener 추가로 확장되었습니다.
 
 ## 15. DP#4 Composite 비교
 공항과 도시를 `AirportLocation`으로 동일하게 다룹니다. `Airport`는 Leaf, `AirportCity`는 Composite입니다.
@@ -101,7 +78,7 @@ e-Ticket 포맷은 여러 개지만 header, body, footer 렌더링 순서는 동
 좌석 옵션 조합마다 class를 만들지 않고, `SeatView`를 여러 decorator가 감싸는 구조로 해결했습니다.
 
 ## 26. DP#9 Decorator 코드
-base `BaseSeatView` 위에 Window, Aisle, ExtraLegroom, Lounge decorator가 런타임에 쌓이고 surcharge가 누적됩니다.
+base `SeatViewAdapter` 위에 Window, Aisle, ExtraLegroom, Lounge decorator가 런타임에 쌓이고 surcharge가 누적됩니다.
 
 ## 27. 검증 및 수정 이력
 double refund, fare hardcoding, 예약 조회 흐름, 버스 연계 선택 문제를 수정했습니다. 기능 완성도와 신뢰성 항목에 대한 근거입니다.
