@@ -128,11 +128,13 @@
   stage.style.width  = W + 'px';
   stage.style.height = H + 'px';
 
+  // 발표자창에서 동기화되는 줌 상태 (슬라이드 좌표 기준 초점 cx,cy + 배율 z)
+  let zz = 1, zcx = W / 2, zcy = H / 2;
   function fit() {
-    const s = Math.min(window.innerWidth / W, window.innerHeight / H);
-    const x = (window.innerWidth  - W * s) / 2;
-    const y = (window.innerHeight - H * s) / 2;
-    stage.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+    const s0 = Math.min(window.innerWidth / W, window.innerHeight / H);
+    const scale = s0 * zz;
+    stage.style.transform =
+      `translate(${window.innerWidth / 2 - zcx * scale}px, ${window.innerHeight / 2 - zcy * scale}px) scale(${scale})`;
     stage.style.top = '0';
     stage.style.left = '0';
   }
@@ -140,6 +142,7 @@
   function show(idx, fromSync) {
     if (idx < 0 || idx >= deck.length) return;
     current = idx;
+    zz = 1; zcx = W / 2; zcy = H / 2; fit();   // 슬라이드 전환 시 줌 초기화
     frame.src = deck[idx].file;
     counter.innerHTML = `${idx + 1} / ${deck.length} <span class="label">${deck[idx].label || ''}</span>`;
     try { localStorage.setItem(storageKey, String(idx)); } catch (_) {}
@@ -158,6 +161,12 @@
       const d = e.data || {};
       if (d.type === 'goto' && typeof d.idx === 'number' && d.idx !== current) {
         show(d.idx, true);
+      } else if (d.type === 'zoom' && typeof d.z === 'number') {
+        // 발표자창 줌 상태 반영 (동일 슬라이드 영역 재현)
+        zz = d.z;
+        zcx = (typeof d.cx === 'number') ? d.cx : W / 2;
+        zcy = (typeof d.cy === 'number') ? d.cy : H / 2;
+        fit();
       } else if (d.type === 'whereto' && syncChan) {
         // 발표자창이 현재 위치를 물어보면 응답
         try { syncChan.postMessage({ type: 'goto', idx: current }); } catch (_) {}

@@ -237,27 +237,35 @@
   }
 
   // ── iframe 스케일 맞춤 + 현재 슬라이드 줌/팬 ──
-  let curBase = { s: 1, x: 0, y: 0 }, zCur = 1, panX = 0, panY = 0;
+  // 줌은 "슬라이드 좌표(0..W, 0..H) 기준 초점 + 배율"로 모델링한다.
+  // → 청중 화면(index.html)이 박스 크기가 달라도 동일 영역을 그대로 재현할 수 있다.
+  let curBase = { s: 1, bw: 0, bh: 0 }, zCur = 1, fcx = W / 2, fcy = H / 2;
+  // 박스(bw,bh) 안에서 (z 배율, 슬라이드 초점 cx,cy)를 박스 중앙에 두는 transform
+  function viewTransform(s0, bw, bh, z, cx, cy) {
+    const scale = s0 * z;
+    return `translate(${bw / 2 - cx * scale}px, ${bh / 2 - cy * scale}px) scale(${scale})`;
+  }
   function fitOne(box, scaler) {
-    const rect = box.getBoundingClientRect();
-    const s = Math.min(rect.width / W, rect.height / H);
-    const x = (rect.width  - W * s) / 2;
-    const y = (rect.height - H * s) / 2;
-    scaler.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
-    return { s, x, y };
+    const r = box.getBoundingClientRect();
+    const s = Math.min(r.width / W, r.height / H);
+    scaler.style.transform = `translate(${(r.width - W * s) / 2}px, ${(r.height - H * s) / 2}px) scale(${s})`;
   }
   function applyCur() {
-    scalerCur.style.transform =
-      `translate(${curBase.x + panX}px, ${curBase.y + panY}px) scale(${curBase.s * zCur})`;
-    if (zoomBadge) zoomBadge.textContent = '🔍 ' + Math.round(zCur * 100) + '%';
-    curBox.style.cursor = zCur > 1 ? 'grab' : 'zoom-in';
+    scalerCur.style.transform = viewTransform(curBase.s, curBase.bw, curBase.bh, zCur, fcx, fcy);
+    if (typeof zoomBadge !== 'undefined' && zoomBadge) zoomBadge.textContent = '🔍 ' + Math.round(zCur * 100) + '%';
+    if (typeof curBox !== 'undefined' && curBox) curBox.style.cursor = zCur > 1 ? 'grab' : 'zoom-in';
+    broadcastZoom();
   }
   function fitAll() {
-    curBase = fitOne(scalerCur.parentElement, scalerCur);
+    const r = scalerCur.parentElement.getBoundingClientRect();
+    curBase = { s: Math.min(r.width / W, r.height / H), bw: r.width, bh: r.height };
     applyCur();
     fitOne(scalerNxt.parentElement, scalerNxt);
   }
-  function resetZoom() { zCur = 1; panX = 0; panY = 0; applyCur(); }
+  function resetZoom() { zCur = 1; fcx = W / 2; fcy = H / 2; applyCur(); }
+  function broadcastZoom() {
+    if (syncChan) { try { syncChan.postMessage({ type: 'zoom', z: zCur, cx: fcx, cy: fcy }); } catch (_) {} }
+  }
   window.addEventListener('resize', fitAll);
 
   // 현재 슬라이드 박스: 버튼 ＋/－/⤢ · 휠=확대 · 드래그=이동 · 더블클릭=리셋
@@ -265,21 +273,25 @@
   // iframe 이 휠/드래그 이벤트를 가로채지 못하게 (미리보기는 상호작용 불필요)
   frameCur.style.pointerEvents = 'none';
 
-  // 박스 중심(또는 임의 지점) 기준 줌
-  function zoomAt(nz, cx, cy) {
-    nz = Math.min(8, Math.max(1, nz));
-    const k = nz / zCur;
-    const Tx = curBase.x + panX, Ty = curBase.y + panY;
-    panX = cx - (cx - Tx) * k - curBase.x;
-    panY = cy - (cy - Ty) * k - curBase.y;
+  const clampZ = (z) => Math.min(20, Math.max(1, z));
+  // 박스 지점 (mx,my)에 해당하는 슬라이드 좌표
+  function slideAt(mx, my) {
+    const scale = curBase.s * zCur;
+    return { x: (mx - (curBase.bw / 2 - fcx * scale)) / scale,
+             y: (my - (curBase.bh / 2 - fcy * scale)) / scale };
+  }
+  // (mx,my) 지점을 고정한 채 배율을 nz 로
+  function zoomAt(nz, mx, my) {
+    nz = clampZ(nz);
+    const sp = slideAt(mx, my);
+    const scale2 = curBase.s * nz;
+    fcx = sp.x - (mx - curBase.bw / 2) / scale2;
+    fcy = sp.y - (my - curBase.bh / 2) / scale2;
     zCur = nz;
-    if (zCur <= 1) { zCur = 1; panX = 0; panY = 0; }
+    if (zCur <= 1) { zCur = 1; fcx = W / 2; fcy = H / 2; }
     applyCur();
   }
-  function zoomByButton(f) {
-    const r = curBox.getBoundingClientRect();
-    zoomAt(zCur * f, r.width / 2, r.height / 2);
-  }
+  function zoomByButton(f) { zoomAt(zCur * f, curBase.bw / 2, curBase.bh / 2); }
 
   // 줌 버튼 패널 (좌상단)
   const zoomCtl = document.createElement('div');
@@ -302,23 +314,26 @@
   curBox.appendChild(zoomBadge);
   const zoomHint = document.createElement('div');
   zoomHint.style.cssText = 'position:absolute;bottom:8px;left:10px;z-index:6;background:rgba(0,0,0,.5);color:#cbd5e1;font-size:11px;padding:3px 9px;border-radius:6px;pointer-events:none';
-  zoomHint.textContent = '＋/－ 버튼 · 휠 확대 · 드래그 이동';
+  zoomHint.textContent = '＋/－ 버튼 · 휠 확대 · 드래그 이동 (청중 화면 동기화)';
   curBox.appendChild(zoomHint);
 
   curBox.addEventListener('wheel', (e) => {
     e.preventDefault();
     const rect = curBox.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    zoomAt(zCur * Math.exp(-e.deltaY * 0.0015), mx, my);
+    zoomAt(zCur * Math.exp(-e.deltaY * 0.0015), e.clientX - rect.left, e.clientY - rect.top);
   }, { passive: false });
-  let zdrag = false, zsx = 0, zsy = 0;
+  let zdrag = false, zsm = { x: 0, y: 0 }, zsf = { x: 0, y: 0 };
   curBox.addEventListener('mousedown', (e) => {
     if (zCur <= 1) return;
-    zdrag = true; zsx = e.clientX - panX; zsy = e.clientY - panY;
+    zdrag = true; zsm = { x: e.clientX, y: e.clientY }; zsf = { x: fcx, y: fcy };
     curBox.style.cursor = 'grabbing'; e.preventDefault();
   });
   window.addEventListener('mousemove', (e) => {
-    if (!zdrag) return; panX = e.clientX - zsx; panY = e.clientY - zsy; applyCur();
+    if (!zdrag) return;
+    const scale = curBase.s * zCur;
+    fcx = zsf.x - (e.clientX - zsm.x) / scale;
+    fcy = zsf.y - (e.clientY - zsm.y) / scale;
+    applyCur();
   });
   window.addEventListener('mouseup', () => { if (zdrag) { zdrag = false; applyCur(); } });
   curBox.addEventListener('dblclick', resetZoom);
@@ -362,7 +377,7 @@
     btnPrev.disabled = idx === 0;
     btnNext.disabled = idx === N - 1;
     renderNotes(idx);
-    zCur = 1; panX = 0; panY = 0;   // 슬라이드 전환 시 줌 초기화
+    zCur = 1; fcx = W / 2; fcy = H / 2;   // 슬라이드 전환 시 줌 초기화
     fitAll();
     try { localStorage.setItem('presenter-idx', String(idx)); } catch (_) {}
     if (!fromSync) broadcast(idx);
@@ -376,7 +391,7 @@
   // ── 청중 화면 열기 ──
   document.getElementById('btnAudience').addEventListener('click', () => {
     audienceWin = window.open('index.html#' + (current + 1), 'deck-audience');
-    setTimeout(() => broadcast(current), 600); // 로드 후 현재 위치로 맞춤
+    setTimeout(() => { broadcast(current); broadcastZoom(); }, 600); // 로드 후 현재 위치 + 줌 동기화
     markLinked();
   });
   document.getElementById('btnFull').addEventListener('click', () => {
