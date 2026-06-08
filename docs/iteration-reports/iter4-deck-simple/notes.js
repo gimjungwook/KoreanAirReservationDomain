@@ -13,13 +13,13 @@ window.DECK_NOTES = {
 크게 네 부분입니다.
 첫째, **팀 기여**와 전체 **기능 / Iteration 진행 / 확장** 현황을 표로 보고드리고,
 둘째, 시스템의 **행동 다이어그램** — Use Case, Sequence, State machine을 보겠습니다.
-셋째, 핵심인 **디자인 패턴 DP#2 Strategy부터 DP#9 Decorator까지**를, 각각 *설명 → 교과서 비교 → 실제 코드* 순으로 짚겠습니다. 여기에 **DP#1 State 패턴 구현**도 함께 다룹니다.
+셋째, 핵심인 **디자인 패턴 DP#1 State부터 DP#9 Decorator까지**를, 각각 *설명 → 교과서 비교 → 실제 코드* 순으로 짚겠습니다. 각 패턴은 교과서 역할 이름과 저희 클래스 이름이 어떻게 대응되는지까지 같이 보겠습니다.
 마지막으로 **패턴 적용 강도**와 현황, 다음 단계로 마무리하겠습니다.`,
 3: `팀 기여부터 말씀드리겠습니다. 세 명이 계층별로 역할을 나눴습니다.
 
 **김정욱**은 **도메인 모델과 패턴 통합**을 맡았습니다. Iteration 4에서 Composite, Factory Method, Template Method, Decorator를 교과서 구조에 맞게 리팩토링하고, Reservation 클래스의 책임을 SRP에 따라 분리했습니다.
 **이재호**는 **경계, 즉 UI 계층**입니다. JavaFX FXML 화면 전체와 app.css, 그리고 각 화면을 패턴에 연결하는 작업을 했습니다.
-**김경동**은 **제어와 외부 연동, QA**입니다. Skypass 어댑터, 설정 Singleton, 그리고 JUnit 회귀 테스트를 담당했습니다.
+**김경동**은 **제어와 외부 연동, QA**입니다. Skypass 어댑터, 설정 Singleton, 그리고 컴파일 검증과 수동 회귀 점검을 담당했습니다.
 표에서 **빨간색**으로 표시된 것이 이번 Iteration 4 작업입니다.`,
 4: `이건 전체 **기능 매핑 표**입니다. 검색, 예약 생애주기, 승객, 결제, 환불, 이벤트 알림, 좌석 선택, 공항 계층, e-Ticket, 외부 마일리지, 전역 설정, UI까지 **12개 세부 기능**이 있고요.
 
@@ -104,13 +104,13 @@ if-else 분기를 잔뜩 쌓는 대신 State 패턴을 쓴 실질적 이득이 �
 
 역할 매핑은 — **Strategy** 인터페이스가 **RefundPolicy**(calculateRefundAmount 하나), **ConcreteStrategy**가 **NoRefundPolicy / PartialRefundPolicy / FullRefundPolicy** 셋, **Context**가 **RefundHandler**입니다. RefundHandler는 strategy 필드를 들고 setStrategy로 받아 **위임만** 합니다. 여기에 저희가 하나 더 둔 게 **RefundPolicyResolver**인데, FareRule(운임 규칙)을 보고 *어떤 정책을 쓸지 결정하는 책임*만 따로 뗀 Selector입니다.
 
-이득은 명확합니다. 새 환불 정책이 생겨도 **RefundHandler는 안 고치고** ConcreteStrategy 하나만 추가, 선택 로직이 바뀌면 **Resolver 한 곳만** 손보면 됩니다. OCP + SRP죠.`,
+이득은 명확합니다. 새 환불 정책이 생기면 **ConcreteStrategy 클래스를 하나 추가**하고, 어떤 조건에서 그 정책을 고를지만 **RefundPolicyResolver**에서 확장하면 됩니다. 그래서 RefundHandler는 계속 위임 역할만 유지하고, 정책 계산과 정책 선택 책임이 분리됩니다. OCP + SRP죠.`,
 22: `Strategy 교과서 구조와 저희 구현을 비교한 화면입니다.
 
 왼쪽 교과서의 **Context → Strategy → ConcreteStrategy** 삼각 구조가, 오른쪽에서 **RefundHandler → RefundPolicy → No/Partial/FullRefundPolicy**로 그대로 대응됩니다. 교과서가 *Context가 Strategy 참조를 들고 런타임에 교체한다*고 하는 부분이, 저희 RefundHandler의 strategy 필드 + setStrategy로 구현돼 있다는 걸 짚어 주시면 됩니다.`,
 23: `Strategy 관련 **클래스 전부를 코드로** 본 화면입니다. 네 개입니다.
 
-**RefundPolicy** — calculateRefundAmount(baseAmount) 하나를 가진 Strategy 인터페이스. **No / Partial / Full RefundPolicy** — 각각 0원·절반·전액을 돌려주는 ConcreteStrategy 세 개. **RefundHandler** — Context인데, strategy 필드를 들고 있다가 setStrategy로 *런타임 교체* 후 calculateRefundAmount에 위임합니다. 마지막 **RefundPolicyResolver** — resolve(FareRule)로 운임 등급(환불 가능 여부·수수료)을 보고 적절한 ConcreteStrategy를 골라 주는 핵심 클래스입니다. 새 정책이 생기면 *여기 한 곳*만 확장하면 됩니다.`,
+**RefundPolicy** — calculateRefundAmount(baseAmount) 하나를 가진 Strategy 인터페이스. **No / Partial / Full RefundPolicy** — 각각 0원·절반·전액을 돌려주는 ConcreteStrategy 세 개. **RefundHandler** — Context인데, strategy 필드를 들고 있다가 setStrategy로 *런타임 교체* 후 calculateRefundAmount에 위임합니다. 마지막 **RefundPolicyResolver** — resolve(FareRule)로 운임 등급(환불 가능 여부·수수료)을 보고 적절한 ConcreteStrategy를 골라 주는 선택 담당 클래스입니다. 즉 새 정책은 ConcreteStrategy로 추가하고, 선택 조건은 Resolver에서 한 곳으로 모아 관리합니다.`,
 24: `**DP#3, Observer**입니다. 이벤트가 *생기는 곳*과 *반응하는 곳*을 분리했고, **pull 방식**을 썼습니다.
 
 역할은 — **Subject** 추상이 **EventPublisher**(observers 리스트 + attach·detach·notifyObservers), **Observer** 인터페이스가 **EventListener**(update() 하나). ConcreteSubject가 **TicketPurchasePublisher·PaymentProcessor·SeatHoldMonitor·FlightSchedule** 넷, ConcreteObserver가 **BusTicketPurchaseListener·ReservationAutoCancelListener·ReservationHoldListener·AffectedReservationListener** 넷입니다. 이벤트 객체는 DomainEvent를 상속한 TicketIssuedEvent·PaymentFailedEvent 등 다섯입니다.
@@ -139,88 +139,156 @@ if-else 분기를 잔뜩 쌓는 대신 State 패턴을 쓴 실질적 이득이 �
 29: `Composite 코드입니다.
 
 **AirportLocation** — 추상 Component인데, getAirports()가 *항상 공항 목록을 반환*하도록 통일했습니다. **Airport** — Leaf라서 getAirports()가 자기 자신 하나만 담아 돌려줍니다(재귀 종료점). **AirportCity** — Composite로, 자식 AirportLocation 리스트를 들고 getAirports()에서 자식 전체를 재귀적으로 평탄화합니다. 덕분에 클라이언트는 단일/다중 구분 없이 *같은 타입* 하나만 다룹니다.`,
-30: `**DP#5, Singleton**입니다. **전역 설정을 하나만 공유**하려고 썼습니다.
+30: `여기부터는 **Iteration 4에서 추가된 패턴들이 실제 앱 흐름에 어떻게 연결되는지**를 중심으로 설명드리겠습니다. 먼저 **DP#5 Singleton**입니다.
 
-대상은 **AppConfig** — 글꼴, 로캘, 통화, 테마, 좌석 메타 표시 같은 전역 설정입니다. 모든 화면이 *서로 다른 설정 인스턴스*를 보면 일관성이 깨지므로 단일 인스턴스를 강제했습니다.
+Singleton은 단순히 전역 변수를 하나 만든다는 뜻이 아니라, **시스템 전체에서 단 하나만 존재해야 하는 객체의 생성 경로를 통제**하는 패턴입니다. 저희 시스템에서는 그 대상이 **AppConfig**입니다.
 
-구현은 교과서 정석대로 — **private 생성자**로 외부 new를 막고, **static getInstance()** 로만 접근하며, **volatile instance + double-checked locking**으로 지연 초기화 + 스레드 안전을 보장합니다. 추가로 설정 변경 시 리스너에게 통지하는 addChangeListener/notifyListeners도 뒀습니다.
+AppConfig에는 글꼴, 로캘, 통화, 테마, 좌석 메타 표시처럼 여러 JavaFX 화면이 공통으로 바라봐야 하는 설정이 들어갑니다. 만약 화면마다 다른 AppConfig 인스턴스를 만들면, 어떤 화면은 한국어 통화 설정을 보고 다른 화면은 기본 설정을 보는 식으로 UI 일관성이 깨질 수 있습니다.
 
-이득은, 어느 화면에서든 *단 하나의 권위 있는 설정*을 바라보게 한 것입니다.`,
-31: `Singleton 교과서 구조와 AppConfig 구현을 비교한 화면입니다.
+그래서 AppConfig는 **private 생성자**로 외부 new를 막고, **static getInstance()** 로만 접근하게 했습니다. 또 **volatile instance + double-checked locking**으로 지연 초기화와 스레드 안전성을 함께 보장했습니다. 핵심은 모든 화면이 *하나의 권위 있는 설정 객체*를 공유한다는 점입니다.`,
+31: `이 장은 Singleton 교과서 구조와 AppConfig 구현을 1:1로 대응해서 보는 화면입니다.
 
-교과서의 *private 생성자 + static instance + getInstance* 구조가 AppConfig에 그대로 대응됩니다. 특히 volatile + double-checked locking으로 *지연 초기화하면서도 멀티스레드에서 인스턴스가 둘 생기지 않게* 한 부분을 짚어 주시면 됩니다.`,
-32: `Singleton 코드입니다. **AppConfig** 한 클래스입니다.
+교과서에서 중요한 요소는 세 가지입니다. 첫째, 외부에서 마음대로 만들지 못하게 하는 **private constructor**. 둘째, 클래스 내부에 보관하는 **static instance**. 셋째, 그 인스턴스를 돌려주는 **getInstance()** 입니다.
 
-volatile instance 필드, 외부 new를 막는 **private AppConfig()** 생성자, 그리고 getInstance()의 **double-checked locking**(instance==null 두 번 검사 + synchronized)이 핵심입니다. 여기에 fontFamily·displayLocale·currency·modernTheme 같은 공유 상태와, 변경 통지용 listeners·notifyListeners까지 한 클래스에 모았습니다.`,
-33: `**DP#6, Factory Method**입니다. **결제와 여정 생성**에 썼고, Extract Class 리팩토링도 함께 했습니다.
+저희 구현도 그대로 대응됩니다. 오른쪽에서 AppConfig가 유일 인스턴스를 들고 있고, 화면이나 컨트롤러는 직접 new 하지 않고 getInstance()로만 설정에 접근합니다. 특히 double-checked locking을 넣은 이유는, 앱이 커져서 여러 화면이 동시에 설정을 요청하더라도 인스턴스가 둘 생기지 않도록 하기 위해서입니다.
 
-문제는, 결제 수단이 카드·ApplePay·KakaoPay·계좌이체·마일리지 다섯인데, 호출부에서 *타입 분기로 객체를 생성*하면 수단 추가마다 분기를 고쳐야 합니다.
+발표 때는 이 부분을 이렇게 정리하면 됩니다. "Singleton은 기능을 화려하게 만드는 패턴이라기보다, 여러 화면이 같은 설정을 안정적으로 공유하게 만드는 기반 패턴입니다."`,
+32: `Singleton 코드입니다. 여기서는 **AppConfig.java 한 클래스**만 보면 됩니다.
 
-역할은 — **Creator** 추상이 **PaymentMethodProcessor**, **ConcreteCreator**가 다섯 개 Processor(CreditCard/KakaoPay/ApplePay/BankTransfer/Mileage), **Product** 추상이 **Payment**, **ConcreteProduct**가 다섯 개 Payment입니다. 각 ConcreteCreator가 **팩토리 메서드를 override해 자기 ConcreteProduct를 생성**합니다. 같은 구조를 **ItineraryFactory → Direct/Connecting/MultiCity**(여정 생성)에도 적용했습니다.
+첫 번째로 볼 것은 **private AppConfig()** 입니다. 생성자가 private라서 외부 클래스는 new AppConfig()를 할 수 없습니다. 두 번째는 **volatile instance**입니다. 멀티스레드 환경에서 instance 값이 잘못 캐시되는 것을 막기 위한 장치입니다.
 
-이득은, 새 결제 수단 = *ConcreteCreator + ConcreteProduct 한 쌍 추가*면 끝, 호출부 타입 분기가 사라집니다.`,
-34: `Factory Method 교과서 구조와 구현을 비교한 화면입니다.
+세 번째가 핵심인 **getInstance()** 입니다. instance가 null인지 한 번 확인하고, synchronized 블록 안에서 다시 한 번 확인한 뒤 처음 한 번만 생성합니다. 이것이 double-checked locking입니다.
 
-교과서의 **Creator / ConcreteCreator / Product / ConcreteProduct** 네 역할이, 저희 **PaymentMethodProcessor → 5 Processor / Payment → 5 Payment** 두 평행 계층으로 대응됩니다. 교과서가 *Creator가 팩토리 메서드를 선언하고 ConcreteCreator가 ConcreteProduct를 만든다*는 부분이 그대로 재현된 걸 짚으시면 됩니다.`,
-35: `Factory Method 코드입니다.
+그 아래에는 fontFamily, displayLocale, currency, modernTheme 같은 공유 설정과, 설정 변경을 알리기 위한 listener 목록이 있습니다. 즉 이 클래스는 단순 보관함이 아니라, 앱 전체 설정의 단일 진입점입니다.`,
+33: `이제 제가 맡은 구간인 **DP#6 Factory Method**부터 설명드리겠습니다. 앞에서는 시스템의 전역 설정과 기존 패턴 흐름을 봤고, 여기부터는 실제 데모에서 바로 확인할 수 있는 **결제 생성, 티켓 렌더링, 외부 마일리지 연동, 좌석 옵션 누적**을 차례로 보겠습니다.
 
-**PaymentMethodProcessor** — Creator 추상으로, 결제 처리 템플릿 안에서 팩토리 메서드로 Payment를 만들게 합니다. **CreditCardPaymentProcessor** — ConcreteCreator 다섯 중 하나로, 팩토리 메서드를 override해 **CreditCardPayment**(ConcreteProduct)를 생성합니다. **Payment** — Product 추상 타입. 호출부는 *어떤 ConcreteProduct가 만들어지는지 몰라도* 되고, 수단 추가는 한 쌍만 더하면 됩니다.`,
-36: `**DP#7, Template Method**입니다. **e-Ticket 렌더링**에 썼습니다.
+먼저 Factory Method는 데모의 **결제 화면**과 직접 연결됩니다.
 
-문제는, 티켓 포맷이 *평문 / HTML / 탑승권* 셋인데, **렌더 순서(header → body → footer)** 는 똑같고 *각 단계 내용만* 다릅니다.
+문제는 결제 수단이 여러 개라는 점입니다. 카드, ApplePay, KakaoPay, 계좌이체, 마일리지 결제가 있고, 앞으로 PayPal 같은 결제 수단이 추가될 수도 있습니다. 이때 호출부에 if문으로 "카드면 CardPayment 만들고, 카카오면 KakaoPayPayment 만들고..."라고 쓰면 결제 수단이 늘 때마다 호출부가 계속 바뀝니다.
 
-역할은 — **AbstractClass**가 **TicketRenderer**인데, **render()를 final 템플릿 메서드**로 두어 header→body→footer→separator 순서를 *고정*하고, header/body/footer를 **abstract hook**으로 선언합니다. **ConcreteClass**가 PlainTextTicketRenderer·HtmlTicketRenderer·BoardingPassRenderer 셋으로, *훅만 override*합니다.
+그래서 결제 객체 생성을 각 결제 Processor에게 맡겼습니다. **PaymentMethodProcessor**가 Creator이고, **CreditCardPaymentProcessor / KakaoPayPaymentProcessor / ApplePayPaymentProcessor / BankTransferPaymentProcessor / MileagePaymentProcessor**가 ConcreteCreator입니다. Product는 **Payment**, ConcreteProduct는 각각의 Payment 클래스입니다.
 
-이득은, *렌더 골격(순서)은 한 곳에 고정*하고 포맷별 차이는 훅으로만 표현 — 새 포맷이 생겨도 순서 로직은 건드리지 않습니다.`,
-37: `Template Method 교과서 구조와 구현을 비교한 화면입니다.
+같은 아이디어를 여정 생성에도 적용했습니다. **ItineraryFactory** 아래에 Direct, Connecting, MultiCity factory를 두어서 직항·경유·다구간 여정 생성도 분기 대신 팩토리로 처리합니다.
 
-교과서의 *AbstractClass가 templateMethod에서 primitiveOperation들을 호출하고, ConcreteClass가 그것만 구현한다*는 구조가, 저희 **TicketRenderer.render()(final) → header/body/footer(abstract) → 3개 렌더러**로 대응됩니다. render가 final이라 *순서를 하위에서 못 바꾼다*는 점을 짚으시면 됩니다.`,
+데모에서는 결제 수단을 고를 때, 사용자는 버튼만 누르지만 내부적으로는 선택된 ConcreteCreator가 자기 Payment 객체를 만들어 내는 구조라고 연결해서 보시면 됩니다. 즉 화면의 선택지는 UI이고, 실제 객체 생성 책임은 Factory Method 구조가 담당합니다.`,
+34: `Factory Method 교과서 구조와 구현 비교입니다.
+
+교과서의 핵심은 **Creator가 Product를 직접 new 하지 않고, factory method를 통해 생성 책임을 하위 클래스로 미룬다**는 것입니다. 오른쪽 구현에서는 이 구조가 **PaymentMethodProcessor → 각 PaymentProcessor → 각 Payment**로 대응됩니다.
+
+중요한 표현은 "결제 처리 흐름은 공통으로 유지하고, 어떤 결제 객체를 만들지는 하위 Processor가 결정한다"입니다. 이렇게 하면 결제 승인, 상태 갱신, 로그 출력 같은 공통 처리 흐름은 한곳에 두고, 결제 수단별 차이는 createPayment() override에만 모을 수 있습니다.
+
+즉 Factory Method는 단순 생성 패턴이 아니라, **생성 책임과 사용 책임을 분리해서 결제 수단 확장을 쉽게 만든 패턴**입니다.`,
+35: `Factory Method 코드입니다. 여기서는 세 덩어리만 보면 됩니다.
+
+첫째, **PaymentMethodProcessor**입니다. 이 클래스가 Creator 역할이고, 결제 처리 흐름 안에서 **createPayment()** 를 호출합니다. 중요한 점은 createPayment()가 무인자 팩토리 메서드라는 것입니다. 먼저 수단에 맞는 Payment를 만들고, 공통 stamp 과정에서 금액과 시간 같은 공통 정보를 채웁니다.
+
+둘째, **CreditCardPaymentProcessor** 같은 ConcreteCreator입니다. 이 클래스는 createPayment()를 override해서 CreditCardPayment를 반환합니다. KakaoPay, ApplePay, BankTransfer, Mileage도 같은 방식입니다.
+
+셋째, **Payment** 계층입니다. 호출부는 구체 결제 클래스가 무엇인지 몰라도 Payment 타입으로 처리합니다. 그래서 데모에서 결제 수단을 바꿔도 화면 흐름은 그대로이고, 내부 생성 객체만 바뀝니다.`,
+36: `다음은 **DP#7 Template Method**입니다. 적용 위치는 **e-Ticket 렌더링**입니다.
+
+티켓은 평문, HTML, 탑승권 스타일처럼 여러 포맷으로 보여줄 수 있습니다. 그런데 포맷이 달라도 렌더링 순서는 거의 같습니다. 먼저 header를 만들고, body를 만들고, footer를 붙입니다. 달라지는 것은 각 단계의 내용입니다.
+
+그래서 **TicketRenderer**에 final render() 메서드를 두었습니다. 이 render()가 header → body → footer 순서를 고정합니다. 하위 클래스인 **PlainTextTicketRenderer**, **HtmlTicketRenderer**, **BoardingPassRenderer**는 각 단계의 구체 내용만 override합니다.
+
+즉 Template Method는 "흐름은 부모가 고정하고, 세부 단계는 자식이 바꾼다"는 패턴입니다. 데모에서 e-Ticket을 확인할 때, 같은 예약 데이터를 여러 형식으로 보여줄 수 있는 이유가 이 구조입니다.`,
+37: `Template Method 교과서 구조와 구현 비교입니다.
+
+교과서에서는 AbstractClass가 templateMethod()를 가지고, 그 안에서 primitiveOperation들을 정해진 순서로 호출합니다. 저희 구현에서는 **TicketRenderer.render()** 가 templateMethod이고, header(), body(), footer()가 primitive operation 역할입니다.
+
+중요한 점은 render()가 **final**이라는 것입니다. 하위 렌더러가 header나 body 내용은 바꿀 수 있지만, 렌더링 순서 자체는 바꿀 수 없습니다. 그래서 티켓 출력 형식이 늘어나도 전체 형식의 안정성은 유지됩니다.
+
+발표에서는 "포맷 다양성은 허용하지만, 티켓 렌더링 골격은 흔들리지 않게 했다"고 설명하면 좋습니다.`,
 38: `Template Method 코드입니다.
 
-**TicketRenderer** — AbstractClass. **public final String render()** 가 템플릿 메서드로, header()→body()→footer()를 *정해진 순서로* 호출하고 그 사이 separator를 끼웁니다. final이라 하위가 순서를 못 바꿉니다. **PlainTextTicketRenderer** — ConcreteClass로, header/body/footer 훅만 평문용으로 구현합니다. HTML·탑승권 렌더러도 같은 골격에 내용만 다릅니다.`,
-39: `**DP#8, Adapter**입니다. **외부 Skypass 마일리지 API 연동**에 썼습니다.
+먼저 **TicketRenderer**를 보면 public final String render()가 있습니다. 이 메서드가 header(), body(), footer()를 정해진 순서로 호출하고, 중간 separator까지 처리합니다. 여기서 final이 붙어 있기 때문에 하위 클래스가 렌더 순서를 바꿀 수 없습니다.
 
-문제는, Skypass는 **우리가 만들거나 고칠 수 없는 legacy 외부 시스템**이고, 응답이 우리 도메인과 다른 형식(예: Map)으로 옵니다. 이걸 우리 코드가 직접 쓰면 외부 형식에 오염됩니다.
+그 다음 **PlainTextTicketRenderer** 같은 ConcreteClass를 보면 header/body/footer의 내용만 포맷에 맞게 구현합니다. HTML 렌더러와 BoardingPass 렌더러도 같은 방식입니다.
 
-역할은 — **Target**(우리가 원하는 인터페이스)이 **SkypassInterface**, **Adapter**가 **SkypassAdapter**, **Adaptee**(수정 불가 legacy)가 **RemoteSkypassApi**입니다. SkypassAdapter는 SkypassInterface를 implements하면서 내부에 adaptee 필드로 RemoteSkypassApi를 들고, 클라이언트 호출을 *adaptee 호출로 변환* — 예를 들어 외부의 **Map 응답을 도메인 boolean으로** 바꿔 줍니다.
+데모에서는 발권 후 e-Ticket 화면을 보여주면서, "화면에 보이는 티켓은 단순 문자열 조합이 아니라 TicketRenderer의 템플릿 흐름을 따라 생성됩니다"라고 연결하면 됩니다.`,
+39: `다음은 **DP#8 Adapter**입니다. 여기서는 외부 Skypass 마일리지 API를 연결합니다.
 
-이득은, 애플리케이션이 *legacy의 Map 구조를 전혀 몰라도* 되고, 외부 API가 바뀌어도 *Adapter 한 곳만* 고치면 됩니다. legacy 격리죠.`,
-40: `Adapter 교과서 구조와 구현을 비교한 화면입니다.
+문제는 Skypass가 우리가 직접 설계한 도메인 객체가 아니라는 점입니다. 외부 legacy system은 응답을 Map 같은 형태로 줄 수 있고, 메서드 이름이나 반환 타입도 우리 앱이 원하는 구조와 다를 수 있습니다. 이런 외부 형식을 결제 코드가 직접 알게 되면, 외부 API가 바뀔 때마다 앱 전체가 영향을 받습니다.
 
-교과서의 **Target / Adapter / Adaptee** 삼각이, 저희 **SkypassInterface / SkypassAdapter / RemoteSkypassApi**로 대응됩니다. 교과서가 *Adapter가 Target을 구현하면서 Adaptee를 감싸 호출을 변환한다*고 하는 부분이, SkypassAdapter의 adaptee 필드 + Map→boolean 변환으로 구현된 걸 짚으시면 됩니다.`,
+그래서 저희는 앱 내부가 원하는 인터페이스를 **SkypassInterface**로 정의하고, 실제 외부 API는 **RemoteSkypassApi**로 두었습니다. 그 사이에서 **SkypassAdapter**가 Target과 Adaptee를 연결합니다.
+
+예를 들어 외부 API가 Map으로 응답해도, Adapter가 그것을 boolean이나 mileage balance처럼 우리 도메인이 쓰기 좋은 값으로 바꿔 줍니다. 데모에서 마일리지 결제를 보여줄 때, 이 부분이 Skypass 외부 시스템을 내부 결제 흐름에 자연스럽게 끼워 넣는 지점입니다.`,
+40: `Adapter 교과서 구조와 구현 비교입니다.
+
+교과서의 **Target**은 클라이언트가 기대하는 인터페이스입니다. 저희 구현에서는 **SkypassInterface**입니다. **Adaptee**는 이미 존재하지만 형식이 맞지 않는 외부 객체이고, 여기서는 **RemoteSkypassApi**입니다. 그리고 **Adapter**가 **SkypassAdapter**입니다.
+
+핵심은 클라이언트가 RemoteSkypassApi를 직접 부르지 않는다는 점입니다. 클라이언트는 SkypassInterface만 보고, Adapter가 내부에서 adaptee.postDeduct 같은 외부 호출을 대신 수행합니다.
+
+그래서 Adapter는 "외부 시스템을 우리 코드에 맞춘다"기보다, 더 정확히는 **우리 코드를 외부 시스템의 지저분한 형식으로부터 보호한다**고 설명하면 좋습니다.`,
 41: `Adapter 코드입니다.
 
-**SkypassInterface** — 우리가 원하는 Target 인터페이스(verifyMembership·getMileageBalance·deductMileage·verifyAndDeduct). **RemoteSkypassApi** — 수정 불가한 **legacy 외부 시스템**(Adaptee). **SkypassAdapter** — SkypassInterface를 implements하면서 adaptee로 RemoteSkypassApi를 들고, 클라이언트 호출을 adaptee 호출로 **변환**합니다(외부 Map 응답 → 도메인 boolean). 애플리케이션은 이 변환 덕에 외부 형식을 몰라도 됩니다.`,
-42: `**DP#9, Decorator**입니다. **좌석 부가옵션을 런타임에 누적**하려고 썼습니다.
+**SkypassInterface**는 우리 앱이 원하는 Target입니다. verifyMembership, getMileageBalance, deductMileage, verifyAndDeduct처럼 도메인 친화적인 메서드가 있습니다.
 
-문제는, 좌석에 *창측 / 통로 / 추가 레그룸 / 라운지* 같은 옵션을 *자유롭게 겹쳐* 붙이고 그때마다 요금·설명이 누적돼야 하는데, 조합을 클래스로 다 만들면 폭발합니다.
+**RemoteSkypassApi**는 수정할 수 없는 legacy 외부 시스템 역할입니다. 응답이 Map 형태라서 그대로 쓰면 결제 로직이 외부 응답 구조에 오염됩니다.
 
-역할은 — **Component** 추상이 **SeatView**(getSurcharge·getDescription 등), **ConcreteComponent**가 **BaseSeatView**, **Decorator** 추상이 **AbstractSeatDecorator**(감싼 component를 들고 위임), **ConcreteDecorator**가 WindowSeatDecorator·AisleSeatDecorator·ExtraLegroomDecorator·LoungeAccessDecorator 넷입니다.
+**SkypassAdapter**는 이 둘 사이의 변환기입니다. SkypassInterface를 implements하고 내부에 RemoteSkypassApi를 들고 있습니다. 외부 API를 호출한 뒤 Map 응답에서 필요한 값을 꺼내 boolean이나 잔여 마일리지 같은 도메인 값으로 바꿉니다.
 
-동작은, 각 데코레이터가 **super(감싼 객체)에 먼저 위임해 안쪽 결과를 받은 뒤** 자기 요금/라벨을 *더합니다*. 그래서 옵션을 겹칠수록 요금이 자연스럽게 누적됩니다.
+데모에서는 마일리지 결제를 할 때 "화면은 마일리지를 차감한다고만 보이지만, 내부에서는 Adapter가 외부 Skypass 응답을 우리 결제 흐름에 맞게 변환하고 있습니다"라고 설명하면 됩니다.`,
+42: `마지막 신규 패턴은 **DP#9 Decorator**입니다. 적용 위치는 **좌석 부가옵션**입니다.
 
-이득은, 정적 상속 폭발 없이 *런타임에 옵션을 조립* — 창측+레그룸+라운지 같은 임의 조합을 객체를 감싸는 것만으로 표현합니다.`,
-43: `Decorator 교과서 구조와 구현을 비교한 화면입니다.
+좌석에는 창측, 통로, 추가 레그룸, 라운지 접근 같은 옵션이 붙을 수 있습니다. 문제는 옵션 조합이 많다는 것입니다. 창측+레그룸, 통로+라운지, 창측+레그룸+라운지처럼 조합마다 클래스를 만들면 클래스 수가 폭발합니다.
 
-교과서의 **Component / ConcreteComponent / Decorator / ConcreteDecorator** 네 역할이, 저희 **SeatView / BaseSeatView / AbstractSeatDecorator / 4개 좌석 데코레이터**로 대응됩니다. 교과서가 *Decorator가 Component를 감싸고 같은 인터페이스로 위임 후 동작을 더한다*는 부분이, AbstractSeatDecorator의 component 위임 + 각 데코의 요금 누적으로 구현된 걸 짚으시면 됩니다.`,
+Decorator는 이 문제를 상속이 아니라 **감싸기**로 해결합니다. 기본 좌석은 **BaseSeatView**이고, 공통 타입은 **SeatView**입니다. 각 옵션은 **AbstractSeatDecorator**를 상속한 ConcreteDecorator입니다.
+
+각 데코레이터는 안쪽 SeatView에 먼저 위임해서 기존 설명과 요금을 받아온 뒤, 자기 옵션의 라벨이나 추가 요금을 더합니다. 그래서 옵션을 여러 개 겹쳐도 객체를 한 겹씩 감싸는 방식으로 자연스럽게 누적됩니다.
+
+데모에서 좌석 옵션을 고를 때 요금이 바로 올라가는 장면이 이 패턴의 가장 좋은 시연 포인트입니다.`,
+43: `Decorator 교과서 구조와 구현 비교입니다.
+
+교과서의 **Component**는 공통 인터페이스이고, 저희 구현에서는 **SeatView**입니다. **ConcreteComponent**는 기본 객체인 **BaseSeatView**입니다. **Decorator**는 감싼 Component를 보관하는 추상 클래스이고, 저희 구현에서는 **AbstractSeatDecorator**입니다. 마지막으로 창측, 통로, 레그룸, 라운지 옵션이 ConcreteDecorator입니다.
+
+중요한 점은 Decorator도 SeatView 타입이라는 것입니다. 그래서 기본 좌석이든, 옵션이 하나 붙은 좌석이든, 옵션이 여러 개 붙은 좌석이든 호출부는 모두 SeatView로 다룹니다.
+
+즉 호출부는 조합을 몰라도 되고, 옵션 객체들이 자기 역할만 덧붙입니다. 이 구조 덕분에 새 좌석 옵션을 추가할 때 기존 좌석 클래스나 화면 로직을 크게 흔들지 않아도 됩니다.`,
 44: `Decorator 코드입니다.
 
-**SeatView** — Component 추상(getSeat·getSurcharge·getDescription·getMetadataLabels). **AbstractSeatDecorator** — Decorator로, 감싼 component를 들고 *기본은 그대로 위임*합니다. **ExtraLegroomDecorator** 같은 ConcreteDecorator는 getDescription·getSurcharge를 override해서 **super 결과에 자기 요금(예 +5만)과 라벨을 누적**합니다. ConcreteComponent는 **BaseSeatView**고요. 옵션을 겹쳐 감쌀수록 요금·설명이 쌓이는 구조입니다.`,
-45: `이제 종합입니다. 이 슬라이드는 **9개 패턴(State 포함)이 따로 노는 게 아니라, 하나의 실행 가능한 흐름 안에서 함께 동작한다**는 걸 세 가지 축으로 정리한 것입니다.
+먼저 **SeatView**는 Component입니다. getSeat, getSurcharge, getDescription, getMetadataLabels 같은 공통 메서드를 제공합니다.
 
-첫째 **기능 완결도**입니다. 결제는 Factory Method, 환불은 Strategy, 발권 통지는 Observer, 좌석은 Decorator 연쇄로 *end-to-end*가 다 이어집니다.
-둘째 **재사용성**입니다. 호출부를 안 고치고 클래스 하나만 추가하면 기능이 늘어나는, OCP가 실제로 작동합니다.
-셋째 **테스트 적합성**입니다. 역할 경계가 또렷해서, Adapter 덕분에 **legacy 외부 시스템을 가짜 stub으로 바꿔치워** 테스트할 수 있고, State는 잘못된 전이를 결정적으로 거부합니다.`,
-46: `**현황과 다음 단계**입니다. 솔직하게 완료된 것과 보완할 것을 나눴습니다.
+다음 **AbstractSeatDecorator**는 감싼 SeatView component를 가지고 있습니다. 기본 구현은 대부분 component에 그대로 위임합니다. 이게 Decorator의 핵심입니다. 자신도 SeatView이면서 내부에 또 다른 SeatView를 감싸고 있습니다.
 
-**완료된 것**은 예약 조회, 취소와 환불, 결제와 마일리지, 좌석 Decorator, e-Ticket, Observer, 상태 머신, 그리고 통일된 오류 화면 메시지입니다.
-**보완이 필요한 것**도 있습니다. 버스 부가 발권이 실패했을 때 화면에 표시가 안 되는 점, 예약 후 좌석을 바꿀 때 앞단 화면을 재사용하면서 생기는 문제, 그리고 BookingController가 아직 떠안고 있는 일곱 가지 책임을 Extract Class로 *완전히* 분리하는 작업입니다. 한계를 인정하고 로드맵으로 남겼습니다.`,
-47: `여기까지입니다. 정리하면, **대한항공 예약 시스템**에 **DP#2 Strategy부터 DP#9 Decorator까지, 그리고 State 구현**을 하나의 실제 도메인 위에 통합했습니다.
+마지막으로 **ExtraLegroomDecorator** 같은 ConcreteDecorator를 보면, getSurcharge에서 super 결과에 자기 추가 요금을 더하고, getDescription에서 자기 설명을 덧붙입니다. 예를 들어 기본 좌석에 ExtraLegroom과 LoungeAccess를 차례로 감싸면, 각 데코레이터가 자기 요금을 더해서 최종 금액이 누적됩니다.
 
-들어 주셔서 감사합니다. **질문 있으면 편하게 말씀해 주세요.**`,
+이 코드는 데모에서 좌석 옵션을 체크할 때 바로 눈으로 확인할 수 있습니다.`,
+45: `이제 제가 맡은 패턴 구간을 종합하겠습니다. 이 슬라이드는 **9개 패턴이 따로 떨어진 예제가 아니라, 하나의 예약 흐름 안에서 함께 동작한다**는 점을 강조합니다.
+
+첫째, **기능 완결도**입니다. 사용자가 항공편을 검색하고, 좌석을 고르고, 결제하고, 발권하고, 필요하면 환불까지 가는 흐름 안에서 State, Factory Method, Adapter, Template Method, Observer, Decorator가 모두 실제로 관여합니다.
+
+둘째, **재사용성**입니다. 새 결제 수단은 Processor와 Payment 한 쌍을 추가하면 되고, 새 좌석 옵션은 Decorator 하나를 추가하면 됩니다. 새 알림 기능은 Listener 하나를 붙이면 됩니다. 호출부를 크게 고치지 않는다는 점에서 OCP가 실제로 드러납니다.
+
+셋째, **시연 가능성**입니다. 이 패턴들은 문서에만 있는 구조가 아니라 JavaFX 앱에서 동작합니다. 특히 제가 설명한 Factory Method, Template Method, Adapter, Decorator는 데모에서 각각 **결제 수단 선택, e-Ticket 출력, 마일리지 연동, 좌석 옵션 요금 누적**으로 바로 확인할 수 있습니다. 그래서 다음에는 실제 앱을 실행해서 이 흐름을 순서대로 보여드리겠습니다.`,
+46: `**현황과 다음 단계**입니다. 이 장을 말한 뒤 바로 데모로 넘어가면 됩니다.
+
+완료된 부분은 예약 조회, 취소와 환불, 결제와 마일리지, 좌석 Decorator, e-Ticket, Observer, 상태 머신입니다. 사용자 주요 흐름에서 발생하는 오류도 화면 메시지와 터미널 로그로 확인할 수 있게 정리했습니다.
+
+보완할 부분도 솔직히 남아 있습니다. 버스 부가 발권 실패가 화면에 충분히 드러나지 않는 점, 예약 후 좌석 변경 화면이 아직 앞단 좌석 선택 화면을 재사용하는 점, 그리고 BookingController가 가진 여러 책임을 더 작은 컨트롤러로 나누는 작업입니다.
+
+이제 제가 데모에서 보여드릴 순서는 다음과 같습니다.
+
+1. JavaFX 앱에서 항공편을 검색하고 예약을 시작합니다. 이때 터미널에서 State가 어떻게 바뀌는지 같이 봅니다.
+2. 좌석 선택 화면에서 창측, 레그룸, 라운지 같은 옵션을 켜서 **Decorator**가 요금을 누적하는 장면을 보여드립니다.
+3. 결제 화면에서 카드나 마일리지 등 결제 수단을 선택해 **Factory Method**가 결제 객체를 만드는 흐름을 설명합니다.
+4. 마일리지 결제를 선택하면 **Adapter**가 외부 Skypass 응답을 내부 결제 흐름에 맞게 변환한다고 설명합니다.
+5. 결제 완료 후 e-Ticket을 확인하면서 **Template Method**가 정해진 렌더 순서로 티켓을 만든다는 점을 보여드립니다.
+6. 발권 이후 버스 티켓 연계나 로그를 확인하면서 **Observer**와 상태 전이가 실제 실행 흐름에 이어져 있음을 확인합니다.
+
+연결 멘트는 이렇게 하면 됩니다. "지금까지는 코드와 다이어그램으로 Factory Method, Template Method, Adapter, Decorator의 구조를 봤고, 이제 같은 구조가 실제 JavaFX 앱에서 어떻게 나타나는지 보여드리겠습니다."`,
+47: `데모까지 마친 뒤 이 Q&A 슬라이드로 돌아오면 됩니다.
+
+정리하면, 저희 **대한항공 예약 시스템**은 **DP#1 State부터 DP#9 Decorator까지**를 하나의 실제 도메인 위에 통합했습니다. 중요한 점은 패턴을 많이 나열한 것이 아니라, 각 패턴이 서로 다른 책임을 맡고 실제 예약 흐름 안에서 이어진다는 것입니다.
+
+State는 예약 생애주기를 지키고, Strategy는 환불 정책을 교체 가능하게 만들고, Observer는 발권 이후 반응을 분리합니다. Composite는 공항 검색 구조를 정리하고, Singleton은 전역 설정을 하나로 통일합니다. Factory Method는 결제와 여정 생성을 분리하고, Template Method는 티켓 렌더링 순서를 고정합니다. Adapter는 외부 Skypass를 격리하고, Decorator는 좌석 옵션을 런타임에 누적합니다.
+
+들어 주셔서 감사합니다. 질문 주시면 방금 본 데모 흐름이나 각 패턴의 코드 위치를 기준으로 답변드리겠습니다.`,
 48: `(부록 — 예상 질문 대비) "왜 **Reservation** 클래스가 이렇게 비대한가?"라는 질문이 나오면 이렇게 답하면 됩니다.
 
-세 가지입니다. 첫째, Reservation은 **Aggregate Root**이면서 **State Context**입니다. State 구현체가 Reservation을 인자로 받기 때문에 Context는 Reservation이어야 자연스럽고, 데이터와 행위를 억지로 떼면 오히려 anemic model 안티패턴이 됩니다. 그래서 *God class가 아니라 의도된 설계*입니다.
-둘째, 가장 컸던 책임인 영속·조회는 이미 **ReservationRegistry**로 Extract Class 했고, findByPnr은 호환용 shim만 남았습니다.
-셋째, 남은 이중 상태 표현(status enum과 currentState)과 중복 API 정리는 *향후 저위험 과제*로 둡니다. 전면 분해는 하지 않습니다.`,
+Reservation은 분명 연결이 많은 클래스입니다. 다만 이 클래스는 단순 데이터 보관 객체가 아니라 **예약 Aggregate Root**이면서 **State 패턴의 Context**입니다. 상태 객체들이 Reservation을 인자로 받아 전이를 수행하기 때문에, 예약 생애주기의 중심이 Reservation에 있는 것은 자연스러운 구조입니다.
+
+동시에 저희도 비대해질 위험을 인식했습니다. 그래서 조회와 저장 책임은 **ReservationRegistry**로 분리했고, 환불 계산은 RefundPolicy와 RefundHandler로, 결제 생성은 PaymentMethodProcessor로, 좌석 옵션은 SeatView Decorator로 빼냈습니다. 즉 Reservation이 모든 일을 직접 하는 God class가 되지 않도록 주변 책임을 계속 분산했습니다.
+
+남은 과제도 있습니다. status enum과 currentState의 이중 표현, 일부 호환용 메서드, BookingController의 큰 책임은 다음 리팩토링 후보입니다. 그래서 답변은 "Reservation은 중심 Aggregate라 연결이 많지만, 핵심 정책과 생성, 조회 책임은 이미 분리했고 남은 중복은 향후 저위험 리팩토링으로 정리하겠습니다"라고 하면 됩니다.`,
 };
