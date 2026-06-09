@@ -50,6 +50,7 @@ window.DECK_MANIFEST = [
   { file: "slides/43.html", label: "디자인 패턴 적용 강도" },
   { file: "slides/44.html", label: "현황과 다음 단계" },
   { file: "slides/45.html", label: "질문 있나요?" },
+  { file: "slides/50.html", label: "전체 클래스 다이어그램 (부록)" },
   { file: "slides/47.html", label: "Reservation 설계 방어 (부록)" },
 ];
 

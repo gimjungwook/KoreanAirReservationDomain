@@ -218,7 +218,10 @@ volatile instance 필드, 외부 new를 막는 **private AppConfig()** 생성자
 47: `여기까지입니다. 정리하면, **대한항공 예약 시스템**에 **DP#2 Strategy부터 DP#9 Decorator까지, 그리고 State 구현**을 하나의 실제 도메인 위에 통합했습니다.
 
 들어 주셔서 감사합니다. **질문 있으면 편하게 말씀해 주세요.**`,
-48: `(부록 — 예상 질문 대비) "왜 **Reservation** 클래스가 이렇게 비대한가?"라는 질문이 나오면 이렇게 답하면 됩니다.
+48: `(부록 — 전체 클래스 다이어그램) 시스템 **전체 구조**를 한 장에 담은 도면입니다. **ECB 3계층**(Boundary / Control / Domain) 위에 **9개 GoF 패턴**이 어디에 들어가 있는지, 실제 소스 **146개 클래스 전부**를 패키지별로 보여 줍니다.
+
+질문이 *구조*나 *범위*로 들어오면 이 도면으로 짚으면 됩니다. 패턴별 세부는 앞의 DP 클래스 다이어그램들을 참고합니다.`,
+49: `(부록 — 예상 질문 대비) "왜 **Reservation** 클래스가 이렇게 비대한가?"라는 질문이 나오면 이렇게 답하면 됩니다.
 
 세 가지입니다. 첫째, Reservation은 **Aggregate Root**이면서 **State Context**입니다. State 구현체가 Reservation을 인자로 받기 때문에 Context는 Reservation이어야 자연스럽고, 데이터와 행위를 억지로 떼면 오히려 anemic model 안티패턴이 됩니다. 그래서 *God class가 아니라 의도된 설계*입니다.
 둘째, 가장 컸던 책임인 영속·조회는 이미 **ReservationRegistry**로 Extract Class 했고, findByPnr은 호환용 shim만 남았습니다.

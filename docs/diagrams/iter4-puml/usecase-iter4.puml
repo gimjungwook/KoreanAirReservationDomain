@@ -1,12 +1,26 @@
 @startuml usecase-iter4
 title Use Case Diagram — Cumulative through Iteration 4\n(red = use cases newly enabled or changed in Iteration 4)
-left to right direction
+top to bottom direction
 skinparam linetype polyline
-skinparam ranksep 55
-skinparam nodesep 40
+skinparam ranksep 110
+skinparam nodesep 95
 skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam dpi 130
+skinparam ArrowThickness 1.6
+<style>
+usecase {
+  BackgroundColor #ECECEC
+  LineColor #555555
+  LineThickness 1.4
+}
+.iter4 {
+  BackgroundColor #FFCCCC
+  LineColor #CC0000
+  LineThickness 3
+}
+</style>
+hide <<iter4>> stereotype
 
 actor "Skypass\nMember" as Member
 actor "Guest\n(non-member)" as Guest
@@ -16,33 +30,28 @@ actor "GDS" as Gds <<external>>
 actor "Payment\nGateway" as Pay <<external>>
 
 rectangle "Korean Air Reservation System" {
-  package "Core booking (iter1-2)" {
-    usecase "Search Flights" as UC_Search
-    usecase "Book Flight" as UC_Book
-    usecase "Enter Passenger Info" as UC_Pax
-    usecase "Make Payment" as UC_Pay
-    usecase "Issue e-Ticket" as UC_Ticket
-    usecase "Look up Reservation" as UC_Lookup
-    usecase "Cancel / Refund" as UC_Cancel
-  }
-  package "Itinerary (iter3)" {
-    usecase "Search Connecting Flights" as UC_Conn
-    usecase "Book Multi-city Trip" as UC_Multi
-  }
-  package "Iteration 4 additions" #FFF0F0 {
-    usecase "Pay with KakaoPay /\nApplePay / Bank transfer" as UC_PayM #FFCCCC
-    usecase "Pay with Mileage" as UC_Mile #FFCCCC
-    usecase "Configure Settings\n(font / currency / theme)" as UC_Set #FFCCCC
-    usecase "Select Seat Add-ons\n(window / legroom / lounge)" as UC_Seat #FFCCCC
-    usecase "Toggle e-Ticket Format\n(plain / HTML / boarding pass)" as UC_Fmt #FFCCCC
-    usecase "Search by City\n(grouped airports)" as UC_City #FFCCCC
-    usecase "Review Refund Queue" as UC_Refund #FFCCCC
-  }
+  usecase "Search Flights" as UC_Search
+  usecase "Book Flight" as UC_Book
+  usecase "Enter Passenger Info" as UC_Pax
+  usecase "Make Payment" as UC_Pay
+  usecase "Issue e-Ticket" as UC_Ticket
+  usecase "Look up Reservation" as UC_Lookup
+  usecase "Cancel / Refund" as UC_Cancel
+  usecase "Search Connecting Flights" as UC_Conn
+  usecase "Book Multi-city Trip" as UC_Multi
+  usecase "Pay with KakaoPay /\nApplePay / Bank transfer" as UC_PayM <<iter4>>
+  usecase "Pay with Mileage" as UC_Mile <<iter4>>
+  usecase "Configure Settings\n(font / currency / theme)" as UC_Set <<iter4>>
+  usecase "Select Seat Add-ons\n(window / legroom / lounge)" as UC_Seat <<iter4>>
+  usecase "Toggle e-Ticket Format\n(plain / HTML / boarding pass)" as UC_Fmt <<iter4>>
+  usecase "Search by City\n(grouped airports)" as UC_City <<iter4>>
+  usecase "Review Refund Queue" as UC_Refund <<iter4>>
 }
 
 Member --> UC_Search
 Member --> UC_Book
 Guest --> UC_Book
+Guest --> UC_Search
 Member --> UC_Lookup
 Member --> UC_Cancel
 Member --> UC_Conn
