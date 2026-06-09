@@ -115,12 +115,20 @@ Payment <|-- KakaoPayPayment
 Payment <|-- ApplePayPayment
 Payment <|-- BankTransferPayment
 Payment <|-- MileagePayment
-PaymentMethodProcessor ..> Payment : createPayment()
+PaymentMethodProcessor ..> Payment : factoryMethod()
+CreditCardPaymentProcessor ..> CreditCardPayment : creates
+KakaoPayPaymentProcessor ..> KakaoPayPayment : creates
+ApplePayPaymentProcessor ..> ApplePayPayment : creates
+BankTransferPaymentProcessor ..> BankTransferPayment : creates
+MileagePaymentProcessor ..> MileagePayment : creates
 ItineraryFactory <|-- DirectItineraryFactory
 ItineraryFactory <|-- ConnectingItineraryFactory
 ItineraryFactory <|-- MultiCityItineraryFactory
 Itinerary <|-- DirectItinerary
 Itinerary <|-- ConnectingItinerary
 Itinerary <|-- MultiCityItinerary
-ItineraryFactory ..> Itinerary : createItinerary()
+ItineraryFactory ..> Itinerary : factoryMethod()
+DirectItineraryFactory ..> DirectItinerary : creates
+ConnectingItineraryFactory ..> ConnectingItinerary : creates
+MultiCityItineraryFactory ..> MultiCityItinerary : creates
 @enduml

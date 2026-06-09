@@ -3,6 +3,19 @@
 // index.html / presenter.html 공용 단일 소스
 // ═══════════════════════════════════════════════════════
 window.DECK_MANIFEST = [
+  { file: "slides/d01.html", label: "심화: Decorator 개요" },
+  { file: "slides/d02.html", label: "심화: Decorator 클래스 구조·역할" },
+  { file: "slides/d03.html", label: "심화: Component (SeatView)" },
+  { file: "slides/d04.html", label: "심화: ConcreteComponent (BaseSeatView)" },
+  { file: "slides/d05.html", label: "심화: Decorator (AbstractSeatDecorator)" },
+  { file: "slides/d06.html", label: "심화: Decorator A (Window)" },
+  { file: "slides/d07.html", label: "심화: Decorator B (Aisle)" },
+  { file: "slides/d08.html", label: "심화: Decorator C (ExtraLegroom)" },
+  { file: "slides/d09.html", label: "심화: Decorator D (LoungeAccess)" },
+  { file: "slides/d10.html", label: "심화: Client 조립 (SeatViewBuilder)" },
+  { file: "slides/d11.html", label: "심화: Decorator Sequence" },
+  { file: "slides/d12.html", label: "심화: Decorator 런타임 구조·누적" },
+  { file: "slides/d13.html", label: "심화: Decorator 감싸는 구조 (인포그래픽)" },
   { file: "slides/01.html", label: "대한항공 예약 시스템" },
   { file: "slides/02.html", label: "목차" },
   { file: "slides/03.html", label: "Team Contribution" },

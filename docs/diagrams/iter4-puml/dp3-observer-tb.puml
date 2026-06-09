@@ -1,0 +1,34 @@
+@startuml dp3-observer-tb
+!include _style.puml
+title DP#3 Observer (교과서 대응 · 그림 9-4)
+abstract class EventPublisher <<Subject>> {
+  -observers: List<EventListener>
+  --
+  +attach(): void
+  +detach(): void
+  +subscriberCount(): int
+  +notifyObservers(): void
+}
+interface EventListener <<Observer>> {
+  +update(): void
+}
+class TicketPurchasePublisher <<ConcreteSubject>> {
+  -subjectState: TicketIssuedEvent
+  --
+  +getState(): TicketIssuedEvent
+  +setState(): void
+  +publishTicketIssued(): void
+}
+class BusTicketPurchaseListener <<ConcreteObserver>> {
+  -busTicketingService: BusTicketingService
+  -subject: TicketPurchasePublisher
+  --
+  +setSubject(): void
+  +getSubject(): TicketPurchasePublisher
+  +update(): void
+}
+EventPublisher "1" -right-> "*" EventListener : -observers
+EventPublisher <|-- TicketPurchasePublisher
+EventListener <|.. BusTicketPurchaseListener
+BusTicketPurchaseListener --> TicketPurchasePublisher : -subject
+@enduml

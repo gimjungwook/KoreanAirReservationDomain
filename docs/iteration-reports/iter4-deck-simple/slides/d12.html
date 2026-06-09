@@ -1,0 +1,35 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>런타임 객체 구조 · 누적</title><style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Apple SD Gothic Neo','Pretendard','Helvetica Neue',system-ui,sans-serif}
+body{width:1920px;height:1080px;overflow:hidden;background:#ffffff;color:#1a1a1a}
+.slide{padding:64px 96px 56px;height:100%;display:flex;flex-direction:column}
+.kick{font-size:21px;letter-spacing:.3em;color:#0b4a8f;font-weight:800;margin-bottom:12px}
+h1{font-size:54px;font-weight:300;line-height:1.05;letter-spacing:-1.5px;display:flex;align-items:center;gap:18px}
+h1 b{font-weight:800}
+.te{font-size:48px;line-height:1}
+.sub{font-size:24px;color:#5a6472;margin-top:11px;font-weight:400}
+.rule{height:5px;width:96px;background:#0b4a8f;border-radius:3px;margin:18px 0 0}
+.body{flex:1;min-height:0;display:flex;gap:54px;padding-top:30px}
+.col{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.spread{justify-content:center;gap:30px}
+.pt{display:flex;gap:18px;align-items:flex-start}
+.pt .ico{font-size:30px;flex:0 0 46px;line-height:1.3;text-align:center}
+.pt .t{font-size:22px;line-height:1.62;color:#2c3540}
+.pt .t b{color:#1a1a1a;font-weight:700}
+.cc{background:#1e1e22;border-radius:13px;overflow:hidden;box-shadow:0 14px 34px rgba(20,30,50,.2);width:100%}
+.cc .h{padding:13px 24px;font:700 16px/1 'JetBrains Mono','SF Mono',monospace;color:#e8e8ea;background:#2d2d33;letter-spacing:.02em}
+.cc .h .r{color:#8fb6e6;font-weight:400}
+.cc pre{padding:18px 24px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:15px;line-height:1.55;color:#d4d4d4;white-space:pre;overflow:hidden}
+.cc .cm{color:#6a9955}.cc .an{color:#dcdcaa}
+.foot{margin-top:auto;padding-top:16px;border-top:1px solid #d7dde5;display:flex;justify-content:space-between;font-size:18px;color:#9aa3ad;letter-spacing:.03em}
+.lead{font-size:25px;font-weight:300;line-height:1.55;color:#2a3340;letter-spacing:-.3px}
+.lead b{font-weight:700;color:#1a1a1a}
+.pill{border:1.5px solid #9fc0e8;background:#eef4fb;border-radius:14px;padding:12px 16px;font-size:19px;font-weight:700;color:#0b4a8f;text-align:center;white-space:nowrap;min-width:104px}
+.redpill{border:1.5px solid #e3a8af;background:#fdeaec;color:#c0202a}
+.inkpill{background:#1e1e22;color:#fff;border:none}
+.gpill{background:#fff;border:1.5px solid #cdd2d8;color:#333}
+.op{font-size:24px;color:#b9bec6;font-weight:300;align-self:center}
+.fr{display:flex;gap:11px;align-items:center}
+.fr .lbl{flex:0 0 58px;font-size:19px;color:#0b4a8f;font-weight:700}
+.card{background:#f7f9fc;border:1px solid #e4eaf1;border-radius:14px;padding:20px 24px}
+</style></head><body><div class="slide"><div class="kick">런타임 객체 구조 · 누적</div><h1><span class="te">🧮</span><span>감싸기 체인이 <b>그 좌석의 상태</b>다</span></h1><div class="sub">비즈니스 · 창가 · 레그룸 좌석 예시</div><div class="rule"></div><div class="body" style="flex-direction:column;gap:30px;padding-top:22px"><div class="cc"><div class="h">런타임 객체 <span class="r">(안 → 밖)</span></div><pre>Lounge( Legroom( Window( BaseSeatView ) ) )
+  +80,000   +50,000   +0       0  ← 시작</pre></div><div style="display:flex;gap:46px"><div class="card" style="flex:1.25"><div style="font-size:20px;font-weight:800;color:#0b4a8f;margin-bottom:16px">💰 getSurcharge() — 한 겹씩 누적</div><div style="display:flex;gap:9px"><div style="flex:1;background:#fff;border:1.5px solid #d7dde5;border-radius:12px;padding:13px 6px;text-align:center"><div style="font-size:15px;color:#5a6472;font-weight:600">Base</div><div style="font-size:21px;font-weight:800;color:#1a1a1a;margin-top:4px">0원</div></div><div style="align-self:center;font-size:20px;color:#b9bec6">→</div><div style="flex:1;background:#fff;border:1.5px solid #d7dde5;border-radius:12px;padding:13px 6px;text-align:center"><div style="font-size:15px;color:#5a6472;font-weight:600">+창가</div><div style="font-size:21px;font-weight:800;color:#1a1a1a;margin-top:4px">0원</div></div><div style="align-self:center;font-size:20px;color:#b9bec6">→</div><div style="flex:1;background:#fff;border:1.5px solid #d7dde5;border-radius:12px;padding:13px 6px;text-align:center"><div style="font-size:15px;color:#5a6472;font-weight:600">+레그룸</div><div style="font-size:21px;font-weight:800;color:#1a1a1a;margin-top:4px">50,000</div></div><div style="align-self:center;font-size:20px;color:#b9bec6">→</div><div style="flex:1;background:#fdeaec;border:1.5px solid #e3a8af;border-radius:12px;padding:13px 6px;text-align:center"><div style="font-size:15px;color:#5a6472;font-weight:600">+라운지</div><div style="font-size:21px;font-weight:800;color:#c0202a;margin-top:4px">130,000원</div></div></div></div><div class="card" style="flex:1"><div style="font-size:20px;font-weight:800;color:#0b4a8f;margin-bottom:12px">🏷️ 함께 완성되는 문구·태그</div><div style="font-size:20px;line-height:1.7;color:#2c3540">문구 → <i>12A (BUSINESS) · 창가 · 레그룸 · 라운지</i><br>태그 → <i>[Window, ExtraLegroom, Lounge]</i></div></div></div><div class="lead">이렇게 <b>겹겹이 감싸인 객체 구조 그 자체가 바로 그 좌석의 현재 상태</b>입니다. 어떤 옵션을 켜거나 끄는 일은 곧 객체를 한 겹 더 씌우거나 한 겹 벗기는 것과 같고, 그 과정에서 기존 클래스는 단 한 줄도 고치지 않습니다. 덕분에 옵션 조합이 아무리 늘어나도 기존 코드를 건드리지 않는 개방-폐쇄 원칙(OCP)이 자연스럽게 지켜집니다.</div></div><div class="foot"><span>domain.flight.seatview</span><span>OODP · Iteration 4 · DP#9</span></div></div></body></html>

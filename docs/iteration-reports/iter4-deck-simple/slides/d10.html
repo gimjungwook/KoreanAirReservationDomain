@@ -1,0 +1,51 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>CLIENT · 조립</title><style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Apple SD Gothic Neo','Pretendard','Helvetica Neue',system-ui,sans-serif}
+body{width:1920px;height:1080px;overflow:hidden;background:#ffffff;color:#1a1a1a}
+.slide{padding:64px 96px 56px;height:100%;display:flex;flex-direction:column}
+.kick{font-size:21px;letter-spacing:.3em;color:#0b4a8f;font-weight:800;margin-bottom:12px}
+h1{font-size:54px;font-weight:300;line-height:1.05;letter-spacing:-1.5px;display:flex;align-items:center;gap:18px}
+h1 b{font-weight:800}
+.te{font-size:48px;line-height:1}
+.sub{font-size:24px;color:#5a6472;margin-top:11px;font-weight:400}
+.rule{height:5px;width:96px;background:#0b4a8f;border-radius:3px;margin:18px 0 0}
+.body{flex:1;min-height:0;display:flex;gap:54px;padding-top:30px}
+.col{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.spread{justify-content:center;gap:30px}
+.pt{display:flex;gap:18px;align-items:flex-start}
+.pt .ico{font-size:30px;flex:0 0 46px;line-height:1.3;text-align:center}
+.pt .t{font-size:22px;line-height:1.62;color:#2c3540}
+.pt .t b{color:#1a1a1a;font-weight:700}
+.cc{background:#1e1e22;border-radius:13px;overflow:hidden;box-shadow:0 14px 34px rgba(20,30,50,.2);width:100%}
+.cc .h{padding:13px 24px;font:700 16px/1 'JetBrains Mono','SF Mono',monospace;color:#e8e8ea;background:#2d2d33;letter-spacing:.02em}
+.cc .h .r{color:#8fb6e6;font-weight:400}
+.cc pre{padding:18px 24px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:15px;line-height:1.5;color:#d4d4d4;white-space:pre;overflow:hidden}
+.cc .cm{color:#6a9955}.cc .an{color:#dcdcaa}
+.cc .note{color:#e6b34d;font-weight:700;background:rgba(230,179,77,.1);border-radius:4px;padding:0 4px}
+.foot{margin-top:auto;padding-top:16px;border-top:1px solid #d7dde5;display:flex;justify-content:space-between;font-size:18px;color:#9aa3ad;letter-spacing:.03em}
+.lead{font-size:25px;font-weight:300;line-height:1.55;color:#2a3340;letter-spacing:-.3px}
+.lead b{font-weight:700;color:#1a1a1a}
+.pill{border:1.5px solid #9fc0e8;background:#eef4fb;border-radius:14px;padding:12px 16px;font-size:19px;font-weight:700;color:#0b4a8f;text-align:center;white-space:nowrap;min-width:104px}
+.redpill{border:1.5px solid #e3a8af;background:#fdeaec;color:#c0202a}
+.inkpill{background:#1e1e22;color:#fff;border:none}
+.gpill{background:#fff;border:1.5px solid #cdd2d8;color:#333}
+.op{font-size:24px;color:#b9bec6;font-weight:300;align-self:center}
+.fr{display:flex;gap:11px;align-items:center}
+.fr .lbl{flex:0 0 58px;font-size:19px;color:#0b4a8f;font-weight:700}
+.card{background:#f7f9fc;border:1px solid #e4eaf1;border-radius:14px;padding:20px 24px}
+</style></head><body><div class="slide"><div class="kick">CLIENT · 조립</div><h1><span class="te">🏗️</span><span><b>SeatViewBuilder</b></span></h1><div class="sub">좌석 정보를 보고 옵션을 한 겹씩 자동으로 쌓는다</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="col" style="justify-content:center"><div class="cc"><div class="h">SeatViewBuilder.java <span class="r">· Client</span></div><pre>public final class SeatViewBuilder {
+
+    private SeatViewBuilder() {}
+
+    public static SeatView decorate(Seat seat) {
+        SeatView view = new BaseSeatView(seat);          <span class="cm">// 기본 좌석에서 출발</span>
+        <span class="note">// ▸ ★ view 를 한 겹 더 감쌈 — 이 한 줄이 조립의 핵심</span>
+        if (seat.isWindowSeat())     view = new WindowSeatDecorator(view);
+        else if (seat.isAisleSeat()) view = new AisleSeatDecorator(view);   <span class="cm">// 창가/통로 중 하나만</span>
+        if (seat.isExtraLegroom())   view = new ExtraLegroomDecorator(view);
+        CabinClass cc = seat.getCabinClass();
+        <span class="note">// ▸ 상위 등급이면 라운지 자동</span>
+        if (cc == CabinClass.BUSINESS || cc == CabinClass.FIRST)
+            view = new LoungeAccessDecorator(view);
+        return view;   <span class="cm">// 여러 겹 감싸인 SeatView 하나</span>
+    }
+}</pre></div></div><div class="col spread" style="padding:6px 0"><div class="card"><div style="display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap"><div class="pill inkpill">① Base</div><div class="op">→</div><div class="pill">② +Window</div><div class="op">→</div><div class="pill redpill">③ +Legroom</div><div class="op">→</div><div class="pill redpill">④ +Lounge</div></div></div><div class="pt"><div class="ico">🧅</div><div class="t">핵심은 <span style='color:#0b4a8f;font-weight:700'>view = new XxxDecorator(view)</span> 한 줄입니다. 지금까지 만든 좌석을 새 옵션으로 감싼 뒤 다시 view에 담아, <b>한 줄마다 바깥이 한 겹 두꺼워집니다.</b></div></div><div class="pt"><div class="ico">🎚️</div><div class="t">어떤 옵션을 씌울지는 좌석 정보가 결정합니다. 창가/통로는 if-else로 묶여 동시에 붙지 않고, 라운지는 등급이 비즈니스·퍼스트일 때 <b>자동으로</b> 붙습니다.</div></div><div class="pt"><div class="ico">🎁</div><div class="t">이게 <b>Client</b>인 이유입니다. 조립이 끝나면 화면은 결과인 <b>SeatView 하나</b>만 받아 쓰면 되고, 조립의 복잡함은 모두 이 한 곳에 갇힙니다.</div></div></div></div><div class="foot"><span>domain.flight.seatview</span><span>OODP · Iteration 4 · DP#9</span></div></div></body></html>

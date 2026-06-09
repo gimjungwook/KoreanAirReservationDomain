@@ -24,7 +24,9 @@ class RemoteSkypassApi <<Adaptee>> #FFCCCC {
   +getMileage(): Map<String,Object>
   +postDeduct(): Map<String,Object>
 }
+class PaymentController <<Client>>
+PaymentController -right-> SkypassInterface : 마일리지 잔액/결제
 SkypassInterface <|.. SkypassAdapter
-SkypassAdapter o--> RemoteSkypassApi : adaptee
+SkypassAdapter -right-> RemoteSkypassApi : adaptee
 note bottom of SkypassAdapter : 외부 API를 우리 인터페이스로 변환
 @enduml

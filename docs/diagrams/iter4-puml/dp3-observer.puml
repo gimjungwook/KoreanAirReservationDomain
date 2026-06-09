@@ -182,7 +182,7 @@ DomainEvent <|-- ReservationStateChangedEvent
 DomainEvent <|-- FlightStatusChangedEvent
 DomainEvent <|-- SeatHoldExpiredEvent
 ' ── 통지 + Subject 역참조 ──
-EventPublisher o--> EventListener : notifies
+EventPublisher "1" --> "*" EventListener : -observers
 BusTicketPurchaseListener --> TicketPurchasePublisher : subject
 ReservationAutoCancelListener --> PaymentProcessor : subject
 ReservationHoldListener --> SeatHoldMonitor : subject

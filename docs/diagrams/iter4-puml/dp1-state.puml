@@ -1,6 +1,7 @@
 @startuml dp1-state
 !include _style.puml
 title DP#1 State - 예약 상태별 행동 캡슐화
+left to right direction
 interface ReservationState <<State>> {
   +name(): String
 }

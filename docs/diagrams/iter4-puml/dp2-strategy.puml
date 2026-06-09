@@ -1,6 +1,7 @@
 @startuml dp2-strategy
 !include _style.puml
 title DP#2 Strategy - 환불 정책 알고리즘 교체
+left to right direction
 interface RefundPolicy <<Strategy>> {
   +calculateRefundAmount(): BigDecimal
   +getRefundType(): String

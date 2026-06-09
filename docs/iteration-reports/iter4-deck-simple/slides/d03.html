@@ -1,0 +1,42 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>① COMPONENT</title><style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Apple SD Gothic Neo','Pretendard','Helvetica Neue',system-ui,sans-serif}
+body{width:1920px;height:1080px;overflow:hidden;background:#ffffff;color:#1a1a1a}
+.slide{padding:64px 96px 56px;height:100%;display:flex;flex-direction:column}
+.kick{font-size:21px;letter-spacing:.3em;color:#0b4a8f;font-weight:800;margin-bottom:12px}
+h1{font-size:54px;font-weight:300;line-height:1.05;letter-spacing:-1.5px;display:flex;align-items:center;gap:18px}
+h1 b{font-weight:800}
+.te{font-size:48px;line-height:1}
+.sub{font-size:24px;color:#5a6472;margin-top:11px;font-weight:400}
+.rule{height:5px;width:96px;background:#0b4a8f;border-radius:3px;margin:18px 0 0}
+.body{flex:1;min-height:0;display:flex;gap:54px;padding-top:30px}
+.col{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.spread{justify-content:center;gap:30px}
+.pt{display:flex;gap:18px;align-items:flex-start}
+.pt .ico{font-size:30px;flex:0 0 46px;line-height:1.3;text-align:center}
+.pt .t{font-size:22px;line-height:1.62;color:#2c3540}
+.pt .t b{color:#1a1a1a;font-weight:700}
+.cc{background:#1e1e22;border-radius:13px;overflow:hidden;box-shadow:0 14px 34px rgba(20,30,50,.2);width:100%}
+.cc .h{padding:13px 24px;font:700 16px/1 'JetBrains Mono','SF Mono',monospace;color:#e8e8ea;background:#2d2d33;letter-spacing:.02em}
+.cc .h .r{color:#8fb6e6;font-weight:400}
+.cc pre{padding:18px 24px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:15px;line-height:1.5;color:#d4d4d4;white-space:pre;overflow:hidden}
+.cc .cm{color:#6a9955}.cc .an{color:#dcdcaa}
+.cc .note{color:#e6b34d;font-weight:700;background:rgba(230,179,77,.1);border-radius:4px;padding:0 4px}
+.foot{margin-top:auto;padding-top:16px;border-top:1px solid #d7dde5;display:flex;justify-content:space-between;font-size:18px;color:#9aa3ad;letter-spacing:.03em}
+.lead{font-size:25px;font-weight:300;line-height:1.55;color:#2a3340;letter-spacing:-.3px}
+.lead b{font-weight:700;color:#1a1a1a}
+.pill{border:1.5px solid #9fc0e8;background:#eef4fb;border-radius:14px;padding:12px 16px;font-size:19px;font-weight:700;color:#0b4a8f;text-align:center;white-space:nowrap;min-width:104px}
+.redpill{border:1.5px solid #e3a8af;background:#fdeaec;color:#c0202a}
+.inkpill{background:#1e1e22;color:#fff;border:none}
+.gpill{background:#fff;border:1.5px solid #cdd2d8;color:#333}
+.op{font-size:24px;color:#b9bec6;font-weight:300;align-self:center}
+.fr{display:flex;gap:11px;align-items:center}
+.fr .lbl{flex:0 0 58px;font-size:19px;color:#0b4a8f;font-weight:700}
+.card{background:#f7f9fc;border:1px solid #e4eaf1;border-radius:14px;padding:20px 24px}
+</style></head><body><div class="slide"><div class="kick">① COMPONENT</div><h1><span class="te">📐</span><span><b>SeatView</b></span></h1><div class="sub">좌석을 4가지 관점으로 보는 공통 약속</div><div class="rule"></div><div class="body" style="align-items:stretch"><div class="col" style="justify-content:center"><div class="cc"><div class="h">SeatView.java <span class="r">· Component · abstract</span></div><pre><span class="note">// ▸ 좌석을 보는 4가지 &#x27;관점&#x27;만 약속한다 (구현은 비움)</span>
+public abstract class SeatView {
+
+    public abstract Seat getSeat();                     <span class="cm">// 좌석 본체</span>
+    public abstract String getDescription();            <span class="cm">// 화면 표시 문구</span>
+    public abstract BigDecimal getSurcharge();          <span class="cm">// 추가 요금</span>
+    public abstract List&lt;String&gt; getMetadataLabels();   <span class="cm">// 태그 목록</span>
+}</pre></div></div><div class="col spread" style="padding:6px 0"><div class="pt"><div class="ico">📐</div><div class="t">이 추상 클래스는 패턴 전체가 따르는 공통 약속입니다. 좌석을 본체·문구·요금·태그라는 <b>네 가지 관점으로만</b> 보겠다고 선언하고, 구현은 비워 둡니다.</div></div><div class="pt"><div class="ico">🔗</div><div class="t">기본 좌석과 옵션 포장지가 <b>둘 다 이 SeatView를 상속</b>합니다. 같은 타입이라 포장지가 기본 좌석을, 또 다른 포장지를 자유롭게 감쌀 수 있습니다.</div></div><div class="pt"><div class="ico">🙈</div><div class="t">그래서 화면 코드는 이 네 메서드만 알면 되고, 안에 옵션이 몇 겹 들었는지는 <b>전혀 신경 쓰지 않아도</b> 됩니다.</div></div></div></div><div class="foot"><span>domain.flight.seatview</span><span>OODP · Iteration 4 · DP#9</span></div></div></body></html>

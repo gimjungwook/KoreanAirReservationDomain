@@ -1,0 +1,43 @@
+@startuml dp6-factory-method-tb
+!include _style.puml
+title DP#6 Factory Method (교과서 대응 · 그림 12-7)
+abstract class PaymentMethodProcessor <<Creator>> #FFCCCC {
+  -paymentSequence: long
+  -gateway: PaymentGatewayInterface
+  --
+  #createPayment(): Payment
+  +method(): PaymentMethod
+  +processCharge(): Payment
+  #authorize(): boolean
+  #declineReason(): String
+  #nextPaymentId(): long
+  #stamp(): Payment
+}
+class CreditCardPaymentProcessor <<ConcreteCreator>> #FFCCCC {
+  #createPayment(): Payment
+  +method(): PaymentMethod
+}
+abstract class Payment <<Product>> {
+  -paymentId: Long
+  -amount: BigDecimal
+  -paymentMethod: PaymentMethod
+  -status: PaymentStatus
+  -paidAt: LocalDateTime
+  -refunds: List<Refund>
+  --
+  +getAmount(): BigDecimal
+  +getPaymentMethod(): PaymentMethod
+  +getPaymentId(): Long
+  +getStatus(): PaymentStatus
+  +getRefunds(): List<Refund>
+  +pay(): void
+  +fail(): void
+  +addRefund(): void
+  +isRefundable(): boolean
+}
+class CreditCardPayment <<ConcreteProduct>> #FFCCCC
+PaymentMethodProcessor <|-- CreditCardPaymentProcessor
+Payment <|-- CreditCardPayment
+PaymentMethodProcessor ..> Payment : factoryMethod()
+CreditCardPaymentProcessor ..> CreditCardPayment : creates
+@enduml
